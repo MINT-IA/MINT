@@ -62,7 +62,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </style>
 <main>
 <header class="hero">
-  <div class="stamp">Herméneutique · v2 · 11 août 2026 · amendée sur review Codex (3 P1)</div>
+  <div class="stamp">Herméneutique · v3 · 11 août 2026 · Lego 1 promu 5/5 (reçu runtime)</div>
   <h1>Le code raconte-t-il la même histoire que le storyboard&nbsp;?</h1>
   <p class="sub">Chaque thème en trois volets — l'histoire promise, le code qui la porte, la preuve. Quatre états, jamais confondus&nbsp;: <span class="tag proof">PROUVÉ</span> <span class="tag partial">PARTIEL</span> <span class="tag pending">NON PROUVÉ</span> <span class="tag oos">HORS PÉRIMÈTRE</span></p>
   <p class="legend">Types de preuve, du plus fort au plus faible&nbsp;: <strong>runtime</strong> (parcours réel sim/appareil, captures hash-bound) &gt; <strong>test déterministe</strong> (exit code) &gt; <strong>review indépendante</strong> (verdict P1=0) &gt; <strong>déclaration documentaire</strong> (aucune preuve).</p>
@@ -84,7 +84,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <div class="scroll"><table>
     <tr><th>Fait</th><th>État</th><th>Où il vit</th><th>Consommateurs réels</th></tr>
     <tr><td>Logement (statut, hypothèque, intérêts, dette)</td><td><span class="tag proof">CANONIQUE·RUNTIME</span></td><td>bundle scellé <code>SecureWizardStore</code> (transaction coordonnée)</td><td>« Ma situation », carte Aujourd'hui, staleness <code>financial_plan</code></td></tr>
-    <tr><td>Domicile fiscal (canton, commune, BFS nullable)</td><td><span class="tag partial">CANONIQUE·EN PR</span></td><td>réponses wizard via <code>mergeAnswers</code> (classification documentée au storyboard)</td><td>« Ma situation », contexte fiscal 3a (connu/manquant + révision)</td></tr>
+    <tr><td>Domicile fiscal (canton, commune, BFS nullable)</td><td><span class="tag proof">CANONIQUE·RUNTIME</span></td><td>réponses wizard via <code>mergeAnswers</code> (classification documentée au storyboard)</td><td>« Ma situation », contexte fiscal 3a (connu/manquant + révision)</td></tr>
     <tr><td>Canton seul (<code>q_canton</code> legacy)</td><td><span class="tag partial">PLAIN LEGACY</span></td><td>réponses wizard (préexistant, partagé)</td><td>calculateurs fiscaux legacy, profil</td></tr>
     <tr><td>État civil, revenu, versements 3a</td><td><span class="tag pending">ÉPHÉMÈRES</span></td><td>état local des écrans design_lab (batches 20-22) — laboratoire, jamais source de vérité</td><td>aucun — c'est la file des prochains Legos, un fait par Lego</td></tr>
     <tr><td>Tâche 3a (<code>mint_next_3a_task_v1</code>)</td><td><span class="tag proof">CANONIQUE</span></td><td>store scellé dédié + double purge</td><td>écran handoff (flag OFF)</td></tr>
@@ -111,7 +111,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </section>
 
 <section id="domicile">
-  <h2>Domicile fiscal — Lego 1 <span class="tag partial">EN PR</span></h2>
+  <h2>Domicile fiscal — Lego 1 <span class="tag proof">PROMU 5/5</span></h2>
   <p class="axiom">Je dis où je vis&nbsp;; MINT s'en souvient, me le montre, me laisse corriger — et la préparation 3a lit mon domicile sans me le redemander.</p>
   <div class="tri">
     <div class="pane"><h3>Histoire</h3><p>Canton + commune (BFS nullable tant qu'aucun dataset national vérifié n'existe), une question à la fois, relecture avant confirmation, résumé enregistré avec modifier/supprimer. Mini-storyboard dédié versionné&nbsp;: 6 beats, chacun mappé à des tests nommés.</p></div>
@@ -121,9 +121,9 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
       <li><code>screens/mint_next_domicile/</code> · « Ma situation » · contexte fiscal 3a (connu/manquant + révision)</li>
     </ul></div>
     <div class="pane"><h3>Preuve</h3><ul>
-      <li><span class="tag proof">TESTS</span> 18 tests du Lego (modèle 5, provider 4, écran 6, contexte 3) + 157 régression · analyze 0</li>
-      <li><span class="tag pending">NON PROUVÉ</span> runtime sim (gate condition 4 — à citer avant merge)</li>
-      <li><span class="tag pending">NON PROUVÉ</span> review finale Codex (en cours)</li>
+      <li><span class="tag proof">TESTS</span> 18 tests du Lego + 157 régression · analyze 0</li>
+      <li><span class="tag proof">REVIEW</span> Codex REJET (3 P1) → fermetures → revalidation ACCEPT P1=0</li>
+      <li><span class="tag proof">RUNTIME</span> reçu <code>runtime.json</code> passed @ <code>a28085268750</code> — 5 captures hash-bound : création dans Ma situation, survie à la relance à froid, correction Aarau→Pully (« Pully (AG) » vérifié visuellement), suppression confirmée, suppression survivant à la relance</li>
       <li><span class="tag off">FLAG OFF</span> <code>enableMintNextDomicile</code></li>
     </ul></div>
   </div>
@@ -190,7 +190,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <div class="scroll"><table>
     <tr><th>Point du cycle</th><th>Logement</th><th>Domicile (Lego 1)</th></tr>
     <tr><td>1. Sauvegarde par l'unique chemin canonique</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td></tr>
-    <tr><td>2. Rechargement après relance</td><td><span class="tag proof">RUNTIME</span> (2 relances à froid)</td><td><span class="tag proof">TEST</span> · <span class="tag pending">runtime à citer</span></td></tr>
+    <tr><td>2. Rechargement après relance</td><td><span class="tag proof">RUNTIME</span> (2 relances à froid)</td><td><span class="tag proof">RUNTIME</span> (relance à froid, reçu a28085268750)</td></tr>
     <tr><td>3. Visible dans « Ma situation »</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td></tr>
     <tr><td>4. Correction et suppression</td><td><span class="tag proof">RUNTIME</span> (suppression survit à la relance)</td><td><span class="tag proof">TEST</span></td></tr>
     <tr><td>5. Un consommateur réel hors collecte</td><td><span class="tag proof">TEST</span> (staleness plans, carte Aujourd'hui)</td><td><span class="tag proof">TEST</span> (contexte fiscal 3a connu/manquant)</td></tr>
@@ -202,8 +202,8 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><th>Condition</th><th>État</th></tr>
     <tr><td>1. Beats storyboard mappés à des tests</td><td><span class="tag proof">FAIT</span> — <code>domicile_fiscal.storyboard.json</code>, 6 beats nommés</td></tr>
     <tr><td>2. Tests ciblés verts</td><td><span class="tag proof">FAIT</span> — 18 + 157 régression, analyze 0</td></tr>
-    <tr><td>3. Review indépendante P1=0</td><td><span class="tag pending">EN COURS</span> — review finale Codex avant merge</td></tr>
-    <tr><td>4. Vérification runtime citée</td><td><span class="tag pending">À FAIRE</span> — parcours sim avant toute prétention « works »</td></tr>
+    <tr><td>3. Review indépendante P1=0</td><td><span class="tag proof">FAIT</span> — REJET (3 P1) → revalidation ACCEPT P1=0</td></tr>
+    <tr><td>4. Vérification runtime citée</td><td><span class="tag proof">FAIT</span> — reçu <code>runtime.json</code> passed, PR #1222 (la preuve a d'ailleurs attrapé un vrai défaut de harnais Keychain que 86 tests mockés ne voyaient pas)</td></tr>
     <tr><td>5. Cycle du fait en 7 points</td><td><span class="tag proof">FAIT</span> — matrice ci-dessus</td></tr>
   </table></div>
 </section>
@@ -217,7 +217,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td class="n">#1217</td><td>PR A — vérité produit, zéro runtime</td><td>REJET (1P1/1P2) → ACCEPT P1=0</td><td class="n">10.08 20:39</td></tr>
     <tr><td class="n">#1218</td><td>PR B — fondation canonique, cycle logement</td><td>K-PARTIEL + ACCEPT</td><td class="n">10.08 23:50</td></tr>
     <tr><td class="n">#1219</td><td>PR C — shell 3a minimal, flag OFF</td><td>ACCEPT, 0 finding</td><td class="n">11.08 00:08</td></tr>
-    <tr><td class="n">en PR</td><td>Lego 1 — domicile fiscal</td><td>cadrage LOOP: GO · review finale en cours</td><td class="n">—</td></tr>
+    <tr><td class="n">#1221 + #1222</td><td>Lego 1 — domicile fiscal, gate 5/5 (reçu runtime)</td><td>LOOP: GO · REJET 3P1 → ACCEPT P1=0 · diagnostic runtime</td><td class="n">11.08 06:06 + 07:15</td></tr>
   </table></div>
   <p style="font-size:.9rem;color:var(--ink-soft)">Accès total Codex acté (11.08)&nbsp;: repo, mémoire persistante Claude, Engram, CLAUDE.md, BRIEF. Ce rapport est versionné sous <code>.planning/reports/hermeneutique/</code> et republié comme artifact à chaque Lego — un artifact seul n'est pas auditable.</p>
 </section>

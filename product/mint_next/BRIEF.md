@@ -226,12 +226,16 @@ suivent **un ensemble par Lego**.
 | Date | Lego | Reviews Codex | État |
 |---|---|---|---|
 | 2026-08-10/11 | Atterrissage fondation (PR A #1217, PR B #1218, PR C #1219) | A : REJET→ACCEPT P1=0 · B : K-PARTIEL + ACCEPT · C : ACCEPT 0 finding | MERGÉ sur dev, flag OFF |
+| 2026-08-11 | Lego 1 — domicile fiscal (#1221 + #1222) | LOOP: GO · REJET 3P1→ACCEPT P1=0 · diagnostic runtime Codex | PROMU 5/5 — reçu runtime a28085268750, flag OFF |
 
 Note budget (honnêteté) : le loop « doctrine + cadrage » annoncé ~150k tokens
 a très largement dépassé son budget — la réconciliation des gates dev jamais
 exécutés sur la branche fondation (8 jobs CI rouges, deadlock inter-zones)
 n'était pas anticipée. Leçon : tout atterrissage de branche longue doit
 budgéter une phase de réconciliation CI explicite.
+Lego 1 : le cap 80k a aussi été dépassé — le gate runtime (11 itérations de
+harnais sim, diagnostic Codex) coûte cher la première fois ; le harnais est
+maintenant réutilisable, les prochains faits l'amortissent.
 
 ## 6. Journal des Legos
 
