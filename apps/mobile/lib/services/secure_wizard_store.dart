@@ -1092,12 +1092,19 @@ class SecureWizardStore {
   /// Caller already owns the ReportPersistenceService transaction coordinator.
   static Future<bool> deleteAllDuringCoordinatedReset() async {
     var deletedAll = true;
-    // Privacy reset must also purge the E2E in-memory fallback. Gated on
-    // `!kReleaseMode` (NOT the E2E flag) so it strips from the release snapshot
-    // yet always runs in any debug/harness run — even if the override was
-    // flipped off after seals landed — leaving no PII resident.
+    // Privacy reset must also purge the E2E fallback — the in-memory map AND
+    // its tmp/ backing file, else _hydrateSealFallbackStore resurrects the
+    // supposedly deleted PII at next relaunch. Gated on `!kReleaseMode` (NOT
+    // the E2E flag) so it strips from the release snapshot yet always runs in
+    // any debug/harness run — even if the override was flipped off after
+    // seals landed — leaving no PII resident.
     if (!kReleaseMode) {
       _e2eSealFallbackStore.clear();
+      try {
+        await _e2eSealFallbackFile.delete();
+      } on Exception {
+        // Fichier absent — rien à purger.
+      }
     }
     final keys = {..._sensitiveKeys, ...await _readManifest()};
     for (final key in keys) {

@@ -219,6 +219,15 @@ receipt = {
     "runtime_version": os.environ["RUNTIME_VERSION"],
     "locale": "fr_CH",
     "maestro_version": os.environ["MAESTRO_VERSION"],
+    "seal_fallback": (
+        "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app "
+        "(debug-only, kReleaseMode-stripped)"
+    ),
+    "proof_scope": (
+        "cycle UI + cache wizard + stash fallback ; le scellement keychain "
+        "réel n'est PAS exercé (build CLI simulateur linker-signed sans "
+        "entitlements, -34018)"
+    ),
     "command": (
         "bash tools/runtime/mint_next_etat_civil_lifecycle.sh "
         f"--runtime-commit {os.environ['RUNTIME_COMMIT']} "
