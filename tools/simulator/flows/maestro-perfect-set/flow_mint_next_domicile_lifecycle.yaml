@@ -1,0 +1,164 @@
+appId: ch.mint.app
+tags:
+  - mint-next-domicile
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/domicile"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/domicile"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.collect"
+    timeout: 15000
+- tapOn:
+    id: "input:domicile.canton"
+- extendedWaitUntil:
+    visible: "Argovie.*"
+    timeout: 5000
+- tapOn:
+    text: "Argovie.*"
+- tapOn:
+    id: "input:domicile.commune"
+- inputText: "Aarau"
+- hideKeyboard
+- tapOn:
+    text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.review"
+    timeout: 5000
+- assertVisible: "Aarau.*AG.*"
+- tapOn:
+    text: "Enregistrer"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.saved"
+    timeout: 10000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_domicile_fact"
+    timeout: 15000
+- assertVisible: "Aarau.*AG.*"
+- takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_domicile_fact"
+    timeout: 15000
+- assertVisible: "Aarau.*AG.*"
+- takeScreenshot: "${OUTPUT_DIR}/02-cold-relaunch-visible"
+- tapOn:
+    id: "action:mon_argent.domicile.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.saved"
+    timeout: 8000
+- tapOn:
+    id: "action:domicile.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:domicile.commune"
+- eraseText
+- inputText: "Pully"
+- hideKeyboard
+- tapOn:
+    text: "Continuer"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.review"
+    timeout: 5000
+- tapOn:
+    text: "Enregistrer"
+- extendedWaitUntil:
+    visible:
+      id: "node:domicile.saved"
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_domicile_fact"
+    timeout: 12000
+- assertVisible: "Pully.*AG.*"
+- takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
+- tapOn:
+    id: "action:mon_argent.domicile.delete"
+- extendedWaitUntil:
+    visible: "Supprimer ton domicile ?"
+    timeout: 5000
+- tapOn:
+    text: "^Supprimer$"
+- extendedWaitUntil:
+    notVisible: "Supprimer ton domicile ?"
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_domicile_fact"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/04-deleted-absent"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_domicile_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/05-delete-survives-relaunch"
