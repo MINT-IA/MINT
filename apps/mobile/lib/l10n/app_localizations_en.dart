@@ -25843,6 +25843,80 @@ class SEn extends S {
       'Saving did not complete. Your data has not changed. Try again.';
 
   @override
+  String get mintNextLppAffiliationTitle => 'Your pension fund';
+
+  @override
+  String get mintNextLppAffiliationQuestion =>
+      'Are you affiliated with an LPP pension fund?';
+
+  @override
+  String get mintNextLppAffiliationHint =>
+      'Being affiliated means contributing to the 2nd pillar today through your employer. Holding a certificate or LPP savings from a past job is not enough.';
+
+  @override
+  String get mintNextLppAffiliationYes => 'Yes, I currently contribute';
+
+  @override
+  String get mintNextLppAffiliationNo => 'No, I do not currently contribute';
+
+  @override
+  String get mintNextLppAffiliationStatusYes =>
+      'Affiliated with a pension fund';
+
+  @override
+  String get mintNextLppAffiliationStatusNo => 'Not currently affiliated';
+
+  @override
+  String get mintNextLppAffiliationContinue => 'Continue';
+
+  @override
+  String get mintNextLppAffiliationBack => 'Back';
+
+  @override
+  String get mintNextLppAffiliationReviewTitle => 'MINT will remember';
+
+  @override
+  String mintNextLppAffiliationReviewSource(String date) {
+    return 'Declared by you on $date';
+  }
+
+  @override
+  String get mintNextLppAffiliationConfirm => 'Save';
+
+  @override
+  String get mintNextLppAffiliationSavedTitle => 'Pension fund saved';
+
+  @override
+  String get mintNextLppAffiliationEdit => 'Edit';
+
+  @override
+  String get mintNextLppAffiliationDelete => 'Delete';
+
+  @override
+  String get mintNextLppAffiliationDeleteTitle => 'Delete your answer?';
+
+  @override
+  String get mintNextLppAffiliationDeleteBody =>
+      'MINT will forget your answer: your affiliation becomes unknown again. Your other information does not change.';
+
+  @override
+  String get mintNextLppAffiliationDeleteCancel => 'Keep';
+
+  @override
+  String get mintNextLppAffiliationDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNextLppAffiliationSafeExit => 'Leave without saving';
+
+  @override
+  String get mintNextLppAffiliationErrorMissing =>
+      'Choose Yes or No to continue.';
+
+  @override
+  String get mintNextLppAffiliationSaveFailed =>
+      'Saving did not complete. Your data has not changed. Try again.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

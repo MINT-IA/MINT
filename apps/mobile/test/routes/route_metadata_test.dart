@@ -104,10 +104,10 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 158 entries', () {
-      // 147 in Phase 32 ; 11 routes added since. Refresh count when adding /
+    test('has exactly 159 entries', () {
+      // 147 in Phase 32 ; 12 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 158);
+      expect(kRouteRegistry.length, 159);
     });
 
     test('/mint-next/3a is the public local private-flow route', () {
@@ -144,6 +144,16 @@ void main() {
       expect(route.owner, RouteOwner.system);
       expect(route.requiresAuth, isFalse);
       expect(route.killFlag, 'enableMintNextRevenu');
+    });
+
+    test('/mint-next/lpp-affiliation is the canonical LPP affiliation flow',
+        () {
+      final route = kRouteRegistry['/mint-next/lpp-affiliation'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextLppAffiliation');
     });
 
     test('/mint-next/housing is a separately killable public flow', () {

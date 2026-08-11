@@ -26046,6 +26046,80 @@ class SIt extends S {
       'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
 
   @override
+  String get mintNextLppAffiliationTitle => 'La tua cassa pensione';
+
+  @override
+  String get mintNextLppAffiliationQuestion =>
+      'Sei affiliato·a a una cassa pensione LPP?';
+
+  @override
+  String get mintNextLppAffiliationHint =>
+      'Essere affiliato·a significa contribuire oggi alla previdenza professionale (2° pilastro) tramite il tuo datore di lavoro. Avere un certificato o un avere LPP di un impiego precedente non basta.';
+
+  @override
+  String get mintNextLppAffiliationYes => 'Sì, contribuisco attualmente';
+
+  @override
+  String get mintNextLppAffiliationNo => 'No, attualmente non contribuisco';
+
+  @override
+  String get mintNextLppAffiliationStatusYes =>
+      'Affiliato·a a una cassa pensione';
+
+  @override
+  String get mintNextLppAffiliationStatusNo => 'Attualmente non affiliato·a';
+
+  @override
+  String get mintNextLppAffiliationContinue => 'Continua';
+
+  @override
+  String get mintNextLppAffiliationBack => 'Indietro';
+
+  @override
+  String get mintNextLppAffiliationReviewTitle => 'MINT ricorderà';
+
+  @override
+  String mintNextLppAffiliationReviewSource(String date) {
+    return 'Dichiarato da te il $date';
+  }
+
+  @override
+  String get mintNextLppAffiliationConfirm => 'Salva';
+
+  @override
+  String get mintNextLppAffiliationSavedTitle => 'Cassa pensione salvata';
+
+  @override
+  String get mintNextLppAffiliationEdit => 'Modifica';
+
+  @override
+  String get mintNextLppAffiliationDelete => 'Elimina';
+
+  @override
+  String get mintNextLppAffiliationDeleteTitle => 'Eliminare la tua risposta?';
+
+  @override
+  String get mintNextLppAffiliationDeleteBody =>
+      'MINT dimenticherà la tua risposta: la tua affiliazione tornerà sconosciuta. Gli altri tuoi dati non cambiano.';
+
+  @override
+  String get mintNextLppAffiliationDeleteCancel => 'Mantieni';
+
+  @override
+  String get mintNextLppAffiliationDeleteConfirm => 'Elimina';
+
+  @override
+  String get mintNextLppAffiliationSafeExit => 'Esci senza salvare';
+
+  @override
+  String get mintNextLppAffiliationErrorMissing =>
+      'Scegli Sì o No per continuare.';
+
+  @override
+  String get mintNextLppAffiliationSaveFailed =>
+      'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

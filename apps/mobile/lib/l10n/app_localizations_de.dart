@@ -26034,6 +26034,80 @@ class SDe extends S {
       'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
 
   @override
+  String get mintNextLppAffiliationTitle => 'Deine Pensionskasse';
+
+  @override
+  String get mintNextLppAffiliationQuestion =>
+      'Bist du einer BVG-Pensionskasse angeschlossen?';
+
+  @override
+  String get mintNextLppAffiliationHint =>
+      'Angeschlossen sein heisst, heute über deinen Arbeitgeber in die 2. Säule einzuzahlen. Ein Ausweis oder ein BVG-Guthaben aus einer früheren Stelle genügt nicht.';
+
+  @override
+  String get mintNextLppAffiliationYes => 'Ja, ich zahle aktuell ein';
+
+  @override
+  String get mintNextLppAffiliationNo => 'Nein, ich zahle aktuell nicht ein';
+
+  @override
+  String get mintNextLppAffiliationStatusYes =>
+      'Einer Pensionskasse angeschlossen';
+
+  @override
+  String get mintNextLppAffiliationStatusNo => 'Aktuell nicht angeschlossen';
+
+  @override
+  String get mintNextLppAffiliationContinue => 'Weiter';
+
+  @override
+  String get mintNextLppAffiliationBack => 'Zurück';
+
+  @override
+  String get mintNextLppAffiliationReviewTitle => 'MINT wird sich merken';
+
+  @override
+  String mintNextLppAffiliationReviewSource(String date) {
+    return 'Von dir angegeben am $date';
+  }
+
+  @override
+  String get mintNextLppAffiliationConfirm => 'Speichern';
+
+  @override
+  String get mintNextLppAffiliationSavedTitle => 'Pensionskasse gespeichert';
+
+  @override
+  String get mintNextLppAffiliationEdit => 'Bearbeiten';
+
+  @override
+  String get mintNextLppAffiliationDelete => 'Löschen';
+
+  @override
+  String get mintNextLppAffiliationDeleteTitle => 'Deine Antwort löschen?';
+
+  @override
+  String get mintNextLppAffiliationDeleteBody =>
+      'MINT vergisst deine Antwort: dein Anschluss gilt wieder als unbekannt. Deine anderen Angaben ändern sich nicht.';
+
+  @override
+  String get mintNextLppAffiliationDeleteCancel => 'Behalten';
+
+  @override
+  String get mintNextLppAffiliationDeleteConfirm => 'Löschen';
+
+  @override
+  String get mintNextLppAffiliationSafeExit => 'Ohne Speichern verlassen';
+
+  @override
+  String get mintNextLppAffiliationErrorMissing =>
+      'Wähle Ja oder Nein, um fortzufahren.';
+
+  @override
+  String get mintNextLppAffiliationSaveFailed =>
+      'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }

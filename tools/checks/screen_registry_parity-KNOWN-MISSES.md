@@ -136,3 +136,9 @@ Cycle canonique du fait état civil derrière kill-flag `enableMintNextEtatCivil
 
 Cycle canonique du fait revenu derrière kill-flag `enableMintNextRevenu`
 (OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/lpp-affiliation (Lego 4 fait affiliation LPP)
+
+Cycle canonique du fait affiliation LPP derrière kill-flag
+`enableMintNextLppAffiliation` (OFF par défaut, fail-closed). Aucun intent
+coach câblé dans cette tranche.

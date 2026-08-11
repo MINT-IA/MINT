@@ -152,6 +152,7 @@ import 'package:mint_mobile/routes/mint_next_3a_route_gate.dart';
 import 'package:mint_mobile/screens/mint_next_3a/mint_next_3a_handoff_screen.dart';
 import 'package:mint_mobile/screens/mint_next_domicile/mint_next_domicile_screen.dart';
 import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart';
+import 'package:mint_mobile/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart';
 import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart';
 import 'package:mint_mobile/screens/mint_next_housing/mint_next_housing_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
@@ -814,6 +815,14 @@ final _router = GoRouter(
       parentNavigatorKey: _rootNavigatorKey,
       redirect: (_, __) => FeatureFlags.enableMintNextRevenu ? null : '/home',
       builder: (context, state) => const MintNextRevenuScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/lpp-affiliation',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) =>
+          FeatureFlags.enableMintNextLppAffiliation ? null : '/home',
+      builder: (context, state) => const MintNextLppAffiliationScreen(),
     ),
     ScopedGoRoute(
       path: '/explore/famille',

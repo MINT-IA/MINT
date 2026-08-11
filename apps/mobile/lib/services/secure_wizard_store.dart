@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:path_provider/path_provider.dart'
     show getTemporaryDirectory;
@@ -35,6 +36,12 @@ class CanonicalCivilStatusRead {
   final CanonicalHousingStatus status;
   final MintNextCivilStatusFact? fact;
   const CanonicalCivilStatusRead(this.status, [this.fact]);
+}
+
+class CanonicalLppAffiliationRead {
+  final CanonicalHousingStatus status;
+  final MintNextLppAffiliationFact? fact;
+  const CanonicalLppAffiliationRead(this.status, [this.fact]);
 }
 
 class CanonicalRevenuRead {
@@ -118,6 +125,10 @@ class SecureWizardStore {
   static const _canonicalRevenuKey = '_mint_canonical_revenu_v1';
   static const _canonicalRevenuInitializedKey =
       '_mint_canonical_revenu_initialized_v1';
+  static const _canonicalLppAffiliationKey =
+      '_mint_canonical_lpp_affiliation_v1';
+  static const _canonicalLppAffiliationInitializedKey =
+      '_mint_canonical_lpp_affiliation_initialized_v1';
   static int _processEpochCounter = 0;
   static String _processEpoch = _newProcessEpoch();
 
@@ -349,6 +360,11 @@ class SecureWizardStore {
     'q_revenu_fact_source',
     'q_revenu_fact_schema_version',
     'q_revenu_fact_needs_confirmation',
+    'q_lpp_affiliation_fact_value',
+    'q_lpp_affiliation_fact_asserted_at',
+    'q_lpp_affiliation_fact_source',
+    'q_lpp_affiliation_fact_schema_version',
+    'q_lpp_affiliation_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
@@ -927,6 +943,105 @@ class SecureWizardStore {
     return true;
   }
 
+  /// Seam de test : force le résultat du write canonique affiliation LPP.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalLppAffiliationWriteOverride;
+
+  static Future<bool> writeCanonicalLppAffiliation(
+      MintNextLppAffiliationFact fact) async {
+    final override = debugCanonicalLppAffiliationWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalLppAffiliationKey,
+        _canonicalLppAffiliationInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalLppAffiliationDeleted() =>
+      _writeCanonicalSealedRecord(
+          _canonicalLppAffiliationKey,
+          _canonicalLppAffiliationInitializedKey,
+          json.encode({'state': 'deleted'}));
+
+  static Future<CanonicalLppAffiliationRead>
+      readCanonicalLppAffiliation() async {
+    String? raw;
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalLppAffiliationKey)) {
+      raw = _e2eSealFallbackStore[_canonicalLppAffiliationKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalLppAffiliationKey);
+      } on Exception {
+        return const CanonicalLppAffiliationRead(
+            CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalLppAffiliationRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalLppAffiliationRead(
+            CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalLppAffiliationRead(
+            CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextLppAffiliationFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalLppAffiliationRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalLppAffiliationRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalLppAffiliationRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Projette l'enregistrement canonique affiliation LPP dans les réponses.
+  /// Aucune projection legacy n'existe : présent → le bundle possédé domine ;
+  /// supprimé → purge des clés possédées (l'affiliation redevient INCONNUE,
+  /// jamais « non ») ; manquant → aucune migration implicite.
+  static Future<Map<String, dynamic>> canonicalizeLppAffiliationAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalLppAffiliation();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextLppAffiliationFact.wizardKeys);
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Un enregistrement canonique corrompu masque le bundle du cache :
+      // un ancien « non » ressusciterait sinon en confirmed_no et piloterait
+      // un mauvais plafond (review Codex Lego 4 P1). `unavailable` (keychain
+      // injoignable) garde le chemin dégradé : le cache vient du même commit
+      // que le canonique.
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+    }
+    return answers;
+  }
+
   /// Seam de test : force le résultat du write canonique revenu.
   @visibleForTesting
   static Future<bool> Function()? debugCanonicalRevenuWriteOverride;
@@ -1034,6 +1149,14 @@ class SecureWizardStore {
       }
       return result;
     }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Canonique corrompu : le bundle possédé est masqué (le FAIT devient
+      // absent) ; la projection legacy reste — les consommateurs legacy
+      // gardent leur donnée, aucun fait périmé ne ressuscite.
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+    }
     return answers;
   }
 
@@ -1063,6 +1186,13 @@ class SecureWizardStore {
         ..removeWhere((key, _) => purged.contains(key));
       await deleteKeys(purged);
       return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Canonique corrompu : le bundle du cache est masqué (même règle que
+      // l'affiliation LPP — un statut périmé ne ressuscite pas).
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
     }
     return answers;
   }
@@ -1312,6 +1442,7 @@ class SecureWizardStore {
       _canonicalHousingKey,
       _canonicalCivilStatusKey,
       _canonicalRevenuKey,
+      _canonicalLppAffiliationKey,
     ]) {
       try {
         await _storage.delete(key: key);

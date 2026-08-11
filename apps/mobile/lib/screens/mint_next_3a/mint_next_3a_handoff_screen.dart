@@ -8,6 +8,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
@@ -26,6 +27,7 @@ class MintNext3aHandoffScreen extends StatefulWidget {
     this.domicileReader = readCanonicalDomicileFact,
     this.civilStatusReader = readCanonicalCivilStatusFact,
     this.revenuReader = readCanonicalRevenuFact,
+    this.lppAffiliationReader = readCanonicalLppAffiliationFact,
   });
 
   final MintNext3aTaskStore store;
@@ -53,6 +55,14 @@ class MintNext3aHandoffScreen extends StatefulWidget {
   static Future<MintNextRevenuFact?> readCanonicalRevenuFact() async =>
       MintNextRevenuFact.fromWizardAnswers(
           await ReportPersistenceService.loadAnswers());
+
+  /// Reads the confirmed LPP affiliation fact from the canonical answers.
+  final Future<MintNextLppAffiliationFact?> Function() lppAffiliationReader;
+
+  static Future<MintNextLppAffiliationFact?>
+      readCanonicalLppAffiliationFact() async =>
+          MintNextLppAffiliationFact.fromWizardAnswers(
+              await ReportPersistenceService.loadAnswers());
 
   @override
   State<MintNext3aHandoffScreen> createState() =>
@@ -130,10 +140,12 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
     final MintNextDomicileFact? domicile;
     final MintNextCivilStatusFact? civilStatus;
     final MintNextRevenuFact? revenu;
+    final MintNextLppAffiliationFact? lppAffiliation;
     try {
       domicile = await widget.domicileReader();
       civilStatus = await widget.civilStatusReader();
       revenu = await widget.revenuReader();
+      lppAffiliation = await widget.lppAffiliationReader();
     } on Object {
       if (mounted && generation == _resolveGeneration) context.go('/home');
       return;
@@ -145,6 +157,8 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
       domicile: MintNext3aDomicileContext.fromConfirmedFact(domicile),
       civilStatus: MintNext3aCivilStatusContext.fromConfirmedFact(civilStatus),
       revenu: MintNext3aRevenuContext.fromConfirmedFact(revenu),
+      lppAffiliation:
+          MintNext3aLppAffiliationContext.fromConfirmedFact(lppAffiliation),
     );
     try {
       taxResult = await widget.taxEngine.calculate(

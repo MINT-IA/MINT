@@ -10,11 +10,14 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart'
     show mintNextEtatCivilStatusLabel;
+import 'package:mint_mobile/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart'
+    show mintNextLppAffiliationLabel;
 import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart'
     show mintNextRevenuChf, mintNextRevenuPeriodLabel;
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
@@ -131,6 +134,8 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final civilStatusFact =
         _watchCoachProfileProviderIfAvailable()?.civilStatusFact;
     final revenuFact = _watchCoachProfileProviderIfAvailable()?.revenuFact;
+    final lppAffiliationFact =
+        _watchCoachProfileProviderIfAvailable()?.lppAffiliationFact;
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
@@ -225,6 +230,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         domicileFact: domicileFact,
                         civilStatusFact: civilStatusFact,
                         revenuFact: revenuFact,
+                        lppAffiliationFact: lppAffiliationFact,
                         budgetProvider: budgetProvider,
                         budgetLoading: _budgetLoading,
                         budgetError: _budgetError,
@@ -260,6 +266,12 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                           }
                         },
                         onRevenuDelete: _deleteRevenuFact,
+                        onLppAffiliationEdit: () {
+                          if (FeatureFlags.enableMintNextLppAffiliation) {
+                            context.push('/mint-next/lpp-affiliation');
+                          }
+                        },
+                        onLppAffiliationDelete: _deleteLppAffiliationFact,
                       ),
 
                       // Coach whisper (deterministic, may be null = silence)
@@ -354,6 +366,40 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.mintNextEtatCivilSaveFailed)),
+      );
+    }
+  }
+
+  Future<void> _deleteLppAffiliationFact() async {
+    final l10n = S.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.mintNextLppAffiliationDeleteTitle),
+        content: Text(l10n.mintNextLppAffiliationDeleteBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.mintNextLppAffiliationDeleteCancel),
+          ),
+          Semantics(
+            identifier: 'action:mon_argent.lpp_affiliation.delete_confirm',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.mintNextLppAffiliationDeleteConfirm),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<CoachProfileProvider>().deleteLppAffiliationFact();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.mintNextLppAffiliationSaveFailed)),
       );
     }
   }
@@ -603,6 +649,7 @@ class _MonArgentSectionBody extends StatelessWidget {
   final MintNextDomicileFact? domicileFact;
   final MintNextCivilStatusFact? civilStatusFact;
   final MintNextRevenuFact? revenuFact;
+  final MintNextLppAffiliationFact? lppAffiliationFact;
   final BudgetProvider budgetProvider;
   final bool budgetLoading;
   final bool budgetError;
@@ -621,6 +668,8 @@ class _MonArgentSectionBody extends StatelessWidget {
   final Future<void> Function() onEtatCivilDelete;
   final VoidCallback onRevenuEdit;
   final Future<void> Function() onRevenuDelete;
+  final VoidCallback onLppAffiliationEdit;
+  final Future<void> Function() onLppAffiliationDelete;
 
   const _MonArgentSectionBody({
     required this.section,
@@ -632,6 +681,7 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.domicileFact,
     required this.civilStatusFact,
     required this.revenuFact,
+    required this.lppAffiliationFact,
     required this.budgetProvider,
     required this.budgetLoading,
     required this.budgetError,
@@ -650,6 +700,8 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.onEtatCivilDelete,
     required this.onRevenuEdit,
     required this.onRevenuDelete,
+    required this.onLppAffiliationEdit,
+    required this.onLppAffiliationDelete,
   });
 
   @override
@@ -671,6 +723,7 @@ class _MonArgentSectionBody extends StatelessWidget {
             domicileFact: domicileFact,
             civilStatusFact: civilStatusFact,
             revenuFact: revenuFact,
+            lppAffiliationFact: lppAffiliationFact,
             l10n: l10n,
             onHousingEdit: onHousingEdit,
             onHousingDelete: onHousingDelete,
@@ -680,6 +733,8 @@ class _MonArgentSectionBody extends StatelessWidget {
             onEtatCivilDelete: onEtatCivilDelete,
             onRevenuEdit: onRevenuEdit,
             onRevenuDelete: onRevenuDelete,
+            onLppAffiliationEdit: onLppAffiliationEdit,
+            onLppAffiliationDelete: onLppAffiliationDelete,
           ),
         _MonArgentSection.month => BudgetSummaryCard(
             snapshot: budgetSnapshot,
@@ -722,6 +777,7 @@ class _TodaySection extends StatelessWidget {
   final MintNextDomicileFact? domicileFact;
   final MintNextCivilStatusFact? civilStatusFact;
   final MintNextRevenuFact? revenuFact;
+  final MintNextLppAffiliationFact? lppAffiliationFact;
   final S l10n;
   final VoidCallback onHousingEdit;
   final Future<void> Function() onHousingDelete;
@@ -731,6 +787,8 @@ class _TodaySection extends StatelessWidget {
   final Future<void> Function() onEtatCivilDelete;
   final VoidCallback onRevenuEdit;
   final Future<void> Function() onRevenuDelete;
+  final VoidCallback onLppAffiliationEdit;
+  final Future<void> Function() onLppAffiliationDelete;
 
   const _TodaySection({
     required this.dataSpine,
@@ -743,6 +801,7 @@ class _TodaySection extends StatelessWidget {
     required this.domicileFact,
     required this.civilStatusFact,
     required this.revenuFact,
+    required this.lppAffiliationFact,
     required this.l10n,
     required this.onHousingEdit,
     required this.onHousingDelete,
@@ -752,6 +811,8 @@ class _TodaySection extends StatelessWidget {
     required this.onEtatCivilDelete,
     required this.onRevenuEdit,
     required this.onRevenuDelete,
+    required this.onLppAffiliationEdit,
+    required this.onLppAffiliationDelete,
   });
 
   @override
@@ -761,7 +822,8 @@ class _TodaySection extends StatelessWidget {
         housingFact == null &&
         domicileFact == null &&
         civilStatusFact == null &&
-        revenuFact == null) {
+        revenuFact == null &&
+        lppAffiliationFact == null) {
       return _MissingDataSurface(l10n: l10n);
     }
     return Column(
@@ -809,6 +871,15 @@ class _TodaySection extends StatelessWidget {
             onDelete: onRevenuDelete,
           ),
         ],
+        if (lppAffiliationFact != null) ...[
+          const SizedBox(height: MintSpacing.md),
+          _LppAffiliationFactSurface(
+            fact: lppAffiliationFact!,
+            l10n: l10n,
+            onEdit: onLppAffiliationEdit,
+            onDelete: onLppAffiliationDelete,
+          ),
+        ],
         if (dataSpine != null) ...[
           const SizedBox(height: MintSpacing.md),
           _MonArgentDetailsExpansion(
@@ -842,6 +913,74 @@ class _TodaySection extends StatelessWidget {
             stopRuleTriggered: false,
             emergencyFundMonths: 0,
           ),
+    );
+  }
+}
+
+class _LppAffiliationFactSurface extends StatelessWidget {
+  const _LppAffiliationFactSurface({
+    required this.fact,
+    required this.l10n,
+    required this.onEdit,
+    required this.onDelete,
+  });
+
+  final MintNextLppAffiliationFact fact;
+  final S l10n;
+  final VoidCallback onEdit;
+  final Future<void> Function() onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final assertedDate = MaterialLocalizations.of(context)
+        .formatShortDate(fact.assertedAt.toLocal());
+    return Semantics(
+      key: const Key('mon_argent_lpp_affiliation_fact'),
+      identifier: 'mon_argent_lpp_affiliation_fact',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mintNextLppAffiliationSavedTitle,
+                style:
+                    MintTextStyles.titleLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.sm),
+            Text(mintNextLppAffiliationLabel(l10n, fact.affiliated),
+                style: MintTextStyles.bodyLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.mintNextLppAffiliationReviewSource(assertedDate),
+              key: const Key('mon_argent_lpp_affiliation_fact_provenance'),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ValueListenableBuilder<bool>(
+              valueListenable: FeatureFlags.mintNextLppAffiliationListenable,
+              builder: (context, enabled, _) => enabled
+                  ? Semantics(
+                      identifier: 'action:mon_argent.lpp_affiliation.edit',
+                      button: true,
+                      child: TextButton(
+                        onPressed: onEdit,
+                        child: Text(l10n.mintNextLppAffiliationEdit),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Semantics(
+              identifier: 'action:mon_argent.lpp_affiliation.delete',
+              button: true,
+              child: TextButton(
+                onPressed: onDelete,
+                child: Text(l10n.mintNextLppAffiliationDelete),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
