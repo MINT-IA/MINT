@@ -77,13 +77,55 @@ abstract interface class ConfirmedCivilStatusSource {
   MintNext3aCivilStatusContext? toConfirmedCivilStatusContext();
 }
 
+/// Revenu canonique vu par la préparation 3a.
+///
+/// [annualNetCents] est le revenu NET ENCAISSÉ annualisé — la normalisation
+/// (×12 si mensuel) a été appliquée UNE seule fois, par le fait
+/// ([MintNextRevenuFact.annualizedCents]) ; ce contexte ne re-multiplie
+/// jamais. Null = fait manquant : la préparation l'affiche comme tel.
+class MintNext3aRevenuContext {
+  const MintNext3aRevenuContext({
+    required this.annualNetCents,
+    required this.periodToken,
+    required this.revision,
+  });
+
+  final int annualNetCents;
+
+  /// Trace de la déclaration d'origine (monthly|yearly) — jamais utilisée
+  /// pour re-normaliser.
+  final String periodToken;
+
+  /// Fingerprint du fait (assertedAt UTC) — tout dérivé fiscal lié devient
+  /// périmé quand elle change.
+  final String revision;
+
+  Map<String, Object?> toJson() => {
+        'annual_net_cents': annualNetCents,
+        'declared_period': periodToken,
+        'revision': revision,
+      };
+
+  /// Un fait en attente de confirmation n'est PAS un revenu connu.
+  static MintNext3aRevenuContext? fromConfirmedFact(Object? fact) {
+    if (fact is! ConfirmedRevenuSource) return null;
+    return fact.toConfirmedRevenuContext();
+  }
+}
+
+/// Implémenté par le fait revenu canonique — évite une dépendance inverse.
+abstract interface class ConfirmedRevenuSource {
+  MintNext3aRevenuContext? toConfirmedRevenuContext();
+}
+
 class MintNext3aFiscalContext {
   const MintNext3aFiscalContext({
-    this.contextVersion = 3,
+    this.contextVersion = 4,
     required this.taxYear,
     required this.effectiveAt,
     this.domicile,
     this.civilStatus,
+    this.revenu,
   });
 
   final int contextVersion;
@@ -95,10 +137,22 @@ class MintNext3aFiscalContext {
 
   /// Null while no confirmed civil-status fact exists.
   final MintNext3aCivilStatusContext? civilStatus;
+
+  /// Null while no confirmed revenu fact exists.
+  final MintNext3aRevenuContext? revenu;
   static const capability = 'no_attested_engine';
 
   bool get domicileKnown => domicile != null;
   bool get civilStatusKnown => civilStatus != null;
+  bool get revenuKnown => revenu != null;
+
+  /// Détermination du plafond 3a — FAIL-CLOSED par construction : la grande
+  /// cotisation exige l'affiliation LPP CONFIRMÉE, qui est un fait distinct
+  /// n'existant pas encore (Lego futur). Tant qu'elle n'est pas confirmée,
+  /// le plafond est non déterminé — jamais déduit du statut d'emploi.
+  String get plafond3aDetermination => !revenuKnown
+      ? 'undetermined_revenu_missing'
+      : 'undetermined_lpp_affiliation_unknown';
 
   Map<String, Object> toJson() => {
         'context_version': contextVersion,
@@ -109,6 +163,9 @@ class MintNext3aFiscalContext {
         if (domicile != null) 'domicile': domicile!.toJson(),
         'civil_status_status': civilStatusKnown ? 'known' : 'missing',
         if (civilStatus != null) 'civil_status': civilStatus!.toJson(),
+        'revenu_status': revenuKnown ? 'known' : 'missing',
+        if (revenu != null) 'revenu': revenu!.toJson(),
+        'plafond_3a_determination': plafond3aDetermination,
       };
 }
 

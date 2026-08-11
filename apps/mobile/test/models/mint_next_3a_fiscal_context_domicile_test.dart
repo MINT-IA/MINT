@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 
 void main() {
   test('fiscal context reports domicile known with canton and commune', () {
@@ -121,5 +122,36 @@ void main() {
       effectiveAt: DateTime.utc(2026, 8, 11),
     );
     expect(bare.toJson()['civil_status_status'], 'missing');
+  });
+
+  test('fiscal context reports revenu known with the normalized annual amount',
+      () {
+    final fact = MintNextRevenuFact(
+      amountCents: 650000,
+      period: MintNextRevenuPeriod.monthly,
+      assertedAt: DateTime.utc(2026, 8, 11, 12),
+      source: MintNextRevenuFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+    final revenu = MintNext3aRevenuContext.fromConfirmedFact(fact);
+    expect(revenu, isNotNull);
+    expect(revenu!.annualNetCents, 650000 * 12,
+        reason: 'annualization happened once, in the fact');
+    expect(revenu.periodToken, 'monthly');
+    expect(revenu.revision, fact.revision);
+  });
+
+  test('a revenu fact awaiting confirmation never becomes a known revenu', () {
+    final pending = MintNextRevenuFact(
+      amountCents: 650000,
+      period: MintNextRevenuPeriod.yearly,
+      assertedAt: DateTime.utc(2026, 8, 11, 12),
+      source: MintNextRevenuFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: true,
+    );
+    expect(MintNext3aRevenuContext.fromConfirmedFact(pending), isNull);
+    expect(MintNext3aRevenuContext.fromConfirmedFact(null), isNull);
   });
 }

@@ -1,3 +1,5 @@
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+
 /// Canonical, user-asserted income fact (Lego 3).
 ///
 /// CONTRAT SÉMANTIQUE : le fait capture le REVENU NET ENCAISSÉ par période —
@@ -22,7 +24,7 @@ extension MintNextRevenuPeriodId on MintNextRevenuPeriod {
       };
 }
 
-class MintNextRevenuFact {
+class MintNextRevenuFact implements ConfirmedRevenuSource {
   static const userDeclarationSource = 'user_declaration';
 
   static const amountCentsKey = 'q_revenu_fact_amount_cents';
@@ -76,6 +78,15 @@ class MintNextRevenuFact {
         MintNextRevenuPeriod.monthly => amountCents * 12,
         MintNextRevenuPeriod.yearly => amountCents,
       };
+
+  @override
+  MintNext3aRevenuContext? toConfirmedRevenuContext() => needsConfirmation
+      ? null
+      : MintNext3aRevenuContext(
+          annualNetCents: annualizedCents,
+          periodToken: period.id,
+          revision: revision,
+        );
 
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
         amountCentsKey: amountCents,
