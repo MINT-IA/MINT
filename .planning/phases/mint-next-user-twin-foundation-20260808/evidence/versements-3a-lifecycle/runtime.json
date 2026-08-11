@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "runtime_commit": "141b64df5908138a8d0b11b6cb28d859fdd9f138",
+  "runtime_commit": "df73b4a8148e1017084bf3a77d596bcb48d7bfc1",
   "git_dirty": false,
   "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_versements_3a_lifecycle.yaml",
   "flow_sha256": "581820873de99594f530b3b4c839fa72a38557f9b5c0c0316c53492e59247af1",
-  "app_sha256": "a26d81e820bc967d046f8c0bed173612deb10ab663533bb67e4781d567cdd6e8",
+  "app_sha256": "47bb61f4e48277ba9ed59bfcc7e07da64af6d96b726eb5186cd067d1096305a0",
   "app_signature": "adhoc",
-  "app_cdhash": "df0ab29f83ec5e37a0c4023922e0dddd3b3c1cc1",
-  "device_udid": "815E3F38-E5D5-477B-811B-2F046D2A7EE0",
-  "device_name": "Mint Versements Proof-141b64df5-22249",
+  "app_cdhash": "88a4db5b6e831d528c3d553bd3cf6bd999b7d864",
+  "device_udid": "0587FA6C-421A-4BBA-B557-D1F290685F55",
+  "device_name": "Mint Versements Proof-df73b4a81-42543",
   "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
   "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "runtime_version": "26.2",
@@ -17,8 +17,8 @@
   "maestro_version": "2.5.1",
   "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
   "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
-  "command": "bash tools/runtime/mint_next_versements_3a_lifecycle.sh --runtime-commit 141b64df5908138a8d0b11b6cb28d859fdd9f138 --capture-evidence",
-  "captured_at": "2026-08-11T21:19:05Z",
+  "command": "bash tools/runtime/mint_next_versements_3a_lifecycle.sh --runtime-commit df73b4a8148e1017084bf3a77d596bcb48d7bfc1 --capture-evidence",
+  "captured_at": "2026-08-11T21:30:21Z",
   "ordered_outcomes": [
     "two payments recorded and annual total visible in ma situation (derived aggregate asserted: 2026 total 5'500 CHF)",
     "payments survive cold relaunch",
@@ -34,31 +34,35 @@
     "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart :: versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond"
   ],
   "zero_transmission_check": {
-    "console_log": "capture log stream du process Runner pendant tout le run",
-    "pattern": "q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a",
-    "result": "no match (mechanical grep, run aborted on match)"
+    "boundary": "MintHttpClient.shared — client HTTP unifié process-wide ; chaque requête sortante est journalisée vers OSLog ch.mint.http (body inclus en debug) et capturée dans la console du run",
+    "http_boundary_lines_observed": 93,
+    "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
+    "console_pattern": "q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a",
+    "static_guard": "journey_os_check _storyboard_traceability_errors : les modules versements (modèle + écran) n'importent aucun client HTTP — FAIL au commit sinon",
+    "residual_limitation": "trafic hors client unifié non journalisé par ce canal : upload PDF document_service (chemin jamais atteint par ce flow) et SDKs tiers (Sentry, couvert par sentry-privacy-guard)",
+    "result": "no match (mechanical, run aborted on match)"
   },
   "screenshots": {
     "01-created-visible.png": {
-      "sha256": "4c8b0df3db4880a7efb88f462eecfd52b45f2d02377fd0a9f5ecbf88cc717889",
-      "bytes": 189548
+      "sha256": "a200519b9d9967e18c77540207168008e7ff98df2e2c206be1d9f339c5574da1",
+      "bytes": 189420
     },
     "02-cold-relaunch-visible.png": {
-      "sha256": "4c8b0df3db4880a7efb88f462eecfd52b45f2d02377fd0a9f5ecbf88cc717889",
-      "bytes": 189548
+      "sha256": "3f1b0840bee6299865adc80451162697eeff36b349b738efdc7c9e495c1f0f27",
+      "bytes": 190098
     },
     "03-edited-visible.png": {
-      "sha256": "7282ac15267a4b111b29c2229b10fdf4b3c07c62a0a333486b120cadfcc8ede7",
-      "bytes": 189469
+      "sha256": "5f52454650dc8be3679d59fc3fdedb4a6c19de1b34bc6abfacdf4d81375b45b5",
+      "bytes": 189260
     },
     "04-deleted-absent.png": {
-      "sha256": "c3e5534e864db776bce7e1e5c4ae3e08e91fe470252c6f1e063d70bc00108b08",
-      "bytes": 170089
+      "sha256": "1590dc4e057742d83375b3df3b02135c51724c74fbdc109c713c86ad35404b2f",
+      "bytes": 169766
     },
     "05-delete-survives-relaunch.png": {
-      "sha256": "c3e5534e864db776bce7e1e5c4ae3e08e91fe470252c6f1e063d70bc00108b08",
-      "bytes": 170089
+      "sha256": "1590dc4e057742d83375b3df3b02135c51724c74fbdc109c713c86ad35404b2f",
+      "bytes": 169766
     }
   },
-  "maestro_log_sha256": "81396a18d9310dd22f9ad087bc1b69de9a58b083eba0c9d30743df9453ab5c2d"
+  "maestro_log_sha256": "954413d41e01207bd4e4c87365e578ff8e11036de422aa221954a4a7cf31192f"
 }
