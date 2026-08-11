@@ -12,6 +12,7 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io' show Directory, File;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
@@ -139,6 +140,46 @@ class SecureWizardStore {
   // "never leak to production" reason.
   static final Map<String, String> _e2eSealFallbackStore = <String, String>{};
 
+  /// E2E harness only : le stash mémoire est adossé au tmp/ du container app
+  /// pour survivre aux relaunchs du harnais (un fait 100 % scellé n'a aucune
+  /// autre surface persistante quand le keychain du build CLI sim est sans
+  /// entitlement, -34018). Jamais SharedPreferences, jamais atteint en
+  /// release (gardé par [_sealFallbackEnabled], kReleaseMode-stripped) ;
+  /// purgé par clearState / désinstallation avec le container.
+  static bool _e2eSealFallbackHydrated = false;
+
+  static File get _e2eSealFallbackFile =>
+      File('${Directory.systemTemp.path}/mint_e2e_seal_fallback.json');
+
+  static Future<void> _hydrateSealFallbackStore() async {
+    if (!_sealFallbackEnabled || _e2eSealFallbackHydrated) return;
+    _e2eSealFallbackHydrated = true;
+    try {
+      final decoded =
+          json.decode(await _e2eSealFallbackFile.readAsString());
+      if (decoded is Map<String, dynamic>) {
+        for (final entry in decoded.entries) {
+          if (entry.value is String) {
+            _e2eSealFallbackStore.putIfAbsent(
+                entry.key, () => entry.value as String);
+          }
+        }
+      }
+    } on Exception {
+      // Fichier absent = premier run du harnais.
+    }
+  }
+
+  static Future<void> _persistSealFallbackStore() async {
+    if (!_sealFallbackEnabled) return;
+    try {
+      await _e2eSealFallbackFile
+          .writeAsString(json.encode(_e2eSealFallbackStore));
+    } on Exception {
+      // Best-effort harnais : le stash mémoire reste la session courante.
+    }
+  }
+
   /// Test seam mirroring `E2eRuntimeFlags.*Override`: forces the fallback on
   /// (or off) in widget/unit tests. Defaults to null -> the compile-time flag.
   @visibleForTesting
@@ -200,6 +241,7 @@ class SecureWizardStore {
   @visibleForTesting
   static void resetSealFallbackForTest() {
     _e2eSealFallbackStore.clear();
+    _e2eSealFallbackHydrated = false;
     debugSealFallbackOverride = null;
     debugDeleteKeysOverride = null;
     debugCommitDeleteOverride = null;
@@ -410,7 +452,9 @@ class SecureWizardStore {
         // E2E harness only (kReleaseMode-stripped): seal into a process-local
         // in-memory map so the flush succeeds off-keychain. NEVER reached in
         // release or in a default unit test.
+        await _hydrateSealFallbackStore();
         _e2eSealFallbackStore[key] = value;
+        await _persistSealFallbackStore();
         dev.log(
           'E2E seal fallback: sealed "$key" in debug in-memory store '
           '(keychain -34018, NOT a real keychain seal, NOT release)',
@@ -440,6 +484,7 @@ class SecureWizardStore {
     // authoritative store when active — a failed keychain read returns null
     // WITHOUT throwing (so a catch-only guard would silently lose the value),
     // and a live keychain read could return a stale value. Prefer the map.
+    await _hydrateSealFallbackStore();
     if (_sealFallbackEnabled && _e2eSealFallbackStore.containsKey(key)) {
       return _e2eSealFallbackStore[key];
     }
@@ -722,8 +767,9 @@ class SecureWizardStore {
   static Future<CanonicalCivilStatusRead> readCanonicalCivilStatus() async {
     String? raw;
     // E2E harness only (kReleaseMode-stripped) : sous fallback, le stash
-    // mémoire fait autorité dans la session courante — un keychain -34018
+    // (mémoire + tmp/ du container) fait autorité — un keychain -34018
     // rendrait sinon l'enregistrement invisible juste après son write.
+    await _hydrateSealFallbackStore();
     if (_sealFallbackEnabled &&
         _e2eSealFallbackStore.containsKey(_canonicalCivilStatusKey)) {
       raw = _e2eSealFallbackStore[_canonicalCivilStatusKey];
@@ -791,7 +837,9 @@ class SecureWizardStore {
       // stash est vide → readCanonicalCivilStatus rend `unavailable` et le
       // cache wizard (déjà commis) reste la surface lue — chemin dégradé
       // documenté, jamais atteint en release.
+      await _hydrateSealFallbackStore();
       _e2eSealFallbackStore[_canonicalCivilStatusKey] = record;
+      await _persistSealFallbackStore();
       dev.log(
         'E2E seal fallback: canonical civil status stashed in memory '
         '(keychain -34018, NOT a real keychain seal, NOT release)',
@@ -954,9 +1002,11 @@ class SecureWizardStore {
     final override = debugDeleteKeysOverride;
     if (override != null) return override(sensitiveKeys);
     if (!kReleaseMode) {
+      await _hydrateSealFallbackStore();
       for (final key in sensitiveKeys) {
         _e2eSealFallbackStore.remove(key);
       }
+      await _persistSealFallbackStore();
     }
     for (final key in sensitiveKeys) {
       try {
