@@ -74,7 +74,9 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
         _busy = false;
         _step = _Step.saved;
       });
-    } on Object {
+    } on Object catch (error, stack) {
+      debugPrint('[MintNextDomicile] save failed: '
+          '${error.runtimeType}: $error\n$stack');
       if (!mounted) return;
       setState(() {
         _busy = false;

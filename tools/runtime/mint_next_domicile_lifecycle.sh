@@ -139,7 +139,8 @@ xcrun simctl bootstatus "$DEVICE" -b
 (
   cd "$ROOT/apps/mobile"
   flutter build ios --simulator --debug \
-    --dart-define=MINT_E2E_MINT_NEXT_DOMICILE=true
+    --dart-define=MINT_E2E_MINT_NEXT_DOMICILE=true \
+    --dart-define=MINT_E2E_SEAL_FALLBACK=true
 )
 BUILT_APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
 [[ -x "$BUILT_APP/Runner" ]] || { echo "simulator app executable missing" >&2; exit 1; }
@@ -150,16 +151,10 @@ BUILT_APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
 APP="$TMP/Runner.app"
 ditto --noextattr --norsrc "$BUILT_APP" "$APP"
 EXECUTABLE="$APP/Runner"
-# Re-signer SANS --entitlements stripperait l'accès Keychain (le scellement
-# des clés sensibles échouerait à l'exécution). On réutilise les
-# entitlements du bundle buildé.
-ENTITLEMENTS="$TMP/entitlements.plist"
-codesign -d --entitlements - --xml "$BUILT_APP" > "$ENTITLEMENTS" 2>/dev/null || true
-if ! grep -q '<dict' "$ENTITLEMENTS" 2>/dev/null; then
-  # Build non signé : rien à extraire — utiliser les entitlements du projet.
-  cp "$ROOT/apps/mobile/ios/Runner/Runner.entitlements" "$ENTITLEMENTS"
-fi
-codesign --force --deep -s - --entitlements "$ENTITLEMENTS" "$APP"
+# Signature ad hoc simple : la re-signature perd l'accès Keychain, mais le
+# build passe MINT_E2E_SEAL_FALLBACK=true (chemin e2e prévu, debug-only) —
+# le scellement utilise le fallback en mémoire, diagnostic Codex 2026-08-11.
+codesign --force --deep -s - "$APP"
 codesign --verify --deep --strict "$APP"
 SIGNATURE_INFO="$(codesign -dvvv "$APP" 2>&1)"
 APP_SIGNATURE="$(printf '%s\n' "$SIGNATURE_INFO" | awk -F= '$1 == "Signature" { print $2 }')"
