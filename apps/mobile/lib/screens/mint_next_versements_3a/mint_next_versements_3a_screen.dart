@@ -97,9 +97,17 @@ class _MintNextVersements3aScreenState
 
   List<int> _selectableYears() {
     final current = _now().year;
-    return [
+    final years = [
       for (var y = current; y >= MintNextVersements3aScreen.minTaxYear; y--) y
     ];
+    // L'année d'une entrée existante (p.ex. 2024) reste sélectionnable à
+    // l'édition — sinon le dropdown perdrait la vérité de l'entrée.
+    final effective = _effectiveTaxYear();
+    if (!years.contains(effective)) {
+      years.add(effective);
+      years.sort((a, b) => b.compareTo(a));
+    }
+    return years;
   }
 
   void _startAdd() => setState(() {
@@ -428,10 +436,13 @@ class _MintNextVersements3aScreenState
             const SizedBox(height: MintSpacing.md),
             Semantics(
               identifier: 'input:versements_3a.tax_year',
+              // ValueKey sur l'année effective : quand la date saisie change
+              // l'année dérivée, le dropdown est re-créé et AFFICHE l'année
+              // réellement utilisée au save — la vérité visible ne diverge
+              // jamais de la vérité enregistrée (review Codex Lego 5 P1).
               child: DropdownButtonFormField<int>(
-                initialValue: _selectableYears().contains(_effectiveTaxYear())
-                    ? _effectiveTaxYear()
-                    : null,
+                key: ValueKey('tax_year_${_effectiveTaxYear()}'),
+                initialValue: _effectiveTaxYear(),
                 decoration: InputDecoration(
                   labelText: l10n.mintNextVersements3aTaxYearLabel,
                   helperText: l10n.mintNextVersements3aTaxYearHelper,

@@ -197,6 +197,32 @@ void main() {
     expect(find.textContaining("total 2'000 CHF"), findsOneWidget);
   });
 
+  testWidgets(
+      'the displayed tax year follows the credit date until pinned manually',
+      (tester) async {
+    final provider = await loadedProvider();
+    await tester.pumpWidget(wrap(provider));
+    await tester.pumpAndSettle();
+
+    await fillEntry(tester, date: '15.03.2026');
+    await tester.pumpAndSettle();
+    expect(find.text('2026'), findsWidgets,
+        reason: 'the dropdown shows the year actually used at save');
+
+    await tester.enterText(find.byType(TextField).at(1), '10.11.2025');
+    await tester.pumpAndSettle();
+    expect(find.text('2025'), findsWidgets,
+        reason: 'a date change re-derives the visible year — the visible '
+            'truth never diverges from the saved truth');
+
+    await tester.ensureVisible(find.text('Continuer'));
+    await tester.tap(find.text('Continuer'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Enregistrer'));
+    await tester.pumpAndSettle();
+    expect(provider.versements3aFact!.entries.single.taxYear, 2025);
+  });
+
   testWidgets('missing amount or date blocks with a visible error',
       (tester) async {
     final provider = await loadedProvider();
