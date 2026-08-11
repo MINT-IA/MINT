@@ -10,6 +10,7 @@ import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/services/api_service.dart';
@@ -86,6 +87,74 @@ class CoachProfileProvider extends ChangeNotifier {
 
   MintNextCivilStatusFact? get civilStatusFact =>
       MintNextCivilStatusFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextRevenuFact? get revenuFact =>
+      MintNextRevenuFact.fromWizardAnswers(_lastAnswers);
+
+  /// Persiste le fait revenu par la transaction coordonnée scellée (mêmes
+  /// verrous globaux) : l'enregistrement canonique unique commet fait +
+  /// métadonnées atomiquement ; la projection legacy
+  /// (q_net_income_period_chf / q_pay_frequency) part dans le même commit de
+  /// cache pour les consommateurs historiques. Local uniquement
+  /// (ADR 2026-08-08).
+  Future<void> saveRevenuFact(MintNextRevenuFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalRevenu(fact)) {
+            throw StateError('Canonical revenu persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers())
+            ..addAll(fact.legacyProjectionAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint('Revenu cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime le fait revenu par tombstone canonique ; la projection legacy
+  /// est purgée avec le bundle possédé (les consommateurs historiques ne
+  /// doivent pas continuer d'afficher un revenu supprimé) ; les réponses non
+  /// liées survivent.
+  Future<void> deleteRevenuFact() => _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalRevenuDeleted()) {
+            throw StateError('Canonical revenu deletion failed');
+          }
+          final tombstoned = MintNextRevenuFact.deletionWizardAnswers().keys;
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) => tombstoned.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'Revenu cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
 
   /// Persiste le fait état civil par la transaction coordonnée scellée
   /// (mêmes verrous globaux que le logement) : l'enregistrement canonique

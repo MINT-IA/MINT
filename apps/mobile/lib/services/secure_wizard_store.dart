@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:path_provider/path_provider.dart'
     show getTemporaryDirectory;
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
@@ -34,6 +35,12 @@ class CanonicalCivilStatusRead {
   final CanonicalHousingStatus status;
   final MintNextCivilStatusFact? fact;
   const CanonicalCivilStatusRead(this.status, [this.fact]);
+}
+
+class CanonicalRevenuRead {
+  final CanonicalHousingStatus status;
+  final MintNextRevenuFact? fact;
+  const CanonicalRevenuRead(this.status, [this.fact]);
 }
 
 class SecureWizardSealResult {
@@ -102,6 +109,9 @@ class SecureWizardStore {
       '_mint_canonical_housing_initialized_v1';
   static const _canonicalCivilStatusInitializedKey =
       '_mint_canonical_civil_status_initialized_v1';
+  static const _canonicalRevenuKey = '_mint_canonical_revenu_v1';
+  static const _canonicalRevenuInitializedKey =
+      '_mint_canonical_revenu_initialized_v1';
   static int _processEpochCounter = 0;
   static String _processEpoch = _newProcessEpoch();
 
@@ -327,6 +337,12 @@ class SecureWizardStore {
     'q_etat_civil_fact_source',
     'q_etat_civil_fact_schema_version',
     'q_etat_civil_fact_needs_confirmation',
+    'q_revenu_fact_amount_cents',
+    'q_revenu_fact_period',
+    'q_revenu_fact_asserted_at',
+    'q_revenu_fact_source',
+    'q_revenu_fact_schema_version',
+    'q_revenu_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
@@ -865,43 +881,129 @@ class SecureWizardStore {
     if (override != null) {
       return override();
     }
-    return _writeCanonicalCivilStatusRecord(
+    return _writeCanonicalSealedRecord(
+        _canonicalCivilStatusKey,
+        _canonicalCivilStatusInitializedKey,
         json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
   }
 
   static Future<bool> writeCanonicalCivilStatusDeleted() =>
-      _writeCanonicalCivilStatusRecord(json.encode({'state': 'deleted'}));
+      _writeCanonicalSealedRecord(_canonicalCivilStatusKey,
+          _canonicalCivilStatusInitializedKey, json.encode({'state': 'deleted'}));
 
-  static Future<bool> _writeCanonicalCivilStatusRecord(String record) async {
+  static Future<bool> _writeCanonicalSealedRecord(
+      String key, String markerKey, String record) async {
     try {
-      await _storage.write(key: _canonicalCivilStatusKey, value: record);
+      await _storage.write(key: key, value: record);
     } on Exception catch (e) {
       if (!(_sealFallbackEnabled && _isMissingEntitlement(e))) {
         return false;
       }
       // E2E harness only (kReleaseMode-stripped) : l'app re-signée ad hoc
       // perd le droit keychain (-34018) — l'enregistrement canonique bascule
-      // dans le stash mémoire, même contrat que `write()`. Après relaunch le
-      // stash est vide → readCanonicalCivilStatus rend `unavailable` et le
-      // cache wizard (déjà commis) reste la surface lue — chemin dégradé
-      // documenté, jamais atteint en release.
+      // dans le stash (mémoire + tmp du container), même contrat que
+      // `write()`. Chemin dégradé documenté, jamais atteint en release.
       await _hydrateSealFallbackStore();
-      _e2eSealFallbackStore[_canonicalCivilStatusKey] = record;
+      _e2eSealFallbackStore[key] = record;
       await _persistSealFallbackStore();
       dev.log(
-        'E2E seal fallback: canonical civil status stashed in memory '
+        'E2E seal fallback: canonical record "$key" stashed '
         '(keychain -34018, NOT a real keychain seal, NOT release)',
         name: 'SecureWizardStore',
       );
       return true;
     }
     try {
-      await _storage.write(
-          key: _canonicalCivilStatusInitializedKey, value: '1');
+      await _storage.write(key: markerKey, value: '1');
     } catch (_) {
       // L'enregistrement canonique unique fait déjà autorité.
     }
     return true;
+  }
+
+  /// Seam de test : force le résultat du write canonique revenu.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalRevenuWriteOverride;
+
+  static Future<bool> writeCanonicalRevenu(MintNextRevenuFact fact) async {
+    final override = debugCanonicalRevenuWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalRevenuKey,
+        _canonicalRevenuInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalRevenuDeleted() =>
+      _writeCanonicalSealedRecord(_canonicalRevenuKey,
+          _canonicalRevenuInitializedKey, json.encode({'state': 'deleted'}));
+
+  static Future<CanonicalRevenuRead> readCanonicalRevenu() async {
+    String? raw;
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalRevenuKey)) {
+      raw = _e2eSealFallbackStore[_canonicalRevenuKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalRevenuKey);
+      } on Exception {
+        return const CanonicalRevenuRead(CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalRevenuRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalRevenuRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextRevenuFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalRevenuRead(CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Projette l'enregistrement canonique revenu dans les réponses.
+  /// Présent : le bundle possédé ET la projection legacy dominent — une clé
+  /// legacy nue écrite entre-temps ne survit pas au rechargement. Supprimé :
+  /// seules les clés possédées sont purgées — les clés legacy partagées
+  /// restent libres pour les writers historiques (elles ne peuvent pas
+  /// ressusciter le fait : `fromWizardAnswers` ne lit que le bundle
+  /// possédé). Manquant : aucune migration implicite.
+  static Future<Map<String, dynamic>> canonicalizeRevenuAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalRevenu();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      result.addAll(canonical.fact!.legacyProjectionAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextRevenuFact.wizardKeys);
+      return result;
+    }
+    return answers;
   }
 
   /// Projette l'enregistrement canonique état civil dans les réponses.
@@ -1178,6 +1280,7 @@ class SecureWizardStore {
       _deleteJournalKey,
       _canonicalHousingKey,
       _canonicalCivilStatusKey,
+      _canonicalRevenuKey,
     ]) {
       try {
         await _storage.delete(key: key);
