@@ -26120,6 +26120,102 @@ class SIt extends S {
       'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
 
   @override
+  String get mintNextVersements3aTitle => 'I tuoi versamenti 3a';
+
+  @override
+  String get mintNextVersements3aListTitle => 'I tuoi versamenti registrati';
+
+  @override
+  String mintNextVersements3aYearTotal(String year, String total) {
+    return '$year · totale $total';
+  }
+
+  @override
+  String get mintNextVersements3aQuestion => 'Registrare questo versamento';
+
+  @override
+  String get mintNextVersements3aHint =>
+      'L\'importo e la data di accredito, come appaiono sul tuo conto 3a.';
+
+  @override
+  String get mintNextVersements3aAmountLabel => 'Importo (CHF)';
+
+  @override
+  String get mintNextVersements3aAmountHint => 'Per esempio 3\'500';
+
+  @override
+  String get mintNextVersements3aDateLabel => 'Data di accredito';
+
+  @override
+  String get mintNextVersements3aDateHint => 'gg.mm.aaaa';
+
+  @override
+  String get mintNextVersements3aTaxYearLabel => 'Anno fiscale';
+
+  @override
+  String get mintNextVersements3aTaxYearHelper =>
+      'Per impostazione predefinita quello della data di accredito — modificabile per un riscatto.';
+
+  @override
+  String get mintNextVersements3aContinue => 'Continua';
+
+  @override
+  String get mintNextVersements3aBack => 'Indietro';
+
+  @override
+  String get mintNextVersements3aBackToList => 'Torna all\'elenco';
+
+  @override
+  String get mintNextVersements3aReviewTitle => 'MINT ricorderà';
+
+  @override
+  String mintNextVersements3aReviewTaxYear(String year) {
+    return 'Contato per l\'anno fiscale $year';
+  }
+
+  @override
+  String mintNextVersements3aEntryCredited(String date) {
+    return 'Accreditato il $date';
+  }
+
+  @override
+  String get mintNextVersements3aConfirm => 'Salva';
+
+  @override
+  String get mintNextVersements3aAdd => 'Aggiungi un versamento';
+
+  @override
+  String get mintNextVersements3aEdit => 'Modifica';
+
+  @override
+  String get mintNextVersements3aDelete => 'Elimina';
+
+  @override
+  String get mintNextVersements3aDeleteEntryTitle =>
+      'Eliminare questo versamento?';
+
+  @override
+  String get mintNextVersements3aDeleteEntryBody =>
+      'MINT dimenticherà questo versamento. Gli altri non cambiano.';
+
+  @override
+  String get mintNextVersements3aDeleteCancel => 'Mantieni';
+
+  @override
+  String get mintNextVersements3aDeleteConfirm => 'Elimina';
+
+  @override
+  String get mintNextVersements3aSafeExit => 'Esci senza salvare';
+
+  @override
+  String get mintNextVersements3aErrorMissing =>
+      'Indica l\'importo e la data di accredito per continuare.';
+
+  @override
+  String get mintNextVersements3aSaveFailed =>
+      'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

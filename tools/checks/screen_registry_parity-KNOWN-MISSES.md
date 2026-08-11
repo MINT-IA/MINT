@@ -142,3 +142,9 @@ Cycle canonique du fait revenu derrière kill-flag `enableMintNextRevenu`
 Cycle canonique du fait affiliation LPP derrière kill-flag
 `enableMintNextLppAffiliation` (OFF par défaut, fail-closed). Aucun intent
 coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/versements-3a (Lego 5 fait versements 3a)
+
+Cycle canonique de la liste des versements 3a derrière kill-flag
+`enableMintNextVersements3a` (OFF par défaut, fail-closed). Aucun intent
+coach câblé dans cette tranche.

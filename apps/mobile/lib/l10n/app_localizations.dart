@@ -45371,6 +45371,174 @@ abstract class S {
   /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
   String get mintNextLppAffiliationSaveFailed;
 
+  /// No description provided for @mintNextVersements3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes versements 3a'**
+  String get mintNextVersements3aTitle;
+
+  /// No description provided for @mintNextVersements3aListTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes versements enregistrés'**
+  String get mintNextVersements3aListTitle;
+
+  /// No description provided for @mintNextVersements3aYearTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{year} · total {total}'**
+  String mintNextVersements3aYearTotal(String year, String total);
+
+  /// No description provided for @mintNextVersements3aQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer ce versement'**
+  String get mintNextVersements3aQuestion;
+
+  /// No description provided for @mintNextVersements3aHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le montant et la date de crédit, tels qu\'ils apparaissent sur ton compte 3a.'**
+  String get mintNextVersements3aHint;
+
+  /// No description provided for @mintNextVersements3aAmountLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montant (CHF)'**
+  String get mintNextVersements3aAmountLabel;
+
+  /// No description provided for @mintNextVersements3aAmountHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par exemple 3\'500'**
+  String get mintNextVersements3aAmountHint;
+
+  /// No description provided for @mintNextVersements3aDateLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Date de crédit'**
+  String get mintNextVersements3aDateLabel;
+
+  /// No description provided for @mintNextVersements3aDateHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'jj.mm.aaaa'**
+  String get mintNextVersements3aDateHint;
+
+  /// No description provided for @mintNextVersements3aTaxYearLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année fiscale'**
+  String get mintNextVersements3aTaxYearLabel;
+
+  /// No description provided for @mintNextVersements3aTaxYearHelper.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par défaut celle de la date de crédit — modifiable pour un rachat.'**
+  String get mintNextVersements3aTaxYearHelper;
+
+  /// No description provided for @mintNextVersements3aContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get mintNextVersements3aContinue;
+
+  /// No description provided for @mintNextVersements3aBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get mintNextVersements3aBack;
+
+  /// No description provided for @mintNextVersements3aBackToList.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à la liste'**
+  String get mintNextVersements3aBackToList;
+
+  /// No description provided for @mintNextVersements3aReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT va retenir'**
+  String get mintNextVersements3aReviewTitle;
+
+  /// No description provided for @mintNextVersements3aReviewTaxYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compté pour l\'année fiscale {year}'**
+  String mintNextVersements3aReviewTaxYear(String year);
+
+  /// No description provided for @mintNextVersements3aEntryCredited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Crédité le {date}'**
+  String mintNextVersements3aEntryCredited(String date);
+
+  /// No description provided for @mintNextVersements3aConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get mintNextVersements3aConfirm;
+
+  /// No description provided for @mintNextVersements3aAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un versement'**
+  String get mintNextVersements3aAdd;
+
+  /// No description provided for @mintNextVersements3aEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get mintNextVersements3aEdit;
+
+  /// No description provided for @mintNextVersements3aDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextVersements3aDelete;
+
+  /// No description provided for @mintNextVersements3aDeleteEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ce versement ?'**
+  String get mintNextVersements3aDeleteEntryTitle;
+
+  /// No description provided for @mintNextVersements3aDeleteEntryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT oubliera ce versement. Les autres ne changent pas.'**
+  String get mintNextVersements3aDeleteEntryBody;
+
+  /// No description provided for @mintNextVersements3aDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get mintNextVersements3aDeleteCancel;
+
+  /// No description provided for @mintNextVersements3aDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextVersements3aDeleteConfirm;
+
+  /// No description provided for @mintNextVersements3aSafeExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get mintNextVersements3aSafeExit;
+
+  /// No description provided for @mintNextVersements3aErrorMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique le montant et la date de crédit pour continuer.'**
+  String get mintNextVersements3aErrorMissing;
+
+  /// No description provided for @mintNextVersements3aSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
+  String get mintNextVersements3aSaveFailed;
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

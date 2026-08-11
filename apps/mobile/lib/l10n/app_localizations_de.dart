@@ -26108,6 +26108,102 @@ class SDe extends S {
       'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
 
   @override
+  String get mintNextVersements3aTitle => 'Deine 3a-Einzahlungen';
+
+  @override
+  String get mintNextVersements3aListTitle => 'Deine erfassten Einzahlungen';
+
+  @override
+  String mintNextVersements3aYearTotal(String year, String total) {
+    return '$year · Total $total';
+  }
+
+  @override
+  String get mintNextVersements3aQuestion => 'Diese Einzahlung erfassen';
+
+  @override
+  String get mintNextVersements3aHint =>
+      'Betrag und Gutschriftsdatum, wie sie auf deinem 3a-Konto erscheinen.';
+
+  @override
+  String get mintNextVersements3aAmountLabel => 'Betrag (CHF)';
+
+  @override
+  String get mintNextVersements3aAmountHint => 'Zum Beispiel 3\'500';
+
+  @override
+  String get mintNextVersements3aDateLabel => 'Gutschriftsdatum';
+
+  @override
+  String get mintNextVersements3aDateHint => 'TT.MM.JJJJ';
+
+  @override
+  String get mintNextVersements3aTaxYearLabel => 'Steuerjahr';
+
+  @override
+  String get mintNextVersements3aTaxYearHelper =>
+      'Standardmässig das Jahr des Gutschriftsdatums — für einen Einkauf anpassbar.';
+
+  @override
+  String get mintNextVersements3aContinue => 'Weiter';
+
+  @override
+  String get mintNextVersements3aBack => 'Zurück';
+
+  @override
+  String get mintNextVersements3aBackToList => 'Zurück zur Liste';
+
+  @override
+  String get mintNextVersements3aReviewTitle => 'MINT wird sich merken';
+
+  @override
+  String mintNextVersements3aReviewTaxYear(String year) {
+    return 'Gezählt für das Steuerjahr $year';
+  }
+
+  @override
+  String mintNextVersements3aEntryCredited(String date) {
+    return 'Gutgeschrieben am $date';
+  }
+
+  @override
+  String get mintNextVersements3aConfirm => 'Speichern';
+
+  @override
+  String get mintNextVersements3aAdd => 'Einzahlung hinzufügen';
+
+  @override
+  String get mintNextVersements3aEdit => 'Bearbeiten';
+
+  @override
+  String get mintNextVersements3aDelete => 'Löschen';
+
+  @override
+  String get mintNextVersements3aDeleteEntryTitle =>
+      'Diese Einzahlung löschen?';
+
+  @override
+  String get mintNextVersements3aDeleteEntryBody =>
+      'MINT vergisst diese Einzahlung. Die anderen ändern sich nicht.';
+
+  @override
+  String get mintNextVersements3aDeleteCancel => 'Behalten';
+
+  @override
+  String get mintNextVersements3aDeleteConfirm => 'Löschen';
+
+  @override
+  String get mintNextVersements3aSafeExit => 'Ohne Speichern verlassen';
+
+  @override
+  String get mintNextVersements3aErrorMissing =>
+      'Gib Betrag und Gutschriftsdatum ein, um fortzufahren.';
+
+  @override
+  String get mintNextVersements3aSaveFailed =>
+      'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }
