@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "781eaa8f481e04b892e288dd933db75585ccdc7f",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_etat_civil_lifecycle.yaml",
+  "flow_sha256": "83d2c7a719f205819e5615d57ad3f2ba6a3a2042dd2012e982c9a383a790143d",
+  "app_sha256": "a963f85eca6bea6768c1809e0d96c9210e23f674afd48df1d3d5d8a23774f192",
+  "app_signature": "adhoc",
+  "app_cdhash": "0e57b4c39a53d6a7ecf40584679a9e683b7572c4",
+  "device_udid": "B4257DE1-69E0-461B-8553-6E7BE0650977",
+  "device_name": "Mint EtatCivil Proof-781eaa8f4-73694",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "command": "bash tools/runtime/mint_next_etat_civil_lifecycle.sh --runtime-commit 781eaa8f481e04b892e288dd933db75585ccdc7f --capture-evidence",
+  "captured_at": "2026-08-11T10:01:09Z",
+  "ordered_outcomes": [
+    "saved civil status visible in ma situation",
+    "saved civil status survives cold relaunch",
+    "corrected status visible after edit",
+    "delete dialog dismissed and civil status absent",
+    "deletion survives cold relaunch"
+  ],
+  "screenshots": {
+    "01-created-visible.png": {
+      "sha256": "af1ce52532f5ab3a913a9ab12976f1527725c7cbda99588800e4f1b4f5b03cf2",
+      "bytes": 180695
+    },
+    "02-cold-relaunch-visible.png": {
+      "sha256": "af1ce52532f5ab3a913a9ab12976f1527725c7cbda99588800e4f1b4f5b03cf2",
+      "bytes": 180695
+    },
+    "03-edited-visible.png": {
+      "sha256": "d156c5fe0f58deae46bacb694312cd350911a627b35c4fa0efd90ecffc5d5874",
+      "bytes": 181627
+    },
+    "04-deleted-absent.png": {
+      "sha256": "c29fe55c9e281c3af6a6e0f685e46fca97dde4857734bc6fee586e793fc64139",
+      "bytes": 187426
+    },
+    "05-delete-survives-relaunch.png": {
+      "sha256": "da6d4cfe4fb473ea148a40c99a82b66effda2be8220d5fe98b13f78cc936560d",
+      "bytes": 187333
+    }
+  },
+  "maestro_log_sha256": "06137a8d7620bda6d4f3974cb127c70715f54d3c9827ad5be647164fadf947e4"
+}
