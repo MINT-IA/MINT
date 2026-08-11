@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
@@ -22,6 +23,7 @@ class MintNext3aHandoffScreen extends StatefulWidget {
     this.taxEngine = const NoAttestedEngine(),
     this.now,
     this.domicileReader = readCanonicalDomicileFact,
+    this.civilStatusReader = readCanonicalCivilStatusFact,
   });
 
   final MintNext3aTaskStore store;
@@ -34,6 +36,13 @@ class MintNext3aHandoffScreen extends StatefulWidget {
 
   static Future<MintNextDomicileFact?> readCanonicalDomicileFact() async =>
       MintNextDomicileFact.fromWizardAnswers(
+          await ReportPersistenceService.loadAnswers());
+
+  /// Reads the confirmed civil-status fact from the canonical answers.
+  final Future<MintNextCivilStatusFact?> Function() civilStatusReader;
+
+  static Future<MintNextCivilStatusFact?> readCanonicalCivilStatusFact() async =>
+      MintNextCivilStatusFact.fromWizardAnswers(
           await ReportPersistenceService.loadAnswers());
 
   @override
@@ -110,8 +119,10 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
     }
     final Pillar3aTaxDeltaResult taxResult;
     final MintNextDomicileFact? domicile;
+    final MintNextCivilStatusFact? civilStatus;
     try {
       domicile = await widget.domicileReader();
+      civilStatus = await widget.civilStatusReader();
     } on Object {
       if (mounted && generation == _resolveGeneration) context.go('/home');
       return;
@@ -121,6 +132,7 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
       taxYear: now.year,
       effectiveAt: now,
       domicile: MintNext3aDomicileContext.fromConfirmedFact(domicile),
+      civilStatus: MintNext3aCivilStatusContext.fromConfirmedFact(civilStatus),
     );
     try {
       taxResult = await widget.taxEngine.calculate(

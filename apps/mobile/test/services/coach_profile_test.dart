@@ -587,6 +587,24 @@ void main() {
       );
       expect(profile.isCouple, true);
     });
+
+    test(
+        'partenariat enregistre parses as marie (joint taxation), never '
+        'concubinage', () {
+      // LIFD art. 9 al. 1bis : le partenariat enregistré suit le barème
+      // commun — l'assimiler au concubinage (imposition séparée) était un
+      // défaut fiscal, corrigé au Lego 2.
+      for (final raw in ['partenariat', 'partenariat_enregistre']) {
+        final profile = CoachProfile.fromWizardAnswers(<String, dynamic>{
+          'q_civil_status': raw,
+        });
+        expect(profile.etatCivil, CoachCivilStatus.marie, reason: raw);
+      }
+      final concubin = CoachProfile.fromWizardAnswers(<String, dynamic>{
+        'q_civil_status': 'concubinage',
+      });
+      expect(concubin.etatCivil, CoachCivilStatus.concubinage);
+    });
   });
 
   // ════════════════════════════════════════════════════════════

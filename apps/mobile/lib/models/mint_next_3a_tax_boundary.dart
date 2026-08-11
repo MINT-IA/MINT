@@ -38,12 +38,52 @@ abstract interface class ConfirmedDomicileSource {
   MintNext3aDomicileContext? toConfirmedDomicileContext();
 }
 
+/// Situation civile canonique vue par la préparation 3a.
+///
+/// Distingue l'imposition commune (mariage, partenariat enregistré — LIFD
+/// art. 9 al. 1bis) de la séparée. Null = fait manquant : la préparation
+/// l'affiche comme tel, jamais de statut deviné.
+class MintNext3aCivilStatusContext {
+  const MintNext3aCivilStatusContext({
+    required this.statusToken,
+    required this.jointTaxation,
+    required this.revision,
+  });
+
+  /// Token stable sans accent (celibataire|marie|partenariat_enregistre|
+  /// concubinage|divorce|veuf) — jamais un libellé UI.
+  final String statusToken;
+  final bool jointTaxation;
+
+  /// Fingerprint du fait (assertedAt UTC) — tout dérivé fiscal lié devient
+  /// périmé quand elle change.
+  final String revision;
+
+  Map<String, Object?> toJson() => {
+        'status': statusToken,
+        'joint_taxation': jointTaxation,
+        'revision': revision,
+      };
+
+  /// Un fait en attente de confirmation n'est PAS une situation connue.
+  static MintNext3aCivilStatusContext? fromConfirmedFact(Object? fact) {
+    if (fact is! ConfirmedCivilStatusSource) return null;
+    return fact.toConfirmedCivilStatusContext();
+  }
+}
+
+/// Implémenté par le fait état civil canonique — évite une dépendance inverse.
+abstract interface class ConfirmedCivilStatusSource {
+  MintNext3aCivilStatusContext? toConfirmedCivilStatusContext();
+}
+
 class MintNext3aFiscalContext {
   const MintNext3aFiscalContext({
-    this.contextVersion = 2,
+    this.contextVersion = 3,
     required this.taxYear,
     required this.effectiveAt,
     this.domicile,
+    this.civilStatus,
   });
 
   final int contextVersion;
@@ -52,9 +92,13 @@ class MintNext3aFiscalContext {
 
   /// Null while no confirmed domicile fact exists.
   final MintNext3aDomicileContext? domicile;
+
+  /// Null while no confirmed civil-status fact exists.
+  final MintNext3aCivilStatusContext? civilStatus;
   static const capability = 'no_attested_engine';
 
   bool get domicileKnown => domicile != null;
+  bool get civilStatusKnown => civilStatus != null;
 
   Map<String, Object> toJson() => {
         'context_version': contextVersion,
@@ -63,6 +107,8 @@ class MintNext3aFiscalContext {
         'capability': capability,
         'domicile_status': domicileKnown ? 'known' : 'missing',
         if (domicile != null) 'domicile': domicile!.toJson(),
+        'civil_status_status': civilStatusKnown ? 'known' : 'missing',
+        if (civilStatus != null) 'civil_status': civilStatus!.toJson(),
       };
 }
 

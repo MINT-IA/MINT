@@ -1,3 +1,5 @@
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+
 /// Canonical, user-asserted civil-status fact.
 ///
 /// `q_civil_status` is the shared sealed key (already classified sensitive);
@@ -32,7 +34,7 @@ extension MintNextCivilStatusId on MintNextCivilStatus {
       this == MintNextCivilStatus.partenariatEnregistre;
 }
 
-class MintNextCivilStatusFact {
+class MintNextCivilStatusFact implements ConfirmedCivilStatusSource {
   static const userDeclarationSource = 'user_declaration';
 
   /// Shared sealed key — the value IS the fact; deletion tombstones it.
@@ -72,6 +74,16 @@ class MintNextCivilStatusFact {
 
   /// Revision fingerprint binding fiscal derivatives to this assertion.
   String get revision => assertedAt.toUtc().toIso8601String();
+
+  @override
+  MintNext3aCivilStatusContext? toConfirmedCivilStatusContext() =>
+      needsConfirmation
+          ? null
+          : MintNext3aCivilStatusContext(
+              statusToken: status.id,
+              jointTaxation: status.jointTaxation,
+              revision: revision,
+            );
 
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
         statusKey: status.id,

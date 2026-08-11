@@ -9,13 +9,14 @@ void main() {
       effectiveAt: DateTime.utc(2026, 1, 1),
     );
     expect(context.toJson(), {
-      // v2 (Lego 1) : le contexte porte le statut du domicile canonique.
-      // Sans fait confirmé, aucun lieu n'apparaît — pas de donnée personnelle.
-      'context_version': 2,
+      // v3 (Lego 2) : domicile + situation civile canoniques. Sans faits
+      // confirmés, rien de personnel n'apparaît.
+      'context_version': 3,
       'tax_year': 2026,
       'effective_at': '2026-01-01T00:00:00.000Z',
       'capability': 'no_attested_engine',
       'domicile_status': 'missing',
+      'civil_status_status': 'missing',
     });
   });
 

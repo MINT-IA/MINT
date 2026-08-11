@@ -3775,8 +3775,12 @@ class CoachProfile {
       case 'widowed':
         return CoachCivilStatus.veuf;
       case 'concubinage':
-      case 'partenariat':
         return CoachCivilStatus.concubinage;
+      // Partenariat enregistré = imposition commune (LIFD art. 9 al. 1bis) :
+      // fiscalement assimilé au mariage, jamais au concubinage (séparé).
+      case 'partenariat':
+      case 'partenariat_enregistre':
+        return CoachCivilStatus.marie;
       default:
         return CoachCivilStatus.celibataire;
     }
