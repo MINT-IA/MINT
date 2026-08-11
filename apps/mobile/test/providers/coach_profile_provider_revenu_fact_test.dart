@@ -204,6 +204,28 @@ void main() {
     expect(reloaded.revenuFact!.annualizedCents, 650000 * 12);
   });
 
+  test('a malformed tombstone reads as corrupt, never as purge-due', () async {
+    final provider = CoachProfileProvider();
+    await provider.saveRevenuFact(monthly());
+    await provider.deleteRevenuFact();
+    await provider.mergeAnswers(
+      {'q_net_income_period_chf': 4200.0, 'q_pay_frequency': 'monthly'},
+      syncToBackend: false,
+    );
+
+    // Un tombstone à drapeau non-booléen ne doit JAMAIS relancer la purge —
+    // il mangerait les écritures legacy post-suppression à chaque load.
+    await const FlutterSecureStorage().write(
+        key: '_mint_canonical_revenu_v1',
+        value: '{"state":"deleted","projection_purged":"garbage"}');
+    final read = await SecureWizardStore.readCanonicalRevenu();
+    expect(read.status, CanonicalHousingStatus.corrupt,
+        reason: 'structural validation stays strict across tombstone forms');
+    final persisted = await ReportPersistenceService.loadAnswers();
+    expect(persisted['q_net_income_period_chf'], 4200.0,
+        reason: 'a corrupt record never purges legacy data');
+  });
+
   test('a corrected revenu changes the revision', () async {
     final provider = CoachProfileProvider();
     await provider.saveRevenuFact(monthly());

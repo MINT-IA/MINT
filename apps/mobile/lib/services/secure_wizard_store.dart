@@ -967,12 +967,18 @@ class SecureWizardStore {
       if (decoded is! Map) {
         return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
       }
+      // Deux formes exactes de tombstone — toute autre variante est corrupt
+      // (projection_purged: false/null/garbage relancerait la purge à chaque
+      // load et mangerait les écritures legacy post-suppression).
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalRevenuRead(
+            CanonicalHousingStatus.deleted, null, false);
+      }
       if (decoded['state'] == 'deleted' &&
-          (decoded.length == 1 ||
-              (decoded.length == 2 &&
-                  decoded.containsKey('projection_purged')))) {
-        return CanonicalRevenuRead(CanonicalHousingStatus.deleted, null,
-            decoded['projection_purged'] == true);
+          decoded.length == 2 &&
+          decoded['projection_purged'] == true) {
+        return const CanonicalRevenuRead(
+            CanonicalHousingStatus.deleted, null, true);
       }
       if (decoded['state'] == 'present' && decoded['fact'] is Map) {
         final fact = MintNextRevenuFact.fromWizardAnswers(
