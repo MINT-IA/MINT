@@ -37,7 +37,10 @@ tags:
 - tapOn:
     id: "input:revenu.amount"
 - inputText: "6500"
-- hideKeyboard
+# Pavé numérique iOS : hideKeyboard peut échouer (pas de dismiss heuristique)
+# — optional, le scroll + tap conditionnel absorbent un clavier resté ouvert.
+- hideKeyboard:
+    optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - scrollUntilVisible:
@@ -117,7 +120,8 @@ tags:
     id: "input:revenu.amount"
 - eraseText
 - inputText: "78000"
-- hideKeyboard
+- hideKeyboard:
+    optional: true
 - waitForAnimationToEnd:
     timeout: 3000
 - scrollUntilVisible:
