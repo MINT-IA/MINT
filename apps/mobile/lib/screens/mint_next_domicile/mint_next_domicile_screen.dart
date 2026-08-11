@@ -197,6 +197,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
   Widget _collect(S l10n) => Semantics(
         identifier: 'node:domicile.collect',
         container: true,
+        explicitChildNodes: true,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -282,6 +283,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
     return Semantics(
       identifier: 'node:domicile.review',
       container: true,
+      explicitChildNodes: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -348,6 +350,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
     return Semantics(
       identifier: 'node:domicile.saved',
       container: true,
+      explicitChildNodes: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
