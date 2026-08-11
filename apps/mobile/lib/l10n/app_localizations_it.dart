@@ -26046,15 +26046,15 @@ class SIt extends S {
       'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
 
   @override
-  String get mintNextLppAffiliationTitle => 'La tua cassa pensioni';
+  String get mintNextLppAffiliationTitle => 'La tua cassa pensione';
 
   @override
   String get mintNextLppAffiliationQuestion =>
-      'Sei affiliato·a a una cassa pensioni LPP?';
+      'Sei affiliato·a a una cassa pensione LPP?';
 
   @override
   String get mintNextLppAffiliationHint =>
-      'Essere affiliato·a significa contribuire oggi al 2° pilastro tramite il tuo datore di lavoro. Avere un certificato o un avere LPP di un impiego precedente non basta.';
+      'Essere affiliato·a significa contribuire oggi alla previdenza professionale (2° pilastro) tramite il tuo datore di lavoro. Avere un certificato o un avere LPP di un impiego precedente non basta.';
 
   @override
   String get mintNextLppAffiliationYes => 'Sì, contribuisco attualmente';
@@ -26064,7 +26064,7 @@ class SIt extends S {
 
   @override
   String get mintNextLppAffiliationStatusYes =>
-      'Affiliato·a a una cassa pensioni';
+      'Affiliato·a a una cassa pensione';
 
   @override
   String get mintNextLppAffiliationStatusNo => 'Attualmente non affiliato·a';
@@ -26087,7 +26087,7 @@ class SIt extends S {
   String get mintNextLppAffiliationConfirm => 'Salva';
 
   @override
-  String get mintNextLppAffiliationSavedTitle => 'Cassa pensioni salvata';
+  String get mintNextLppAffiliationSavedTitle => 'Cassa pensione salvata';
 
   @override
   String get mintNextLppAffiliationEdit => 'Modifica';
