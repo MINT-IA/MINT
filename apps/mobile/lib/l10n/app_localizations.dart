@@ -45539,6 +45539,36 @@ abstract class S {
   /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
   String get mintNextVersements3aSaveFailed;
 
+  /// No description provided for @mintNextVersements3aReviewSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré par toi, le {date}'**
+  String mintNextVersements3aReviewSource(String date);
+
+  /// No description provided for @mintNextVersements3aManage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gérer mes versements'**
+  String get mintNextVersements3aManage;
+
+  /// No description provided for @mintNextVersements3aDeleteAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout supprimer'**
+  String get mintNextVersements3aDeleteAll;
+
+  /// No description provided for @mintNextVersements3aDeleteAllTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer tous tes versements ?'**
+  String get mintNextVersements3aDeleteAllTitle;
+
+  /// No description provided for @mintNextVersements3aDeleteAllBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT oubliera toute la liste. Tes autres informations ne changent pas.'**
+  String get mintNextVersements3aDeleteAllBody;
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

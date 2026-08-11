@@ -26012,6 +26012,24 @@ class SEn extends S {
       'Saving did not complete. Your data has not changed. Try again.';
 
   @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Declared by you on $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Manage my payments';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Delete all';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle => 'Delete all your payments?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT will forget the whole list. Your other information does not change.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

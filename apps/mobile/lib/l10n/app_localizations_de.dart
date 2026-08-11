@@ -26204,6 +26204,25 @@ class SDe extends S {
       'Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.';
 
   @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Von dir angegeben am $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Meine Einzahlungen verwalten';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Alle löschen';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      'Alle deine Einzahlungen löschen?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT vergisst die ganze Liste. Deine anderen Angaben ändern sich nicht.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }

@@ -26160,6 +26160,25 @@ class SPt extends S {
       'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
 
   @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Declarado por ti a $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gerir os meus depósitos';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Apagar tudo';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      'Apagar todos os teus depósitos?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'A MINT vai esquecer toda a lista. Os teus outros dados não mudam.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }

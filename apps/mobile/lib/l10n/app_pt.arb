@@ -12211,6 +12211,12 @@
   "mintNextVersements3aSafeExit": "Sair sem guardar",
   "mintNextVersements3aErrorMissing": "Indica o montante e a data de crédito para continuar.",
   "mintNextVersements3aSaveFailed": "Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.",
+  "mintNextVersements3aReviewSource": "Declarado por ti a {date}",
+  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aManage": "Gerir os meus depósitos",
+  "mintNextVersements3aDeleteAll": "Apagar tudo",
+  "mintNextVersements3aDeleteAllTitle": "Apagar todos os teus depósitos?",
+  "mintNextVersements3aDeleteAllBody": "A MINT vai esquecer toda a lista. Os teus outros dados não mudam.",
   "mintNext3aDomicileKnown": "Domicílio: {commune} ({canton})",
   "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
   "mintNext3aDomicileMissing": "Domicílio: ainda não indicado"

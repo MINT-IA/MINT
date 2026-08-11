@@ -26148,6 +26148,25 @@ class SEs extends S {
       'No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.';
 
   @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Declarado por ti el $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gestionar mis aportaciones';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Eliminar todo';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      '¿Eliminar todas tus aportaciones?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT olvidará toda la lista. Tus demás datos no cambian.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

@@ -12208,6 +12208,12 @@
   "mintNextVersements3aSafeExit": "Ohne Speichern verlassen",
   "mintNextVersements3aErrorMissing": "Gib Betrag und Gutschriftsdatum ein, um fortzufahren.",
   "mintNextVersements3aSaveFailed": "Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.",
+  "mintNextVersements3aReviewSource": "Von dir angegeben am {date}",
+  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aManage": "Meine Einzahlungen verwalten",
+  "mintNextVersements3aDeleteAll": "Alle löschen",
+  "mintNextVersements3aDeleteAllTitle": "Alle deine Einzahlungen löschen?",
+  "mintNextVersements3aDeleteAllBody": "MINT vergisst die ganze Liste. Deine anderen Angaben ändern sich nicht.",
   "mintNext3aDomicileKnown": "Wohnsitz: {commune} ({canton})",
   "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
   "mintNext3aDomicileMissing": "Wohnsitz: noch nicht angegeben"

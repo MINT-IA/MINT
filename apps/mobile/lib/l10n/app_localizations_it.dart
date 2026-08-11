@@ -26216,6 +26216,25 @@ class SIt extends S {
       'Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.';
 
   @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Dichiarato da te il $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gestire i miei versamenti';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Elimina tutto';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      'Eliminare tutti i tuoi versamenti?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT dimenticherà l\'intero elenco. Gli altri tuoi dati non cambiano.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

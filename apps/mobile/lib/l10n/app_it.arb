@@ -12211,6 +12211,12 @@
   "mintNextVersements3aSafeExit": "Esci senza salvare",
   "mintNextVersements3aErrorMissing": "Indica l'importo e la data di accredito per continuare.",
   "mintNextVersements3aSaveFailed": "Il salvataggio non è riuscito. I tuoi dati non sono cambiati. Riprova.",
+  "mintNextVersements3aReviewSource": "Dichiarato da te il {date}",
+  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aManage": "Gestire i miei versamenti",
+  "mintNextVersements3aDeleteAll": "Elimina tutto",
+  "mintNextVersements3aDeleteAllTitle": "Eliminare tutti i tuoi versamenti?",
+  "mintNextVersements3aDeleteAllBody": "MINT dimenticherà l'intero elenco. Gli altri tuoi dati non cambiano.",
   "mintNext3aDomicileKnown": "Domicilio: {commune} ({canton})",
   "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
   "mintNext3aDomicileMissing": "Domicilio: non ancora indicato"

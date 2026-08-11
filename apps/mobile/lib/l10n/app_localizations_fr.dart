@@ -26147,6 +26147,25 @@ class SFr extends S {
       'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
 
   @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Déclaré par toi, le $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gérer mes versements';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Tout supprimer';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      'Supprimer tous tes versements ?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT oubliera toute la liste. Tes autres informations ne changent pas.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicile : $commune ($canton)';
   }

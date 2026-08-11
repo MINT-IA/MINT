@@ -13921,6 +13921,12 @@
   "mintNextVersements3aSafeExit": "Quitter sans enregistrer",
   "mintNextVersements3aErrorMissing": "Indique le montant et la date de crédit pour continuer.",
   "mintNextVersements3aSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
+  "mintNextVersements3aReviewSource": "Déclaré par toi, le {date}",
+  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aManage": "Gérer mes versements",
+  "mintNextVersements3aDeleteAll": "Tout supprimer",
+  "mintNextVersements3aDeleteAllTitle": "Supprimer tous tes versements ?",
+  "mintNextVersements3aDeleteAllBody": "MINT oubliera toute la liste. Tes autres informations ne changent pas.",
   "mintNext3aDomicileKnown": "Domicile : {commune} ({canton})",
   "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
   "mintNext3aDomicileMissing": "Domicile : pas encore renseigné"

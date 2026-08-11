@@ -12211,6 +12211,12 @@
   "mintNextVersements3aSafeExit": "Salir sin guardar",
   "mintNextVersements3aErrorMissing": "Indica el importe y la fecha de abono para continuar.",
   "mintNextVersements3aSaveFailed": "No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.",
+  "mintNextVersements3aReviewSource": "Declarado por ti el {date}",
+  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aManage": "Gestionar mis aportaciones",
+  "mintNextVersements3aDeleteAll": "Eliminar todo",
+  "mintNextVersements3aDeleteAllTitle": "¿Eliminar todas tus aportaciones?",
+  "mintNextVersements3aDeleteAllBody": "MINT olvidará toda la lista. Tus demás datos no cambian.",
   "mintNext3aDomicileKnown": "Domicilio: {commune} ({canton})",
   "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
   "mintNext3aDomicileMissing": "Domicilio: aún no indicado"

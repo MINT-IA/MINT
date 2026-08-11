@@ -125,10 +125,13 @@ class _MintNextVersements3aScreenState
         _step = _Step.collect;
       });
 
-  MintNextVersement3aEntry _draftEntry() {
+  MintNextVersement3aEntry _draftEntry(MintNextVersements3aFact fact) {
     final now = _now();
+    // Id unique même sous horloge figée (tests, rafales) : l'instant seul ne
+    // suffit pas — le compteur de mutations du fait le complète.
     return MintNextVersement3aEntry(
-      id: _editingId ?? 'v${now.microsecondsSinceEpoch}',
+      id: _editingId ??
+          'v${now.microsecondsSinceEpoch}-${fact.mutationCount}',
       amountCents: _amountCents()!,
       creditedAt: _creditDate()!,
       taxYear: _effectiveTaxYear(),
@@ -150,7 +153,7 @@ class _MintNextVersements3aScreenState
     try {
       final now = _now();
       final fact = _currentFact();
-      final entry = _draftEntry();
+      final entry = _draftEntry(fact);
       final next = _editingId == null
           ? fact.withEntryAdded(entry, now)
           : fact.withEntryUpdated(_editingId!, entry, now);
