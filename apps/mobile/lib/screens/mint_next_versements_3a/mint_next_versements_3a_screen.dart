@@ -250,7 +250,12 @@ class _MintNextVersements3aScreenState
           ),
         ),
       ),
-      body: SafeArea(
+      // Tap hors champ = fermeture du clavier — indispensable au pavé
+      // datetime iOS (aucun dismiss heuristique) et meilleur UX réel.
+      body: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: Column(
@@ -284,6 +289,7 @@ class _MintNextVersements3aScreenState
               },
             ],
           ),
+        ),
         ),
       ),
     );

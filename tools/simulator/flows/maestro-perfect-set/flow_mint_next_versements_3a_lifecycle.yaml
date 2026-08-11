@@ -45,6 +45,8 @@ tags:
 - inputText: "15.03.2026"
 - hideKeyboard:
     optional: true
+# Le tap hors champ (titre) ferme le clavier datetime — dismiss déterministe.
+- tapOn: "Enregistrer ce versement"
 - waitForAnimationToEnd:
     timeout: 3000
 - scrollUntilVisible:
@@ -85,6 +87,7 @@ tags:
 - inputText: "01.06.2026"
 - hideKeyboard:
     optional: true
+- tapOn: "Enregistrer ce versement"
 - waitForAnimationToEnd:
     timeout: 3000
 - scrollUntilVisible:
@@ -161,6 +164,7 @@ tags:
 - inputText: "4000"
 - hideKeyboard:
     optional: true
+- tapOn: "Enregistrer ce versement"
 - waitForAnimationToEnd:
     timeout: 3000
 - scrollUntilVisible:
