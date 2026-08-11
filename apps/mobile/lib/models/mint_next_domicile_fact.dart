@@ -1,3 +1,5 @@
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+
 /// Canonical, user-asserted fiscal-domicile fact stored in wizard answers.
 ///
 /// The canton reuses the shared legacy key `q_canton` (already consumed by
@@ -5,7 +7,7 @@
 /// The BFS commune code is nullable until a verified national dataset lands.
 /// The fact is effective-dated (assertedAt); the tax year belongs to the
 /// consumer's fiscal context, never to the fact itself.
-class MintNextDomicileFact {
+class MintNextDomicileFact implements ConfirmedDomicileSource {
   static const userDeclarationSource = 'user_declaration';
 
   /// Shared legacy key — written by this fact, never deleted by it.
@@ -49,6 +51,18 @@ class MintNextDomicileFact {
 
   /// Revision fingerprint binding fiscal derivatives to this assertion.
   String get revision => assertedAt.toUtc().toIso8601String();
+
+  /// Null tant que le fait attend une confirmation : un domicile proposé
+  /// n'est jamais « connu » pour un consommateur fiscal.
+  @override
+  MintNext3aDomicileContext? toConfirmedDomicileContext() => needsConfirmation
+      ? null
+      : MintNext3aDomicileContext(
+          canton: canton,
+          communeName: communeName,
+          communeBfs: communeBfs,
+          revision: revision,
+        );
 
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
         cantonKey: canton,

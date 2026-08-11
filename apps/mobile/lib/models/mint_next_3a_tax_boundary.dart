@@ -24,6 +24,18 @@ class MintNext3aDomicileContext {
         'commune_bfs': communeBfs,
         'revision': revision,
       };
+
+  /// Un fait en attente de confirmation n'est PAS un domicile connu :
+  /// le contrat du consommateur parle d'un fait confirmé.
+  static MintNext3aDomicileContext? fromConfirmedFact(Object? fact) {
+    if (fact is! ConfirmedDomicileSource) return null;
+    return fact.toConfirmedDomicileContext();
+  }
+}
+
+/// Implémenté par le fait domicile canonique — évite une dépendance inverse.
+abstract interface class ConfirmedDomicileSource {
+  MintNext3aDomicileContext? toConfirmedDomicileContext();
 }
 
 class MintNext3aFiscalContext {

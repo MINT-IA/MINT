@@ -15,10 +15,10 @@
   "beats": [
     {
       "id": "collect",
-      "story": "Une question à la fois : mon canton, puis ma commune. Rien n'est enregistré tant que je n'ai pas confirmé explicitement.",
+      "story": "Une seule décision : où j'habite — canton et commune ensemble (le SPEC interdit le questionnaire un-champ-par-écran). Rien n'est enregistré tant que je n'ai pas confirmé explicitement. [Amendé en review finale : la v1 du beat disait canton puis commune ; une localisation est une décision cognitive unique.]",
       "code": "apps/mobile/lib/screens/mint_next_domicile/mint_next_domicile_screen.dart",
       "tests": [
-        "collect shows canton choices then commune entry and nothing persists before confirm",
+        "collect shows canton choices and commune entry as one decision and nothing persists before confirm",
         "safe exit before confirmation writes nothing"
       ]
     },
@@ -44,7 +44,7 @@
       "story": "Dans « Ma situation », je retrouve mon domicile, sa provenance, et je peux le modifier ou le supprimer.",
       "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
       "tests": [
-        "ma situation shows the saved domicile with provenance and edit and delete actions",
+        "mon argent shows the saved domicile with provenance and delete works",
         "delete removes owned domicile keys and preserves unrelated answers including legacy q_canton"
       ]
     },

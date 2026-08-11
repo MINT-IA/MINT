@@ -76,8 +76,8 @@ void main() {
   }
 
   testWidgets(
-      'collect shows canton choices then commune entry and nothing persists '
-      'before confirm', (tester) async {
+      'collect shows canton choices and commune entry as one decision and '
+      'nothing persists before confirm', (tester) async {
     final provider = await loadedProvider();
     await tester.pumpWidget(wrap(provider));
     await tester.pumpAndSettle();

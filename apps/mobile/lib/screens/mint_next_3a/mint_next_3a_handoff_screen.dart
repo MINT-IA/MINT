@@ -120,14 +120,7 @@ class _MintNext3aHandoffScreenState extends State<MintNext3aHandoffScreen> {
     final fiscalContext = MintNext3aFiscalContext(
       taxYear: now.year,
       effectiveAt: now,
-      domicile: domicile == null
-          ? null
-          : MintNext3aDomicileContext(
-              canton: domicile.canton,
-              communeName: domicile.communeName,
-              communeBfs: domicile.communeBfs,
-              revision: domicile.revision,
-            ),
+      domicile: MintNext3aDomicileContext.fromConfirmedFact(domicile),
     );
     try {
       taxResult = await widget.taxEngine.calculate(

@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 
 void main() {
   test('fiscal context reports domicile known with canton and commune', () {
@@ -45,5 +46,30 @@ void main() {
     );
     expect(before.revision, isNot(after.revision),
         reason: 'fiscal derivatives bound to the old revision must go stale');
+  });
+
+  test('a fact awaiting confirmation never becomes a known domicile', () {
+    final pending = MintNextDomicileFact(
+      canton: 'VD',
+      communeName: 'Lausanne',
+      assertedAt: DateTime.utc(2026, 8, 11),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: true,
+    );
+    expect(MintNext3aDomicileContext.fromConfirmedFact(pending), isNull);
+    final confirmed = MintNextDomicileFact(
+      canton: 'VD',
+      communeName: 'Lausanne',
+      assertedAt: DateTime.utc(2026, 8, 11),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+    expect(
+      MintNext3aDomicileContext.fromConfirmedFact(confirmed)?.communeName,
+      'Lausanne',
+    );
+    expect(MintNext3aDomicileContext.fromConfirmedFact(null), isNull);
   });
 }
