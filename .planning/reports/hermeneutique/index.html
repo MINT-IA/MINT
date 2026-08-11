@@ -1,0 +1,228 @@
+<title>MINT Next — Herméneutique</title>
+<style>
+:root{
+  --bg:#f7f5f0; --surface:#ffffff; --ink:#1f2a26; --ink-soft:#5a6b64;
+  --accent:#0e6b52; --accent-soft:#e3efea; --line:#e2ddd2;
+  --proof:#0e6b52; --partial:#7a6a1f; --partial-bg:#f3edd2;
+  --pending:#9a6b1f; --pending-bg:#f6ecd9; --off:#8a4b3a; --oos:#6b6b70;
+  --code-bg:#f0ede6; --mono:ui-monospace,'SF Mono',Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141a17; --surface:#1c2420; --ink:#e8ece9; --ink-soft:#9db0a8;
+    --accent:#5cc9a7; --accent-soft:#1e352c; --line:#2c3833;
+    --proof:#5cc9a7; --partial:#cfc06a; --partial-bg:#2e2a12;
+    --pending:#d9a94e; --pending-bg:#33290f; --off:#d98b74; --oos:#8f979b;
+    --code-bg:#232c27;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141a17; --surface:#1c2420; --ink:#e8ece9; --ink-soft:#9db0a8;
+  --accent:#5cc9a7; --accent-soft:#1e352c; --line:#2c3833;
+  --proof:#5cc9a7; --partial:#cfc06a; --partial-bg:#2e2a12;
+  --pending:#d9a94e; --pending-bg:#33290f; --off:#d98b74; --oos:#8f979b;
+  --code-bg:#232c27;
+}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 Georgia,'Times New Roman',serif;margin:0}
+main{max-width:920px;margin:0 auto;padding:2.5rem 1.25rem 5rem}
+header.hero{border-bottom:3px double var(--line);padding-bottom:1.5rem;margin-bottom:2rem}
+h1{font-size:2rem;line-height:1.2;margin:0 0 .4rem;text-wrap:balance}
+.sub{color:var(--ink-soft);font-style:italic;margin:0}
+.stamp{font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.6rem}
+nav.toc{display:flex;flex-wrap:wrap;gap:.5rem;margin:1.2rem 0 0}
+nav.toc a{font-family:var(--mono);font-size:.73rem;color:var(--accent);text-decoration:none;border:1px solid var(--line);border-radius:999px;padding:.25rem .7rem;background:var(--surface)}
+nav.toc a:hover,nav.toc a:focus-visible{background:var(--accent-soft);outline:none}
+section{margin:2.8rem 0;scroll-margin-top:1rem}
+h2{font-size:1.35rem;margin:0 0 .3rem;text-wrap:balance}
+h3.mat{font-size:1.02rem;margin:1.4rem 0 .5rem}
+.axiom{color:var(--ink-soft);font-style:italic;margin:0 0 1.1rem;max-width:62ch}
+.tri{display:grid;grid-template-columns:1fr;gap:.8rem}
+@media(min-width:720px){.tri{grid-template-columns:1fr 1fr 1fr}}
+.pane{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:.9rem 1rem}
+.pane h3{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 .5rem;border-bottom:1px solid var(--line);padding-bottom:.35rem}
+.pane p{font-size:.88rem;margin:.4rem 0}
+.pane ul,section>ul{margin:.3rem 0;padding-left:1.05rem;font-size:.85rem}
+.pane li,section>ul li{margin:.3rem 0}
+code{font-family:var(--mono);font-size:.78em;background:var(--code-bg);padding:.1em .35em;border-radius:4px;word-break:break-all}
+.tag{display:inline-block;font-family:var(--mono);font-size:.66rem;letter-spacing:.05em;border-radius:4px;padding:.1rem .45rem;vertical-align:1px;white-space:nowrap}
+.tag.proof{color:var(--proof);background:var(--accent-soft)}
+.tag.partial{color:var(--partial);background:var(--partial-bg)}
+.tag.pending{color:var(--pending);background:var(--pending-bg)}
+.tag.off{color:var(--off);background:var(--pending-bg)}
+.tag.oos{color:var(--oos);background:var(--code-bg)}
+table{width:100%;border-collapse:collapse;font-size:.83rem;background:var(--surface)}
+th,td{border:1px solid var(--line);padding:.42rem .55rem;text-align:left;vertical-align:top}
+th{font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+td .n{font-variant-numeric:tabular-nums}
+.scroll{overflow-x:auto}
+.honest{border-left:3px solid var(--pending);background:var(--surface);padding:.7rem 1rem;border-radius:0 8px 8px 0;margin:1rem 0;font-size:.9rem}
+.honest strong{color:var(--pending)}
+.legend{font-size:.78rem;color:var(--ink-soft);margin:.5rem 0 1rem}
+footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color:var(--ink-soft);font-size:.8rem}
+</style>
+<main>
+<header class="hero">
+  <div class="stamp">Herméneutique · v2 · 11 août 2026 · amendée sur review Codex (3 P1)</div>
+  <h1>Le code raconte-t-il la même histoire que le storyboard&nbsp;?</h1>
+  <p class="sub">Chaque thème en trois volets — l'histoire promise, le code qui la porte, la preuve. Quatre états, jamais confondus&nbsp;: <span class="tag proof">PROUVÉ</span> <span class="tag partial">PARTIEL</span> <span class="tag pending">NON PROUVÉ</span> <span class="tag oos">HORS PÉRIMÈTRE</span></p>
+  <p class="legend">Types de preuve, du plus fort au plus faible&nbsp;: <strong>runtime</strong> (parcours réel sim/appareil, captures hash-bound) &gt; <strong>test déterministe</strong> (exit code) &gt; <strong>review indépendante</strong> (verdict P1=0) &gt; <strong>déclaration documentaire</strong> (aucune preuve).</p>
+  <nav class="toc">
+    <a href="#jumeau">Jumeau — vue globale</a>
+    <a href="#logement">Logement</a>
+    <a href="#domicile">Domicile</a>
+    <a href="#troisA">3a</a>
+    <a href="#fiscalite">Fiscalité</a>
+    <a href="#coach">Coach</a>
+    <a href="#matrices">Matrices</a>
+    <a href="#doctrine">Doctrine</a>
+  </nav>
+</header>
+
+<section id="jumeau">
+  <h2>Jumeau financier — vue globale</h2>
+  <p class="axiom">« Aucun écran n'est terminé si les informations qu'il collecte ne rejoignent pas le jumeau et si ses résultats ne peuvent pas être retrouvés et réutilisés ailleurs. »</p>
+  <div class="scroll"><table>
+    <tr><th>Fait</th><th>État</th><th>Où il vit</th><th>Consommateurs réels</th></tr>
+    <tr><td>Logement (statut, hypothèque, intérêts, dette)</td><td><span class="tag proof">CANONIQUE·RUNTIME</span></td><td>bundle scellé <code>SecureWizardStore</code> (transaction coordonnée)</td><td>« Ma situation », carte Aujourd'hui, staleness <code>financial_plan</code></td></tr>
+    <tr><td>Domicile fiscal (canton, commune, BFS nullable)</td><td><span class="tag partial">CANONIQUE·EN PR</span></td><td>réponses wizard via <code>mergeAnswers</code> (classification documentée au storyboard)</td><td>« Ma situation », contexte fiscal 3a (connu/manquant + révision)</td></tr>
+    <tr><td>Canton seul (<code>q_canton</code> legacy)</td><td><span class="tag partial">PLAIN LEGACY</span></td><td>réponses wizard (préexistant, partagé)</td><td>calculateurs fiscaux legacy, profil</td></tr>
+    <tr><td>État civil, revenu, versements 3a</td><td><span class="tag pending">ÉPHÉMÈRES</span></td><td>état local des écrans design_lab (batches 20-22) — laboratoire, jamais source de vérité</td><td>aucun — c'est la file des prochains Legos, un fait par Lego</td></tr>
+    <tr><td>Tâche 3a (<code>mint_next_3a_task_v1</code>)</td><td><span class="tag proof">CANONIQUE</span></td><td>store scellé dédié + double purge</td><td>écran handoff (flag OFF)</td></tr>
+  </table></div>
+</section>
+
+<section id="logement">
+  <h2>Logement — le premier cycle complet</h2>
+  <p class="axiom">Quand j'enregistre mon logement, je le retrouve après relance, je comprends sa source, je peux le corriger, le supprimer — et ce qui en dépend se périme au lieu de mentir.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Statut d'occupation, hypothèque, attestation, intérêts, solde — flux dédié, confirmation explicite, visible dans « Ma situation », corrigeable, supprimable, chiffré sur l'appareil, zéro transmission.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li><code>models/mint_next_housing_fact.dart</code></li>
+      <li><code>screens/mint_next_housing/</code> + carte Aujourd'hui</li>
+      <li>Transaction&nbsp;: drain → snapshot → <code>writeCanonicalHousing</code> (seule autorité) → cache</li>
+      <li>« Ma situation »&nbsp;: <code>mon_argent_screen.dart</code></li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">RUNTIME</span> 5 captures hash-bound Maestro (création, 2 relances à froid, édition, suppression durable)</li>
+      <li><span class="tag proof">TESTS</span> PR #1218, 474/474 · roast indépendant P1=P2=P3=0</li>
+      <li><span class="tag off">FLAG OFF</span> <code>enableMintNextHousing</code></li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="domicile">
+  <h2>Domicile fiscal — Lego 1 <span class="tag partial">EN PR</span></h2>
+  <p class="axiom">Je dis où je vis&nbsp;; MINT s'en souvient, me le montre, me laisse corriger — et la préparation 3a lit mon domicile sans me le redemander.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Canton + commune (BFS nullable tant qu'aucun dataset national vérifié n'existe), une question à la fois, relecture avant confirmation, résumé enregistré avec modifier/supprimer. Mini-storyboard dédié versionné&nbsp;: 6 beats, chacun mappé à des tests nommés.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li><code>product/mint_next/storyboard/domicile_fiscal.storyboard.json</code></li>
+      <li><code>models/mint_next_domicile_fact.dart</code> (q_canton partagé jamais supprimé ; révision = assertedAt UTC)</li>
+      <li><code>screens/mint_next_domicile/</code> · « Ma situation » · contexte fiscal 3a (connu/manquant + révision)</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">TESTS</span> 18 tests du Lego (modèle 5, provider 4, écran 6, contexte 3) + 157 régression · analyze 0</li>
+      <li><span class="tag pending">NON PROUVÉ</span> runtime sim (gate condition 4 — à citer avant merge)</li>
+      <li><span class="tag pending">NON PROUVÉ</span> review finale Codex (en cours)</li>
+      <li><span class="tag off">FLAG OFF</span> <code>enableMintNextDomicile</code></li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="troisA">
+  <h2>3a — Vertical Golden</h2>
+  <p class="axiom">Aujourd'hui → occasion → faits connus/manquants → confirmation minimale → scénario déterministe → widget pédagogique → choix libre → mini-plan → Aujourd'hui.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Storyboard canonique&nbsp;: 9 scènes, oracles d'intention et d'observation, emplacements de preuve encore vides — le contrat les attend. Machine à états fail-closed de <strong>33 transitions</strong> (<code>contracts/state-machine.yaml</code>).</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li><code>product/mint_next/storyboard/three_a.storyboard.json</code> + garde + rendu</li>
+      <li>SPEC amendé (gate unique remplace B0-B5)&nbsp;: <code>.planning/phases/mint-next-vertical01-3a-20260802/</code></li>
+      <li>Shell&nbsp;: handoff, route, store, <code>NoAttestedEngine</code></li>
+      <li>Design&nbsp;: <code>docs/brand/mint-v2/tokens.jsx</code> + 10 maquettes</li>
+    </ul></div>
+    <div class="pane"><h3>Registre des preuves</h3><ul>
+      <li><span class="tag proof">PROUVÉ</span> provenance sources hash-bound (revue 10/10) · shell mergé (reviews ACCEPT #1217/#1219) · kill-switch testé</li>
+      <li><span class="tag partial">PARTIEL</span> phase <code>in_progress</code> ; JOS-007 <code>proof_needed</code></li>
+      <li><span class="tag pending">NON PROUVÉ</span> moteur fiscal (aucun CHF personnel) · parcours produit complet · rendu natif compact FR/iOS et DE/Android · enveloppes Sentry réelles · VoiceOver/TalkBack physique · compréhension novices (<code>not_run</code>) · validation humaine · promotion produit</li>
+      <li><span class="tag oos">HORS PÉRIMÈTRE</span> comparaison de fournisseurs · transactions · sync backend · TestFlight</li>
+    </ul></div>
+  </div>
+  <div class="honest"><strong>Honnêteté&nbsp;:</strong> aucun chiffre 3a n'est montrable — le moteur est volontairement absent tant que la preuve indépendante n'existe pas. <code>simulator_3a_screen</code> legacy est une surface indépendante&nbsp;; son correctif P0 vit sur la piste Codex, hors de ces PR.</div>
+</section>
+
+<section id="fiscalite">
+  <h2>Fiscalité</h2>
+  <p class="axiom">Une économie d'impôt est une différence entre deux calculs canoniques — jamais un montant multiplié par un taux.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Le périmètre décidé&nbsp;: « Optimisation fiscale v1 » (ADR 2026-08-06), 5 chapitres, fermé par l'écran « Tes leviers » (côte à côte, jamais classés). Réforme valeur locative&nbsp;: en vigueur 01.01.2029 — tout chapitre logement-fiscal est bi-régime par année.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li>Backend canonique&nbsp;: <code>services/backend/app/services/fiscal/</code> (revenu, capital, rente calibrés ESTV ; chaîne mariée ; plafonds 3a par affiliation — PR #1214)</li>
+      <li>Annexes provenance 3a (barème VD, AFC 18a, OFAS, Lausanne)</li>
+      <li>Mobile&nbsp;: <code>financial_core/</code> = L1 canonique</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">TESTS</span> spirale Codex 5 rondes P1 5→0 (#1214), 17 chiffres affichés faux éliminés</li>
+      <li><span class="tag pending">NON PROUVÉ</span> l'écran « Tes leviers » n'existe pas ; aucun chapitre v1 n'est câblé bout-en-bout dans MINT Next</li>
+      <li><span class="tag oos">HORS PÉRIMÈTRE</span> déclaration d'impôt, conseil personnalisé (LSFin)</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="coach">
+  <h2>Coach</h2>
+  <p class="axiom">Le coach navigue et explique. Il ne calcule jamais, ne fournit jamais la vérité, n'écrit jamais un fait.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>ADR 2026-08-06 (Proposed)&nbsp;: coach navigateur-monstrateur — intents typés vers la machine à états, outils offerts jamais forcés, aucun texte libre ne préremplit une proposition de fait.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li>Legacy vivant&nbsp;: <code>coach_orchestrator</code>, garde-fous citations, hard-gate archétypes</li>
+      <li>MINT Next&nbsp;: rien de câblé — le SPEC 3a définit la frontière (Coach n'entre dans la machine que par intents typés)</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag pending">NON PROUVÉ</span> aucun intent coach MINT Next n'existe (les routes <code>/mint-next/*</code> sont volontairement non chat-routables, documenté dans KNOWN-MISSES)</li>
+      <li><span class="tag oos">HORS PÉRIMÈTRE</span> jusqu'au shell coach MINT Next</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="matrices">
+  <h2>Matrices de contrôle</h2>
+  <h3 class="mat">Cycle canonique en 7 points (ADR 2026-08-08) — par Lego</h3>
+  <div class="scroll"><table>
+    <tr><th>Point du cycle</th><th>Logement</th><th>Domicile (Lego 1)</th></tr>
+    <tr><td>1. Sauvegarde par l'unique chemin canonique</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td></tr>
+    <tr><td>2. Rechargement après relance</td><td><span class="tag proof">RUNTIME</span> (2 relances à froid)</td><td><span class="tag proof">TEST</span> · <span class="tag pending">runtime à citer</span></td></tr>
+    <tr><td>3. Visible dans « Ma situation »</td><td><span class="tag proof">RUNTIME</span></td><td><span class="tag proof">TEST</span></td></tr>
+    <tr><td>4. Correction et suppression</td><td><span class="tag proof">RUNTIME</span> (suppression survit à la relance)</td><td><span class="tag proof">TEST</span></td></tr>
+    <tr><td>5. Un consommateur réel hors collecte</td><td><span class="tag proof">TEST</span> (staleness plans, carte Aujourd'hui)</td><td><span class="tag proof">TEST</span> (contexte fiscal 3a connu/manquant)</td></tr>
+    <tr><td>6. Invalidation des dépendants</td><td><span class="tag proof">TEST</span> (plans stale)</td><td><span class="tag proof">TEST</span> (révision change à la correction ; aucun résultat fiscal persistant n'existe encore)</td></tr>
+    <tr><td>7. Zéro transmission sans contrat</td><td><span class="tag proof">TEST</span></td><td><span class="tag proof">TEST</span> (<code>syncToBackend: false</code>)</td></tr>
+  </table></div>
+  <h3 class="mat">Gate unique de promotion (ADR 2026-08-10) — Lego 1</h3>
+  <div class="scroll"><table>
+    <tr><th>Condition</th><th>État</th></tr>
+    <tr><td>1. Beats storyboard mappés à des tests</td><td><span class="tag proof">FAIT</span> — <code>domicile_fiscal.storyboard.json</code>, 6 beats nommés</td></tr>
+    <tr><td>2. Tests ciblés verts</td><td><span class="tag proof">FAIT</span> — 18 + 157 régression, analyze 0</td></tr>
+    <tr><td>3. Review indépendante P1=0</td><td><span class="tag pending">EN COURS</span> — review finale Codex avant merge</td></tr>
+    <tr><td>4. Vérification runtime citée</td><td><span class="tag pending">À FAIRE</span> — parcours sim avant toute prétention « works »</td></tr>
+    <tr><td>5. Cycle du fait en 7 points</td><td><span class="tag proof">FAIT</span> — matrice ci-dessus</td></tr>
+  </table></div>
+</section>
+
+<section id="doctrine">
+  <h2>Doctrine, protocole &amp; journal</h2>
+  <div class="scroll"><table>
+    <tr><th>PR</th><th>Quoi</th><th>Review Codex</th><th>Mergée (UTC)</th></tr>
+    <tr><td class="n">#1215</td><td>Doctrine jumeau + protocole (gate 5 conditions)</td><td>REJET → 5 corrections → ACCEPT P1=0</td><td class="n">10.08 20:10</td></tr>
+    <tr><td class="n">#1216</td><td>Cadrage n°1 « CONVERGÉ »</td><td>—</td><td class="n">10.08 20:22</td></tr>
+    <tr><td class="n">#1217</td><td>PR A — vérité produit, zéro runtime</td><td>REJET (1P1/1P2) → ACCEPT P1=0</td><td class="n">10.08 20:39</td></tr>
+    <tr><td class="n">#1218</td><td>PR B — fondation canonique, cycle logement</td><td>K-PARTIEL + ACCEPT</td><td class="n">10.08 23:50</td></tr>
+    <tr><td class="n">#1219</td><td>PR C — shell 3a minimal, flag OFF</td><td>ACCEPT, 0 finding</td><td class="n">11.08 00:08</td></tr>
+    <tr><td class="n">en PR</td><td>Lego 1 — domicile fiscal</td><td>cadrage LOOP: GO · review finale en cours</td><td class="n">—</td></tr>
+  </table></div>
+  <p style="font-size:.9rem;color:var(--ink-soft)">Accès total Codex acté (11.08)&nbsp;: repo, mémoire persistante Claude, Engram, CLAUDE.md, BRIEF. Ce rapport est versionné sous <code>.planning/reports/hermeneutique/</code> et republié comme artifact à chaque Lego — un artifact seul n'est pas auditable.</p>
+</section>
+
+<footer>
+  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). Ce qui n'est pas cité n'est pas prouvé.
+</footer>
+</main>
