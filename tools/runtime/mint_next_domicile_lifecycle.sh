@@ -150,7 +150,13 @@ BUILT_APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
 APP="$TMP/Runner.app"
 ditto --noextattr --norsrc "$BUILT_APP" "$APP"
 EXECUTABLE="$APP/Runner"
-codesign --force --deep -s - "$APP"
+# Re-signer SANS --entitlements stripperait l'accès Keychain (le scellement
+# des clés sensibles échouerait à l'exécution). On réutilise les
+# entitlements du bundle buildé.
+ENTITLEMENTS="$TMP/entitlements.plist"
+codesign -d --entitlements - --xml "$BUILT_APP" > "$ENTITLEMENTS" 2>/dev/null || \
+  cp "$ROOT/apps/mobile/ios/Runner/Runner.entitlements" "$ENTITLEMENTS"
+codesign --force --deep -s - --entitlements "$ENTITLEMENTS" "$APP"
 codesign --verify --deep --strict "$APP"
 SIGNATURE_INFO="$(codesign -dvvv "$APP" 2>&1)"
 APP_SIGNATURE="$(printf '%s\n' "$SIGNATURE_INFO" | awk -F= '$1 == "Signature" { print $2 }')"
