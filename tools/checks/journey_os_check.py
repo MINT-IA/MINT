@@ -54,6 +54,9 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
     "apps/mobile/test/app_router_observers_test.dart",
+    "apps/mobile/lib/screens/mint_next_domicile/mint_next_domicile_screen.dart",
+    "apps/mobile/test/models/mint_next_3a_fiscal_context_domicile_test.dart",
+    "apps/mobile/test/screens/mint_next_domicile/mint_next_domicile_screen_test.dart",
     # --- Lego 1 domicile fiscal (2026-08-11) : fait canonique domicile
     # (mini-storyboard, modèle, provider, écran, consommateur 3a). ---
     "apps/mobile/lib/models/mint_next_domicile_fact.dart",

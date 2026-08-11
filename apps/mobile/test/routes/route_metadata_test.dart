@@ -107,7 +107,7 @@ void main() {
     test('has exactly 155 entries', () {
       // 147 in Phase 32 ; 7 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 155);
+      expect(kRouteRegistry.length, 156);
     });
 
     test('/mint-next/3a is the public local private-flow route', () {
@@ -117,6 +117,15 @@ void main() {
       expect(route.owner, RouteOwner.system);
       expect(route.requiresAuth, isFalse);
       expect(route.killFlag, 'enableMintNext3aProductHandoff');
+    });
+
+    test('/mint-next/domicile is the canonical domicile fact flow', () {
+      final route = kRouteRegistry['/mint-next/domicile'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextDomicile');
     });
 
     test('/mint-next/housing is a separately killable public flow', () {

@@ -25620,4 +25620,81 @@ class SEn extends S {
 
   @override
   String get housingSavedDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNextDomicileTitle => 'Your tax residence';
+
+  @override
+  String get mintNextDomicileQuestion => 'Where do you live?';
+
+  @override
+  String get mintNextDomicileWhy =>
+      'Your canton and commune determine how your taxes are calculated.';
+
+  @override
+  String get mintNextDomicileCantonLabel => 'Canton';
+
+  @override
+  String get mintNextDomicileCommuneLabel => 'Commune';
+
+  @override
+  String get mintNextDomicileCommuneHint => 'The name of your commune';
+
+  @override
+  String get mintNextDomicileContinue => 'Continue';
+
+  @override
+  String get mintNextDomicileBack => 'Back';
+
+  @override
+  String get mintNextDomicileReviewTitle => 'MINT will remember';
+
+  @override
+  String mintNextDomicileReviewSource(String date) {
+    return 'Declared by you on $date';
+  }
+
+  @override
+  String get mintNextDomicileConfirm => 'Save';
+
+  @override
+  String get mintNextDomicileSavedTitle => 'Residence saved';
+
+  @override
+  String get mintNextDomicileEdit => 'Edit';
+
+  @override
+  String get mintNextDomicileDelete => 'Delete';
+
+  @override
+  String get mintNextDomicileDeleteTitle => 'Delete your residence?';
+
+  @override
+  String get mintNextDomicileDeleteBody =>
+      'MINT will forget your commune. Your canton stays in use by your profile.';
+
+  @override
+  String get mintNextDomicileDeleteCancel => 'Keep';
+
+  @override
+  String get mintNextDomicileDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNextDomicileSafeExit => 'Leave without saving';
+
+  @override
+  String get mintNextDomicileErrorMissing =>
+      'Choose your canton and enter your commune to continue.';
+
+  @override
+  String get mintNextDomicileSaveFailed =>
+      'Saving did not complete. Your data has not changed. Try again.';
+
+  @override
+  String mintNext3aDomicileKnown(String commune, String canton) {
+    return 'Residence: $commune ($canton)';
+  }
+
+  @override
+  String get mintNext3aDomicileMissing => 'Residence: not provided yet';
 }
