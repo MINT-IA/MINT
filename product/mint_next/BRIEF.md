@@ -244,6 +244,7 @@ versements 3a.
 | 2026-08-10 | n°1 — atterrissage 3 PR, design_lab = labo, fin B0-B5, Lego 1 domicile | CONVERGÉ |
 | 2026-08-11 | n°2 — Lego 2 état civil Q0-Q5 (chemin scellé, partenariat≠concubinage) | LOOP: GO |
 | 2026-08-11 | n°3 — Lego 3 revenu Q0-Q5 : clés possédées + projection legacy (pas de migration des writers), montant+période, contexte fiscal 3a v4 fail-closed LPP, cap 100k checkpoint 70k | LOOP: GO |
+| 2026-08-11 | n°4 — ordre tranché : affiliation LPP d'abord (Lego 4 court, tri-état jamais absence=false, fiscal v5 symbolique sans CHF), versements 3a en Lego 5 ; cap 55k checkpoint 35k | LOOP: GO AFFILIATION LPP |
 
 ## 6ter. Journal des Legos
 

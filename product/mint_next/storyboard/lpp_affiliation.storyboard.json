@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "lpp_affiliation_lego4",
+    "title": "Dire si je suis affilié·e à une caisse de pension — et que MINT ne devine jamais",
+    "promise": "L'affiliation LPP traverse le cycle canonique complet par le chemin scellé à clés possédées : un seul choix Oui/Non confirmé explicitement, retrouvé après relance, visible dans Ma situation, corrigeable, supprimable — et la préparation 3a sait enfin déterminer le plafond (grande vs petite cotisation) sans jamais le deviner. Lecture métier tri-état : l'absence ne vaut jamais « non »."
+  },
+  "generated_at": "2026-08-11",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
+    "cadrage": "verdict Codex LOOP: GO AFFILIATION LPP (Lego 4, 2026-08-11) — ordre tranché : affiliation d'abord (Lego court), versements 3a en Lego 5 ; cap 55k, checkpoint dur 35k ; arrêt si dérive vers migration des clés LPP legacy ou collecte du certificat"
+  },
+  "semantic_contract": "Le fait capture l'AFFILIATION ACTUELLE à une caisse de pension LPP (2e pilier) déclarée par la personne — booléen strict stocké, lecture métier TRI-ÉTAT : confirmed_yes | confirmed_no | unknown. Absence, corruption ou tombstone ne valent JAMAIS « non ». Posséder un certificat LPP ≠ être affilié ; avoir un capital LPP ≠ être affilié aujourd'hui ; le statut d'emploi ne prouve rien. Aucune projection vers q_has_lpp_certificate ni aucune clé legacy.",
+  "classification_decision": "Clés possédées q_lpp_affiliation_fact_{value,asserted_at,source,schema_version,needs_confirmation} — toutes classées SENSIBLES, bundle commis atomiquement par un enregistrement canonique scellé dédié (pattern revenu, sans projection legacy : aucun consommateur historique ne lit une clé d'affiliation partagée).",
+  "known_risks_from_cadrage": [
+    "absence ≠ false : tout chemin (canonicalize missing, tombstone, corruption) doit rendre unknown, jamais confirmed_no",
+    "certificat, capital LPP, statut salarié : trois choses distinctes de l'affiliation — l'aide de l'écran l'explique, le code ne les lit jamais",
+    "le revenu net encaissé n'est PAS le revenu déterminant AVS — la limite est explicitée dans le contrat du contexte fiscal, jamais masquée",
+    "le plafond appartient à une année fiscale — la détermination transporte l'année du contexte, jamais un CHF codé en dur",
+    "aucune marge affichée avant le Lego 5 versements — pas de « plafond − 0 » fictif"
+  ],
+  "beats": [
+    {
+      "id": "collect",
+      "story": "Une seule question : « Es-tu affilié·e à une caisse de pension LPP ? » Deux cartes — Oui / Non — aucune présélection. Une aide courte distingue affiliation, certificat et avoir LPP. Rien n'est enregistré avant confirmation explicite.",
+      "code": "apps/mobile/lib/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart",
+      "tests": [
+        "collect shows the single question with two cards none preselected and nothing persists before confirm",
+        "safe exit before confirmation writes nothing",
+        "missing choice blocks with a visible error"
+      ]
+    },
+    {
+      "id": "confirm_persist_sealed",
+      "story": "Je vois ce que MINT va retenir et je confirme. Le fait part par la transaction coordonnée scellée : bundle commis atomiquement, jamais un état à moitié écrit.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveLppAffiliationFact",
+      "tests": [
+        "confirm persists the sealed bundle atomically and a partial failure leaves no half-written fact",
+        "saved fact carries assertedAt source schemaVersion and clears needsConfirmation"
+      ]
+    },
+    {
+      "id": "rehydrate",
+      "story": "Je relance l'app : ma réponse est toujours là, restaurée depuis le scellement.",
+      "code": "apps/mobile/lib/services/secure_wizard_store.dart#canonicalizeLppAffiliationAnswers",
+      "tests": [
+        "lpp affiliation fact rehydrates from sealed storage after provider reload"
+      ]
+    },
+    {
+      "id": "ma_situation",
+      "story": "Dans « Ma situation », je retrouve ma réponse, sa provenance, et je peux la modifier ou la supprimer. La suppression rend l'affiliation INCONNUE — jamais « non ».",
+      "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+      "tests": [
+        "mon argent shows the saved affiliation with provenance",
+        "delete tombstones the fact and the fiscal context returns to unknown never to confirmed_no"
+      ]
+    },
+    {
+      "id": "reuse_fiscal",
+      "story": "La préparation 3a lit mon affiliation sans me la redemander : le plafond devient déterminable — grande cotisation si affilié, petite (20 % du revenu confirmé, plafonnée) sinon, indéterminé si inconnu. Tokens symboliques + année fiscale, aucun CHF (moteur non attesté). La marge attend le Lego 5.",
+      "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aLppAffiliationContext",
+      "tests": [
+        "fiscal context v5 reports plafond determination lpp_affiliated_max when affiliated",
+        "fiscal context v5 reports non_affiliated_20pct_capped only with a confirmed revenu, undetermined otherwise",
+        "fiscal context reports unknown affiliation as undetermined never as not affiliated"
+      ]
+    },
+    {
+      "id": "invalidate",
+      "story": "Je corrige ou supprime mon affiliation : la révision change, les dérivés fiscaux liés se périment. Le revenu et les futurs versements restent intacts — faits indépendants, seulement réagrégés.",
+      "code": "révision = assertedAt UTC ; aucun résultat fiscal persistant (NoAttestedEngine)",
+      "tests": [
+        "a corrected affiliation changes the revision and the fiscal context reflects it immediately"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "certificat LPP, caisse, employeur, avoir/capital LPP (faits distincts, jamais collectés ici)",
+    "versements 3a et toute marge (Lego 5 — pas de plafond − 0 fictif)",
+    "CHF de plafond dans le boundary (NoAttestedEngine — tokens symboliques + année seulement)",
+    "migration de clés LPP legacy (q_has_pension_fund reste intact, jamais lu comme fait)"
+  ],
+  "kill_flag": "enableMintNextLppAffiliation",
+  "gate": "ADR 2026-08-10 — 5 conditions ; harnais runtime hérité (clone du runner revenu, sans clavier)"
+}
