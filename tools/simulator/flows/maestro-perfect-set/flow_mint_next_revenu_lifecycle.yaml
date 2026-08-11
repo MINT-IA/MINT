@@ -82,10 +82,13 @@ tags:
 - waitForAnimationToEnd:
     timeout: 5000
 - openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
 - extendedWaitUntil:
     visible:
       id: "mon_argent_revenu_fact"
-    timeout: 15000
+    timeout: 20000
 - takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
 - stopApp
 - launchApp:
