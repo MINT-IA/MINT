@@ -16,6 +16,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 
 enum CanonicalHousingStatus { missing, present, deleted, corrupt, unavailable }
@@ -24,6 +25,12 @@ class CanonicalHousingRead {
   final CanonicalHousingStatus status;
   final MintNextHousingFact? fact;
   const CanonicalHousingRead(this.status, [this.fact]);
+}
+
+class CanonicalCivilStatusRead {
+  final CanonicalHousingStatus status;
+  final MintNextCivilStatusFact? fact;
+  const CanonicalCivilStatusRead(this.status, [this.fact]);
 }
 
 class SecureWizardSealResult {
@@ -87,8 +94,11 @@ class SecureWizardStore {
   static const _manifestKey = '_mint_wizard_secure_keys_v1';
   static const _deleteJournalKey = '_mint_wizard_delete_journal_v2';
   static const _canonicalHousingKey = '_mint_canonical_housing_v1';
+  static const _canonicalCivilStatusKey = '_mint_canonical_civil_status_v1';
   static const _canonicalHousingInitializedKey =
       '_mint_canonical_housing_initialized_v1';
+  static const _canonicalCivilStatusInitializedKey =
+      '_mint_canonical_civil_status_initialized_v1';
   static int _processEpochCounter = 0;
   static String _processEpoch = _newProcessEpoch();
 
@@ -195,6 +205,7 @@ class SecureWizardStore {
     debugCommitDeleteOverride = null;
     debugFinalizeDeleteOverride = null;
     debugCanonicalMarkerWriteOverride = null;
+    debugCanonicalCivilStatusWriteOverride = null;
     _processEpoch = _newProcessEpoch();
   }
 
@@ -222,6 +233,10 @@ class SecureWizardStore {
     'q_housing_fact_source',
     'q_housing_fact_schema_version',
     'q_housing_fact_needs_confirmation',
+    'q_etat_civil_fact_asserted_at',
+    'q_etat_civil_fact_source',
+    'q_etat_civil_fact_schema_version',
+    'q_etat_civil_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
@@ -702,6 +717,110 @@ class SecureWizardStore {
       }
     }
     return result;
+  }
+
+  static Future<CanonicalCivilStatusRead> readCanonicalCivilStatus() async {
+    String? raw;
+    try {
+      raw = await _storage.read(key: _canonicalCivilStatusKey);
+    } on Exception {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.unavailable);
+    }
+    if (raw == null) {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalCivilStatusRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextCivilStatusFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalCivilStatusRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Seam de test : force le résultat du write canonique état civil.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalCivilStatusWriteOverride;
+
+  static Future<bool> writeCanonicalCivilStatus(
+      MintNextCivilStatusFact fact) async {
+    final override = debugCanonicalCivilStatusWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    try {
+      await _storage.write(
+        key: _canonicalCivilStatusKey,
+        value:
+            json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}),
+      );
+      try {
+        await _storage.write(
+            key: _canonicalCivilStatusInitializedKey, value: '1');
+      } catch (_) {
+        // L'enregistrement canonique unique fait déjà autorité.
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<bool> writeCanonicalCivilStatusDeleted() async {
+    try {
+      await _storage.write(
+        key: _canonicalCivilStatusKey,
+        value: json.encode({'state': 'deleted'}),
+      );
+      try {
+        await _storage.write(
+            key: _canonicalCivilStatusInitializedKey, value: '1');
+      } catch (_) {
+        // Le tombstone canonique sans valeur fait déjà autorité.
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  /// Projette l'enregistrement canonique état civil dans les réponses.
+  /// Sans canonique (missing), la valeur legacy `q_civil_status` — scellée
+  /// par clé mais sans métadonnées — reste telle quelle pour les
+  /// consommateurs historiques ; aucune migration implicite : un fait
+  /// n'existe qu'après confirmation explicite.
+  static Future<Map<String, dynamic>> canonicalizeCivilStatusAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalCivilStatus();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextCivilStatusFact.wizardKeys);
+      return result;
+    }
+    return answers;
   }
 
   static Future<Set<String>> _readManifest() async {

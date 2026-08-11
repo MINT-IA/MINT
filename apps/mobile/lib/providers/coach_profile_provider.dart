@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/services/api_service.dart';
@@ -82,6 +83,71 @@ class CoachProfileProvider extends ChangeNotifier {
 
   MintNextDomicileFact? get domicileFact =>
       MintNextDomicileFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextCivilStatusFact? get civilStatusFact =>
+      MintNextCivilStatusFact.fromWizardAnswers(_lastAnswers);
+
+  /// Persiste le fait état civil par la transaction coordonnée scellée
+  /// (mêmes verrous globaux que le logement) : l'enregistrement canonique
+  /// unique commet fait + métadonnées atomiquement ; le cache wizard est
+  /// secondaire et jamais autoritaire. Local uniquement (pas de contrat de
+  /// sync — ADR 2026-08-08).
+  Future<void> saveCivilStatusFact(MintNextCivilStatusFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalCivilStatus(fact)) {
+            throw StateError('Canonical civil status persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'Civil status cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime le fait par tombstone canonique ; les réponses non liées
+  /// survivent.
+  Future<void> deleteCivilStatusFact() => _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalCivilStatusDeleted()) {
+            throw StateError('Canonical civil status deletion failed');
+          }
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere(
+                (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'Civil status cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
 
   /// Persists the fiscal-domicile fact through the canonical answer pipeline.
   /// Local-only by design: no backend sync until a versioned consent contract
