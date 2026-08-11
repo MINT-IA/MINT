@@ -141,13 +141,15 @@ xcrun simctl bootstatus "$DEVICE" -b
   flutter build ios --simulator --debug \
     --dart-define=MINT_E2E_MINT_NEXT_DOMICILE=true
 )
-APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
+BUILT_APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
+[[ -x "$BUILT_APP/Runner" ]] || { echo "simulator app executable missing" >&2; exit 1; }
+# Sur un checkout .nosync, le xattr com.apple.provenance est protégé SIP et
+# fait échouer codesign en place (« detritus not allowed »). On copie le
+# bundle SANS xattrs hors du checkout, puis signature ad-hoc de la copie ;
+# le reçu garde adhoc + CDHash réels.
+APP="$TMP/Runner.app"
+ditto --noextattr --norsrc "$BUILT_APP" "$APP"
 EXECUTABLE="$APP/Runner"
-[[ -x "$EXECUTABLE" ]] || { echo "simulator app executable missing" >&2; exit 1; }
-# Sur un checkout .nosync, le build sort non signé et porte des xattrs de
-# provenance qui font échouer codesign (« detritus not allowed ») — purge
-# puis signature ad-hoc idempotente ; le reçu garde adhoc + CDHash réels.
-xattr -cr "$APP"
 codesign --force --deep -s - "$APP"
 codesign --verify --deep --strict "$APP"
 SIGNATURE_INFO="$(codesign -dvvv "$APP" 2>&1)"
