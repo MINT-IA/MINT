@@ -178,12 +178,14 @@ class SecureWizardStore {
   static Future<void> _persistSealFallbackStore() async {
     if (!_sealFallbackEnabled) return;
     try {
-      await (await _sealFallbackFile())
-          .writeAsString(json.encode(_e2eSealFallbackStore));
-    } on Exception catch (e) {
+      final file = await _sealFallbackFile();
+      await file.writeAsString(json.encode(_e2eSealFallbackStore));
+      debugPrint('[SecureWizardStore] e2e stash persisted: ${file.path} '
+          '(${_e2eSealFallbackStore.length} keys)');
+    } on Object catch (e) {
       // Best-effort harnais : le stash mémoire reste la session courante.
-      dev.log('E2E seal fallback: persist failed: $e',
-          name: 'SecureWizardStore');
+      // debugPrint (pas dev.log) : visible dans os_log pour le diagnostic.
+      debugPrint('[SecureWizardStore] e2e stash persist FAILED: $e');
     }
   }
 
