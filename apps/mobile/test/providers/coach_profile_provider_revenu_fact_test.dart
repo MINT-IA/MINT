@@ -126,6 +126,35 @@ void main() {
             'keep working after the fact is gone');
   });
 
+  test(
+      'a stale projection never resurrects when the cache clean failed after '
+      'the tombstone committed', () async {
+    final provider = CoachProfileProvider();
+    await provider.saveRevenuFact(monthly());
+
+    // Fenêtre d'échec du P1 review Codex : tombstone canonique commis, mais
+    // nettoyage du cache jamais exécuté — le cache garde bundle + projection.
+    await SecureWizardStore.writeCanonicalRevenuDeleted();
+
+    final persisted = await ReportPersistenceService.loadAnswers();
+    expect(persisted.containsKey('q_revenu_fact_amount_cents'), isFalse);
+    expect(persisted.containsKey('q_net_income_period_chf'), isFalse,
+        reason: 'the stale projection is purged once at first reload — the '
+            'deleted income never reappears for legacy consumers');
+    expect(persisted.containsKey('q_pay_frequency'), isFalse);
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+    await reloaded.mergeAnswers(
+      {'q_net_income_period_chf': 4200.0, 'q_pay_frequency': 'monthly'},
+      syncToBackend: false,
+    );
+    final after = await ReportPersistenceService.loadAnswers();
+    expect(after['q_net_income_period_chf'], 4200.0,
+        reason: 'once the purge flag flipped, post-deletion legacy writes '
+            'survive — the watermark separates stale cache from new data');
+  });
+
   test('a failed canonical write leaves no half-written fact', () async {
     final provider = CoachProfileProvider();
     await provider.mergeAnswers({'q_birth_year': 1988}, syncToBackend: false);

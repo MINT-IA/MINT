@@ -40,7 +40,13 @@ class CanonicalCivilStatusRead {
 class CanonicalRevenuRead {
   final CanonicalHousingStatus status;
   final MintNextRevenuFact? fact;
-  const CanonicalRevenuRead(this.status, [this.fact]);
+
+  /// Tombstone uniquement : faux tant que la projection legacy périmée n'a
+  /// pas encore été purgée du cache (fenêtre d'échec : tombstone canonique
+  /// commis mais nettoyage du cache raté — review Codex Lego 3 P1).
+  final bool projectionPurged;
+  const CanonicalRevenuRead(this.status,
+      [this.fact, this.projectionPurged = true]);
 }
 
 class SecureWizardSealResult {
@@ -961,8 +967,12 @@ class SecureWizardStore {
       if (decoded is! Map) {
         return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
       }
-      if (decoded['state'] == 'deleted' && decoded.length == 1) {
-        return const CanonicalRevenuRead(CanonicalHousingStatus.deleted);
+      if (decoded['state'] == 'deleted' &&
+          (decoded.length == 1 ||
+              (decoded.length == 2 &&
+                  decoded.containsKey('projection_purged')))) {
+        return CanonicalRevenuRead(CanonicalHousingStatus.deleted, null,
+            decoded['projection_purged'] == true);
       }
       if (decoded['state'] == 'present' && decoded['fact'] is Map) {
         final fact = MintNextRevenuFact.fromWizardAnswers(
@@ -1001,6 +1011,21 @@ class SecureWizardStore {
         ..removeWhere(
             (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
       await deleteKeys(MintNextRevenuFact.wizardKeys);
+      if (!canonical.projectionPurged) {
+        // Fenêtre d'échec (tombstone commis, nettoyage du cache raté) : la
+        // projection périmée est purgée UNE fois, puis le drapeau bascule —
+        // une écriture legacy postérieure à la suppression survit ensuite.
+        result.remove(MintNextRevenuFact.legacyAmountKey);
+        result.remove(MintNextRevenuFact.legacyFrequencyKey);
+        await deleteKeys(const {
+          MintNextRevenuFact.legacyAmountKey,
+          MintNextRevenuFact.legacyFrequencyKey,
+        });
+        await _writeCanonicalSealedRecord(
+            _canonicalRevenuKey,
+            _canonicalRevenuInitializedKey,
+            json.encode({'state': 'deleted', 'projection_purged': true}));
+      }
       return result;
     }
     return answers;
