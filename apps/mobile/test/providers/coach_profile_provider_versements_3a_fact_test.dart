@@ -65,7 +65,7 @@ void main() {
     expect(reloaded.versements3aFact!.entries.length, 2);
     expect(reloaded.versements3aFact!.totalForYearCents(2025), 200000);
     expect(reloaded.versements3aFact!.bucketRevision(2025),
-        t1.toIso8601String());
+        startsWith(t1.toIso8601String()));
   });
 
   test('correcting one entry through the sealed commit keeps the others and '
@@ -85,9 +85,9 @@ void main() {
     expect(reloaded.versements3aFact!.entryById('v1')!.amountCents, 300000);
     expect(reloaded.versements3aFact!.entryById('v2'), isNotNull);
     expect(reloaded.versements3aFact!.bucketRevision(2026),
-        t1.toIso8601String());
+        startsWith(t1.toIso8601String()));
     expect(reloaded.versements3aFact!.bucketRevision(2025),
-        t0.toIso8601String(),
+        startsWith(t0.toIso8601String()),
         reason: 'a 2026 correction never stales the 2025 bucket');
   });
 

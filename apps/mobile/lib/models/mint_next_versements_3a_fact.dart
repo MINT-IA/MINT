@@ -94,6 +94,15 @@ class MintNextVersement3aEntry {
 class MintNextVersements3aFact implements ConfirmedVersements3aSource {
   static const userDeclarationSource = 'user_declaration';
 
+  /// Borne dure de la liste : le bundle scellé est un item unique — au-delà,
+  /// l'écriture est refusée explicitement (jamais silencieusement tronquée).
+  /// ~500 entrées ≈ 60 Ko JSON, très sous les limites keychain observées.
+  static const maxEntries = 500;
+
+  /// Révision stable d'un bucket jamais touché — indépendante des mutations
+  /// des AUTRES années (l'isolation annuelle est un invariant).
+  static const untouchedBucketRevision = 'untouched';
+
   static const entriesKey = 'q_versements_3a_fact_entries';
   static const bucketRevisionsKey = 'q_versements_3a_fact_bucket_revisions';
   static const assertedAtKey = 'q_versements_3a_fact_asserted_at';
@@ -107,6 +116,7 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
   static const wizardKeys = <String>{
     entriesKey,
     bucketRevisionsKey,
+    'q_versements_3a_fact_mutation_count',
     assertedAtKey,
     sourceKey,
     schemaVersionKey,
@@ -119,6 +129,10 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
   /// suppression bump aussi l'année : `max(updatedAt)` des entrées restantes
   /// ne suffirait pas).
   final Map<int, String> bucketRevisions;
+
+  /// Compteur de mutations — deux mutations au même instant produisent des
+  /// révisions distinctes (l'horodatage seul est un fingerprint insuffisant).
+  final int mutationCount;
   final DateTime assertedAt;
   final String source;
   final int schemaVersion;
@@ -127,6 +141,7 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
   const MintNextVersements3aFact({
     required this.entries,
     required this.bucketRevisions,
+    this.mutationCount = 0,
     required this.assertedAt,
     required this.source,
     required this.schemaVersion,
@@ -156,7 +171,11 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
           : MintNext3aVersementsContext(
               taxYear: taxYear,
               totalVerseAnnualCents: totalForYearCents(taxYear),
-              bucketRevision: bucketRevision(taxYear) ?? revision,
+              // Bucket jamais touché → révision stable indépendante des
+              // autres années — jamais la révision globale (elle changerait
+              // quand 2025 bouge et invaliderait 2026 à tort).
+              bucketRevision:
+                  bucketRevision(taxYear) ?? untouchedBucketRevision,
             );
 
   /// VUE dérivée — l'agrégation de faits est permise ; la soustraction d'un
@@ -185,34 +204,59 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
       MintNextVersements3aFact(
         entries: entries,
         bucketRevisions: bucketRevisions,
+        mutationCount: mutationCount + 1,
         assertedAt: at.toUtc(),
         source: source,
         schemaVersion: schemaVersion,
         needsConfirmation: needsConfirmation,
       );
 
+  /// Deux mutations au même instant restent distinguables.
+  String _revisionStamp(DateTime at) =>
+      '${at.toUtc().toIso8601String()}#${mutationCount + 1}';
+
   Map<int, String> _bumped(Iterable<int> years, DateTime at) {
     final next = Map<int, String>.from(bucketRevisions);
+    final stamp = _revisionStamp(at);
     for (final year in years) {
-      next[year] = at.toUtc().toIso8601String();
+      next[year] = stamp;
     }
     return next;
   }
 
+  /// L'unicité des ids est un INVARIANT du modèle — pas une promesse d'un
+  /// écran : un doublon rendrait le fait scellé illisible au prochain
+  /// parsing. Le dépassement de la borne est refusé, jamais tronqué.
   MintNextVersements3aFact withEntryAdded(
-          MintNextVersement3aEntry entry, DateTime at) =>
-      _with(
-        entries: [...entries, entry],
-        bucketRevisions: _bumped([entry.taxYear], at),
-        at: at,
-      );
+      MintNextVersement3aEntry entry, DateTime at) {
+    if (entryById(entry.id) != null) {
+      throw ArgumentError.value(
+          entry.id, 'entry.id', 'duplicate entry id — ids are an invariant');
+    }
+    if (entries.length >= maxEntries) {
+      throw StateError('versements list is at its hard bound ($maxEntries)');
+    }
+    return _with(
+      entries: [...entries, entry],
+      bucketRevisions: _bumped([entry.taxYear], at),
+      at: at,
+    );
+  }
 
-  /// Correction par id stable — jamais suppression + doublon. Déplacer
-  /// l'entrée vers une autre année bump l'ancien ET le nouveau bucket.
+  /// Correction par id stable — jamais suppression + doublon, jamais
+  /// silencieuse : un id inconnu (état UI périmé) ou un changement d'id
+  /// est refusé explicitement.
   MintNextVersements3aFact withEntryUpdated(
       String id, MintNextVersement3aEntry updated, DateTime at) {
     final previous = entryById(id);
-    if (previous == null) return this;
+    if (previous == null) {
+      throw ArgumentError.value(
+          id, 'id', 'unknown entry id — a stale correction must surface');
+    }
+    if (updated.id != id) {
+      throw ArgumentError.value(updated.id, 'updated.id',
+          'entry ids are immutable — corrections never change identity');
+    }
     return _with(
       entries: [
         for (final e in entries) e.id == id ? updated : e,
@@ -224,7 +268,10 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
 
   MintNextVersements3aFact withEntryRemoved(String id, DateTime at) {
     final previous = entryById(id);
-    if (previous == null) return this;
+    if (previous == null) {
+      throw ArgumentError.value(
+          id, 'id', 'unknown entry id — a stale deletion must surface');
+    }
     return _with(
       entries: entries.where((e) => e.id != id).toList(),
       bucketRevisions: _bumped([previous.taxYear], at),
@@ -232,10 +279,13 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
     );
   }
 
+  static const mutationCountKey = 'q_versements_3a_fact_mutation_count';
+
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
         entriesKey: json.encode([for (final e in entries) e.toJson()]),
         bucketRevisionsKey: json.encode(
             bucketRevisions.map((year, rev) => MapEntry('$year', rev))),
+        mutationCountKey: mutationCount,
         assertedAtKey: assertedAt.toUtc().toIso8601String(),
         sourceKey: source,
         schemaVersionKey: schemaVersion,
@@ -249,6 +299,7 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
       Map<String, dynamic> answers) {
     final rawEntries = answers[entriesKey];
     final rawRevisions = answers[bucketRevisionsKey];
+    final mutationCount = _int(answers[mutationCountKey]);
     final assertedAt =
         DateTime.tryParse(answers[assertedAtKey]?.toString() ?? '');
     final source = answers[sourceKey];
@@ -256,6 +307,8 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
     final confirmation = answers[needsConfirmationKey];
     if (rawEntries is! String ||
         rawRevisions is! String ||
+        mutationCount == null ||
+        mutationCount < 0 ||
         assertedAt == null ||
         source is! String ||
         source.isEmpty ||
@@ -281,8 +334,13 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
       for (final entry in decodedRevisions.entries) {
         final year = int.tryParse(entry.key.toString());
         final rev = entry.value;
-        if (year == null || rev is! String) return null;
+        if (year == null || rev is! String || rev.isEmpty) return null;
         revisions[year] = rev;
+      }
+      // Toute année portant des entrées doit avoir un bucket — un bucket
+      // orphelin (année vidée par suppression) reste valide.
+      for (final e in entries) {
+        if (!revisions.containsKey(e.taxYear)) return null;
       }
     } on FormatException {
       return null;
@@ -290,6 +348,7 @@ class MintNextVersements3aFact implements ConfirmedVersements3aSource {
     return MintNextVersements3aFact(
       entries: entries,
       bucketRevisions: revisions,
+      mutationCount: mutationCount,
       assertedAt: assertedAt.toUtc(),
       source: source,
       schemaVersion: schema,

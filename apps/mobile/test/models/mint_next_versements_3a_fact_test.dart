@@ -69,8 +69,9 @@ void main() {
         .withEntryAdded(entry(id: 'v2', taxYear: 2025), t0);
     final moved =
         fact.withEntryUpdated('v1', entry(taxYear: 2025), t2);
-    expect(moved.bucketRevision(2026), t2.toIso8601String());
-    expect(moved.bucketRevision(2025), t2.toIso8601String());
+    expect(moved.bucketRevision(2026), startsWith(t2.toIso8601String()),
+        reason: 'revision = horodatage#compteur');
+    expect(moved.bucketRevision(2025), moved.bucketRevision(2026));
     expect(moved.totalForYearCents(2026), 0);
   });
 
@@ -80,7 +81,7 @@ void main() {
         MintNextVersements3aFact.empty(at: t0).withEntryAdded(entry(), t0);
     final removed = fact.withEntryRemoved('v1', t2);
     expect(removed.entries, isEmpty);
-    expect(removed.bucketRevision(2026), t2.toIso8601String(),
+    expect(removed.bucketRevision(2026), startsWith(t2.toIso8601String()),
         reason: 'max(updatedAt) of remaining entries would miss deletions');
   });
 
@@ -94,6 +95,50 @@ void main() {
     expect(fact.totalForYearCents(2026), 200000,
         reason: 'a 2027 credit pinned to 2026 counts for 2026 — rachats');
     expect(fact.totalForYearCents(2027), 0);
+  });
+
+  test('model invariants are enforced, never silent', () {
+    final fact =
+        MintNextVersements3aFact.empty(at: t0).withEntryAdded(entry(), t0);
+
+    expect(() => fact.withEntryAdded(entry(), t1), throwsArgumentError,
+        reason: 'duplicate id refused — a dup would make the sealed fact '
+            'unreadable at next parse');
+    expect(() => fact.withEntryUpdated('ghost', entry(id: 'ghost'), t1),
+        throwsArgumentError,
+        reason: 'a stale correction surfaces, never silently no-ops');
+    expect(() => fact.withEntryUpdated('v1', entry(id: 'v9'), t1),
+        throwsArgumentError,
+        reason: 'entry ids are immutable');
+    expect(() => fact.withEntryRemoved('ghost', t1), throwsArgumentError);
+  });
+
+  test('two mutations at the same instant yield distinct bucket revisions',
+      () {
+    final fact = MintNextVersements3aFact.empty(at: t0)
+        .withEntryAdded(entry(), t0)
+        .withEntryAdded(entry(id: 'v2'), t0);
+    // Même instant t0, mais compteur de mutations différent.
+    expect(fact.mutationCount, 2);
+    final first = MintNextVersements3aFact.empty(at: t0)
+        .withEntryAdded(entry(), t0)
+        .bucketRevision(2026);
+    expect(fact.bucketRevision(2026), isNot(first));
+  });
+
+  test('an untouched bucket has a stable revision independent of other '
+      'years', () {
+    final fact =
+        MintNextVersements3aFact.empty(at: t0).withEntryAdded(entry(), t0);
+    final ctx2027Before = fact.toConfirmedVersementsContext(2027)!;
+    expect(ctx2027Before.bucketRevision,
+        MintNextVersements3aFact.untouchedBucketRevision);
+
+    final mutated = fact.withEntryAdded(entry(id: 'v2'), t1);
+    final ctx2027After = mutated.toConfirmedVersementsContext(2027)!;
+    expect(ctx2027After.bucketRevision, ctx2027Before.bucketRevision,
+        reason: 'a 2026 mutation never fakes a 2027 change — the yearly '
+            'isolation is an invariant');
   });
 
   test('strict parsing: duplicate ids, zero amounts and garbage yield no '
