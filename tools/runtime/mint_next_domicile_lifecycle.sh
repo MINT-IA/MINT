@@ -144,8 +144,10 @@ xcrun simctl bootstatus "$DEVICE" -b
 APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
 EXECUTABLE="$APP/Runner"
 [[ -x "$EXECUTABLE" ]] || { echo "simulator app executable missing" >&2; exit 1; }
-# Sur un checkout .nosync, le build simulateur peut sortir non signé ; une
-# signature ad-hoc idempotente garde le reçu honnête (adhoc + CDHash réels).
+# Sur un checkout .nosync, le build sort non signé et porte des xattrs de
+# provenance qui font échouer codesign (« detritus not allowed ») — purge
+# puis signature ad-hoc idempotente ; le reçu garde adhoc + CDHash réels.
+xattr -cr "$APP"
 codesign --force --deep -s - "$APP"
 codesign --verify --deep --strict "$APP"
 SIGNATURE_INFO="$(codesign -dvvv "$APP" 2>&1)"
