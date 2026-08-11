@@ -144,6 +144,9 @@ xcrun simctl bootstatus "$DEVICE" -b
 APP="$ROOT/apps/mobile/build/ios/iphonesimulator/Runner.app"
 EXECUTABLE="$APP/Runner"
 [[ -x "$EXECUTABLE" ]] || { echo "simulator app executable missing" >&2; exit 1; }
+# Sur un checkout .nosync, le build simulateur peut sortir non signé ; une
+# signature ad-hoc idempotente garde le reçu honnête (adhoc + CDHash réels).
+codesign --force --deep -s - "$APP"
 codesign --verify --deep --strict "$APP"
 SIGNATURE_INFO="$(codesign -dvvv "$APP" 2>&1)"
 APP_SIGNATURE="$(printf '%s\n' "$SIGNATURE_INFO" | awk -F= '$1 == "Signature" { print $2 }')"
