@@ -9,18 +9,53 @@ void main() {
       effectiveAt: DateTime.utc(2026, 1, 1),
     );
     expect(context.toJson(), {
-      // v4 (Lego 3) : domicile + situation civile + revenu canoniques. Sans
-      // faits confirmés, rien de personnel n'apparaît, et le plafond 3a est
-      // non déterminé — fail-closed.
-      'context_version': 4,
+      // v5 (Lego 4) : domicile + situation civile + revenu + affiliation
+      // LPP canoniques. Sans faits confirmés, rien de personnel n'apparaît,
+      // et le plafond 3a est non déterminé — l'affiliation INCONNUE domine.
+      'context_version': 5,
       'tax_year': 2026,
       'effective_at': '2026-01-01T00:00:00.000Z',
       'capability': 'no_attested_engine',
       'domicile_status': 'missing',
       'civil_status_status': 'missing',
       'revenu_status': 'missing',
-      'plafond_3a_determination': 'undetermined_revenu_missing',
+      'lpp_affiliation_status': 'unknown',
+      'plafond_3a_determination': 'undetermined_lpp_affiliation_unknown',
     });
+  });
+
+  test('plafond determination v5 covers the four fail-closed branches', () {
+    MintNext3aFiscalContext ctx(
+            {MintNext3aLppAffiliationContext? lpp,
+            MintNext3aRevenuContext? revenu}) =>
+        MintNext3aFiscalContext(
+          taxYear: 2026,
+          effectiveAt: DateTime.utc(2026, 1, 1),
+          lppAffiliation: lpp,
+          revenu: revenu,
+        );
+    const yes = MintNext3aLppAffiliationContext(
+        affiliated: true, revision: '2026-08-11T14:00:00.000Z');
+    const no = MintNext3aLppAffiliationContext(
+        affiliated: false, revision: '2026-08-11T14:00:00.000Z');
+    const revenu = MintNext3aRevenuContext(
+        annualNetCents: 7800000,
+        periodToken: 'yearly',
+        revision: '2026-08-11T12:00:00.000Z');
+
+    expect(ctx().plafond3aDetermination,
+        'undetermined_lpp_affiliation_unknown',
+        reason: 'unknown affiliation dominates — never read as not '
+            'affiliated, never derived from employment status');
+    expect(ctx(revenu: revenu).plafond3aDetermination,
+        'undetermined_lpp_affiliation_unknown');
+    expect(ctx(lpp: yes).plafond3aDetermination, 'lpp_affiliated_max',
+        reason: 'the big deduction needs no revenu');
+    expect(ctx(lpp: no, revenu: revenu).plafond3aDetermination,
+        'non_affiliated_20pct_capped');
+    expect(ctx(lpp: no).plafond3aDetermination,
+        'undetermined_revenu_missing',
+        reason: 'the 20 percent rule needs a confirmed revenu');
   });
 
   test(

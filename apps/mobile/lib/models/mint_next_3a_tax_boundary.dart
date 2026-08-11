@@ -118,14 +118,48 @@ abstract interface class ConfirmedRevenuSource {
   MintNext3aRevenuContext? toConfirmedRevenuContext();
 }
 
+/// Affiliation LPP confirmée vue par la préparation 3a.
+///
+/// Null = INCONNUE (fait absent ou en attente) — jamais « non affilié ».
+/// Un « non » confirmé est un vrai contexte avec [affiliated] == false.
+class MintNext3aLppAffiliationContext {
+  const MintNext3aLppAffiliationContext({
+    required this.affiliated,
+    required this.revision,
+  });
+
+  final bool affiliated;
+
+  /// Fingerprint du fait (assertedAt UTC) — tout dérivé fiscal lié devient
+  /// périmé quand elle change.
+  final String revision;
+
+  Map<String, Object?> toJson() => {
+        'affiliated': affiliated,
+        'revision': revision,
+      };
+
+  /// Un fait en attente de confirmation n'est PAS une affiliation connue.
+  static MintNext3aLppAffiliationContext? fromConfirmedFact(Object? fact) {
+    if (fact is! ConfirmedLppAffiliationSource) return null;
+    return fact.toConfirmedLppAffiliationContext();
+  }
+}
+
+/// Implémenté par le fait affiliation LPP canonique.
+abstract interface class ConfirmedLppAffiliationSource {
+  MintNext3aLppAffiliationContext? toConfirmedLppAffiliationContext();
+}
+
 class MintNext3aFiscalContext {
   const MintNext3aFiscalContext({
-    this.contextVersion = 4,
+    this.contextVersion = 5,
     required this.taxYear,
     required this.effectiveAt,
     this.domicile,
     this.civilStatus,
     this.revenu,
+    this.lppAffiliation,
   });
 
   final int contextVersion;
@@ -140,19 +174,31 @@ class MintNext3aFiscalContext {
 
   /// Null while no confirmed revenu fact exists.
   final MintNext3aRevenuContext? revenu;
+
+  /// Null tant que l'affiliation LPP est INCONNUE (fait absent ou en
+  /// attente) — jamais un « non » implicite.
+  final MintNext3aLppAffiliationContext? lppAffiliation;
   static const capability = 'no_attested_engine';
 
   bool get domicileKnown => domicile != null;
   bool get civilStatusKnown => civilStatus != null;
   bool get revenuKnown => revenu != null;
+  bool get lppAffiliationKnown => lppAffiliation != null;
 
-  /// Détermination du plafond 3a — FAIL-CLOSED par construction : la grande
-  /// cotisation exige l'affiliation LPP CONFIRMÉE, qui est un fait distinct
-  /// n'existant pas encore (Lego futur). Tant qu'elle n'est pas confirmée,
-  /// le plafond est non déterminé — jamais déduit du statut d'emploi.
-  String get plafond3aDetermination => !revenuKnown
-      ? 'undetermined_revenu_missing'
-      : 'undetermined_lpp_affiliation_unknown';
+  /// Détermination du plafond 3a (v5) — FAIL-CLOSED, tokens symboliques
+  /// seulement (aucun CHF : NoAttestedEngine ; les montants légaux
+  /// appartiennent au moteur attesté et à l'année fiscale du contexte).
+  /// L'affiliation INCONNUE domine — jamais déduite du statut d'emploi ;
+  /// la petite cotisation (20 % du revenu, plafonnée) exige un revenu
+  /// confirmé. Aucune marge tant que les versements n'existent pas
+  /// (Lego 5) — pas de « plafond − 0 » fictif.
+  String get plafond3aDetermination {
+    if (!lppAffiliationKnown) return 'undetermined_lpp_affiliation_unknown';
+    if (lppAffiliation!.affiliated) return 'lpp_affiliated_max';
+    return revenuKnown
+        ? 'non_affiliated_20pct_capped'
+        : 'undetermined_revenu_missing';
+  }
 
   Map<String, Object> toJson() => {
         'context_version': contextVersion,
@@ -165,6 +211,10 @@ class MintNext3aFiscalContext {
         if (civilStatus != null) 'civil_status': civilStatus!.toJson(),
         'revenu_status': revenuKnown ? 'known' : 'missing',
         if (revenu != null) 'revenu': revenu!.toJson(),
+        'lpp_affiliation_status':
+            lppAffiliationKnown ? 'known' : 'unknown',
+        if (lppAffiliation != null)
+          'lpp_affiliation': lppAffiliation!.toJson(),
         'plafond_3a_determination': plafond3aDetermination,
       };
 }

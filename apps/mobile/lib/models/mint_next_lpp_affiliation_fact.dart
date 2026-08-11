@@ -1,3 +1,5 @@
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+
 /// Canonical, user-asserted LPP affiliation fact (Lego 4).
 ///
 /// CONTRAT SÉMANTIQUE : l'affiliation ACTUELLE à une caisse de pension LPP
@@ -9,7 +11,7 @@
 /// (aucun consommateur historique ne lit une clé d'affiliation partagée).
 enum MintNextLppAffiliationStatus { confirmedYes, confirmedNo, unknown }
 
-class MintNextLppAffiliationFact {
+class MintNextLppAffiliationFact implements ConfirmedLppAffiliationSource {
   static const userDeclarationSource = 'user_declaration';
 
   static const valueKey = 'q_lpp_affiliation_fact_value';
@@ -56,6 +58,15 @@ class MintNextLppAffiliationFact {
           : fact.affiliated
               ? MintNextLppAffiliationStatus.confirmedYes
               : MintNextLppAffiliationStatus.confirmedNo;
+
+  @override
+  MintNext3aLppAffiliationContext? toConfirmedLppAffiliationContext() =>
+      needsConfirmation
+          ? null
+          : MintNext3aLppAffiliationContext(
+              affiliated: affiliated,
+              revision: revision,
+            );
 
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
         valueKey: affiliated,
