@@ -84,6 +84,7 @@ class ReportPersistenceService {
   static Future<bool> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
     answers = await SecureWizardStore.canonicalizeHousingAnswers(answers);
+    answers = await SecureWizardStore.canonicalizeCivilStatusAnswers(answers);
     final sealed = await SecureWizardStore.sealSensitiveKeys(answers);
     if (!sealed.allSensitiveSealed) {
       await _scrubLegacyPlainSensitiveAnswers(prefs);
@@ -132,12 +133,15 @@ class ReportPersistenceService {
     final jsonString = prefs.getString(_wizardKey);
 
     if (jsonString == null) {
-      return SecureWizardStore.canonicalizeHousingAnswers({});
+      return SecureWizardStore.canonicalizeCivilStatusAnswers(
+          await SecureWizardStore.canonicalizeHousingAnswers({}));
     }
 
     try {
-      final rawAnswers = await SecureWizardStore.canonicalizeHousingAnswers(
-        Map<String, dynamic>.from(json.decode(jsonString)),
+      final rawAnswers = await SecureWizardStore.canonicalizeCivilStatusAnswers(
+        await SecureWizardStore.canonicalizeHousingAnswers(
+          Map<String, dynamic>.from(json.decode(jsonString)),
+        ),
       );
       final reconciliation =
           await SecureWizardStore.reconcileDeleteTransaction(rawAnswers);

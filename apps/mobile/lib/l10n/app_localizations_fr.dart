@@ -25826,6 +25826,85 @@ class SFr extends S {
       'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
 
   @override
+  String get mintNextEtatCivilTitle => 'Ton état civil';
+
+  @override
+  String get mintNextEtatCivilQuestion => 'Quelle est ta situation ?';
+
+  @override
+  String get mintNextEtatCivilHint =>
+      'Pour la fiscalité, ta situation au 31 décembre fait foi.';
+
+  @override
+  String get mintNextEtatCivilStatusCelibataire => 'Célibataire';
+
+  @override
+  String get mintNextEtatCivilStatusMarie => 'Marié·e';
+
+  @override
+  String get mintNextEtatCivilStatusPartenariatEnregistre =>
+      'En partenariat enregistré';
+
+  @override
+  String get mintNextEtatCivilStatusConcubinage => 'En concubinage';
+
+  @override
+  String get mintNextEtatCivilStatusDivorce => 'Divorcé·e';
+
+  @override
+  String get mintNextEtatCivilStatusVeuf => 'Veuf·ve';
+
+  @override
+  String get mintNextEtatCivilContinue => 'Continuer';
+
+  @override
+  String get mintNextEtatCivilBack => 'Retour';
+
+  @override
+  String get mintNextEtatCivilReviewTitle => 'MINT va retenir';
+
+  @override
+  String mintNextEtatCivilReviewSource(String date) {
+    return 'Déclaré par toi, le $date';
+  }
+
+  @override
+  String get mintNextEtatCivilConfirm => 'Enregistrer';
+
+  @override
+  String get mintNextEtatCivilSavedTitle => 'État civil enregistré';
+
+  @override
+  String get mintNextEtatCivilEdit => 'Modifier';
+
+  @override
+  String get mintNextEtatCivilDelete => 'Supprimer';
+
+  @override
+  String get mintNextEtatCivilDeleteTitle => 'Supprimer ton état civil ?';
+
+  @override
+  String get mintNextEtatCivilDeleteBody =>
+      'MINT oubliera ta situation civile. Tes autres informations ne changent pas.';
+
+  @override
+  String get mintNextEtatCivilDeleteCancel => 'Garder';
+
+  @override
+  String get mintNextEtatCivilDeleteConfirm => 'Supprimer';
+
+  @override
+  String get mintNextEtatCivilSafeExit => 'Quitter sans enregistrer';
+
+  @override
+  String get mintNextEtatCivilErrorMissing =>
+      'Choisis ta situation pour continuer.';
+
+  @override
+  String get mintNextEtatCivilSaveFailed =>
+      'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicile : $commune ($canton)';
   }

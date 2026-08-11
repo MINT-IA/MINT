@@ -114,7 +114,8 @@ class InstallLifecycleService {
     for (final key in _directSecureKeys) {
       try {
         await _storage.delete(key: key);
-      } on Exception {
+      } on Exception catch (e) {
+        if (SecureWizardStore.isTolerableE2eKeychainAbsence(e)) continue;
         purged = false;
         if (kDebugMode) {
           debugPrint('[InstallLifecycle] owned secure purge failed');

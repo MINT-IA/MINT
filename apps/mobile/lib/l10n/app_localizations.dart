@@ -44963,6 +44963,150 @@ abstract class S {
   /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
   String get mintNextDomicileSaveFailed;
 
+  /// No description provided for @mintNextEtatCivilTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton état civil'**
+  String get mintNextEtatCivilTitle;
+
+  /// No description provided for @mintNextEtatCivilQuestion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quelle est ta situation ?'**
+  String get mintNextEtatCivilQuestion;
+
+  /// No description provided for @mintNextEtatCivilHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour la fiscalité, ta situation au 31 décembre fait foi.'**
+  String get mintNextEtatCivilHint;
+
+  /// No description provided for @mintNextEtatCivilStatusCelibataire.
+  ///
+  /// In fr, this message translates to:
+  /// **'Célibataire'**
+  String get mintNextEtatCivilStatusCelibataire;
+
+  /// No description provided for @mintNextEtatCivilStatusMarie.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marié·e'**
+  String get mintNextEtatCivilStatusMarie;
+
+  /// No description provided for @mintNextEtatCivilStatusPartenariatEnregistre.
+  ///
+  /// In fr, this message translates to:
+  /// **'En partenariat enregistré'**
+  String get mintNextEtatCivilStatusPartenariatEnregistre;
+
+  /// No description provided for @mintNextEtatCivilStatusConcubinage.
+  ///
+  /// In fr, this message translates to:
+  /// **'En concubinage'**
+  String get mintNextEtatCivilStatusConcubinage;
+
+  /// No description provided for @mintNextEtatCivilStatusDivorce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Divorcé·e'**
+  String get mintNextEtatCivilStatusDivorce;
+
+  /// No description provided for @mintNextEtatCivilStatusVeuf.
+  ///
+  /// In fr, this message translates to:
+  /// **'Veuf·ve'**
+  String get mintNextEtatCivilStatusVeuf;
+
+  /// No description provided for @mintNextEtatCivilContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get mintNextEtatCivilContinue;
+
+  /// No description provided for @mintNextEtatCivilBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get mintNextEtatCivilBack;
+
+  /// No description provided for @mintNextEtatCivilReviewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT va retenir'**
+  String get mintNextEtatCivilReviewTitle;
+
+  /// No description provided for @mintNextEtatCivilReviewSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déclaré par toi, le {date}'**
+  String mintNextEtatCivilReviewSource(String date);
+
+  /// No description provided for @mintNextEtatCivilConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get mintNextEtatCivilConfirm;
+
+  /// No description provided for @mintNextEtatCivilSavedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'État civil enregistré'**
+  String get mintNextEtatCivilSavedTitle;
+
+  /// No description provided for @mintNextEtatCivilEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get mintNextEtatCivilEdit;
+
+  /// No description provided for @mintNextEtatCivilDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextEtatCivilDelete;
+
+  /// No description provided for @mintNextEtatCivilDeleteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ton état civil ?'**
+  String get mintNextEtatCivilDeleteTitle;
+
+  /// No description provided for @mintNextEtatCivilDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT oubliera ta situation civile. Tes autres informations ne changent pas.'**
+  String get mintNextEtatCivilDeleteBody;
+
+  /// No description provided for @mintNextEtatCivilDeleteCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get mintNextEtatCivilDeleteCancel;
+
+  /// No description provided for @mintNextEtatCivilDeleteConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get mintNextEtatCivilDeleteConfirm;
+
+  /// No description provided for @mintNextEtatCivilSafeExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter sans enregistrer'**
+  String get mintNextEtatCivilSafeExit;
+
+  /// No description provided for @mintNextEtatCivilErrorMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisis ta situation pour continuer.'**
+  String get mintNextEtatCivilErrorMissing;
+
+  /// No description provided for @mintNextEtatCivilSaveFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.'**
+  String get mintNextEtatCivilSaveFailed;
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

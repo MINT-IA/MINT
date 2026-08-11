@@ -148,6 +148,16 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextDomicileListenable =>
       _mintNextDomicile;
 
+  static final ValueNotifier<bool> _mintNextEtatCivil =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNextEtatCivil => _mintNextEtatCivil.value;
+  static set enableMintNextEtatCivil(bool value) =>
+      _mintNextEtatCivil.value = value;
+
+  static ValueListenable<bool> get mintNextEtatCivilListenable =>
+      _mintNextEtatCivil;
+
   static bool get enableMintNextHousing => _mintNextHousing.value;
   static set enableMintNextHousing(bool value) =>
       _mintNextHousing.value = value;
@@ -237,6 +247,9 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mintNextDomicile) {
       enableMintNextDomicile = true;
     }
+    if (E2eRuntimeFlags.mintNextEtatCivil) {
+      enableMintNextEtatCivil = true;
+    }
   }
 
   /// Apply flags from a backend response map.
@@ -287,6 +300,9 @@ class FeatureFlags {
     if (data.containsKey('enableMintNextDomicile')) {
       enableMintNextDomicile = data['enableMintNextDomicile'] == true;
     }
+    if (data.containsKey('enableMintNextEtatCivil')) {
+      enableMintNextEtatCivil = data['enableMintNextEtatCivil'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -321,6 +337,7 @@ class FeatureFlags {
     enableMintNext3aProductHandoff = false;
     enableMintNextHousing = false;
     enableMintNextDomicile = false;
+    enableMintNextEtatCivil = false;
     final decisionClock = Stopwatch()..start();
     try {
       // Debug seams are ignored by compiled release builds. Production always
@@ -353,6 +370,7 @@ class FeatureFlags {
         enableMintNext3aProductHandoff = false;
         enableMintNextHousing = false;
         enableMintNextDomicile = false;
+        enableMintNextEtatCivil = false;
       }
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
@@ -363,6 +381,7 @@ class FeatureFlags {
         enableMintNext3aProductHandoff = false;
         enableMintNextHousing = false;
         enableMintNextDomicile = false;
+        enableMintNextEtatCivil = false;
       }
       // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
       // literal `failure`, NOT `error`). Error code enum only — no raw

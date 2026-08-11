@@ -25691,6 +25691,86 @@ class SEn extends S {
       'Saving did not complete. Your data has not changed. Try again.';
 
   @override
+  String get mintNextEtatCivilTitle => 'Your civil status';
+
+  @override
+  String get mintNextEtatCivilQuestion => 'What is your situation?';
+
+  @override
+  String get mintNextEtatCivilHint =>
+      'For taxes, your situation on 31 December is what counts.';
+
+  @override
+  String get mintNextEtatCivilStatusCelibataire => 'Single';
+
+  @override
+  String get mintNextEtatCivilStatusMarie => 'Married';
+
+  @override
+  String get mintNextEtatCivilStatusPartenariatEnregistre =>
+      'Registered partnership';
+
+  @override
+  String get mintNextEtatCivilStatusConcubinage =>
+      'Living together, not married';
+
+  @override
+  String get mintNextEtatCivilStatusDivorce => 'Divorced';
+
+  @override
+  String get mintNextEtatCivilStatusVeuf => 'Widowed';
+
+  @override
+  String get mintNextEtatCivilContinue => 'Continue';
+
+  @override
+  String get mintNextEtatCivilBack => 'Back';
+
+  @override
+  String get mintNextEtatCivilReviewTitle => 'MINT will remember';
+
+  @override
+  String mintNextEtatCivilReviewSource(String date) {
+    return 'Declared by you on $date';
+  }
+
+  @override
+  String get mintNextEtatCivilConfirm => 'Save';
+
+  @override
+  String get mintNextEtatCivilSavedTitle => 'Civil status saved';
+
+  @override
+  String get mintNextEtatCivilEdit => 'Edit';
+
+  @override
+  String get mintNextEtatCivilDelete => 'Delete';
+
+  @override
+  String get mintNextEtatCivilDeleteTitle => 'Delete your civil status?';
+
+  @override
+  String get mintNextEtatCivilDeleteBody =>
+      'MINT will forget your civil status. Your other information does not change.';
+
+  @override
+  String get mintNextEtatCivilDeleteCancel => 'Keep';
+
+  @override
+  String get mintNextEtatCivilDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNextEtatCivilSafeExit => 'Leave without saving';
+
+  @override
+  String get mintNextEtatCivilErrorMissing =>
+      'Choose your situation to continue.';
+
+  @override
+  String get mintNextEtatCivilSaveFailed =>
+      'Saving did not complete. Your data has not changed. Try again.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

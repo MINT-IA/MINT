@@ -12,6 +12,7 @@ import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
 import 'package:mint_mobile/models/response_card.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
@@ -1832,8 +1833,23 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
       case 'canton':
         answers['q_canton'] = value;
       case 'civil_status':
-        final mapped = _mapCivilStatus(value);
-        answers['q_civil_status'] = mapped;
+        // Lego 2 : writer partagé → transaction canonique scellée, jamais
+        // de clé nue via mergeAnswers (une clé nue serait silencieusement
+        // écrasée par la projection canonique au rechargement).
+        final civilStatus =
+            MintNextCivilStatusFact.statusFromToken(_mapCivilStatus(value));
+        if (civilStatus != null) {
+          unawaited(provider
+              .saveCivilStatusFact(MintNextCivilStatusFact(
+                status: civilStatus,
+                assertedAt: DateTime.now().toUtc(),
+                source: MintNextCivilStatusFact.userDeclarationSource,
+                schemaVersion: 1,
+                needsConfirmation: false,
+              ))
+              .catchError((Object error) => debugPrint(
+                  '[CoachChat] civil status canonical save failed: $error')));
+        }
       case 'employment_status':
         final mapped = _mapEmploymentStatus(value);
         answers['q_employment_status'] = mapped;
@@ -1850,10 +1866,15 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
 
   String _mapCivilStatus(String display) {
     final lower = display.toLowerCase();
-    if (lower.contains('mari')) return 'married';
-    if (lower.contains('divorc')) return 'divorced';
+    // « partenariat » avant « mari » : il ne contient pas la sous-chaîne
+    // mais ne doit jamais retomber sur single (imposition commune,
+    // LIFD art. 9 al. 1bis).
+    if (lower.contains('partenariat')) return 'partenariat_enregistre';
+    if (lower.contains('mari')) return 'marie';
+    if (lower.contains('divorc')) return 'divorce';
     if (lower.contains('concubin')) return 'concubinage';
-    return 'single';
+    if (lower.contains('veu')) return 'veuf';
+    return 'celibataire';
   }
 
   String _mapEmploymentStatus(String display) {

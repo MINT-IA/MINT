@@ -12,10 +12,14 @@ library;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io' show File;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:path_provider/path_provider.dart'
+    show getTemporaryDirectory;
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 
 enum CanonicalHousingStatus { missing, present, deleted, corrupt, unavailable }
@@ -24,6 +28,12 @@ class CanonicalHousingRead {
   final CanonicalHousingStatus status;
   final MintNextHousingFact? fact;
   const CanonicalHousingRead(this.status, [this.fact]);
+}
+
+class CanonicalCivilStatusRead {
+  final CanonicalHousingStatus status;
+  final MintNextCivilStatusFact? fact;
+  const CanonicalCivilStatusRead(this.status, [this.fact]);
 }
 
 class SecureWizardSealResult {
@@ -87,8 +97,11 @@ class SecureWizardStore {
   static const _manifestKey = '_mint_wizard_secure_keys_v1';
   static const _deleteJournalKey = '_mint_wizard_delete_journal_v2';
   static const _canonicalHousingKey = '_mint_canonical_housing_v1';
+  static const _canonicalCivilStatusKey = '_mint_canonical_civil_status_v1';
   static const _canonicalHousingInitializedKey =
       '_mint_canonical_housing_initialized_v1';
+  static const _canonicalCivilStatusInitializedKey =
+      '_mint_canonical_civil_status_initialized_v1';
   static int _processEpochCounter = 0;
   static String _processEpoch = _newProcessEpoch();
 
@@ -128,6 +141,81 @@ class SecureWizardStore {
   // (`forcedArchetypeSlug`), both kReleaseMode-guarded for the same
   // "never leak to production" reason.
   static final Map<String, String> _e2eSealFallbackStore = <String, String>{};
+
+  /// E2E harness only : le stash mémoire est adossé au tmp/ du container app
+  /// pour survivre aux relaunchs du harnais (un fait 100 % scellé n'a aucune
+  /// autre surface persistante quand le keychain du build CLI sim est sans
+  /// entitlement, -34018). Jamais SharedPreferences, jamais atteint en
+  /// release (gardé par [_sealFallbackEnabled], kReleaseMode-stripped) ;
+  /// purgé par clearState / désinstallation avec le container.
+  static bool _e2eSealFallbackHydrated = false;
+
+  /// Résolu par path_provider : Directory.systemTemp ne pointe pas vers un
+  /// chemin inscriptible du sandbox sim (preuve diag5 2026-08-11 : tmp/ du
+  /// container vide, fichier introuvable sur tout le device).
+  static Future<File> _sealFallbackFile() async => File(
+      '${(await getTemporaryDirectory()).path}/mint_e2e_seal_fallback.json');
+
+  static Future<void> _hydrateSealFallbackStore() async {
+    if (!_sealFallbackEnabled || _e2eSealFallbackHydrated) return;
+    _e2eSealFallbackHydrated = true;
+    try {
+      final decoded =
+          json.decode(await (await _sealFallbackFile()).readAsString());
+      if (decoded is Map<String, dynamic>) {
+        for (final entry in decoded.entries) {
+          if (entry.value is String) {
+            _e2eSealFallbackStore.putIfAbsent(
+                entry.key, () => entry.value as String);
+          }
+        }
+      }
+    } on Exception {
+      // Fichier absent = premier run du harnais.
+    }
+  }
+
+  /// E2E harness only : stash générique pour les clés hors wizard (session
+  /// AuthService). Le keychain d'une app re-signée ad hoc est FLAKY sur sim
+  /// (parfois vivant, souvent -34018) — sans session persistée, l'app
+  /// retombe sur le portail d'accueil au relaunch et toutes les surfaces
+  /// profondes deviennent injoignables (preuve diag9 2026-08-11). Null /
+  /// no-op hors fallback.
+  static Future<String?> e2eStashRead(String key) async {
+    if (!_sealFallbackEnabled) return null;
+    await _hydrateSealFallbackStore();
+    return _e2eSealFallbackStore[key];
+  }
+
+  static Future<void> e2eStashWrite(String key, String value) async {
+    if (!_sealFallbackEnabled) return;
+    await _hydrateSealFallbackStore();
+    _e2eSealFallbackStore[key] = value;
+    await _persistSealFallbackStore();
+  }
+
+  static Future<void> e2eStashDelete(Iterable<String> keys) async {
+    if (!_sealFallbackEnabled) return;
+    await _hydrateSealFallbackStore();
+    for (final key in keys) {
+      _e2eSealFallbackStore.remove(key);
+    }
+    await _persistSealFallbackStore();
+  }
+
+  static Future<void> _persistSealFallbackStore() async {
+    if (!_sealFallbackEnabled) return;
+    try {
+      final file = await _sealFallbackFile();
+      await file.writeAsString(json.encode(_e2eSealFallbackStore));
+      debugPrint('[SecureWizardStore] e2e stash persisted: ${file.path} '
+          '(${_e2eSealFallbackStore.length} keys)');
+    } on Object catch (e) {
+      // Best-effort harnais : le stash mémoire reste la session courante.
+      // debugPrint (pas dev.log) : visible dans os_log pour le diagnostic.
+      debugPrint('[SecureWizardStore] e2e stash persist FAILED: $e');
+    }
+  }
 
   /// Test seam mirroring `E2eRuntimeFlags.*Override`: forces the fallback on
   /// (or off) in widget/unit tests. Defaults to null -> the compile-time flag.
@@ -169,6 +257,17 @@ class SecureWizardStore {
         );
   }
 
+  /// E2E harness only : vrai quand l'échec keychain est l'absence
+  /// d'entitlement attendue sous MINT_E2E_SEAL_FALLBACK (-34018, build CLI
+  /// sim linker-signed). Une purge est alors réussie côté keychain — le
+  /// stash purgé est le store autoritaire du harnais. Sans cette tolérance,
+  /// le flag « owned secure purge pending » ne se libère jamais et la purge
+  /// re-tourne à CHAQUE boot (preuve console diag4 2026-08-11), détruisant
+  /// les données scellées légitimes écrites après l'intention de purge.
+  /// Toujours faux en release.
+  static bool isTolerableE2eKeychainAbsence(Object error) =>
+      _sealFallbackEnabled && _isMissingEntitlement(error);
+
   static bool _isMissingEntitlement(Object error) {
     if (error is! PlatformException) return false;
     // iOS (flutter_secure_storage SwiftFlutterSecureStoragePlugin) surfaces
@@ -190,11 +289,13 @@ class SecureWizardStore {
   @visibleForTesting
   static void resetSealFallbackForTest() {
     _e2eSealFallbackStore.clear();
+    _e2eSealFallbackHydrated = false;
     debugSealFallbackOverride = null;
     debugDeleteKeysOverride = null;
     debugCommitDeleteOverride = null;
     debugFinalizeDeleteOverride = null;
     debugCanonicalMarkerWriteOverride = null;
+    debugCanonicalCivilStatusWriteOverride = null;
     _processEpoch = _newProcessEpoch();
   }
 
@@ -222,6 +323,10 @@ class SecureWizardStore {
     'q_housing_fact_source',
     'q_housing_fact_schema_version',
     'q_housing_fact_needs_confirmation',
+    'q_etat_civil_fact_asserted_at',
+    'q_etat_civil_fact_source',
+    'q_etat_civil_fact_schema_version',
+    'q_etat_civil_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
@@ -395,7 +500,9 @@ class SecureWizardStore {
         // E2E harness only (kReleaseMode-stripped): seal into a process-local
         // in-memory map so the flush succeeds off-keychain. NEVER reached in
         // release or in a default unit test.
+        await _hydrateSealFallbackStore();
         _e2eSealFallbackStore[key] = value;
+        await _persistSealFallbackStore();
         dev.log(
           'E2E seal fallback: sealed "$key" in debug in-memory store '
           '(keychain -34018, NOT a real keychain seal, NOT release)',
@@ -425,6 +532,7 @@ class SecureWizardStore {
     // authoritative store when active — a failed keychain read returns null
     // WITHOUT throwing (so a catch-only guard would silently lose the value),
     // and a live keychain read could return a stale value. Prefer the map.
+    await _hydrateSealFallbackStore();
     if (_sealFallbackEnabled && _e2eSealFallbackStore.containsKey(key)) {
       return _e2eSealFallbackStore[key];
     }
@@ -704,6 +812,128 @@ class SecureWizardStore {
     return result;
   }
 
+  static Future<CanonicalCivilStatusRead> readCanonicalCivilStatus() async {
+    String? raw;
+    // E2E harness only (kReleaseMode-stripped) : sous fallback, le stash
+    // (mémoire + tmp/ du container) fait autorité — un keychain -34018
+    // rendrait sinon l'enregistrement invisible juste après son write.
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalCivilStatusKey)) {
+      raw = _e2eSealFallbackStore[_canonicalCivilStatusKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalCivilStatusKey);
+      } on Exception {
+        return const CanonicalCivilStatusRead(
+            CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalCivilStatusRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextCivilStatusFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalCivilStatusRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Seam de test : force le résultat du write canonique état civil.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalCivilStatusWriteOverride;
+
+  static Future<bool> writeCanonicalCivilStatus(
+      MintNextCivilStatusFact fact) async {
+    final override = debugCanonicalCivilStatusWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalCivilStatusRecord(
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalCivilStatusDeleted() =>
+      _writeCanonicalCivilStatusRecord(json.encode({'state': 'deleted'}));
+
+  static Future<bool> _writeCanonicalCivilStatusRecord(String record) async {
+    try {
+      await _storage.write(key: _canonicalCivilStatusKey, value: record);
+    } on Exception catch (e) {
+      if (!(_sealFallbackEnabled && _isMissingEntitlement(e))) {
+        return false;
+      }
+      // E2E harness only (kReleaseMode-stripped) : l'app re-signée ad hoc
+      // perd le droit keychain (-34018) — l'enregistrement canonique bascule
+      // dans le stash mémoire, même contrat que `write()`. Après relaunch le
+      // stash est vide → readCanonicalCivilStatus rend `unavailable` et le
+      // cache wizard (déjà commis) reste la surface lue — chemin dégradé
+      // documenté, jamais atteint en release.
+      await _hydrateSealFallbackStore();
+      _e2eSealFallbackStore[_canonicalCivilStatusKey] = record;
+      await _persistSealFallbackStore();
+      dev.log(
+        'E2E seal fallback: canonical civil status stashed in memory '
+        '(keychain -34018, NOT a real keychain seal, NOT release)',
+        name: 'SecureWizardStore',
+      );
+      return true;
+    }
+    try {
+      await _storage.write(
+          key: _canonicalCivilStatusInitializedKey, value: '1');
+    } catch (_) {
+      // L'enregistrement canonique unique fait déjà autorité.
+    }
+    return true;
+  }
+
+  /// Projette l'enregistrement canonique état civil dans les réponses.
+  /// Sans canonique (missing), la valeur legacy `q_civil_status` — scellée
+  /// par clé mais sans métadonnées — reste telle quelle pour les
+  /// consommateurs historiques ; aucune migration implicite : un fait
+  /// n'existe qu'après confirmation explicite.
+  static Future<Map<String, dynamic>> canonicalizeCivilStatusAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalCivilStatus();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      // Le tombstone purge aussi l'alias legacy — sinon CoachProfile
+      // ressuscite l'ancien état civil via q_civil_status_choice.
+      const purged = {
+        ...MintNextCivilStatusFact.wizardKeys,
+        MintNextCivilStatusFact.legacyChoiceKey,
+      };
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere((key, _) => purged.contains(key));
+      await deleteKeys(purged);
+      return result;
+    }
+    return answers;
+  }
+
   static Future<Set<String>> _readManifest() async {
     try {
       final raw = await _storage.read(key: _manifestKey);
@@ -798,15 +1028,15 @@ class SecureWizardStore {
     for (final key in keys) {
       try {
         await _storage.delete(key: '$_heldPrefix$key');
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
       }
     }
     if (deletedAll) {
       try {
         await _storage.delete(key: _heldManifestKey);
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
       }
     }
     return deletedAll;
@@ -820,9 +1050,11 @@ class SecureWizardStore {
     final override = debugDeleteKeysOverride;
     if (override != null) return override(sensitiveKeys);
     if (!kReleaseMode) {
+      await _hydrateSealFallbackStore();
       for (final key in sensitiveKeys) {
         _e2eSealFallbackStore.remove(key);
       }
+      await _persistSealFallbackStore();
     }
     for (final key in sensitiveKeys) {
       try {
@@ -908,36 +1140,50 @@ class SecureWizardStore {
   /// Caller already owns the ReportPersistenceService transaction coordinator.
   static Future<bool> deleteAllDuringCoordinatedReset() async {
     var deletedAll = true;
-    // Privacy reset must also purge the E2E in-memory fallback. Gated on
-    // `!kReleaseMode` (NOT the E2E flag) so it strips from the release snapshot
-    // yet always runs in any debug/harness run — even if the override was
-    // flipped off after seals landed — leaving no PII resident.
+    // Privacy reset must also purge the E2E fallback — the in-memory map AND
+    // its tmp/ backing file, else _hydrateSealFallbackStore resurrects the
+    // supposedly deleted PII at next relaunch. Gated on `!kReleaseMode` (NOT
+    // the E2E flag) so it strips from the release snapshot yet always runs in
+    // any debug/harness run — even if the override was flipped off after
+    // seals landed — leaving no PII resident.
     if (!kReleaseMode) {
       _e2eSealFallbackStore.clear();
+    }
+    // La suppression du fichier reste sous le flag e2e : les écritures y
+    // sont gatées, donc sans flag le fichier n'existe pas — et l'appel
+    // path_provider gèlerait les tests widget (FakeAsync) du reset.
+    if (_sealFallbackEnabled) {
+      try {
+        await (await _sealFallbackFile()).delete();
+      } on Exception {
+        // Fichier absent — rien à purger.
+      }
     }
     final keys = {..._sensitiveKeys, ...await _readManifest()};
     for (final key in keys) {
       try {
         await _storage.delete(key: key);
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
         // Best-effort cleanup: do not block logout/reset on keychain state.
       }
     }
-    try {
-      await _storage.delete(key: _manifestKey);
-    } on Exception {
-      deletedAll = false;
-    }
-    try {
-      await _storage.delete(key: _deleteJournalKey);
-    } on Exception {
-      deletedAll = false;
-    }
-    try {
-      await _storage.delete(key: _canonicalHousingKey);
-    } on Exception {
-      deletedAll = false;
+    // Les markers « initialized » SURVIVENT volontairement au reset : ils
+    // sont la mémoire « une génération canonique a existé » qui empêche la
+    // re-migration des débris scellés en fait après un privacy reset
+    // (contrat testé : « legacy migration never repeats after canonical
+    // generation existed »). Seules les VALEURS canoniques sont purgées.
+    for (final key in const [
+      _manifestKey,
+      _deleteJournalKey,
+      _canonicalHousingKey,
+      _canonicalCivilStatusKey,
+    ]) {
+      try {
+        await _storage.delete(key: key);
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
+      }
     }
     return deletedAll;
   }

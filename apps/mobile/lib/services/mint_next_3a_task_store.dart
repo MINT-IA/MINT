@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
+import 'package:mint_mobile/services/secure_wizard_store.dart';
+
 abstract interface class MintNext3aTaskStorageAdapter {
   Future<String?> read(String key);
   Future<void> write(String key, String value);
@@ -240,9 +242,11 @@ class MintNext3aTaskStore {
       try {
         try {
           await adapter.delete(storageKey);
-        } on Object {
-          _purgeFailedClosed = true;
-          return false;
+        } on Object catch (e) {
+          if (!SecureWizardStore.isTolerableE2eKeychainAbsence(e)) {
+            _purgeFailedClosed = true;
+            return false;
+          }
         }
         _purgeFailedClosed = false;
         _revision.value++;

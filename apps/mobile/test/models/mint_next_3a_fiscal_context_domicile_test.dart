@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 
 void main() {
@@ -71,5 +72,54 @@ void main() {
       'Lausanne',
     );
     expect(MintNext3aDomicileContext.fromConfirmedFact(null), isNull);
+  });
+
+  test(
+      'fiscal context reports civil status known with joint taxation for '
+      'marie and partenariat_enregistre', () {
+    for (final status in [
+      MintNextCivilStatus.marie,
+      MintNextCivilStatus.partenariatEnregistre,
+    ]) {
+      final fact = MintNextCivilStatusFact(
+        status: status,
+        assertedAt: DateTime.utc(2026, 8, 11, 10),
+        source: MintNextCivilStatusFact.userDeclarationSource,
+        schemaVersion: 1,
+        needsConfirmation: false,
+      );
+      final ctx = MintNext3aCivilStatusContext.fromConfirmedFact(fact);
+      expect(ctx?.jointTaxation, isTrue, reason: status.id);
+    }
+  });
+
+  test(
+      'fiscal context reports separate taxation for concubinage and missing '
+      'without a confirmed fact', () {
+    final concubin = MintNextCivilStatusFact(
+      status: MintNextCivilStatus.concubinage,
+      assertedAt: DateTime.utc(2026, 8, 11, 10),
+      source: MintNextCivilStatusFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+    expect(
+      MintNext3aCivilStatusContext.fromConfirmedFact(concubin)?.jointTaxation,
+      isFalse,
+    );
+    final pending = MintNextCivilStatusFact(
+      status: MintNextCivilStatus.marie,
+      assertedAt: DateTime.utc(2026, 8, 11, 10),
+      source: MintNextCivilStatusFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: true,
+    );
+    expect(MintNext3aCivilStatusContext.fromConfirmedFact(pending), isNull);
+    expect(MintNext3aCivilStatusContext.fromConfirmedFact(null), isNull);
+    final bare = MintNext3aFiscalContext(
+      taxYear: 2026,
+      effectiveAt: DateTime.utc(2026, 8, 11),
+    );
+    expect(bare.toJson()['civil_status_status'], 'missing');
   });
 }
