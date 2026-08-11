@@ -45,15 +45,17 @@ tags:
     id: "input:domicile.commune"
 - inputText: "Aarau"
 - hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 3000
 - tapOn:
-    text: "Continuer"
+    id: "action:domicile.continue"
 - extendedWaitUntil:
     visible:
       id: "node:domicile.review"
     timeout: 5000
 - assertVisible: "Aarau.*AG.*"
 - tapOn:
-    text: "Enregistrer"
+    id: "action:domicile.confirm"
 - extendedWaitUntil:
     visible:
       id: "node:domicile.saved"
@@ -108,14 +110,16 @@ tags:
 - eraseText
 - inputText: "Pully"
 - hideKeyboard
+- waitForAnimationToEnd:
+    timeout: 3000
 - tapOn:
-    text: "Continuer"
+    id: "action:domicile.continue"
 - extendedWaitUntil:
     visible:
       id: "node:domicile.review"
     timeout: 5000
 - tapOn:
-    text: "Enregistrer"
+    id: "action:domicile.confirm"
 - extendedWaitUntil:
     visible:
       id: "node:domicile.saved"
@@ -136,7 +140,7 @@ tags:
     visible: "Supprimer ton domicile ?"
     timeout: 5000
 - tapOn:
-    text: "^Supprimer$"
+    id: "action:mon_argent.domicile.delete_confirm"
 - extendedWaitUntil:
     notVisible: "Supprimer ton domicile ?"
     timeout: 10000
