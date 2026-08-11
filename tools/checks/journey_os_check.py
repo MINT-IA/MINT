@@ -54,6 +54,8 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
     "apps/mobile/test/app_router_observers_test.dart",
+    "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart",
     "product/mint_next/storyboard/versements_3a.storyboard.json",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/01-created-visible.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/02-cold-relaunch-visible.png",
