@@ -1,22 +1,24 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "runtime_commit": "781eaa8f481e04b892e288dd933db75585ccdc7f",
+  "runtime_commit": "37c707aec6618ea0c7dad676cdf165681beef5bd",
   "git_dirty": false,
   "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_etat_civil_lifecycle.yaml",
   "flow_sha256": "83d2c7a719f205819e5615d57ad3f2ba6a3a2042dd2012e982c9a383a790143d",
-  "app_sha256": "a963f85eca6bea6768c1809e0d96c9210e23f674afd48df1d3d5d8a23774f192",
+  "app_sha256": "50c320e4304ca9b52a8a2a0834c45ed2b1a2b900aa2b9950b140ea451a512e3a",
   "app_signature": "adhoc",
-  "app_cdhash": "0e57b4c39a53d6a7ecf40584679a9e683b7572c4",
-  "device_udid": "B4257DE1-69E0-461B-8553-6E7BE0650977",
-  "device_name": "Mint EtatCivil Proof-781eaa8f4-73694",
+  "app_cdhash": "42bacd610b7064415216528ecb9e8c538a1b27d2",
+  "device_udid": "64C1193F-8015-4262-91AA-8EDF607CA327",
+  "device_name": "Mint EtatCivil Proof-37c707aec-60839",
   "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
   "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "runtime_version": "26.2",
   "locale": "fr_CH",
   "maestro_version": "2.5.1",
-  "command": "bash tools/runtime/mint_next_etat_civil_lifecycle.sh --runtime-commit 781eaa8f481e04b892e288dd933db75585ccdc7f --capture-evidence",
-  "captured_at": "2026-08-11T10:01:09Z",
+  "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
+  "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
+  "command": "bash tools/runtime/mint_next_etat_civil_lifecycle.sh --runtime-commit 37c707aec6618ea0c7dad676cdf165681beef5bd --capture-evidence",
+  "captured_at": "2026-08-11T11:03:29Z",
   "ordered_outcomes": [
     "saved civil status visible in ma situation",
     "saved civil status survives cold relaunch",
@@ -26,25 +28,25 @@
   ],
   "screenshots": {
     "01-created-visible.png": {
-      "sha256": "af1ce52532f5ab3a913a9ab12976f1527725c7cbda99588800e4f1b4f5b03cf2",
-      "bytes": 180695
+      "sha256": "6d97bcf9a1464c5231271d34fb1639f248294754f1d7b438c35fda2084cae71b",
+      "bytes": 181142
     },
     "02-cold-relaunch-visible.png": {
-      "sha256": "af1ce52532f5ab3a913a9ab12976f1527725c7cbda99588800e4f1b4f5b03cf2",
-      "bytes": 180695
+      "sha256": "c9367488473e7d639a9246a78e6ad601d32eb060929770b06856d4ceac7e62e4",
+      "bytes": 180733
     },
     "03-edited-visible.png": {
-      "sha256": "d156c5fe0f58deae46bacb694312cd350911a627b35c4fa0efd90ecffc5d5874",
-      "bytes": 181627
+      "sha256": "92c83254c000ab638aa703478751b6cdb5f65e8f06a76320dba46650149a52ff",
+      "bytes": 178508
     },
     "04-deleted-absent.png": {
-      "sha256": "c29fe55c9e281c3af6a6e0f685e46fca97dde4857734bc6fee586e793fc64139",
-      "bytes": 187426
+      "sha256": "3b6ddf5f87c4a8843a79082d42d49f53ef1234700ed35c37f50b9e2c7baacb05",
+      "bytes": 167595
     },
     "05-delete-survives-relaunch.png": {
-      "sha256": "da6d4cfe4fb473ea148a40c99a82b66effda2be8220d5fe98b13f78cc936560d",
-      "bytes": 187333
+      "sha256": "71397b83b3238ca02827f1f93cecff16e20abe8dd5236a195ba66d5c92169d79",
+      "bytes": 169455
     }
   },
-  "maestro_log_sha256": "06137a8d7620bda6d4f3974cb127c70715f54d3c9827ad5be647164fadf947e4"
+  "maestro_log_sha256": "236e16750c4526498c37e8127385d0030628bc1f3874b691540f482a36c4a4a5"
 }
