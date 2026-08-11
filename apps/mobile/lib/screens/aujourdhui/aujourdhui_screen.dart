@@ -30,6 +30,7 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
 import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dart';
 import 'package:mint_mobile/widgets/aujourdhui/confidence_evolution_card.dart';
+import 'package:mint_mobile/widgets/aujourdhui/mint_next_3a_handoff_card.dart';
 import 'package:mint_mobile/widgets/aujourdhui/mint_next_housing_card.dart';
 // Walker 2026-05-08 / Aujourdhui-wire fix: surface the persistent
 // FinancialPlan + ConfidenceScore right after the Cap du jour banner.
@@ -223,6 +224,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
           child: CustomScrollView(
             slivers: [
               const SliverToBoxAdapter(child: CapDuJourBanner()),
+              const SliverToBoxAdapter(child: MintNext3aHandoffCard()),
               const SliverToBoxAdapter(child: MintNextHousingCard()),
               // Walker 2026-05-08: even on an empty timeline, surface the
               // persistent plan if one exists (user can have a plan via
@@ -319,6 +321,9 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
               child: CapDuJourBanner(),
             ),
 
+            const SliverToBoxAdapter(
+              child: MintNext3aHandoffCard(),
+            ),
             const SliverToBoxAdapter(
               child: MintNextHousingCard(),
             ),

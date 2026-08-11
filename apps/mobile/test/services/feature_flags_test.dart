@@ -1,4 +1,6 @@
+import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
@@ -21,6 +23,7 @@ void main() {
     FeatureFlags.enableOpenBanking = false;
     FeatureFlags.enableAdminScreens = false;
     FeatureFlags.enableMint2FirstExperienceEntry = false;
+    FeatureFlags.enableMintNext3aProductHandoff = false;
     FeatureFlags.enableMintNextHousing = false;
     FeatureFlags.debugBackendFetcher = null;
     FeatureFlags.debugBackendRefreshTimeout = null;
@@ -145,6 +148,122 @@ void main() {
     test('null value treated as false', () {
       FeatureFlags.applyFromMap({'enableCouplePlusTier': null});
       expect(FeatureFlags.enableCouplePlusTier, isFalse);
+    });
+  });
+
+  group('Mint Next 3a product handoff kill switch', () {
+    test('debug harness may apply only its explicit bounded remote decision',
+        () {
+      E2eRuntimeFlags.mintNext3aRemoteFlagOverride = true;
+      FeatureFlags.applyRuntimeOverrides();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+
+      E2eRuntimeFlags.mintNext3aHarnessOverride = true;
+      FeatureFlags.applyRuntimeOverrides();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isTrue);
+
+      E2eRuntimeFlags.mintNext3aRemoteFlagOverride = false;
+      FeatureFlags.applyRuntimeOverrides();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+    });
+
+    test('debug harness reapplies its decision after backend refresh',
+        () async {
+      E2eRuntimeFlags.mintNext3aHarnessOverride = true;
+      E2eRuntimeFlags.mintNext3aRemoteFlagOverride = true;
+      FeatureFlags.debugBackendFetcher = () async => <String, dynamic>{};
+
+      await FeatureFlags.refreshFromBackend();
+
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isTrue);
+    });
+
+    testWidgets('notifies rendered consumers before and after refresh',
+        (tester) async {
+      final response = Completer<Map<String, dynamic>>();
+      FeatureFlags.enableMintNext3aProductHandoff = true;
+      FeatureFlags.debugBackendFetcher = () => response.future;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ValueListenableBuilder<bool>(
+            valueListenable: FeatureFlags.mintNext3aProductHandoffListenable,
+            builder: (_, enabled, __) => Text(enabled ? 'open' : 'closed'),
+          ),
+        ),
+      );
+      expect(find.text('open'), findsOneWidget);
+
+      final refresh = FeatureFlags.refreshFromBackend();
+      await tester.pump();
+      expect(find.text('closed'), findsOneWidget);
+
+      response.complete({'enableMintNext3aProductHandoff': true});
+      await refresh;
+      await tester.pump();
+      expect(find.text('open'), findsOneWidget);
+    });
+
+    test('defaults off and accepts only exact boolean true', () {
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+
+      FeatureFlags.applyFromMap({'enableMintNext3aProductHandoff': true});
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isTrue);
+
+      for (final value in <Object?>['true', null, 1]) {
+        FeatureFlags.applyFromMap({'enableMintNext3aProductHandoff': value});
+        expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+      }
+    });
+
+    test('refresh resets synchronously before awaiting backend', () async {
+      FeatureFlags.enableMintNext3aProductHandoff = true;
+      final response = Completer<Map<String, dynamic>>();
+      FeatureFlags.debugBackendFetcher = () => response.future;
+
+      final refresh = FeatureFlags.refreshFromBackend();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+
+      response.complete({'enableMintNext3aProductHandoff': true});
+      await refresh;
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isTrue);
+    });
+
+    test('missing flag, timeout, and network failure remain closed', () async {
+      FeatureFlags.enableMintNext3aProductHandoff = true;
+      FeatureFlags.debugBackendFetcher = () async => <String, dynamic>{};
+      await FeatureFlags.refreshFromBackend();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+
+      FeatureFlags.enableMintNext3aProductHandoff = true;
+      FeatureFlags.debugBackendRefreshTimeout = Duration.zero;
+      FeatureFlags.debugBackendFetcher = () async {
+        await Future<void>.delayed(const Duration(milliseconds: 2));
+        return {'enableMintNext3aProductHandoff': true};
+      };
+      await FeatureFlags.refreshFromBackend();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+
+      FeatureFlags.enableMintNext3aProductHandoff = true;
+      FeatureFlags.debugBackendRefreshTimeout = null;
+      FeatureFlags.debugBackendFetcher =
+          () => Future.error(Exception('offline'));
+      await FeatureFlags.refreshFromBackend();
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
+    });
+
+    test('an older successful refresh cannot resurrect the flag', () async {
+      final older = Completer<Map<String, dynamic>>();
+      FeatureFlags.debugBackendFetcher = () => older.future;
+      final firstRefresh = FeatureFlags.refreshFromBackend();
+
+      FeatureFlags.debugBackendFetcher =
+          () => Future.error(Exception('offline'));
+      await FeatureFlags.refreshFromBackend();
+      older.complete({'enableMintNext3aProductHandoff': true});
+      await firstRefresh;
+
+      expect(FeatureFlags.enableMintNext3aProductHandoff, isFalse);
     });
   });
 

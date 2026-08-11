@@ -12,6 +12,7 @@ import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
+  static const _mintNext3aDecisionDeadline = Duration(milliseconds: 700);
   static int _refreshGeneration = 0;
 
   @visibleForTesting
@@ -118,6 +119,22 @@ class FeatureFlags {
   /// When false, `/onb` keeps the existing MVP wedge intent cards.
   static bool enableMint2FirstExperienceEntry = false;
 
+  /// Product handoff from the 3a learning flow to one explicit next action.
+  ///
+  /// This flag is intentionally fail-closed. Every backend refresh resets it
+  /// before doing I/O; only the latest successful response containing the
+  /// exact boolean `true` may open the gate.
+  static final ValueNotifier<bool> _mintNext3aProductHandoff =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNext3aProductHandoff =>
+      _mintNext3aProductHandoff.value;
+  static set enableMintNext3aProductHandoff(bool value) =>
+      _mintNext3aProductHandoff.value = value;
+
+  static ValueListenable<bool> get mintNext3aProductHandoffListenable =>
+      _mintNext3aProductHandoff;
+
   static final ValueNotifier<bool> _mintNextHousing =
       ValueNotifier<bool>(false);
 
@@ -198,6 +215,12 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mint2FirstExperienceEntry) {
       enableMint2FirstExperienceEntry = true;
     }
+    if (E2eRuntimeFlags.mintNext3aHarness) {
+      final remoteDecision = E2eRuntimeFlags.mintNext3aRemoteFlag;
+      if (remoteDecision != null) {
+        enableMintNext3aProductHandoff = remoteDecision;
+      }
+    }
     if (E2eRuntimeFlags.mintNextHousing) {
       enableMintNextHousing = true;
     }
@@ -241,6 +264,10 @@ class FeatureFlags {
           data['enableMint2FirstExperienceEntry'] == true ||
               E2eRuntimeFlags.mint2FirstExperienceEntry;
     }
+    if (data.containsKey('enableMintNext3aProductHandoff')) {
+      enableMintNext3aProductHandoff =
+          data['enableMintNext3aProductHandoff'] == true;
+    }
     if (data.containsKey('enableMintNextHousing')) {
       enableMintNextHousing = data['enableMintNextHousing'] == true;
     }
@@ -275,7 +302,9 @@ class FeatureFlags {
   /// Called at app launch + every 6 hours.
   static Future<void> refreshFromBackend() async {
     final generation = ++_refreshGeneration;
+    enableMintNext3aProductHandoff = false;
     enableMintNextHousing = false;
+    final decisionClock = Stopwatch()..start();
     try {
       // Debug seams are ignored by compiled release builds. Production always
       // uses ApiService and its established 30-second transport timeout.
@@ -284,7 +313,19 @@ class FeatureFlags {
           fetcher == null ? ApiService.get('/config/feature-flags') : fetcher();
       final data = await request;
       if (generation != _refreshGeneration) return;
-      applyFromMap(data);
+      final decisionDeadline =
+          !kReleaseMode && debugBackendRefreshTimeout != null
+              ? debugBackendRefreshTimeout!
+              : _mintNext3aDecisionDeadline;
+      final handoffMayOpen = decisionClock.elapsed <= decisionDeadline &&
+          data['enableMintNext3aProductHandoff'] == true;
+      // Do not discard the shared config response: the deadline is scoped
+      // only to this new product gate. A late response may refresh legacy
+      // flags but must never transiently notify an open Mint Next handoff.
+      final sharedFlags = Map<String, dynamic>.of(data)
+        ..remove('enableMintNext3aProductHandoff');
+      applyFromMap(sharedFlags);
+      enableMintNext3aProductHandoff = handoffMayOpen;
       // OBS-05 — feature_flags breadcrumb on success (D-03 4-level).
       MintBreadcrumbs.featureFlagsRefresh(
         success: true,
@@ -292,6 +333,7 @@ class FeatureFlags {
       );
     } on TimeoutException {
       if (generation == _refreshGeneration) {
+        enableMintNext3aProductHandoff = false;
         enableMintNextHousing = false;
       }
       MintBreadcrumbs.featureFlagsRefresh(
@@ -300,6 +342,7 @@ class FeatureFlags {
       );
     } catch (e) {
       if (generation == _refreshGeneration) {
+        enableMintNext3aProductHandoff = false;
         enableMintNextHousing = false;
       }
       // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level

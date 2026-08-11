@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 
@@ -108,6 +109,7 @@ class InstallLifecycleService {
         includeAuthSession ? await AuthService.purgeStoredSession() : true;
     purged = await SecureWizardStore.deleteAll() && purged;
     purged = await SecureWizardStore.deleteHeldSensitiveValues() && purged;
+    purged = await MintNext3aTaskStore.purgeOwnedTask() && purged;
 
     for (final key in _directSecureKeys) {
       try {
