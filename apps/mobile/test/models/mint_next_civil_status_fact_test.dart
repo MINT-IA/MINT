@@ -48,10 +48,36 @@ void main() {
 
   test('deletion nulls the complete bundle including the status itself', () {
     final deletion = MintNextCivilStatusFact.deletionWizardAnswers();
-    expect(deletion.keys.toSet(), MintNextCivilStatusFact.wizardKeys);
+    expect(deletion.keys.toSet(), {
+      ...MintNextCivilStatusFact.wizardKeys,
+      MintNextCivilStatusFact.legacyChoiceKey,
+    });
     expect(deletion.containsKey('q_civil_status'), isTrue,
         reason: 'the value IS the fact — deletion tombstones it');
+    expect(deletion.containsKey(MintNextCivilStatusFact.legacyChoiceKey),
+        isTrue,
+        reason: 'the tombstone dominates the legacy alias — otherwise the '
+            'old status resurrects through q_civil_status_choice');
     expect(deletion.values.every((v) => v == null), isTrue);
+  });
+
+  test('statusFromToken accepts legacy writer tokens, partenariat never '
+      'degrades', () {
+    expect(MintNextCivilStatusFact.statusFromToken('married'),
+        MintNextCivilStatus.marie);
+    expect(MintNextCivilStatusFact.statusFromToken('divorced'),
+        MintNextCivilStatus.divorce);
+    expect(MintNextCivilStatusFact.statusFromToken('single'),
+        MintNextCivilStatus.celibataire);
+    expect(MintNextCivilStatusFact.statusFromToken('partenariat'),
+        MintNextCivilStatus.partenariatEnregistre);
+    expect(MintNextCivilStatusFact.statusFromToken('partenariat_enregistre'),
+        MintNextCivilStatus.partenariatEnregistre);
+    for (final status in MintNextCivilStatus.values) {
+      expect(MintNextCivilStatusFact.statusFromToken(status.id), status);
+    }
+    expect(MintNextCivilStatusFact.statusFromToken('pacse'), isNull);
+    expect(MintNextCivilStatusFact.statusFromToken(null), isNull);
   });
 
   test('legacy alias is never part of the written bundle', () {

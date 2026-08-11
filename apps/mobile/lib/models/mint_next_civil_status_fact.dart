@@ -93,8 +93,13 @@ class MintNextCivilStatusFact implements ConfirmedCivilStatusSource {
         needsConfirmationKey: needsConfirmation,
       };
 
-  static Map<String, dynamic> deletionWizardAnswers() =>
-      <String, dynamic>{for (final key in wizardKeys) key: null};
+  /// Le tombstone domine explicitement l'alias legacy : sans sa purge,
+  /// `CoachProfile` ressusciterait l'ancien état civil via
+  /// `q_civil_status_choice` après suppression.
+  static Map<String, dynamic> deletionWizardAnswers() => <String, dynamic>{
+        for (final key in wizardKeys) key: null,
+        legacyChoiceKey: null,
+      };
 
   static MintNextCivilStatusFact? fromWizardAnswers(
       Map<String, dynamic> answers) {
@@ -126,6 +131,25 @@ class MintNextCivilStatusFact implements ConfirmedCivilStatusSource {
       if (item.id == value) return item;
     }
     return null;
+  }
+
+  /// Tokens canoniques + alias legacy des writers historiques (onboarding
+  /// W2, coach chat). Le partenariat enregistré ne retombe jamais sur
+  /// célibataire ni concubinage (LIFD art. 9 al. 1bis). Le bundle scellé
+  /// (`fromWizardAnswers`) reste strict : canonique uniquement.
+  static MintNextCivilStatus? statusFromToken(dynamic value) {
+    final exact = _status(value?.toString());
+    if (exact != null) return exact;
+    return switch (value?.toString()) {
+      'married' => MintNextCivilStatus.marie,
+      'divorced' => MintNextCivilStatus.divorce,
+      'single' => MintNextCivilStatus.celibataire,
+      'widowed' || 'widow' => MintNextCivilStatus.veuf,
+      'partenariat' ||
+      'registered_partnership' =>
+        MintNextCivilStatus.partenariatEnregistre,
+      _ => null,
+    };
   }
 
   static int? _int(dynamic value) {

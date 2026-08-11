@@ -133,8 +133,9 @@ class CoachProfileProvider extends ChangeNotifier {
             throw StateError('Canonical civil status deletion failed');
           }
           final cleaned = Map<String, dynamic>.from(snapshot)
-            ..removeWhere(
-                (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+            ..removeWhere((key, _) =>
+                MintNextCivilStatusFact.wizardKeys.contains(key) ||
+                key == MintNextCivilStatusFact.legacyChoiceKey);
           final cacheSaved =
               await ReportPersistenceService.saveAnswers(cleaned);
           if (!cacheSaved) {

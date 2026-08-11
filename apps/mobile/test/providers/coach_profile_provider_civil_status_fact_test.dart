@@ -1,5 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -96,6 +97,48 @@ void main() {
         isFalse);
     expect(persisted['q_birth_year'], 1988,
         reason: 'unrelated answers untouched by the aborted transaction');
+  });
+
+  test('the tombstone dominates a lingering legacy alias', () async {
+    final provider = CoachProfileProvider();
+    await provider.mergeAnswers(
+      {'q_civil_status_choice': 'married', 'q_birth_year': 1988},
+      syncToBackend: false,
+    );
+    await provider.saveCivilStatusFact(marie());
+
+    await provider.deleteCivilStatusFact();
+
+    final persisted = await ReportPersistenceService.loadAnswers();
+    expect(persisted.containsKey('q_civil_status'), isFalse);
+    expect(persisted.containsKey('q_civil_status_choice'), isFalse,
+        reason: 'without purging the alias, CoachProfile resurrects the old '
+            'status through the q_civil_status_choice fallback');
+    expect(persisted['q_birth_year'], 1988);
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+    expect(reloaded.civilStatusFact, isNull);
+    expect(reloaded.profile?.etatCivil, isNot(CoachCivilStatus.marie),
+        reason: 'the deleted fact never comes back through the legacy alias');
+  });
+
+  test('a bare merged q_civil_status never outlives the canonical fact',
+      () async {
+    final provider = CoachProfileProvider();
+    await provider.saveCivilStatusFact(marie());
+
+    await provider.mergeAnswers(
+      {'q_civil_status': 'divorce'},
+      syncToBackend: false,
+    );
+
+    final reloaded = CoachProfileProvider();
+    await reloaded.loadFromWizard();
+    expect(reloaded.civilStatusFact, marie(),
+        reason: 'the sealed canonical record is the sole authority — a bare '
+            'write through the plain merge path is overwritten on reload, '
+            'which is why every writer must use saveCivilStatusFact');
   });
 
   test('a corrected status changes the revision', () async {

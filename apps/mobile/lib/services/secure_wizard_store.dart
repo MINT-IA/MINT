@@ -814,10 +814,15 @@ class SecureWizardStore {
       return result;
     }
     if (canonical.status == CanonicalHousingStatus.deleted) {
+      // Le tombstone purge aussi l'alias legacy — sinon CoachProfile
+      // ressuscite l'ancien état civil via q_civil_status_choice.
+      const purged = {
+        ...MintNextCivilStatusFact.wizardKeys,
+        MintNextCivilStatusFact.legacyChoiceKey,
+      };
       final result = Map<String, dynamic>.from(answers)
-        ..removeWhere(
-            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
-      await deleteKeys(MintNextCivilStatusFact.wizardKeys);
+        ..removeWhere((key, _) => purged.contains(key));
+      await deleteKeys(purged);
       return result;
     }
     return answers;
