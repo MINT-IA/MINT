@@ -51,6 +51,9 @@ class E2eRuntimeFlags {
   @visibleForTesting
   static bool? mintNextHousingOverride;
 
+  @visibleForTesting
+  static bool? mintNextDomicileOverride;
+
   static bool get proofAnchors {
     if (kReleaseMode) return false;
     return proofAnchorsOverride ??
@@ -130,6 +133,15 @@ class E2eRuntimeFlags {
         );
   }
 
+  static bool get mintNextDomicile {
+    if (kReleaseMode) return false;
+    return mintNextDomicileOverride ??
+        const bool.fromEnvironment(
+          'MINT_E2E_MINT_NEXT_DOMICILE',
+          defaultValue: false,
+        );
+  }
+
   @visibleForTesting
   static void resetForTest() {
     proofAnchorsOverride = null;
@@ -141,5 +153,6 @@ class E2eRuntimeFlags {
     mintNext3aFlagOffLegOverride = null;
     mintNext3aForceScenarioFailureOverride = null;
     mintNextHousingOverride = null;
+    mintNextDomicileOverride = null;
   }
 }

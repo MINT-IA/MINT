@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "a28085268750c9e0fc9b7921d99fc3fea87bbc07",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_domicile_lifecycle.yaml",
+  "flow_sha256": "5870dd413693b314cbea0b2bbe6f5ac566666e5b7e37fa936a9cde4bf96bb26e",
+  "app_sha256": "8f105efbcd486358c54bdba8c4078a179d868fd5968d401cd83a6ee841c2b7ef",
+  "app_signature": "adhoc",
+  "app_cdhash": "0d2ad92c1913c93f34a71432f0303688054f4f03",
+  "device_udid": "2E61A8CB-B14A-441A-96E1-20DDA3049FA9",
+  "device_name": "Mint Domicile Proof-a28085268-29369",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "command": "bash tools/runtime/mint_next_domicile_lifecycle.sh --runtime-commit a28085268750c9e0fc9b7921d99fc3fea87bbc07 --capture-evidence",
+  "captured_at": "2026-08-11T07:06:48Z",
+  "ordered_outcomes": [
+    "saved domicile visible in ma situation",
+    "saved domicile survives cold relaunch",
+    "corrected commune visible",
+    "delete dialog dismissed and domicile absent",
+    "deletion survives cold relaunch"
+  ],
+  "screenshots": {
+    "01-created-visible.png": {
+      "sha256": "ecb05660be3985e23c9562d69b360f4f49f55532741ee77b2a7029536a030c70",
+      "bytes": 181711
+    },
+    "02-cold-relaunch-visible.png": {
+      "sha256": "ecb05660be3985e23c9562d69b360f4f49f55532741ee77b2a7029536a030c70",
+      "bytes": 181711
+    },
+    "03-edited-visible.png": {
+      "sha256": "505ebaf8a580ab4f10e57d6d59b46c686ffc26bf1d3aabb4712c3101287c149a",
+      "bytes": 180970
+    },
+    "04-deleted-absent.png": {
+      "sha256": "33463945fa1546c47aab92edbeb4d3029636124e661b6382a6b5d089170363a5",
+      "bytes": 186359
+    },
+    "05-delete-survives-relaunch.png": {
+      "sha256": "33463945fa1546c47aab92edbeb4d3029636124e661b6382a6b5d089170363a5",
+      "bytes": 186359
+    }
+  },
+  "maestro_log_sha256": "1e08bdc9ac11a1b2e877b65c857fd9af7dab3db5374c9dc5d4547c8e1da051eb"
+}

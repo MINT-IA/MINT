@@ -234,6 +234,9 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mintNextHousing) {
       enableMintNextHousing = true;
     }
+    if (E2eRuntimeFlags.mintNextDomicile) {
+      enableMintNextDomicile = true;
+    }
   }
 
   /// Apply flags from a backend response map.
