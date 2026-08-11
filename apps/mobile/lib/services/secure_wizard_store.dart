@@ -1148,6 +1148,11 @@ class SecureWizardStore {
     // seals landed — leaving no PII resident.
     if (!kReleaseMode) {
       _e2eSealFallbackStore.clear();
+    }
+    // La suppression du fichier reste sous le flag e2e : les écritures y
+    // sont gatées, donc sans flag le fichier n'existe pas — et l'appel
+    // path_provider gèlerait les tests widget (FakeAsync) du reset.
+    if (_sealFallbackEnabled) {
       try {
         await (await _sealFallbackFile()).delete();
       } on Exception {
@@ -1163,13 +1168,16 @@ class SecureWizardStore {
         // Best-effort cleanup: do not block logout/reset on keychain state.
       }
     }
+    // Les markers « initialized » SURVIVENT volontairement au reset : ils
+    // sont la mémoire « une génération canonique a existé » qui empêche la
+    // re-migration des débris scellés en fait après un privacy reset
+    // (contrat testé : « legacy migration never repeats after canonical
+    // generation existed »). Seules les VALEURS canoniques sont purgées.
     for (final key in const [
       _manifestKey,
       _deleteJournalKey,
       _canonicalHousingKey,
-      _canonicalHousingInitializedKey,
       _canonicalCivilStatusKey,
-      _canonicalCivilStatusInitializedKey,
     ]) {
       try {
         await _storage.delete(key: key);

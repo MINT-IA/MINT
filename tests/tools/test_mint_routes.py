@@ -106,7 +106,7 @@ def test_missing_token_returns_71(monkeypatch):
 # ---------- DRY_RUN health output ----------
 
 
-def test_health_dry_run_produces_156_json_lines():
+def test_health_dry_run_produces_157_json_lines():
     # Baseline bumped 151 → 152 on 2026-05-23 (added /waitlist RouteMeta
     # for sub-phase 01.5 FATCA hard-gate destination — see commit ce71460e).
     # Baseline bumped 152 → 153 on 2026-06-30 (canonicalized
@@ -119,10 +119,12 @@ def test_health_dry_run_produces_156_json_lines():
     # — atterrissage PR C shell 3a, kill-flag OFF).
     # Baseline bumped 155 → 156 on 2026-08-11 (added /mint-next/domicile
     # RouteMeta — Lego 1 fait domicile, kill-flag OFF).
+    # Baseline bumped 156 → 157 on 2026-08-11 (added /mint-next/etat-civil
+    # RouteMeta — Lego 2 fait état civil, kill-flag OFF).
     r = _run(["health", "--json"], env_extra={"MINT_ROUTES_DRY_RUN": "1"})
     assert r.returncode == 0, r.stderr.decode()[:400]
     lines = [ln for ln in r.stdout.decode().splitlines() if ln.strip()]
-    assert len(lines) == 156, "expected 156 JSON lines, got {}".format(
+    assert len(lines) == 157, "expected 157 JSON lines, got {}".format(
         len(lines)
     )
 
