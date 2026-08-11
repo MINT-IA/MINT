@@ -47,8 +47,16 @@ tags:
 - hideKeyboard
 - waitForAnimationToEnd:
     timeout: 3000
-- tapOn:
-    id: "action:domicile.continue"
+# hideKeyboard iOS peut fermer le clavier en tapant hors champ — parfois sur
+# Continuer lui-même. Le tap devient conditionnel : seulement si la review
+# n'est pas déjà affichée.
+- runFlow:
+    when:
+      notVisible:
+        id: "node:domicile.review"
+    commands:
+      - tapOn:
+          id: "action:domicile.continue"
 - extendedWaitUntil:
     visible:
       id: "node:domicile.review"
@@ -112,8 +120,16 @@ tags:
 - hideKeyboard
 - waitForAnimationToEnd:
     timeout: 3000
-- tapOn:
-    id: "action:domicile.continue"
+# hideKeyboard iOS peut fermer le clavier en tapant hors champ — parfois sur
+# Continuer lui-même. Le tap devient conditionnel : seulement si la review
+# n'est pas déjà affichée.
+- runFlow:
+    when:
+      notVisible:
+        id: "node:domicile.review"
+    commands:
+      - tapOn:
+          id: "action:domicile.continue"
 - extendedWaitUntil:
     visible:
       id: "node:domicile.review"
