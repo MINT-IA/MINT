@@ -2306,6 +2306,20 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
                 errors.append(
                     f"single-calculator guard: mon_argent_screen.dart references {marker} — la marge 3a n'a qu'une implémentation, affichée par le vertical"
                 )
+    # Lego 7 — la surface du vertical consomme le calculateur, jamais une
+    # formule locale, un writer ou design_lab.
+    vertical_dir = root / "apps/mobile/lib/screens/mint_next_vertical_3a"
+    if vertical_dir.is_dir():
+        for f in sorted(vertical_dir.rglob("*.dart")):
+            body = f.read_text(encoding="utf-8")
+            for marker in ("725800", "3628800", "design_lab",
+                           "pillar3a_room_calculator", "mergeAnswers(",
+                           "saveVersements3aFact", "saveRevenuFact",
+                           "saveLppAffiliationFact"):
+                if marker in body:
+                    errors.append(
+                        f"vertical-3a guard: {f.relative_to(root)} references {marker} — le vertical consomme le calculateur canonique, jamais une formule locale, un writer ou design_lab"
+                    )
     for rel in STORYBOARD_NO_NETWORK_FILES:
         f = root / rel
         if not f.is_file():

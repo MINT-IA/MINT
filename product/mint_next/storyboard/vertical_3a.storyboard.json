@@ -12,7 +12,7 @@
     "cadrage": "verdict Codex PRIORITÉ: B (post-Lego 6, 2026-08-12) — exposition fidèle du calcul attesté, ordre B → C (writers legacy) → D (retrofit preuves) → E ; design_lab = référence visuelle, jamais writer ni dépendance runtime ; réutiliser les écrans canoniques d'édition des six faits"
   },
   "semantic_contract": "Le vertical CONSOMME exclusivement MintNextMarge3aCalculator (Lego 6) — aucun nouveau calcul, aucune formule locale, aucun adaptateur design_lab→jumeau, aucun writer ni clé nue nouvelle. Chaque outcome du moteur a un rendu public réellement atteignable : available (marge positive, nulle, négative) et chacun des états fail-closed, avec accès direct à l'écran canonique du fait bloquant (LPP, revenu, versements). Chargement, erreur de lecture et absence de données restent des états distincts. Le résultat n'est jamais persisté : recalcul à chaque retour, une marge périmée ne survit pas à une correction. Texte sobre 6 langues, constat jamais conseil (LSFin), aucune économie fiscale estimée.",
-  "classification_decision": "Aucune clé de fait nouvelle, aucune écriture : le vertical est une SURFACE de lecture + navigation vers les écrans d'édition canoniques existants. Flag dédié + kill-switch OFF par défaut, e2e fail-closed. L'anti-double-implémentation du Lego 6 reste garanti par le guard commit-gate.",
+  "classification_decision": "Aucune clé de fait nouvelle, aucune écriture : le vertical est une SURFACE de lecture + navigation vers les écrans d'édition canoniques existants. Flag dédié + kill-switch OFF par défaut, e2e fail-closed. L'anti-double-implémentation du Lego 6 reste garanti par le guard commit-gate. Guard commit-gate étendu : la surface du vertical (apps/mobile/lib/screens/mint_next_vertical_3a/) ne peut contenir ni formule locale (littéraux de plafond), ni import design_lab, ni appel de writer — l'import du calculateur canonique y est l'UNIQUE voie.",
   "known_risks_from_cadrage": [
     "double vérité : tout raccourci qui recalculerait ou copierait la marge hors du calculateur canonique est un défaut structurel",
     "design_lab : référence visuelle uniquement — importer son état ou ses writers serait une contamination",
@@ -57,10 +57,11 @@
     },
     {
       "id": "fix_navigation",
-      "story": "L'état bloquant m'emmène directement à l'écran canonique du fait concerné — LPP, revenu ou versements — jamais un formulaire local.",
+      "story": "Trois classes d'états, jamais confondues : LPP/revenu/versements bloquants → l'écran canonique du fait ; stale → relecture/recalcul déterministe au retour ; année non couverte ou constantes non attestées → état factuel NON éditable, sans faux CTA.",
       "code": "apps/mobile/lib/screens/",
       "tests_planned": [
-        "each blocking state navigates to the canonical edit screen of its fact",
+        "lpp, income and contributions blocking states each navigate to the canonical edit screen of their fact",
+        "unsupported year and unattested constants render as non editable factual states without any CTA",
         "no parallel writer nor bare key exists in the vertical"
       ]
     },
@@ -85,10 +86,12 @@
   "gate_requirements": {
     "outcomes_runtime": [
       "navigation aller-retour depuis l'entrée",
-      "marge positive, nulle et négative affichées dans le vrai vertical",
-      "au moins un blocage par fait absent, rendu et navigable",
-      "au moins un blocage par révision périmée / re-dérivation prouvée",
-      "correction puis recalcul sans double écriture",
+      "available : marge positive, nulle et négative affichées dans le vrai vertical (3 signes)",
+      "lppAffiliationUnknown rendu et navigable vers l'écran LPP canonique",
+      "incomeMissing rendu et navigable vers l'écran revenu canonique",
+      "contributionsMissing rendu et navigable vers l'écran versements canonique",
+      "staleInputs : re-dérivation déterministe prouvée (correction puis recalcul sans double écriture)",
+      "unsupportedTaxYear et regulatoryConstantsUnattested : état factuel NON éditable, sans faux CTA (runtime si atteignable, sinon test widget cité au reçu)",
       "relance à froid : même vérité",
       "zéro payload financier sortant (frontière HTTP observée, REQBODY)"
     ],
