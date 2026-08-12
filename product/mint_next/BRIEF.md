@@ -256,6 +256,7 @@ versements 3a.
 | 2026-08-11 | Lego 2 — état civil (#1224) | LOOP: GO (cadrage Q0-Q5) · REJET 4P1 (3 corrigés, 1 réfuté sur pièces) → ACCEPT · PROMOTION REJET 2P1 → ACCEPT P1=0 | PROMU 5/5 — reçu runtime 37c707aec à portée explicite (proof_scope), flag OFF |
 | 2026-08-11 | Lego 3 — revenu (#1226) | LOOP: GO (Q0-Q5 : clés possédées + projection) · 3× REJET→ACCEPT (watermark tombstone, validation stricte, parsing lexical) · PROMOTION ACCEPT P1=0 | PROMU 5/5 — reçu runtime 8e1c6b418, anti-double-×12 prouvé, budget consommant la projection au runtime (capture 03), flag OFF |
 | 2026-08-11 | Lego 4 — affiliation LPP (#1228) | LOOP: GO AFFILIATION LPP (ordre tranché avant versements) · REJET→ACCEPT (masquage corrupt ×3 faits, unavailable≠corrupt validé) · PROMOTION ACCEPT P1=0 | PROMU 5/5 — reçu runtime b4ff3fa2c au PREMIER run (harnais 9→3→1), tri-état prouvé (suppression = inconnu), plafond 3a déterminable (fiscal v5), flag OFF |
+| 2026-08-11/12 | Lego 5 — versements 3a (#1230) | LOOP: GO (fait PLURIEL tranché : liste atomique, année pinnée, marge au moteur attesté) · 2 REJET→ACCEPT sur le cœur/écran (invariants THROW, dropdown année contrôlé) · PROMOTION : 3 NO-GO → GO au 4e passage (reçu 7 outcomes, frontière HTTP sortante observée, traçabilité en guard) ; 1 claim Codex réfuté sur pièces (grep sans jointure Dart) | PROMU 5/5 — reçu runtime 9e2b71f8c (7 outcomes, 26 REQ toutes GET, 0 payload sortant), premier fait pluriel, fiscal v6, flag OFF — la file initiale du jumeau est COMPLÈTE (6 faits canoniques runtime) |
 
 Note budget (honnêteté) : le loop « doctrine + cadrage » annoncé ~150k tokens
 a très largement dépassé son budget — la réconciliation des gates dev jamais
@@ -283,6 +284,18 @@ Lego 4 : dans le cap 55k, runtime au premier run — le pattern Lego est
 industrialisé de bout en bout. Note pour le Lego 5 (versements) et le
 moteur attesté : l'année fiscale du plafond devient bloquante dès
 l'arrivée des CHF (learning Codex).
+Lego 5 : le gate de promotion a montré sa valeur en trois NO-GO Codex
+successifs — chacun a durci une preuve réelle (reçu à 7 outcomes,
+bodies SORTANTS journalisés à la frontière HTTP, traçabilité
+storyboard↔tests convertie en guard commit-gate mordant). 0-trust
+symétrique exercé dans les deux sens : un claim Codex (« 7 tests
+absents ») réfuté mécaniquement — son grep ignorait la concaténation
+des littéraux Dart multilignes. Leçon : un verdict destructeur se
+vérifie sur pièces avant d'être appliqué, et chaque durcissement doit
+devenir un guard, pas une déclaration de session. 7 runs harnais
+(clavier datetime sans dismiss, soumission par touche OK non
+déterministe, fichier parasite vs checkout propre, audit locators
+anti-regex-dynamiques → ids porteurs de valeur).
 
 ## 6. Journal des Legos
 
