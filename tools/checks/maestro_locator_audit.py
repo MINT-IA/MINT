@@ -414,6 +414,16 @@ def codebase_has_key(key_id: str) -> bool:
         if suffix.isidentifier():
             dynamic_patterns.append(
                 ("mint_next_marge_3a_state_${result.status.name}", suffix))
+    if key_id.startswith("mint_next_vertical_3a_marge_"):
+        suffix = key_id.removeprefix("mint_next_vertical_3a_marge_")
+        if suffix.lstrip("-").isdigit():
+            dynamic_patterns.append(
+                ("mint_next_vertical_3a_marge_$marge", suffix))
+    if key_id.startswith("mint_next_vertical_3a_state_"):
+        suffix = key_id.removeprefix("mint_next_vertical_3a_state_")
+        if suffix.isidentifier():
+            dynamic_patterns.append(
+                ("mint_next_vertical_3a_state_${result.status.name}", suffix))
     if key_id.startswith("rvc_age_state_"):
         suffix = key_id.removeprefix("rvc_age_state_")
         if suffix.isdigit() or suffix == "${output.rvc_expected_age}":

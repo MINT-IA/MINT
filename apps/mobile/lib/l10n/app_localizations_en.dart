@@ -26070,6 +26070,81 @@ class SEn extends S {
   }
 
   @override
+  String get mintNextVertical3aTitle => 'Your 3a';
+
+  @override
+  String get mintNextVertical3aEntryTitle => 'Your 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Paid, ceiling and room for the year — attested.';
+
+  @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT could not re-read your data. Close and reopen the app to retry.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Facts as of $date';
+  }
+
+  @override
+  String mintNextVertical3aEyebrow(String year) {
+    return 'Tax year $year';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineRoom(String amount) {
+    return 'You have $amount of room left.';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineOver(String amount) {
+    return 'Ceiling exceeded by $amount.';
+  }
+
+  @override
+  String mintNextVertical3aVerseRow(String year) {
+    return 'Paid in $year';
+  }
+
+  @override
+  String mintNextVertical3aPlafondRow(String year) {
+    return '$year ceiling';
+  }
+
+  @override
+  String mintNextVertical3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · $year ceiling · set $version';
+  }
+
+  @override
+  String get mintNextVertical3aStateLppUnknown =>
+      'MINT does not yet know whether you are affiliated with a pension fund.';
+
+  @override
+  String get mintNextVertical3aStateIncomeMissing =>
+      'Without a pension fund, your 3a ceiling is computed from your income.';
+
+  @override
+  String get mintNextVertical3aStateContributionsMissing =>
+      'No 3a payment recorded yet.';
+
+  @override
+  String mintNextVertical3aStateUnattested(String year) {
+    return 'The $year ceiling is not yet attested in MINT.';
+  }
+
+  @override
+  String get mintNextVertical3aCtaLpp => 'Answer the pension fund question';
+
+  @override
+  String get mintNextVertical3aCtaRevenu => 'Add my income';
+
+  @override
+  String get mintNextVertical3aCtaVersements => 'Record a payment';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

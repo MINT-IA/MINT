@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "5939d69d37fb9cb7b42e837d5de549e85861abd2",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_preview_shell_lifecycle.yaml",
+  "flow_sha256": "aa7e2808be81c8fb6d3d809aad3a9b18d1a3938a3988cb4912f19b541687057e",
+  "app_sha256": "b7f2309d67bf906535e0289dba247b218759d6e64b515699186cc498b18cdddf",
+  "app_signature": "adhoc",
+  "app_cdhash": "924b2ea70e05a13164cc4ca3cfbceddb1dc4c2c7",
+  "device_udid": "93D39224-4FB8-4F53-970F-E148BC4F3985",
+  "device_name": "Mint Preview Proof-5939d69d3-82642",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
+  "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
+  "command": "bash tools/runtime/mint_next_preview_shell_lifecycle.sh --runtime-commit 5939d69d37fb9cb7b42e837d5de549e85861abd2 --capture-evidence",
+  "captured_at": "2026-08-12T19:10:51Z",
+  "ordered_outcomes": [
+    "landing -> aujourd'hui : coque pure (nav coach/explorer ABSENTS, 'Et ensuite ?' et 'Ton histoire' ABSENTS, entree vertical visible)",
+    "parcours : entree -> vertical (lppUnknown) -> CTA -> fait LPP -> contributionsMissing -> CTA -> versement -> marge 375800",
+    "ma situation pure : entree + faits visibles, hero 'Ton libre mensuel' et selecteur 'Patrimoine' ABSENTS",
+    "deeplink /coach/chat fail-closed (pas de chat 'Dis-moi.', retour coque) ; /explore/famille idem",
+    "relance a froid : meme marge attestee ET memes absences legacy",
+    "zero transmission (frontiere HTTP observee, REQBODY)"
+  ],
+  "non_runtime_proofs": "les 11 tests ON/OFF de preview_shell_masking_test.dart couvrent l'inventaire complet par TYPE de widget et la reference OFF figee (le runtime ne peut pas builder les deux configurations)",
+  "dependent_invalidation_tests": [
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: moving an entry across tax years bumps both buckets",
+    "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart :: versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond"
+  ],
+  "zero_transmission_check": {
+    "boundary": "MintHttpClient.shared — client HTTP unifié process-wide ; chaque requête sortante est journalisée vers OSLog ch.mint.http, BODY DE REQUÊTE inclus en debug (REQBODY) ; un type de requête au body illisible est marqué unobserved et fait échouer le run",
+    "http_boundary_lines_observed": 55,
+    "request_body_lines_observed": 0,
+    "unobserved_request_bodies": 0,
+    "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
+    "console_pattern": "q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a",
+    "static_guard": "journey_os_check _storyboard_traceability_errors : les modules versements (modèle + écran) n'importent aucun client HTTP — FAIL au commit sinon",
+    "residual_limitation": "trafic hors client unifié non journalisé par ce canal : upload PDF document_service (chemin jamais atteint par ce flow) et SDKs tiers (Sentry, couvert par sentry-privacy-guard)",
+    "result": "no match (mechanical, run aborted on match)"
+  },
+  "screenshots": {
+    "01-aujourdhui-pur.png": {
+      "sha256": "3e93c3b51ad6b45566b5684ef68068aa476720c1dde137f704c0b631cb94f23a",
+      "bytes": 118474
+    },
+    "02-parcours-fait-vertical.png": {
+      "sha256": "9d8bc5dd4c370b0a3d53ec0ed5e963cf176432c1ec84ac0c92ed45aa3beac6bc",
+      "bytes": 131983
+    },
+    "03-ma-situation-pure.png": {
+      "sha256": "4d613b76b6c0e1a4e4552ae3dd5611ce67b362e27dbf36587d8c78a29656e887",
+      "bytes": 177817
+    },
+    "04-deeplinks-fail-closed.png": {
+      "sha256": "3e93c3b51ad6b45566b5684ef68068aa476720c1dde137f704c0b631cb94f23a",
+      "bytes": 118474
+    },
+    "05-cold-relaunch.png": {
+      "sha256": "3e93c3b51ad6b45566b5684ef68068aa476720c1dde137f704c0b631cb94f23a",
+      "bytes": 118474
+    }
+  },
+  "maestro_log_sha256": "1b3fe79c0119e41bb1ece82c19be0c30bbe7b4b8799f7ba3bd5b3384c05ef0a0"
+}

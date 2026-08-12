@@ -478,6 +478,15 @@ class CoachProfileProvider extends ChangeNotifier {
   /// True si le chargement a ete effectue au moins une fois.
   bool get isLoaded => _isLoaded;
 
+  bool _loadFailed = false;
+
+  /// Vrai si le dernier rechargement a échoué — les faits exposés nuls ne
+  /// signifient alors PAS « manquants ».
+  bool get loadFailed => _loadFailed;
+
+  @visibleForTesting
+  static bool debugForceLoadFailureForTest = false;
+
   /// True if remote profile hydration has already been attempted.
   bool get remoteHydrationDone => _remoteHydrationDone;
 
@@ -1005,6 +1014,9 @@ class CoachProfileProvider extends ChangeNotifier {
   /// la completion du wizard.
   Future<void> loadFromWizard() async {
     _isLoading = true;
+    // Un nouveau rechargement repart neutre — un échec précédent ne colle
+    // jamais à une relecture réussie.
+    _loadFailed = false;
     notifyListeners();
 
     try {
@@ -1097,8 +1109,12 @@ class CoachProfileProvider extends ChangeNotifier {
       _profile = null;
       _isPartialProfile = false;
       _hasSessionOnlyProfile = false;
+      // Une lecture en échec n'est PAS un fait manquant — les surfaces qui
+      // affirment des états métier doivent pouvoir la distinguer (Lego 7).
+      _loadFailed = true;
     }
 
+    if (debugForceLoadFailureForTest) _loadFailed = true;
     _isLoading = false;
     _isLoaded = true;
     notifyListeners();

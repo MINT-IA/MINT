@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/services/preview_shell_policy.dart';
+import 'package:mint_mobile/widgets/mint_next_vertical_3a_entry_card.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/financial_plan.dart' show computeProfileHash;
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -191,8 +193,10 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
   Widget _buildHomeBody(BuildContext context) {
     final provider = context.watch<TimelineProvider>();
     final l10n = S.of(context)!;
-    final planSection = _buildPlanAndConfidenceSection(context);
-    final lifeEventSection = _buildLifeEventSection(context);
+    final legacyCards = PreviewShellPolicy.instance.showLegacyTodayCards;
+    final planSection =
+        legacyCards ? _buildPlanAndConfidenceSection(context) : null;
+    final lifeEventSection = legacyCards ? _buildLifeEventSection(context) : null;
 
     if (provider.isLoading) {
       return const Scaffold(
@@ -223,8 +227,10 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
         body: SafeArea(
           child: CustomScrollView(
             slivers: [
-              const SliverToBoxAdapter(child: CapDuJourBanner()),
+              if (PreviewShellPolicy.instance.showLegacyTodayCards)
+                const SliverToBoxAdapter(child: CapDuJourBanner()),
               const SliverToBoxAdapter(child: MintNext3aHandoffCard()),
+              const SliverToBoxAdapter(child: _Vertical3aEntrySliver()),
               const SliverToBoxAdapter(child: MintNextHousingCard()),
               // Walker 2026-05-08: even on an empty timeline, surface the
               // persistent plan if one exists (user can have a plan via
@@ -317,9 +323,10 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             // from MintStateProvider. Watches the proxy provider so the
             // banner refreshes automatically whenever CoachProfile
             // changes (save_fact, scan enrichment, wizard load).
-            const SliverToBoxAdapter(
-              child: CapDuJourBanner(),
-            ),
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
+              const SliverToBoxAdapter(
+                child: CapDuJourBanner(),
+              ),
 
             const SliverToBoxAdapter(
               child: MintNext3aHandoffCard(),
@@ -327,6 +334,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             const SliverToBoxAdapter(
               child: MintNextHousingCard(),
             ),
+            const SliverToBoxAdapter(child: _Vertical3aEntrySliver()),
 
             // ── Persistent plan + confidence (Walker 2026-05-08) ──
             // Surfaces FinancialPlan + EnhancedConfidence widgets that
@@ -335,6 +343,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             if (planSection != null) SliverToBoxAdapter(child: planSection),
 
             // ── Tension cards (Phase 17 header) ────────────────
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -351,6 +360,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             ),
 
             // ── Cleo loop indicator ────────────────────────────
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 24),
@@ -361,6 +371,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             ),
 
             // ── Divider: "Ton histoire" ────────────────────────
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 24, bottom: 12),
@@ -400,11 +411,13 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             // ── D5 — lucidity evolution curve (head of « Ton histoire ») ──
             // Self-hides on 0 points (no empty section, D4). Renders the
             // monotone confidence curve « toi d'avant vs toi maintenant ».
-            const SliverToBoxAdapter(
-              child: ConfidenceEvolutionCard(),
-            ),
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
+              const SliverToBoxAdapter(
+                child: ConfidenceEvolutionCard(),
+              ),
 
             // ── Timeline months + nodes ────────────────────────
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
             ...provider.months.expand((month) => [
                   SliverToBoxAdapter(
                     child: MonthHeaderWidget(
@@ -487,9 +500,10 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             // Surfaces previously-silent persistent tools (commitments,
             // monthly check-ins) so the user actually sees what the chat
             // captured. Hides itself when both data sources are empty.
-            const SliverToBoxAdapter(
-              child: CommitmentsAndCheckinsCard(),
-            ),
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
+              const SliverToBoxAdapter(
+                child: CommitmentsAndCheckinsCard(),
+              ),
 
             // ── Bottom padding ─────────────────────────────────
             const SliverToBoxAdapter(
@@ -500,4 +514,19 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       ),
     );
   }
+}
+
+/// Lego 7 — entrée du vertical 3a attesté, montée sur les deux chemins
+/// (timeline vide et peuplée), auto-gatée par le flag dans la carte.
+class _Vertical3aEntrySliver extends StatelessWidget {
+  const _Vertical3aEntrySliver();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(
+            MintSpacing.md, 0, MintSpacing.md, MintSpacing.sm),
+        child: MintNextVertical3aEntryCard(
+          onTap: () => context.push('/mint-next/vertical-3a'),
+        ),
+      );
 }

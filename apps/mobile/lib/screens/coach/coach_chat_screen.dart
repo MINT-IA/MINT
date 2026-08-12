@@ -1614,6 +1614,16 @@ class _CoachChatScreenState extends State<CoachChatScreen> {
           }
         } catch (anonError) {
           debugPrint('[CoachChat] Anonymous fallback also failed: $anonError');
+          // Le backend a RÉPONDU (401/403/429 — quota anonyme épuisé, il
+          // survit à la réinstallation via le Keychain) : c'est un gate
+          // d'accès, pas une panne réseau. « Vérifie ta connexion » mentait
+          // (préversion 2026-08-12) — montrer l'invitation à se connecter.
+          if (anonError is CoachChatApiException) {
+            if (!mounted) return;
+            setState(() => _isLoading = false);
+            _showAnonymousAuthGate();
+            return;
+          }
         }
       }
 

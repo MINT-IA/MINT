@@ -104,10 +104,10 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 160 entries', () {
-      // 147 in Phase 32 ; 13 routes added since. Refresh count when adding /
+    test('has exactly 161 entries', () {
+      // 147 in Phase 32 ; 14 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 160);
+      expect(kRouteRegistry.length, 161);
     });
 
     test('/mint-next/3a is the public local private-flow route', () {
@@ -154,6 +154,15 @@ void main() {
       expect(route.owner, RouteOwner.system);
       expect(route.requiresAuth, isFalse);
       expect(route.killFlag, 'enableMintNextLppAffiliation');
+    });
+
+    test('/mint-next/vertical-3a is the attested 3a room surface', () {
+      final route = kRouteRegistry['/mint-next/vertical-3a'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextVertical3a');
     });
 
     test('/mint-next/versements-3a is the canonical 3a payments flow', () {

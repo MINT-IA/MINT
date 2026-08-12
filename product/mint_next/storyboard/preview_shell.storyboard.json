@@ -1,0 +1,121 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "preview_shell_bascule1",
+    "title": "Bascule 1 — la coque préversion pure jumeau : zéro mélange ancien/nouveau",
+    "promise": "Sous MINT_NEXT_PREVIEW, MINT n'expose QUE l'expérience jumeau : Aujourd'hui (entrées MINT Next + faits) et Ma situation (faits canoniques seuls), confidentialité accessible. Coach et Explorer masqués — un coach qui ne lit pas le jumeau recréerait une deuxième vérité. Aucun insight, hero, module ou projection legacy. Hors préversion, comportement STRICTEMENT inchangé. L'écran vide est honnête : un CTA factuel vers la donnée manquante, jamais un insight réintroduit."
+  },
+  "generated_at": "2026-08-12",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
+    "cadrage": "verdict Codex GO bascule 1 = COQUE UNIQUEMENT (2026-08-12) — reset local complet = bascule 2 ; suppression compte anonyme = bascule 3 ; retour du coach = Lego dédié lecture-jumeau ; mandat Julien : zéro mélange, Claude décide quand montrer"
+  },
+  "semantic_contract": "Une politique centrale IMMUABLE (PreviewShellPolicy), dérivée UNE fois de const bool.fromEnvironment('MINT_NEXT_PREVIEW'), décide : destinations visibles (Aujourd'hui, Ma situation, confidentialité/paramètres), sections autorisées d'Aujourd'hui, mode factuel de Ma situation, routes interdites. Les écrans consomment des propriétés sémantiques (showCoachTab, showLegacyInsights, showLegacyBudgetHero, …) — JAMAIS bool.fromEnvironment directement, zéro condition dispersée. Deeplink vers une route interdite (coach, explorer) ⇒ redirection déterministe vers Aujourd'hui, jamais la surface legacy. Hors préversion, la politique restitue exactement le comportement actuel (non-régression par snapshot). INVENTAIRE NÉGATIF CONCRET (non-montage exigé en préversion) — Aujourd'hui : FinancialPlanCard, ConfidenceScoreCard, ConfidenceEvolutionCard, LifeEventSuggestionsSection (« Et ensuite ? »/modules Simuler), TensionCardWidget, CapDuJourBanner, CleoLoopIndicator, CommitmentsAndCheckinsCard, TimelineNodeWidget/MonthHeaderWidget (timeline legacy) ; Ma situation : _MonArgentDataSpineSummary (hero « Ton libre mensuel »), CoachWhisperService (insight « Bon mois. Tu pourrais verser … CHF en 3a » — coach_whisper_service.dart:63), _MonArgentSituationMap/_MonArgentTrajectoryMap/_MonArgentPensionMap, _MonArgentDetailsExpansion, sélecteurs de sections legacy (Mois/Patrimoine/Prévoyance/Futur). ROUTES INTERDITES — MÉCANISME AU POINT DE DESTINATION : la politique garde la CIBLE RÉSOLUE, pas les chemins d'entrée. Toute route dont RouteMeta.owner ∈ {coach, explore} (17 au registre) porte le redirect fail-closed préversion ; les alias owner:system (/ask-mint, /tools, /advisor, /advisor/plan-30-days, /advisor/wizard) redirigent vers /coach/chat qui EST gardé — ils héritent donc du fail-closed sans liste d'alias à maintenir. Les 5 alias figurent au gate comme CAS DE TEST (assertion du fail-closed hérité), pas comme mécanisme. Les paramètres de coque (/home?screen=coach) sont neutralisés au même point : la coque préversion ignore les sélecteurs d'onglets interdits.",
+  "classification_decision": "Aucune clé de fait, aucune écriture, aucun store : pur masquage de navigation/surfaces piloté par un dart-define compile-time. Pas de flag runtime pour la coque (un seul levier, le define du build TestFlight).",
+  "known_risks_from_cadrage": [
+    "conditions dispersées : tout `bool.fromEnvironment` hors de la politique est un défaut structurel",
+    "écran trop vide : la réponse est un CTA factuel vers la donnée manquante, jamais la réintroduction d'un insight legacy",
+    "LSFin : ne jamais transformer l'absence de modules en promesse implicite de complétude — aucun wording « ta situation complète », seulement les faits connus et leur fraîcheur",
+    "deeplinks : les routes coach/explorer restent enregistrées — c'est la redirection fail-closed qui protège, pas la suppression",
+    "non-régression : preview OFF doit être bit-à-bit le comportement actuel (les utilisateurs hors préversion ne voient RIEN changer)",
+    "marqueurs Keychain anti-remigration : hors périmètre ici (bascule 2) — aucun reset dans cette tranche"
+  ],
+  "out_of_scope": [
+    "reset local complet (bascule 2 — purge SharedPreferences/stores scellés SANS toucher session, consentements, marqueurs anti-remigration)",
+    "suppression de compte anonyme (bascule 3 — même pattern que le fix coach #1236)",
+    "retour du coach (Lego dédié : lecture du jumeau, zéro writer, fail-closed, gate runtime)",
+    "toute destruction de code legacy (bascule 3+)"
+  ],
+  "beats": [
+    {
+      "id": "b0_build_policy",
+      "story": "MINT_NEXT_PREVIEW=true active la coque pure ; absent/false conserve l'existant. La politique est le SEUL point de vérité.",
+      "code": "apps/mobile/lib/services/",
+      "tests": [
+        "the policy derives every semantic property from the single compile-time define",
+        "no screen reads the preview define outside the policy",
+        "test_preview_guard_bites_and_passes"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/preview_shell_policy_test.dart",
+        "tools/checks/tests/test_journey_os_check.py"
+      ]
+    },
+    {
+      "id": "b2_shell",
+      "story": "Navigation limitée à Aujourd'hui et Ma situation ; confidentialité/paramètres accessibles ; Coach et Explorer absents de la barre.",
+      "code": "apps/mobile/lib/",
+      "tests": [
+        "preview shell shows exactly the allowed destinations and hides coach and explorer",
+        "privacy and settings stay reachable in preview"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
+      ]
+    },
+    {
+      "id": "b3_aujourdhui_pur",
+      "story": "Aujourd'hui en préversion : entrée vertical 3a + cartes MINT Next + faits — aucun hero budget, insight legacy, bloc « Et ensuite ? » ni module Simuler, même avec zéro fait.",
+      "code": "apps/mobile/lib/screens/aujourdhui/",
+      "tests": [
+        "preview aujourd'hui mounts mint next entries even with zero facts",
+        "no inventoried legacy widget is mounted in preview aujourd'hui (by name, not by label)"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
+      ]
+    },
+    {
+      "id": "b6_ma_situation_pure",
+      "story": "Ma situation en préversion : les faits canoniques seuls, corrigeables et supprimables — aucune synthèse dérivée ni projection legacy.",
+      "code": "apps/mobile/lib/screens/mon_argent/",
+      "tests": [
+        "preview ma situation shows only canonical fact surfaces",
+        "no inventoried legacy widget nor coach whisper is mounted in preview ma situation"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
+      ]
+    },
+    {
+      "id": "b8_routes_interdites",
+      "story": "Un deeplink coach ou explorer en préversion redirige de façon déterministe vers Aujourd'hui — jamais la surface legacy.",
+      "code": "apps/mobile/lib/app.dart",
+      "tests": [
+        "every route owned by coach or explore redirects fail-closed in preview (registry-driven at the resolved destination)",
+        "system-owned aliases inherit the fail-closed through their guarded target (the five known aliases asserted)",
+        "shell tab params for forbidden destinations are neutralized in preview"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
+      ]
+    },
+    {
+      "id": "b10_non_regression",
+      "story": "Sans le define, la coque actuelle est STRICTEMENT inchangée — les onglets, surfaces et insights existants restent identiques.",
+      "code": "apps/mobile/lib/",
+      "tests": [
+        "without the define the legacy shell keeps its reference surfaces (positive assertions on the inventoried widgets)",
+        "without the define the reference deeplinks keep their legacy destinations"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
+      ]
+    }
+  ],
+  "gate_requirements": {
+    "outcomes_runtime": [
+      "landing → Aujourd'hui : coque pure, aucun libellé legacy interdit",
+      "exactement les destinations autorisées visibles (coach/explorer absents)",
+      "Aujourd'hui zéro-fait : entrées MINT Next visibles, assertions d'ABSENCE des surfaces legacy",
+      "collecte d'un fait via l'entrée → retour : fait visible avec source/fraîcheur",
+      "Ma situation : faits seuls, assertions d'absence des synthèses legacy",
+      "vertical 3a fonctionnel dans la coque",
+      "deeplink coach/explorer → redirection fail-closed vers Aujourd'hui",
+      "relance à froid : mêmes faits, mêmes absences",
+      "zéro transmission (frontière HTTP observée, REQBODY)"
+    ],
+    "preuves": "reçu lié au SHA avec assertions positives ET négatives (widgets de l'inventaire par NOM) · test compile-time des deux configurations · RÉFÉRENCE OFF figée : tests d'assertions POSITIVES des surfaces legacy conservées (shell + Aujourd'hui + Ma situation + deeplinks de référence) · guard anti-dispersion = LIVRABLE : unique occurrence de bool.fromEnvironment('MINT_NEXT_PREVIEW') dans la politique, toute décision de visibilité passe par PreviewShellPolicy, fixtures pass/fail du guard · review Codex P1=0 · gate 5/5 · AUCUN tests_planned résiduel · c'est CE gate qui déclenche le « prêt à tester » (mandat 2026-08-12)"
+  }
+}

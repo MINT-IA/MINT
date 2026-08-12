@@ -26219,6 +26219,82 @@ class SPt extends S {
   }
 
   @override
+  String get mintNextVertical3aTitle => 'O teu 3a';
+
+  @override
+  String get mintNextVertical3aEntryTitle => 'O teu 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Pago, teto e margem do ano — atestados.';
+
+  @override
+  String get mintNextVertical3aReadFailure =>
+      'O MINT não conseguiu reler os teus dados. Fecha e reabre a app para tentar de novo.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Factos a $date';
+  }
+
+  @override
+  String mintNextVertical3aEyebrow(String year) {
+    return 'Ano fiscal $year';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineRoom(String amount) {
+    return 'Restam-te $amount de margem.';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineOver(String amount) {
+    return 'Teto excedido em $amount.';
+  }
+
+  @override
+  String mintNextVertical3aVerseRow(String year) {
+    return 'Pago em $year';
+  }
+
+  @override
+  String mintNextVertical3aPlafondRow(String year) {
+    return 'Teto $year';
+  }
+
+  @override
+  String mintNextVertical3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · teto $year · conjunto $version';
+  }
+
+  @override
+  String get mintNextVertical3aStateLppUnknown =>
+      'O MINT ainda não sabe se estás filiado·a a uma caixa de pensões.';
+
+  @override
+  String get mintNextVertical3aStateIncomeMissing =>
+      'Sem caixa de pensões, o teu teto 3a calcula-se a partir do teu rendimento.';
+
+  @override
+  String get mintNextVertical3aStateContributionsMissing =>
+      'Nenhum pagamento 3a registado por enquanto.';
+
+  @override
+  String mintNextVertical3aStateUnattested(String year) {
+    return 'O teto $year ainda não está atestado no MINT.';
+  }
+
+  @override
+  String get mintNextVertical3aCtaLpp =>
+      'Responder à pergunta da caixa de pensões';
+
+  @override
+  String get mintNextVertical3aCtaRevenu => 'Indicar o meu rendimento';
+
+  @override
+  String get mintNextVertical3aCtaVersements => 'Registar um pagamento';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }

@@ -26263,6 +26263,81 @@ class SDe extends S {
   }
 
   @override
+  String get mintNextVertical3aTitle => 'Deine 3a';
+
+  @override
+  String get mintNextVertical3aEntryTitle => 'Deine 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Einbezahlt, Höchstbetrag und Spielraum des Jahres — attestiert.';
+
+  @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT konnte deine Daten nicht erneut lesen. Schliesse die App und öffne sie erneut.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Fakten per $date';
+  }
+
+  @override
+  String mintNextVertical3aEyebrow(String year) {
+    return 'Steuerjahr $year';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineRoom(String amount) {
+    return 'Dir bleiben $amount Spielraum.';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineOver(String amount) {
+    return 'Höchstbetrag um $amount überschritten.';
+  }
+
+  @override
+  String mintNextVertical3aVerseRow(String year) {
+    return 'Einbezahlt $year';
+  }
+
+  @override
+  String mintNextVertical3aPlafondRow(String year) {
+    return 'Höchstbetrag $year';
+  }
+
+  @override
+  String mintNextVertical3aProvenance(String year, String version) {
+    return 'BVV3 Art. 7 · Höchstbetrag $year · Satz $version';
+  }
+
+  @override
+  String get mintNextVertical3aStateLppUnknown =>
+      'MINT weiss noch nicht, ob du einer Pensionskasse angeschlossen bist.';
+
+  @override
+  String get mintNextVertical3aStateIncomeMissing =>
+      'Ohne Pensionskasse wird dein 3a-Höchstbetrag aus deinem Einkommen berechnet.';
+
+  @override
+  String get mintNextVertical3aStateContributionsMissing =>
+      'Noch keine 3a-Einzahlung erfasst.';
+
+  @override
+  String mintNextVertical3aStateUnattested(String year) {
+    return 'Der Höchstbetrag $year ist in MINT noch nicht attestiert.';
+  }
+
+  @override
+  String get mintNextVertical3aCtaLpp => 'Pensionskassen-Frage beantworten';
+
+  @override
+  String get mintNextVertical3aCtaRevenu => 'Mein Einkommen angeben';
+
+  @override
+  String get mintNextVertical3aCtaVersements => 'Einzahlung erfassen';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }

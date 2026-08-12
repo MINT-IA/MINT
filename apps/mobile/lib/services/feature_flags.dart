@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
@@ -136,10 +137,10 @@ class FeatureFlags {
       _mintNext3aProductHandoff;
 
   static final ValueNotifier<bool> _mintNextHousing =
-      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+      ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static final ValueNotifier<bool> _mintNextDomicile =
-      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+      ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static bool get enableMintNextDomicile => _mintNextDomicile.value;
   static set enableMintNextDomicile(bool value) =>
@@ -149,7 +150,7 @@ class FeatureFlags {
       _mintNextDomicile;
 
   static final ValueNotifier<bool> _mintNextEtatCivil =
-      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+      ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static bool get enableMintNextEtatCivil => _mintNextEtatCivil.value;
   static set enableMintNextEtatCivil(bool value) =>
@@ -158,7 +159,7 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextEtatCivilListenable =>
       _mintNextEtatCivil;
 
-  static final ValueNotifier<bool> _mintNextRevenu = ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+  static final ValueNotifier<bool> _mintNextRevenu = ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static bool get enableMintNextRevenu => _mintNextRevenu.value;
   static set enableMintNextRevenu(bool value) =>
@@ -168,7 +169,7 @@ class FeatureFlags {
       _mintNextRevenu;
 
   static final ValueNotifier<bool> _mintNextLppAffiliation =
-      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+      ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static bool get enableMintNextLppAffiliation =>
       _mintNextLppAffiliation.value;
@@ -179,7 +180,7 @@ class FeatureFlags {
       _mintNextLppAffiliation;
 
   static final ValueNotifier<bool> _mintNextVersements3a =
-      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+      ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static bool get enableMintNextVersements3a => _mintNextVersements3a.value;
   static set enableMintNextVersements3a(bool value) =>
@@ -188,7 +189,7 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextVersements3aListenable =>
       _mintNextVersements3a;
 
-  static final ValueNotifier<bool> _mintNextMarge3a = ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+  static final ValueNotifier<bool> _mintNextMarge3a = ValueNotifier<bool>(PreviewShellPolicy.previewDefine);
 
   static bool get enableMintNextMarge3a => _mintNextMarge3a.value;
   static set enableMintNextMarge3a(bool value) =>
@@ -196,6 +197,16 @@ class FeatureFlags {
 
   static ValueListenable<bool> get mintNextMarge3aListenable =>
       _mintNextMarge3a;
+
+  static final ValueNotifier<bool> _mintNextVertical3a =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNextVertical3a => _mintNextVertical3a.value;
+  static set enableMintNextVertical3a(bool value) =>
+      _mintNextVertical3a.value = value;
+
+  static ValueListenable<bool> get mintNextVertical3aListenable =>
+      _mintNextVertical3a;
 
   static bool get enableMintNextHousing => _mintNextHousing.value;
   static set enableMintNextHousing(bool value) =>
@@ -301,6 +312,9 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mintNextMarge3a) {
       enableMintNextMarge3a = true;
     }
+    if (E2eRuntimeFlags.mintNextVertical3a) {
+      enableMintNextVertical3a = true;
+    }
   }
 
   /// Apply flags from a backend response map.
@@ -368,6 +382,9 @@ class FeatureFlags {
     if (data.containsKey('enableMintNextMarge3a')) {
       enableMintNextMarge3a = data['enableMintNextMarge3a'] == true;
     }
+    if (data.containsKey('enableMintNextVertical3a')) {
+      enableMintNextVertical3a = data['enableMintNextVertical3a'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -407,6 +424,7 @@ class FeatureFlags {
     enableMintNextLppAffiliation = false;
     enableMintNextVersements3a = false;
     enableMintNextMarge3a = false;
+    enableMintNextVertical3a = false;
     final decisionClock = Stopwatch()..start();
     try {
       // Debug seams are ignored by compiled release builds. Production always
