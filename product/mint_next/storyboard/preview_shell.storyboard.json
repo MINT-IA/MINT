@@ -11,7 +11,7 @@
     "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
     "cadrage": "verdict Codex GO bascule 1 = COQUE UNIQUEMENT (2026-08-12) — reset local complet = bascule 2 ; suppression compte anonyme = bascule 3 ; retour du coach = Lego dédié lecture-jumeau ; mandat Julien : zéro mélange, Claude décide quand montrer"
   },
-  "semantic_contract": "Une politique centrale IMMUABLE (PreviewShellPolicy), dérivée UNE fois de const bool.fromEnvironment('MINT_NEXT_PREVIEW'), décide : destinations visibles (Aujourd'hui, Ma situation, confidentialité/paramètres), sections autorisées d'Aujourd'hui, mode factuel de Ma situation, routes interdites. Les écrans consomment des propriétés sémantiques (showCoachTab, showLegacyInsights, showLegacyBudgetHero, …) — JAMAIS bool.fromEnvironment directement, zéro condition dispersée. Deeplink vers une route interdite (coach, explorer) ⇒ redirection déterministe vers Aujourd'hui, jamais la surface legacy. Hors préversion, la politique restitue exactement le comportement actuel (non-régression par snapshot).",
+  "semantic_contract": "Une politique centrale IMMUABLE (PreviewShellPolicy), dérivée UNE fois de const bool.fromEnvironment('MINT_NEXT_PREVIEW'), décide : destinations visibles (Aujourd'hui, Ma situation, confidentialité/paramètres), sections autorisées d'Aujourd'hui, mode factuel de Ma situation, routes interdites. Les écrans consomment des propriétés sémantiques (showCoachTab, showLegacyInsights, showLegacyBudgetHero, …) — JAMAIS bool.fromEnvironment directement, zéro condition dispersée. Deeplink vers une route interdite (coach, explorer) ⇒ redirection déterministe vers Aujourd'hui, jamais la surface legacy. Hors préversion, la politique restitue exactement le comportement actuel (non-régression par snapshot). INVENTAIRE NÉGATIF CONCRET (non-montage exigé en préversion) — Aujourd'hui : FinancialPlanCard, ConfidenceScoreCard, ConfidenceEvolutionCard, LifeEventSuggestionsSection (« Et ensuite ? »/modules Simuler), TensionCard, CapDuJourBanner, CleoLoopIndicator, CommitmentsAndCheckinsCard, TimelineNodeWidget/MonthHeaderWidget (timeline legacy) ; Ma situation : _MonArgentDataSpineSummary (hero « Ton libre mensuel »), CoachWhisperService (insight « Bon mois. Tu pourrais verser … CHF en 3a » — coach_whisper_service.dart:63), _MonArgentSituationMap/_MonArgentTrajectoryMap/_MonArgentPensionMap, _MonArgentDetailsExpansion, sélecteurs de sections legacy (Mois/Patrimoine/Prévoyance/Futur). ROUTES INTERDITES PAR OWNER : toute route dont RouteMeta.owner ∈ {coach, explore} (17 routes recensées dans route_metadata.dart), leurs alias ET les paramètres de coque type /home?screen=coach — la politique consulte le REGISTRE, jamais une liste en dur de deux racines.",
   "classification_decision": "Aucune clé de fait, aucune écriture, aucun store : pur masquage de navigation/surfaces piloté par un dart-define compile-time. Pas de flag runtime pour la coque (un seul levier, le define du build TestFlight).",
   "known_risks_from_cadrage": [
     "conditions dispersées : tout `bool.fromEnvironment` hors de la politique est un défaut structurel",
@@ -34,7 +34,8 @@
       "code": "apps/mobile/lib/services/",
       "tests_planned": [
         "the policy derives every semantic property from the single compile-time define",
-        "no screen reads the preview define outside the policy"
+        "no screen reads the preview define outside the policy",
+        "the anti dispersion guard fails on any preview read or visibility decision outside the policy (pass and fail fixtures)"
       ]
     },
     {
@@ -52,7 +53,7 @@
       "code": "apps/mobile/lib/screens/aujourdhui/",
       "tests_planned": [
         "preview aujourd'hui mounts mint next entries even with zero facts",
-        "no forbidden legacy surface is mounted in preview aujourd'hui"
+        "no inventoried legacy widget is mounted in preview aujourd'hui (by name, not by label)"
       ]
     },
     {
@@ -61,7 +62,7 @@
       "code": "apps/mobile/lib/screens/mon_argent/",
       "tests_planned": [
         "preview ma situation shows only canonical fact surfaces",
-        "legacy summaries and projections are absent in preview"
+        "no inventoried legacy widget nor coach whisper is mounted in preview ma situation"
       ]
     },
     {
@@ -69,7 +70,7 @@
       "story": "Un deeplink coach ou explorer en préversion redirige de façon déterministe vers Aujourd'hui — jamais la surface legacy.",
       "code": "apps/mobile/lib/app.dart",
       "tests_planned": [
-        "forbidden deeplinks redirect deterministically to aujourd'hui in preview"
+        "every route owned by coach or explore redirects fail-closed in preview (driven by the route registry, aliases and shell params included)"
       ]
     },
     {
@@ -77,7 +78,8 @@
       "story": "Sans le define, la coque actuelle est STRICTEMENT inchangée — les onglets, surfaces et insights existants restent identiques.",
       "code": "apps/mobile/lib/",
       "tests_planned": [
-        "without the define the legacy shell is unchanged (reference navigation intact)"
+        "without the define the legacy shell keeps its reference surfaces (positive assertions on the inventoried widgets)",
+        "without the define the reference deeplinks keep their legacy destinations"
       ]
     }
   ],
@@ -93,6 +95,6 @@
       "relance à froid : mêmes faits, mêmes absences",
       "zéro transmission (frontière HTTP observée, REQBODY)"
     ],
-    "preuves": "reçu lié au SHA avec assertions positives ET négatives · test compile-time des deux configurations · guard anti-dispersion (bool.fromEnvironment interdit hors politique) · review Codex P1=0 · gate 5/5 · AUCUN tests_planned résiduel à la PR · c'est CE gate qui déclenche le « prêt à tester » à Julien (mandat 2026-08-12)"
+    "preuves": "reçu lié au SHA avec assertions positives ET négatives (widgets de l'inventaire par NOM) · test compile-time des deux configurations · RÉFÉRENCE OFF figée : tests d'assertions POSITIVES des surfaces legacy conservées (shell + Aujourd'hui + Ma situation + deeplinks de référence) · guard anti-dispersion = LIVRABLE : unique occurrence de bool.fromEnvironment('MINT_NEXT_PREVIEW') dans la politique, toute décision de visibilité passe par PreviewShellPolicy, fixtures pass/fail du guard · review Codex P1=0 · gate 5/5 · AUCUN tests_planned résiduel · c'est CE gate qui déclenche le « prêt à tester » (mandat 2026-08-12)"
   }
 }
