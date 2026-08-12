@@ -26206,6 +26206,82 @@ class SFr extends S {
   }
 
   @override
+  String get mintNextVertical3aTitle => 'Ton 3a';
+
+  @override
+  String get mintNextVertical3aEntryTitle => 'Ton 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Versé, plafond et marge de l’année — attestés.';
+
+  @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT n\'a pas pu relire tes données. Ferme et rouvre l\'app pour réessayer.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Faits au $date';
+  }
+
+  @override
+  String mintNextVertical3aEyebrow(String year) {
+    return 'Année fiscale $year';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineRoom(String amount) {
+    return 'Il te reste $amount de marge.';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineOver(String amount) {
+    return 'Plafond dépassé de $amount.';
+  }
+
+  @override
+  String mintNextVertical3aVerseRow(String year) {
+    return 'Versé en $year';
+  }
+
+  @override
+  String mintNextVertical3aPlafondRow(String year) {
+    return 'Plafond $year';
+  }
+
+  @override
+  String mintNextVertical3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · plafond $year · jeu $version';
+  }
+
+  @override
+  String get mintNextVertical3aStateLppUnknown =>
+      'MINT ne sait pas encore si tu es affilié·e à une caisse de pension.';
+
+  @override
+  String get mintNextVertical3aStateIncomeMissing =>
+      'Sans caisse de pension, ton plafond 3a se calcule depuis ton revenu.';
+
+  @override
+  String get mintNextVertical3aStateContributionsMissing =>
+      'Aucun versement 3a enregistré pour l’instant.';
+
+  @override
+  String mintNextVertical3aStateUnattested(String year) {
+    return 'Le plafond $year n’est pas encore attesté dans MINT.';
+  }
+
+  @override
+  String get mintNextVertical3aCtaLpp =>
+      'Répondre à la question caisse de pension';
+
+  @override
+  String get mintNextVertical3aCtaRevenu => 'Indiquer mon revenu';
+
+  @override
+  String get mintNextVertical3aCtaVersements => 'Enregistrer un versement';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicile : $commune ($canton)';
   }

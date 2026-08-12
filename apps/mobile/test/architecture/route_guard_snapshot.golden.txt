@@ -112,6 +112,7 @@
 /mint-next/lpp-affiliation | public
 /mint-next/revenu | public
 /mint-next/versements-3a | public
+/mint-next/vertical-3a | public
 /mortgage/affordability | authenticated
 /mortgage/amortization | authenticated
 /mortgage/epl-combined | authenticated

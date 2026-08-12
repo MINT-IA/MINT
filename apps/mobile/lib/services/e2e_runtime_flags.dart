@@ -191,6 +191,18 @@ class E2eRuntimeFlags {
   }
 
   @visibleForTesting
+  static bool? mintNextVertical3aOverride;
+
+  static bool get mintNextVertical3a {
+    if (kReleaseMode) return false;
+    return mintNextVertical3aOverride ??
+        const bool.fromEnvironment(
+          'MINT_E2E_MINT_NEXT_VERTICAL_3A',
+          defaultValue: false,
+        );
+  }
+
+  @visibleForTesting
   static bool? mintNextMarge3aOverride;
 
   static bool get mintNextMarge3a {
@@ -206,6 +218,7 @@ class E2eRuntimeFlags {
   static void resetForTest() {
     proofAnchorsOverride = null;
     mintNextMarge3aOverride = null;
+    mintNextVertical3aOverride = null;
     mint2FirstExperienceEntryOverride = null;
     mintNext3aHarnessOverride = null;
     mintNext3aRemoteFlagOverride = null;

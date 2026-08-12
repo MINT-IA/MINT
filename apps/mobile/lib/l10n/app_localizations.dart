@@ -45623,6 +45623,114 @@ abstract class S {
   /// **'Le plafond {year} n\'est pas encore attesté dans MINT.'**
   String mintNextMarge3aStateUnattested(String year);
 
+  /// No description provided for @mintNextVertical3aTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 3a'**
+  String get mintNextVertical3aTitle;
+
+  /// No description provided for @mintNextVertical3aEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 3a'**
+  String get mintNextVertical3aEntryTitle;
+
+  /// No description provided for @mintNextVertical3aEntrySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versé, plafond et marge de l’année — attestés.'**
+  String get mintNextVertical3aEntrySubtitle;
+
+  /// No description provided for @mintNextVertical3aReadFailure.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'a pas pu relire tes données. Ferme et rouvre l\'app pour réessayer.'**
+  String get mintNextVertical3aReadFailure;
+
+  /// No description provided for @mintNextVertical3aFreshness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faits au {date}'**
+  String mintNextVertical3aFreshness(String date);
+
+  /// No description provided for @mintNextVertical3aEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année fiscale {year}'**
+  String mintNextVertical3aEyebrow(String year);
+
+  /// No description provided for @mintNextVertical3aHeadlineRoom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il te reste {amount} de marge.'**
+  String mintNextVertical3aHeadlineRoom(String amount);
+
+  /// No description provided for @mintNextVertical3aHeadlineOver.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond dépassé de {amount}.'**
+  String mintNextVertical3aHeadlineOver(String amount);
+
+  /// No description provided for @mintNextVertical3aVerseRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versé en {year}'**
+  String mintNextVertical3aVerseRow(String year);
+
+  /// No description provided for @mintNextVertical3aPlafondRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond {year}'**
+  String mintNextVertical3aPlafondRow(String year);
+
+  /// No description provided for @mintNextVertical3aProvenance.
+  ///
+  /// In fr, this message translates to:
+  /// **'OPP3 art. 7 · plafond {year} · jeu {version}'**
+  String mintNextVertical3aProvenance(String year, String version);
+
+  /// No description provided for @mintNextVertical3aStateLppUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne sait pas encore si tu es affilié·e à une caisse de pension.'**
+  String get mintNextVertical3aStateLppUnknown;
+
+  /// No description provided for @mintNextVertical3aStateIncomeMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans caisse de pension, ton plafond 3a se calcule depuis ton revenu.'**
+  String get mintNextVertical3aStateIncomeMissing;
+
+  /// No description provided for @mintNextVertical3aStateContributionsMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun versement 3a enregistré pour l’instant.'**
+  String get mintNextVertical3aStateContributionsMissing;
+
+  /// No description provided for @mintNextVertical3aStateUnattested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plafond {year} n’est pas encore attesté dans MINT.'**
+  String mintNextVertical3aStateUnattested(String year);
+
+  /// No description provided for @mintNextVertical3aCtaLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Répondre à la question caisse de pension'**
+  String get mintNextVertical3aCtaLpp;
+
+  /// No description provided for @mintNextVertical3aCtaRevenu.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquer mon revenu'**
+  String get mintNextVertical3aCtaRevenu;
+
+  /// No description provided for @mintNextVertical3aCtaVersements.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer un versement'**
+  String get mintNextVertical3aCtaVersements;
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

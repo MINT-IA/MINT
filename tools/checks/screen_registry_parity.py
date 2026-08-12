@@ -80,6 +80,9 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     # Lego 5 versements 3a (2026-08-11) — kill-flag
     # enableMintNextVersements3a OFF, aucun intent coach dans cette tranche.
     "/mint-next/versements-3a",
+    # Lego 7 vertical 3a (2026-08-12) — kill-flag
+    # enableMintNextVertical3a OFF, aucun intent coach dans cette tranche.
+    "/mint-next/vertical-3a",
     # FATCA hard-gate destination — non-calibrated archetypes land here.
     # Not chat-routable: the coach is BLOCKED for these users (the whole
     # point of the gate), so the LLM has no chat surface to suggest /waitlist.

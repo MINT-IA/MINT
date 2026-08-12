@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "b7cd98cb6268bca7c04c8c359e8e05c063c53156",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_vertical_3a_lifecycle.yaml",
+  "flow_sha256": "090c8f05fc2d5c849ae5d5e145b19a05273c843c0fef785b8b1000d6d2f55d24",
+  "app_sha256": "2ddc479d3e670cfb5333e347e65889bb13aca9a966f57e4e58bbb8d3ef6f494b",
+  "app_signature": "adhoc",
+  "app_cdhash": "105266bcfdade134d02d2e38aae6099d070529d8",
+  "device_udid": "7FF4E03D-F874-4DBF-A7EE-8BB5BCDF7CBE",
+  "device_name": "Mint Vertical Proof-b7cd98cb6-2549",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
+  "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
+  "command": "bash tools/runtime/mint_next_vertical_3a_lifecycle.sh --runtime-commit b7cd98cb6268bca7c04c8c359e8e05c063c53156 --capture-evidence",
+  "captured_at": "2026-08-12T15:46:47Z",
+  "ordered_outcomes": [
+    "round trip from the visible entry on aujourd'hui (tap -> vertical)",
+    "lppAffiliationUnknown rendered with CTA navigating to the canonical LPP screen",
+    "incomeMissing rendered with CTA navigating to the canonical revenu screen (LPP=no, no income)",
+    "contributionsMissing rendered with CTA navigating to the canonical versements screen",
+    "positive marge in the real vertical (id mint_next_vertical_3a_marge_375800, texte marge restante)",
+    "zero marge exact after targeted correction (id marge_0) — re-derivation without any write",
+    "overshoot preserved as signed negative marge (id marge_-400000, texte plafond depasse)",
+    "cold relaunch shows the same attested result (id marge_-400000)",
+    "zero transmission: no vertical/marge/versements data in any network-context console line (REQBODY observed)"
+  ],
+  "non_runtime_proofs": "unsupportedTaxYear + regulatoryConstantsUnattested : tests widget cites au contrat (l'annee du sim et le registre embarque ne sont pas alterables au runtime)",
+  "unsupported_tax_year_proof": "annee hors registre prouvee par test widget cite : 'a year outside the attested registry renders the unattested invitation' (2027)",
+  "dependent_invalidation_tests": [
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: moving an entry across tax years bumps both buckets",
+    "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart :: versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond"
+  ],
+  "zero_transmission_check": {
+    "boundary": "MintHttpClient.shared — client HTTP unifié process-wide ; chaque requête sortante est journalisée vers OSLog ch.mint.http, BODY DE REQUÊTE inclus en debug (REQBODY) ; un type de requête au body illisible est marqué unobserved et fait échouer le run",
+    "http_boundary_lines_observed": 61,
+    "request_body_lines_observed": 0,
+    "unobserved_request_bodies": 0,
+    "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
+    "console_pattern": "(q_versements_3a|marge_3a|vertical_3a|plafond).*(https?://|railway)|(https?://|railway).*q_versements_3a",
+    "static_guard": "journey_os_check _storyboard_traceability_errors : les modules versements (modèle + écran) n'importent aucun client HTTP — FAIL au commit sinon",
+    "residual_limitation": "trafic hors client unifié non journalisé par ce canal : upload PDF document_service (chemin jamais atteint par ce flow) et SDKs tiers (Sentry, couvert par sentry-privacy-guard)",
+    "result": "no match (mechanical, run aborted on match)"
+  },
+  "screenshots": {
+    "01-lpp-unknown-cta.png": {
+      "sha256": "2b5a2ada39d1a33f302e5e9ff18faf973b4660d0392086fee09168599f94a7a1",
+      "bytes": 130946
+    },
+    "02-income-missing-cta.png": {
+      "sha256": "d7133a6bcc0165eb67de1f853f5b1dfa0162ea847fe1ab242c3d3fc65e5ed27e",
+      "bytes": 125311
+    },
+    "02-positive-375800.png": {
+      "sha256": "c7481d285bc7c245ac6cb044490ff7142e2aab8abc225dd8d0f2a6ae50df0681",
+      "bytes": 132031
+    },
+    "03-zero-exact.png": {
+      "sha256": "9931c968ce0481dc398b9f9cb5202dd48b88554381613c886dcfb998804fce3b",
+      "bytes": 129113
+    },
+    "04-negative-signed.png": {
+      "sha256": "92ecc3b619bd4cfef3330b93fbdb5311039293f5becac5842ac745720b6a3ebf",
+      "bytes": 132902
+    },
+    "05-cold-relaunch.png": {
+      "sha256": "c5f22710607ec2abd3a5099bf818c3197934666d35f1b788f8938e9caf31c11c",
+      "bytes": 133139
+    }
+  },
+  "maestro_log_sha256": "f7a20d5206667bb541fe901b06458e761ab2ecb0870e7dd97ccdbfd432d484cd"
+}

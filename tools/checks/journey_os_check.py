@@ -64,9 +64,24 @@ ALLOW = {
     "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart",
     "product/mint_next/storyboard/versements_3a.storyboard.json",
     "product/mint_next/storyboard/marge_3a_attestee.storyboard.json",
+    "product/mint_next/storyboard/vertical_3a.storyboard.json",
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
+    "apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen.dart",
+    "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart",
+    "apps/mobile/test/screens/mint_next_vertical_3a/vertical_3a_entry_points_test.dart",
+    "apps/mobile/lib/widgets/mint_next_vertical_3a_entry_card.dart",
+    "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart",
+    "tools/runtime/mint_next_vertical_3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_vertical_3a_lifecycle.yaml",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/01-lpp-unknown-cta.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/02-income-missing-cta.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/02-positive-375800.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/03-zero-exact.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/04-negative-signed.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/05-cold-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/runtime.json",
     "tools/runtime/mint_next_marge_3a_lifecycle.sh",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_marge_3a_lifecycle.yaml",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/01-affiliated-marge-positive.png",
@@ -2290,6 +2305,40 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
                     errors.append(
                         f"{sb_path.relative_to(root)} beat {beat.get('id')}: declared test not found verbatim in test_files: {name}"
                     )
+    # Lego 7 — la surface du vertical consomme le calculateur canonique,
+    # jamais une formule locale, un writer ou design_lab. Règle POSITIVE :
+    # si la surface existe, elle doit référencer MintNextMarge3aCalculator.
+    import re as _re2
+    vertical_dir = root / "apps/mobile/lib/screens/mint_next_vertical_3a"
+    if vertical_dir.is_dir():
+        dart_files = sorted(vertical_dir.rglob("*.dart"))
+        formula_fingerprints = (
+            _re2.compile(r"\b7258\b"), _re2.compile(r"\b36288\b"),
+            _re2.compile(r"\b725800\b"), _re2.compile(r"\b3628800\b"),
+            _re2.compile(r"\*\s*20\b"), _re2.compile(r"\b20\s*\*"),
+            _re2.compile(r"~/\s*100\b"),
+        )
+        uses_calculator = False
+        for f in dart_files:
+            body = f.read_text(encoding="utf-8")
+            if "MintNextMarge3aCalculator" in body:
+                uses_calculator = True
+            for marker in ("design_lab", "pillar3a_room_calculator",
+                           "mergeAnswers(", "saveVersements3aFact",
+                           "saveRevenuFact", "saveLppAffiliationFact"):
+                if marker in body:
+                    errors.append(
+                        f"vertical-3a guard: {f.relative_to(root)} references {marker} — le vertical consomme le calculateur canonique, jamais une formule locale, un writer ou design_lab"
+                    )
+            for pat in formula_fingerprints:
+                if pat.search(body):
+                    errors.append(
+                        f"vertical-3a guard: {f.relative_to(root)} matches formula fingerprint {pat.pattern} — toute réimplémentation du plafond/marge est interdite"
+                    )
+        if dart_files and not uses_calculator:
+            errors.append(
+                "vertical-3a guard: la surface du vertical existe sans référencer MintNextMarge3aCalculator — le calculateur canonique est l'UNIQUE voie"
+            )
     # Ne s'applique qu'aux racines portant le storyboard versements — les
     # fixtures synthétiques des tests de guard n'embarquent pas l'app.
     if not (root / STORYBOARD_DIR / "versements_3a.storyboard.json").is_file():
