@@ -136,10 +136,10 @@ class FeatureFlags {
       _mintNext3aProductHandoff;
 
   static final ValueNotifier<bool> _mintNextHousing =
-      ValueNotifier<bool>(false);
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static final ValueNotifier<bool> _mintNextDomicile =
-      ValueNotifier<bool>(false);
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static bool get enableMintNextDomicile => _mintNextDomicile.value;
   static set enableMintNextDomicile(bool value) =>
@@ -149,7 +149,7 @@ class FeatureFlags {
       _mintNextDomicile;
 
   static final ValueNotifier<bool> _mintNextEtatCivil =
-      ValueNotifier<bool>(false);
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static bool get enableMintNextEtatCivil => _mintNextEtatCivil.value;
   static set enableMintNextEtatCivil(bool value) =>
@@ -158,7 +158,7 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextEtatCivilListenable =>
       _mintNextEtatCivil;
 
-  static final ValueNotifier<bool> _mintNextRevenu = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> _mintNextRevenu = ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static bool get enableMintNextRevenu => _mintNextRevenu.value;
   static set enableMintNextRevenu(bool value) =>
@@ -168,7 +168,7 @@ class FeatureFlags {
       _mintNextRevenu;
 
   static final ValueNotifier<bool> _mintNextLppAffiliation =
-      ValueNotifier<bool>(false);
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static bool get enableMintNextLppAffiliation =>
       _mintNextLppAffiliation.value;
@@ -179,7 +179,7 @@ class FeatureFlags {
       _mintNextLppAffiliation;
 
   static final ValueNotifier<bool> _mintNextVersements3a =
-      ValueNotifier<bool>(false);
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static bool get enableMintNextVersements3a => _mintNextVersements3a.value;
   static set enableMintNextVersements3a(bool value) =>
@@ -188,7 +188,7 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextVersements3aListenable =>
       _mintNextVersements3a;
 
-  static final ValueNotifier<bool> _mintNextMarge3a = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> _mintNextMarge3a = ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
 
   static bool get enableMintNextMarge3a => _mintNextMarge3a.value;
   static set enableMintNextMarge3a(bool value) =>

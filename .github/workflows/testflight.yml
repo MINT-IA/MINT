@@ -208,6 +208,7 @@ jobs:
           # map. Both get uploaded in the next step.
           flutter build ios --release --no-codesign \
             --dart-define=API_BASE_URL=$API_URL $EXTRA_DEFINES \
+            --dart-define=MINT_NEXT_PREVIEW=true \
             --split-debug-info=build/symbols \
             --obfuscate
 
