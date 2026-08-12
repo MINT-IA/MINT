@@ -273,10 +273,10 @@ receipt = {
     ),
     "captured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     "ordered_outcomes": [
-        "two payments recorded and annual total visible in ma situation (derived aggregate asserted: 2026 total 5'500 CHF)",
+        "two payments recorded and annual total visible in ma situation (value-bearing id asserted: mon_argent_versements_3a_total_2026_550000)",
         "payments survive cold relaunch",
         "one targeted entry corrected and the derived total updated",
-        "dependent derived view re-derived after correction (UI-asserted: 2026 total 6'000 CHF)",
+        "dependent derived view re-derived after correction (value-bearing id asserted: mon_argent_versements_3a_total_2026_600000)",
         "delete-all dialog dismissed and payments absent",
         "deletion survives cold relaunch",
         "zero transmission: no canonical versements key in any network-context console line",

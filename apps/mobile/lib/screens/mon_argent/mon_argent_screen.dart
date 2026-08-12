@@ -1020,11 +1020,17 @@ class _Versements3aFactSurface extends StatelessWidget {
                     MintTextStyles.titleLarge(color: MintColors.textPrimary)),
             const SizedBox(height: MintSpacing.sm),
             for (final year in years)
-              Text(
-                l10n.mintNextVersements3aYearTotal('$year',
-                    mintNextRevenuChf(fact.totalForYearCents(year))),
-                style:
-                    MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+              // L'identifiant porte année + total en centimes : la preuve
+              // runtime asserte la VALEUR re-dérivée, pas juste la présence.
+              Semantics(
+                identifier:
+                    'mon_argent_versements_3a_total_${year}_${fact.totalForYearCents(year)}',
+                child: Text(
+                  l10n.mintNextVersements3aYearTotal('$year',
+                      mintNextRevenuChf(fact.totalForYearCents(year))),
+                  style:
+                      MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+                ),
               ),
             const SizedBox(height: MintSpacing.xs),
             Text(

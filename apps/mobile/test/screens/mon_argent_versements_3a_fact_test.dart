@@ -75,6 +75,12 @@ void main() {
     expect(find.byKey(const Key('mon_argent_versements_3a_fact')), findsOneWidget);
     expect(find.textContaining("total 3'500 CHF"), findsOneWidget);
     expect(
+      find.bySemanticsIdentifier('mon_argent_versements_3a_total_2026_350000'),
+      findsOneWidget,
+      reason: 'la preuve runtime asserte cet id porteur de valeur — le '
+          'format année_centimes est un contrat, pas un détail',
+    );
+    expect(
       find.byKey(const Key('mon_argent_versements_3a_fact_provenance')),
       findsOneWidget,
     );

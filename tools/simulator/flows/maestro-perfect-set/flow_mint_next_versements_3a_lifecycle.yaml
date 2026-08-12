@@ -131,8 +131,9 @@ tags:
     visible:
       id: "mon_argent_versements_3a_fact"
     timeout: 20000
-# Vue dérivée : 3'500 + 2'000 agrégés pour 2026.
-- assertVisible: ".*total 5'500 CHF.*"
+# Vue dérivée : 3'500 + 2'000 agrégés pour 2026 — l'id porte la valeur.
+- assertVisible:
+    id: "mon_argent_versements_3a_total_2026_550000"
 - takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
 - stopApp
 - launchApp:
@@ -205,7 +206,8 @@ tags:
       id: "mon_argent_versements_3a_fact"
     timeout: 12000
 # Invalidation des dépendants : la vue dérivée re-dérive après correction.
-- assertVisible: ".*total 6'000 CHF.*"
+- assertVisible:
+    id: "mon_argent_versements_3a_total_2026_600000"
 - takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
 # Suppression totale depuis Ma situation.
 - tapOn:
