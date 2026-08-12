@@ -1,0 +1,304 @@
+appId: ch.mint.app
+tags:
+  - mint-next-marge-3a
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+# ─── Outcome 1 & 4 : affilié LPP, marge positive ───
+- openLink: "mintapp:///mint-next/lpp-affiliation"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.collect"
+    timeout: 15000
+- tapOn:
+    id: "input:lpp_affiliation.yes"
+- scrollUntilVisible:
+    element:
+      id: "action:lpp_affiliation.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:lpp_affiliation.review"
+    commands:
+      - tapOn:
+          id: "action:lpp_affiliation.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.review"
+    timeout: 5000
+- tapOn:
+    id: "action:lpp_affiliation.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/versements-3a"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 15000
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "3500"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "15.03.2026"
+- hideKeyboard:
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_marge_3a_marge_375800"
+    timeout: 10000
+- assertVisible: "Marge restante"
+- takeScreenshot: "${OUTPUT_DIR}/01-affiliated-marge-positive"
+# ─── Outcome 5 : dépassement conservé, marge SIGNÉE ───
+- tapOn:
+    id: "action:versements_3a.add"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "4000"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "01.06.2026"
+- hideKeyboard:
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_marge_3a_marge_-24200"
+    timeout: 10000
+- assertVisible: ".*Plafond dépassé de.*"
+- takeScreenshot: "${OUTPUT_DIR}/02-overshoot-signed"
+# ─── Outcome 2 : non-affilié, 20 % du revenu canonique ───
+- openLink: "mintapp:///mint-next/lpp-affiliation"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 15000
+- tapOn:
+    id: "action:lpp_affiliation.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:lpp_affiliation.no"
+- scrollUntilVisible:
+    element:
+      id: "action:lpp_affiliation.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:lpp_affiliation.review"
+    commands:
+      - tapOn:
+          id: "action:lpp_affiliation.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.review"
+    timeout: 5000
+- tapOn:
+    id: "action:lpp_affiliation.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/revenu"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.collect"
+    timeout: 15000
+- tapOn:
+    id: "input:revenu.amount"
+- inputText: "78000"
+- hideKeyboard:
+    optional: true
+- waitForAnimationToEnd:
+    timeout: 3000
+- scrollUntilVisible:
+    element:
+      id: "input:revenu.period_yearly"
+    direction: DOWN
+- tapOn:
+    id: "input:revenu.period_yearly"
+- scrollUntilVisible:
+    element:
+      id: "action:revenu.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:revenu.review"
+    commands:
+      - tapOn:
+          id: "action:revenu.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.review"
+    timeout: 5000
+- tapOn:
+    id: "action:revenu.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.saved"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_marge_3a_marge_810000"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/03-non-affiliated-20pct"
+# ─── Outcome 3 : non-affilié plafonné au grand plafond ───
+- openLink: "mintapp:///mint-next/revenu"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.saved"
+    timeout: 15000
+- tapOn:
+    id: "action:revenu.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:revenu.amount"
+- eraseText
+- inputText: "200000"
+- hideKeyboard:
+    optional: true
+- scrollUntilVisible:
+    element:
+      id: "action:revenu.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:revenu.review"
+    commands:
+      - tapOn:
+          id: "action:revenu.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.review"
+    timeout: 5000
+- tapOn:
+    id: "action:revenu.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.saved"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_marge_3a_marge_2878800"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/04-non-affiliated-capped"
+# ─── Outcome 6 & 7 : fait supprimé ⇒ fail-closed visible + invalidation ───
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 20000
+- tapOn:
+    id: "action:mon_argent.versements_3a.delete"
+- extendedWaitUntil:
+    visible: "Supprimer tous tes versements ?"
+    timeout: 5000
+- tapOn:
+    text: "^Supprimer$"
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_marge_3a_state_contributionsMissing"
+    timeout: 15000
+- assertVisible: "Enregistre tes versements pour voir ta marge 3a."
+- takeScreenshot: "${OUTPUT_DIR}/05-contributions-missing-after-delete"
