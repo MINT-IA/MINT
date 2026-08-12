@@ -45629,6 +45629,18 @@ abstract class S {
   /// **'Ton 3a'**
   String get mintNextVertical3aTitle;
 
+  /// No description provided for @mintNextVertical3aReadFailure.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT n\'a pas pu relire tes données. Ferme et rouvre l\'app pour réessayer.'**
+  String get mintNextVertical3aReadFailure;
+
+  /// No description provided for @mintNextVertical3aFreshness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Faits au {date}'**
+  String mintNextVertical3aFreshness(String date);
+
   /// No description provided for @mintNextVertical3aEyebrow.
   ///
   /// In fr, this message translates to:

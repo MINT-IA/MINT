@@ -26266,6 +26266,15 @@ class SDe extends S {
   String get mintNextVertical3aTitle => 'Deine 3a';
 
   @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT konnte deine Daten nicht erneut lesen. Schliesse die App und öffne sie erneut.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Fakten per $date';
+  }
+
+  @override
   String mintNextVertical3aEyebrow(String year) {
     return 'Steuerjahr $year';
   }

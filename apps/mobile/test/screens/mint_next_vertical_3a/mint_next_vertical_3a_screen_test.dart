@@ -32,14 +32,16 @@ void main() {
 
   final now = DateTime.utc(2026, 8, 12, 15);
 
-  Widget wrap(CoachProfileProvider provider, {DateTime Function()? clock}) {
+  Widget wrap(CoachProfileProvider provider,
+      {DateTime Function()? clock, Set<String>? allowlistOverride}) {
     final router = GoRouter(
       initialLocation: '/vertical',
       routes: [
         GoRoute(
           path: '/vertical',
-          builder: (_, __) =>
-              MintNextVertical3aScreen(now: clock ?? () => now),
+          builder: (_, __) => MintNextVertical3aScreen(
+              now: clock ?? () => now,
+              allowlistOverride: allowlistOverride),
         ),
         GoRoute(
           path: '/home',
@@ -130,6 +132,9 @@ void main() {
     expect(find.text("Il te reste 1'758 CHF de marge."), findsOneWidget);
     expect(find.text('ANNÉE FISCALE 2026'), findsOneWidget);
     expect(find.byKey(const Key('vertical_3a_provenance')), findsOneWidget);
+    expect(find.byKey(const Key('vertical_3a_freshness')), findsOneWidget,
+        reason: 'la fraîcheur des faits est affichée, pas seulement promise');
+    expect(find.textContaining('Faits au'), findsOneWidget);
     expect(find.bySemanticsIdentifier('mint_next_vertical_3a_marge_175800'),
         findsOneWidget);
 
@@ -186,9 +191,20 @@ void main() {
         find.bySemanticsIdentifier(
             'mint_next_vertical_3a_state_unsupportedTaxYear'),
         findsOneWidget,
-        reason: 'année hors registre = état honnête, jamais une reprise 2026 '
-            '— unattested et stale partagent ce rendu public (même copie), '
-            'leur distinction est prouvée au calculateur');
+        reason: 'année hors registre = état honnête, jamais une reprise 2026');
+
+    final unattested = await providerWith();
+    await tester.pumpWidget(
+        wrap(unattested, allowlistOverride: {'not-a-real-hash'}));
+    await tester.pumpAndSettle();
+    expect(
+        find.bySemanticsIdentifier(
+            'mint_next_vertical_3a_state_regulatoryConstantsUnattested'),
+        findsOneWidget,
+        reason: 'hash hors allowlist = état atteint et rendu, pas déclaré');
+
+    // staleInputs est structurellement impossible (recalcul à chaque build)
+    // — l'écran le traite en invariant, prouvé au calculateur (revalidate).
   });
 
   testWidgets(
@@ -215,17 +231,22 @@ void main() {
             'mint_next_vertical_3a_state_lppAffiliationUnknown'),
         findsOneWidget);
 
-    // Échec de lecture : un canonique corrompu est MASQUÉ par la couche
-    // scellée (jamais ressuscité) — il se présente au vertical comme un fait
-    // manquant honnête, prouvé par les tests corrupt-mask des providers.
-    await const FlutterSecureStorage().write(
-        key: '_mint_canonical_versements_3a_v1', value: '{"state":"???"}');
-    final corrupt = CoachProfileProvider();
-    await corrupt.loadFromWizard();
-    await tester.pumpWidget(wrap(corrupt));
+    // Échec de lecture : état DISTINCT — aucun état métier n'est affirmé
+    // sur des faits que MINT n'a pas pu relire.
+    CoachProfileProvider.debugForceLoadFailureForTest = true;
+    addTearDown(
+        () => CoachProfileProvider.debugForceLoadFailureForTest = false);
+    final failed = CoachProfileProvider();
+    await failed.loadFromWizard();
+    await tester.pumpWidget(wrap(failed));
     await tester.pumpAndSettle();
-    expect(find.bySemanticsIdentifier('node:vertical_3a.loading'),
-        findsNothing);
+    expect(find.bySemanticsIdentifier('node:vertical_3a.read_failure'),
+        findsOneWidget);
+    expect(
+        find.bySemanticsIdentifier(
+            'mint_next_vertical_3a_state_lppAffiliationUnknown'),
+        findsNothing,
+        reason: 'une lecture en échec ne se déguise jamais en fait manquant');
   });
 
   testWidgets(

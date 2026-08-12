@@ -26210,6 +26210,15 @@ class SEs extends S {
   String get mintNextVertical3aTitle => 'Tu 3a';
 
   @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT no pudo releer tus datos. Cierra y vuelve a abrir la app para reintentar.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Datos a $date';
+  }
+
+  @override
   String mintNextVertical3aEyebrow(String year) {
     return 'Año fiscal $year';
   }

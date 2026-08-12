@@ -26073,6 +26073,15 @@ class SEn extends S {
   String get mintNextVertical3aTitle => 'Your 3a';
 
   @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT could not re-read your data. Close and reopen the app to retry.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Facts as of $date';
+  }
+
+  @override
   String mintNextVertical3aEyebrow(String year) {
     return 'Tax year $year';
   }

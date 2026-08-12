@@ -26209,6 +26209,15 @@ class SFr extends S {
   String get mintNextVertical3aTitle => 'Ton 3a';
 
   @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT n\'a pas pu relire tes données. Ferme et rouvre l\'app pour réessayer.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Faits au $date';
+  }
+
+  @override
   String mintNextVertical3aEyebrow(String year) {
     return 'Année fiscale $year';
   }

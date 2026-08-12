@@ -26278,6 +26278,15 @@ class SIt extends S {
   String get mintNextVertical3aTitle => 'Il tuo 3a';
 
   @override
+  String get mintNextVertical3aReadFailure =>
+      'MINT non ha potuto rileggere i tuoi dati. Chiudi e riapri l’app per riprovare.';
+
+  @override
+  String mintNextVertical3aFreshness(String date) {
+    return 'Fatti al $date';
+  }
+
+  @override
   String mintNextVertical3aEyebrow(String year) {
     return 'Anno fiscale $year';
   }

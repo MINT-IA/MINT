@@ -21,9 +21,14 @@ import 'package:mint_mobile/theme/mint_text_styles.dart';
 /// stale → recalcul au build ; année/constantes → état factuel non éditable.
 /// Design : langage éditorial du handoff (eyebrow + Fraunces + papier chaud).
 class MintNextVertical3aScreen extends StatelessWidget {
-  const MintNextVertical3aScreen({super.key, this.now});
+  const MintNextVertical3aScreen({super.key, this.now, this.allowlistOverride});
 
   final DateTime Function()? now;
+
+  /// Seam de test : permet d'atteindre réellement l'état
+  /// regulatoryConstantsUnattested sans altérer le registre embarqué.
+  @visibleForTesting
+  final Set<String>? allowlistOverride;
 
   DateTime _now() => (now ?? DateTime.now)();
 
@@ -41,6 +46,29 @@ class MintNextVertical3aScreen extends StatelessWidget {
         body: Semantics(
           identifier: 'node:vertical_3a.loading',
           child: const Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+    // Échec de lecture ≠ fait manquant (contrat) : aucun état métier n'est
+    // affirmé sur des faits que MINT n'a pas pu relire.
+    if (provider.loadFailed) {
+      return Scaffold(
+        backgroundColor: MintColors.warmWhite,
+        appBar: AppBar(
+          backgroundColor: MintColors.warmWhite,
+          elevation: 0,
+          title: Text(l10n.mintNextVertical3aTitle,
+              style: MintTextStyles.titleLarge(color: MintColors.textPrimary)),
+        ),
+        body: Semantics(
+          identifier: 'node:vertical_3a.read_failure',
+          container: true,
+          child: Padding(
+            padding: const EdgeInsets.all(MintSpacing.lg),
+            child: Text(l10n.mintNextVertical3aReadFailure,
+                style: MintTextStyles.editorialLarge(
+                    color: MintColors.textPrimary)),
+          ),
         ),
       );
     }
@@ -68,7 +96,14 @@ class MintNextVertical3aScreen extends StatelessWidget {
       totalVerseCents: versements?.totalVerseAnnualCents,
       versementsBucketRevision: versements?.bucketRevision,
       lppRevision: lpp?.revision,
+      allowlistOverride: allowlistOverride,
     );
+    final freshestInput = [
+      provider.lppAffiliationFact?.assertedAt,
+      provider.revenuFact?.assertedAt,
+      provider.versements3aFact?.assertedAt,
+    ].whereType<DateTime>().fold<DateTime?>(
+        null, (max, d) => max == null || d.isAfter(max) ? d : max);
 
     return Scaffold(
       backgroundColor: MintColors.warmWhite,
@@ -91,7 +126,10 @@ class MintNextVertical3aScreen extends StatelessWidget {
           padding: const EdgeInsets.all(MintSpacing.lg),
           child: result.status == MintNextMarge3aStatus.available
               ? _AvailableView(
-                  result: result, taxYear: taxYear, l10n: l10n)
+                  result: result,
+                  taxYear: taxYear,
+                  freshestInput: freshestInput,
+                  l10n: l10n)
               : _StateView(result: result, taxYear: taxYear, l10n: l10n),
         ),
       ),
@@ -105,11 +143,13 @@ class _AvailableView extends StatelessWidget {
   const _AvailableView({
     required this.result,
     required this.taxYear,
+    required this.freshestInput,
     required this.l10n,
   });
 
   final MintNextMarge3aResult result;
   final int taxYear;
+  final DateTime? freshestInput;
   final S l10n;
 
   @override
@@ -165,6 +205,15 @@ class _AvailableView extends StatelessWidget {
             _row(l10n.mintNextVertical3aPlafondRow('$taxYear'),
                 mintNextRevenuChf(plafond)),
             const SizedBox(height: MintSpacing.md),
+            if (freshestInput != null)
+              Text(
+                l10n.mintNextVertical3aFreshness(MaterialLocalizations.of(
+                        context)
+                    .formatShortDate(freshestInput!.toLocal())),
+                key: const Key('vertical_3a_freshness'),
+                style:
+                    MintTextStyles.bodySmall(color: MintColors.textSecondary),
+              ),
             Text(
               l10n.mintNextVertical3aProvenance('$taxYear',
                   result.constantsVersionHash!.substring(0, 8)),
@@ -231,9 +280,10 @@ class _StateView extends StatelessWidget {
         ctaLabel = null;
         ctaRoute = null;
       case MintNextMarge3aStatus.staleInputs:
-        invitation = l10n.mintNextVertical3aStateUnattested('$taxYear');
-        ctaLabel = null;
-        ctaRoute = null;
+        // Structurellement impossible : le vertical recalcule à chaque
+        // build — un stale rendu serait un bug, jamais un état à copie.
+        throw StateError(
+            'staleInputs is structurally impossible: the vertical recomputes at every build');
       case MintNextMarge3aStatus.available:
         throw StateError('available is rendered by _AvailableView');
     }
