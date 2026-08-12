@@ -696,6 +696,9 @@ class _Marge3aSummary extends StatelessWidget {
           ? 'mint_next_marge_3a_marge_${result.margeCents}'
           : 'mint_next_marge_3a_state_${result.status.name}',
       container: true,
+      // Les labels enfants restent des nœuds distincts — sans quoi ils
+      // fusionnent dans le conteneur (invisibles pour VoiceOver et Maestro).
+      explicitChildNodes: true,
       child: Container(
         padding: const EdgeInsets.all(MintSpacing.md),
         margin: const EdgeInsets.only(bottom: MintSpacing.md),
