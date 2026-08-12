@@ -43,7 +43,8 @@
         "lpp affiliated branch uses the fixed attested plafond",
         "non affiliated branch is floor(20 percent of canonical annualized income) capped at the grand plafond",
         "marge is signed: an overshoot stays negative, never clamped to zero",
-        "same inputs yield bit identical results in cents"
+        "same inputs yield bit identical results in cents",
+        "impossible numeric domains are invariant violations, never plafonds"
       ],
       "test_files": [
         "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
@@ -88,7 +89,8 @@
       "code": "apps/mobile/lib/services/financial_core/",
       "tests": [
         "the result carries the input revisions and any strict inequality is stale",
-        "a corrected versement re-derives the displayed marge"
+        "a corrected versement re-derives the displayed marge",
+        "sealing requires every consumed fact revision — an omitted revision is an invariant violation, never a silent hole"
       ],
       "test_files": [
         "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
