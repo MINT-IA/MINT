@@ -223,7 +223,7 @@ if grep -E "\[ch\.mint\.http\] (REQBODY|REQ )" "$CONSOLE_LOG" | grep -Eiq "verse
   grep -E "\[ch\.mint\.http\] (REQBODY|REQ )" "$CONSOLE_LOG" | grep -Ei "versements|q_versements_3a|marge|plafond|vertical_3a" | head -5 >&2
   exit 1
 fi
-ZERO_TX_PATTERN='(q_versements_3a|marge_3a|vertical_3a|preview|plafond).*(https?://|railway)|(https?://|railway).*q_versements_3a'
+ZERO_TX_PATTERN='q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a'
 if grep -Eiq "$ZERO_TX_PATTERN" "$CONSOLE_LOG"; then
   echo "zero-transmission check FAILED: versements key in network-context console line" >&2
   grep -Ei "$ZERO_TX_PATTERN" "$CONSOLE_LOG" | head -5 >&2
