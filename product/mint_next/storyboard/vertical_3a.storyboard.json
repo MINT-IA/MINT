@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "vertical_3a_lego7",
+    "title": "Le vrai vertical 3a — voir où j'en suis, comprendre ce qui manque, corriger, revoir",
+    "promise": "Le calcul attesté du Lego 6 devient un parcours réel : depuis Aujourd'hui ou Ma situation, je vois total versé, plafond applicable, marge SIGNÉE, année, fraîcheur et provenance — ou l'état nommé qui explique ce qui manque, avec un accès direct à la correction du fait bloquant. Retour = recalcul. Relance à froid = même vérité. Aucun nouveau calcul, aucune économie fiscale estimée dans cette tranche."
+  },
+  "generated_at": "2026-08-12",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
+    "cadrage": "verdict Codex PRIORITÉ: B (post-Lego 6, 2026-08-12) — exposition fidèle du calcul attesté, ordre B → C (writers legacy) → D (retrofit preuves) → E ; design_lab = référence visuelle, jamais writer ni dépendance runtime ; réutiliser les écrans canoniques d'édition des six faits"
+  },
+  "semantic_contract": "Le vertical CONSOMME exclusivement MintNextMarge3aCalculator (Lego 6) — aucun nouveau calcul, aucune formule locale, aucun adaptateur design_lab→jumeau, aucun writer ni clé nue nouvelle. Chaque outcome du moteur a un rendu public réellement atteignable : available (marge positive, nulle, négative) et chacun des états fail-closed, avec accès direct à l'écran canonique du fait bloquant (LPP, revenu, versements). Chargement, erreur de lecture et absence de données restent des états distincts. Le résultat n'est jamais persisté : recalcul à chaque retour, une marge périmée ne survit pas à une correction. Texte sobre 6 langues, constat jamais conseil (LSFin), aucune économie fiscale estimée.",
+  "classification_decision": "Aucune clé de fait nouvelle, aucune écriture : le vertical est une SURFACE de lecture + navigation vers les écrans d'édition canoniques existants. Flag dédié + kill-switch OFF par défaut, e2e fail-closed. L'anti-double-implémentation du Lego 6 reste garanti par le guard commit-gate.",
+  "known_risks_from_cadrage": [
+    "double vérité : tout raccourci qui recalculerait ou copierait la marge hors du calculateur canonique est un défaut structurel",
+    "design_lab : référence visuelle uniquement — importer son état ou ses writers serait une contamination",
+    "états conflés : chargement ≠ erreur de lecture ≠ fait manquant — trois rendus distincts, jamais un spinner qui ment",
+    "navigation de correction : le fait bloquant doit mener à SON écran canonique, pas à un formulaire local",
+    "recalcul au retour : un résultat affiché avant correction ne doit jamais survivre au retour (pas de cache)",
+    "LSFin : aucune économie estimée, aucune injonction — constat et invitations factuelles"
+  ],
+  "out_of_scope": [
+    "impact fiscal cantonal, économie d'impôt estimée (futur chantier E)",
+    "reroutage des writers legacy (chantier C, suivant)",
+    "toute écriture dans le jumeau ou transmission réseau",
+    "activation générale du flag (OFF jusqu'à décision produit)"
+  ],
+  "beats": [
+    {
+      "id": "entry_points",
+      "story": "J'entre dans le vertical depuis Aujourd'hui ou Ma situation — un point d'entrée visible, flag-gated, qui ne promet rien qu'il ne peut montrer.",
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "the vertical entry point is visible from aujourd'hui and ma situation when the flag is on",
+        "the entry point never renders when the flag is off"
+      ]
+    },
+    {
+      "id": "read_facts",
+      "story": "Le vertical lit les faits canoniques (LPP, revenu, versements) et appelle l'unique calculateur — jamais de formule locale, jamais design_lab.",
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "the vertical consumes the canonical calculator only and holds no local formula",
+        "loading, read failure and missing data render as three distinct states"
+      ]
+    },
+    {
+      "id": "result_or_state",
+      "story": "Je vois marge positive, nulle ou négative (signée, « Plafond dépassé de X CHF ») avec année, fraîcheur et provenance — ou l'état nommé qui explique ce qui manque.",
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "a positive, zero and negative marge each render with year, freshness and provenance",
+        "every fail-closed state of the engine has a reachable public rendering"
+      ]
+    },
+    {
+      "id": "fix_navigation",
+      "story": "L'état bloquant m'emmène directement à l'écran canonique du fait concerné — LPP, revenu ou versements — jamais un formulaire local.",
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "each blocking state navigates to the canonical edit screen of its fact",
+        "no parallel writer nor bare key exists in the vertical"
+      ]
+    },
+    {
+      "id": "return_recalc",
+      "story": "Au retour de la correction, la marge se re-dérive — un résultat périmé ne survit jamais, sans double écriture.",
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "returning from a correction re-derives the displayed marge without any write",
+        "a stale result never survives a fact revision change"
+      ]
+    },
+    {
+      "id": "cold_relaunch",
+      "story": "Après une relance à froid, le vertical retrouve la même vérité depuis les faits scellés.",
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "the vertical shows the same attested result after a cold relaunch"
+      ]
+    }
+  ],
+  "gate_requirements": {
+    "outcomes_runtime": [
+      "navigation aller-retour depuis l'entrée",
+      "marge positive, nulle et négative affichées dans le vrai vertical",
+      "au moins un blocage par fait absent, rendu et navigable",
+      "au moins un blocage par révision périmée / re-dérivation prouvée",
+      "correction puis recalcul sans double écriture",
+      "relance à froid : même vérité",
+      "zéro payload financier sortant (frontière HTTP observée, REQBODY)"
+    ],
+    "preuves": "reçu runtime lié au SHA · anti-double-implémentation (guard) · flag/kill-switch OFF · review indépendante P1=0 · gate unique 5/5 · AUCUN tests_planned résiduel à la PR"
+  }
+}
