@@ -257,6 +257,38 @@ void main() {
         reason: 'rien purgé — aucun demi-état');
   });
 
+  test('a pending lift reported failed by the platform keeps the identity '
+      'so the retry still quarantines the right account', () async {
+    // Ordre des levées : pending PUIS identité — l'identité survit tant que
+    // le pending subsiste (assertion statique + panne séquencée).
+    final source = File('lib/services/local_preview_reset_service.dart')
+        .readAsStringSync();
+    expect(source.indexOf("'remove:\$resetPendingKey'"),
+        lessThan(source.indexOf("'remove:\$resetPendingUserKey'")),
+        reason: 'lever le pending AVANT de supprimer l\'identité');
+
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {
+      'remove:${LocalPreviewResetService.resetPendingKey}',
+    };
+    await expectLater(
+        LocalPreviewResetService.reset(signedInUserId: 'user-42'),
+        throwsA(isA<StateError>()));
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        'user-42',
+        reason: "l'identité SURVIT tant que le pending subsiste");
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isTrue);
+
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {};
+    await LocalPreviewResetService.retryPendingAtBoot();
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isTrue,
+        reason: 'le retry termine ET quarantine le compte visé');
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull);
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        isNull);
+  });
+
   test('the boot retry encloses prefs acquisition and reads in its '
       'error barrier (static scan)', () {
     final source = File('lib/services/local_preview_reset_service.dart')

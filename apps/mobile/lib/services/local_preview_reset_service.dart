@@ -196,9 +196,13 @@ class LocalPreviewResetService {
     }
     // Les levées aussi : un remove retournant false laisserait un pending
     // fantôme — mieux vaut le dire (retry au boot) que prétendre au propre.
+    // Pending AVANT identité : l'identité SURVIT tant que le pending
+    // subsiste — jamais un pending orphelin qu'un retry terminerait sans
+    // quarantiner le compte visé.
     await _requireWrite(
-        resetPendingUserKey, () => prefs.remove(resetPendingUserKey));
-    await _requireWrite(resetPendingKey, () => prefs.remove(resetPendingKey));
+        'remove:$resetPendingKey', () => prefs.remove(resetPendingKey));
+    await _requireWrite('remove:$resetPendingUserKey',
+        () => prefs.remove(resetPendingUserKey));
   }
 
   /// Vérification zéro résidu — publique pour que le chemin ROUGE soit
