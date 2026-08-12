@@ -1,0 +1,265 @@
+appId: ch.mint.app
+tags:
+  - mint-next-vertical-3a
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+# ─── Outcome 1 : aller-retour depuis l'entrée (Aujourd'hui) ───
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "action:vertical_3a.entry"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "action:vertical_3a.entry"
+# ─── Outcome 3 : lppAffiliationUnknown rendu + navigable ───
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_lppAffiliationUnknown"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/01-lpp-unknown-cta"
+- tapOn:
+    id: "action:vertical_3a.fix_fact"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.collect"
+    timeout: 10000
+- tapOn:
+    id: "input:lpp_affiliation.yes"
+- scrollUntilVisible:
+    element:
+      id: "action:lpp_affiliation.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:lpp_affiliation.review"
+    commands:
+      - tapOn:
+          id: "action:lpp_affiliation.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.review"
+    timeout: 5000
+- tapOn:
+    id: "action:lpp_affiliation.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 10000
+# ─── Outcome 5 : contributionsMissing rendu + navigable ───
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_contributionsMissing"
+    timeout: 10000
+- tapOn:
+    id: "action:vertical_3a.fix_fact"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 10000
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "3500"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "15.03.2026"
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "Enregistrer ce versement"
+          direction: UP
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+# ─── Outcome 2a : marge positive dans le vrai vertical ───
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_marge_375800"
+    timeout: 10000
+- assertVisible: "Marge restante"
+- takeScreenshot: "${OUTPUT_DIR}/02-positive-375800"
+# ─── Outcome 2b + 6 : correction → marge NULLE re-dérivée ───
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- tapOn:
+    id: "action:versements_3a.entry_edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:versements_3a.amount"
+- eraseText
+- inputText: "7258"
+- hideKeyboard:
+    optional: true
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "Enregistrer ce versement"
+          direction: UP
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_marge_0"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/03-zero-exact"
+# ─── Outcome 2c : dépassement SIGNÉ ───
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- tapOn:
+    id: "action:versements_3a.add"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "4000"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "01.06.2026"
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "Enregistrer ce versement"
+          direction: UP
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_marge_-400000"
+    timeout: 10000
+- assertVisible: ".*Plafond dépassé de.*"
+- takeScreenshot: "${OUTPUT_DIR}/04-negative-signed"
+# ─── Outcome 7 : relance à froid, même vérité ───
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_marge_-400000"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/05-cold-relaunch"
