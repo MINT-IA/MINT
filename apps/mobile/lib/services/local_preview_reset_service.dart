@@ -142,13 +142,18 @@ class LocalPreviewResetService {
           'the preview shell is forbidden, nothing was purged'); // lint-ignore — message développeur
     }
     final prefs = await SharedPreferences.getInstance();
-    // Une identité déjà enregistrée avec un reset dû SURVIT jusqu'à purge
+    // Une identité déjà enregistrée avec un reset DÛ survit jusqu'à purge
     // vérifiée : même redéclenché déconnecté, le compte visé sera bien
-    // quarantiné.
+    // quarantiné. Le fallback est GATÉ sur le pending : une identité
+    // orpheline sans pending (panne de sa levée après un reset complet)
+    // est inerte — jamais réutilisée, purgée au mieux ci-dessous.
+    final pendingAlreadyDue = prefs.getBool(resetPendingKey) == true;
     final effectiveUserId =
         (signedInUserId != null && signedInUserId.isNotEmpty)
             ? signedInUserId
-            : prefs.getString(resetPendingUserKey);
+            : (pendingAlreadyDue
+                ? prefs.getString(resetPendingUserKey)
+                : null);
     // Identité AVANT pending : une panne entre les deux laisse une identité
     // orpheline SANS pending (no-op au boot, rien de purgé, rien de menti).
     // L'ordre inverse laisserait un pending sans identité — purge au boot
@@ -156,6 +161,9 @@ class LocalPreviewResetService {
     if (effectiveUserId != null && effectiveUserId.isNotEmpty) {
       await _requireWrite(resetPendingUserKey,
           () => prefs.setString(resetPendingUserKey, effectiveUserId));
+    } else {
+      // Orpheline inerte d'une tentative passée : purge au mieux.
+      await prefs.remove(resetPendingUserKey);
     }
     await _requireWrite(
         resetPendingKey, () => prefs.setBool(resetPendingKey, true));
@@ -201,8 +209,14 @@ class LocalPreviewResetService {
     // quarantiner le compte visé.
     await _requireWrite(
         'remove:$resetPendingKey', () => prefs.remove(resetPendingKey));
-    await _requireWrite('remove:$resetPendingUserKey',
-        () => prefs.remove(resetPendingUserKey));
+    try {
+      await _requireWrite('remove:$resetPendingUserKey',
+          () => prefs.remove(resetPendingUserKey));
+    } on StateError {
+      // Pending déjà levé : la clé restante est INERTE (fallback gaté sur
+      // le pending) — un reset COMPLET (purgé, vérifié, quarantiné) ne
+      // devient jamais un faux échec pour une clé morte.
+    }
   }
 
   /// Vérification zéro résidu — publique pour que le chemin ROUGE soit

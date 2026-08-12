@@ -289,6 +289,44 @@ void main() {
         isNull);
   });
 
+  test('a stale identity with no pending never influences a later reset',
+      () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    // Orpheline d'une tentative passée : identité SANS pending.
+    await prefs.setString(
+        LocalPreviewResetService.resetPendingUserKey, 'user-99');
+    await LocalPreviewResetService.reset();
+    expect(await LocalPreviewResetService.isQuarantined('user-99'), isFalse,
+        reason: 'une orpheline sans reset dû ne quarantine JAMAIS — le '
+            'fallback est gaté sur le pending');
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        isNull, reason: "l'orpheline inerte est purgée au passage");
+  });
+
+  test('an identity lift failure after the pending lift never turns a '
+      'complete reset into a false failure', () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {
+      'remove:${LocalPreviewResetService.resetPendingUserKey}',
+    };
+    // Reset COMPLET (purgé, vérifié, quarantiné) : la clé morte restante ne
+    // le transforme pas en faux échec.
+    await LocalPreviewResetService.reset(signedInUserId: 'user-42');
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isTrue);
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull);
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        'user-42',
+        reason: 'clé morte restante — inerte car le pending est levé');
+
+    // Passe suivante : l'orpheline inerte est purgée, jamais réutilisée.
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {};
+    await LocalPreviewResetService.reset();
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        isNull);
+  });
+
   test('the boot retry encloses prefs acquisition and reads in its '
       'error barrier (static scan)', () {
     final source = File('lib/services/local_preview_reset_service.dart')
