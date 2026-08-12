@@ -26207,6 +26207,66 @@ class SEs extends S {
   }
 
   @override
+  String get mintNextVertical3aTitle => 'Tu 3a';
+
+  @override
+  String mintNextVertical3aEyebrow(String year) {
+    return 'Año fiscal $year';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineRoom(String amount) {
+    return 'Te quedan $amount de margen.';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineOver(String amount) {
+    return 'Tope superado en $amount.';
+  }
+
+  @override
+  String mintNextVertical3aVerseRow(String year) {
+    return 'Aportado en $year';
+  }
+
+  @override
+  String mintNextVertical3aPlafondRow(String year) {
+    return 'Tope $year';
+  }
+
+  @override
+  String mintNextVertical3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · tope $year · juego $version';
+  }
+
+  @override
+  String get mintNextVertical3aStateLppUnknown =>
+      'MINT aún no sabe si estás afiliado·a a una caja de pensiones.';
+
+  @override
+  String get mintNextVertical3aStateIncomeMissing =>
+      'Sin caja de pensiones, tu tope 3a se calcula desde tus ingresos.';
+
+  @override
+  String get mintNextVertical3aStateContributionsMissing =>
+      'Ninguna aportación 3a registrada por ahora.';
+
+  @override
+  String mintNextVertical3aStateUnattested(String year) {
+    return 'El tope $year aún no está atestado en MINT.';
+  }
+
+  @override
+  String get mintNextVertical3aCtaLpp =>
+      'Responder la pregunta de la caja de pensiones';
+
+  @override
+  String get mintNextVertical3aCtaRevenu => 'Indicar mis ingresos';
+
+  @override
+  String get mintNextVertical3aCtaVersements => 'Registrar una aportación';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

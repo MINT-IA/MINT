@@ -26275,6 +26275,66 @@ class SIt extends S {
   }
 
   @override
+  String get mintNextVertical3aTitle => 'Il tuo 3a';
+
+  @override
+  String mintNextVertical3aEyebrow(String year) {
+    return 'Anno fiscale $year';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineRoom(String amount) {
+    return 'Ti restano $amount di margine.';
+  }
+
+  @override
+  String mintNextVertical3aHeadlineOver(String amount) {
+    return 'Tetto superato di $amount.';
+  }
+
+  @override
+  String mintNextVertical3aVerseRow(String year) {
+    return 'Versato nel $year';
+  }
+
+  @override
+  String mintNextVertical3aPlafondRow(String year) {
+    return 'Tetto $year';
+  }
+
+  @override
+  String mintNextVertical3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · tetto $year · set $version';
+  }
+
+  @override
+  String get mintNextVertical3aStateLppUnknown =>
+      'MINT non sa ancora se sei affiliato·a a una cassa pensione.';
+
+  @override
+  String get mintNextVertical3aStateIncomeMissing =>
+      'Senza cassa pensione, il tuo tetto 3a si calcola dal tuo reddito.';
+
+  @override
+  String get mintNextVertical3aStateContributionsMissing =>
+      'Nessun versamento 3a registrato per ora.';
+
+  @override
+  String mintNextVertical3aStateUnattested(String year) {
+    return 'Il tetto $year non è ancora attestato in MINT.';
+  }
+
+  @override
+  String get mintNextVertical3aCtaLpp =>
+      'Rispondere alla domanda sulla cassa pensione';
+
+  @override
+  String get mintNextVertical3aCtaRevenu => 'Indicare il mio reddito';
+
+  @override
+  String get mintNextVertical3aCtaVersements => 'Registrare un versamento';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

@@ -68,6 +68,8 @@ ALLOW = {
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
+    "apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen.dart",
+    "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart",
     "tools/runtime/mint_next_marge_3a_lifecycle.sh",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_marge_3a_lifecycle.yaml",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/01-affiliated-marge-positive.png",

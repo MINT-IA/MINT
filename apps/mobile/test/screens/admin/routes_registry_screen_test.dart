@@ -33,7 +33,7 @@ void main() {
       expect(RouteOwner.values.length, 15);
     });
 
-    testWidgets('sum of route rows across all buckets == 160', (tester) async {
+    testWidgets('sum of route rows across all buckets == 161', (tester) async {
       // Force a large viewport so every ExpansionTile is laid out simultaneously
       // (default test surface is 800x600 which clips tiles below fold, preventing
       // taps from reaching them reliably after each expansion relayout).
@@ -69,9 +69,9 @@ void main() {
       );
       expect(
         rows,
-        findsNWidgets(160),
+        findsNWidgets(161),
         reason:
-            'registry has 160 entries (/mint-next/versements-3a Lego 5 + /mint-next/lpp-affiliation Lego 4 + /mint-next/revenu Lego 3 + /mint-next/etat-civil Lego 2 added 2026-08-11, /mint-next/domicile Lego 1 + /mint-next/3a PR C added 2026-08-11, /mint-next/housing added 2026-08-10 PR B; /retraite/rente-vs-capital canonicalized 2026-06-30 while legacy alias remains); UI must render all',
+            'registry has 161 entries (/mint-next/vertical-3a Lego 7 added 2026-08-12, /mint-next/versements-3a Lego 5 + /mint-next/lpp-affiliation Lego 4 + /mint-next/revenu Lego 3 + /mint-next/etat-civil Lego 2 added 2026-08-11, /mint-next/domicile Lego 1 + /mint-next/3a PR C added 2026-08-11, /mint-next/housing added 2026-08-10 PR B; /retraite/rente-vs-capital canonicalized 2026-06-30 while legacy alias remains); UI must render all',
       );
     });
 

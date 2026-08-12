@@ -148,3 +148,9 @@ coach câblé dans cette tranche.
 Cycle canonique de la liste des versements 3a derrière kill-flag
 `enableMintNextVersements3a` (OFF par défaut, fail-closed). Aucun intent
 coach câblé dans cette tranche.
+
+## 2026-08-12 — /mint-next/vertical-3a (Lego 7 vertical 3a attesté)
+
+Surface de lecture du calcul de marge attesté derrière kill-flag
+`enableMintNextVertical3a` (OFF par défaut, fail-closed). Aucun intent
+coach câblé dans cette tranche.
