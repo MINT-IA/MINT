@@ -78,6 +78,7 @@ ALLOW = {
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/04-deeplinks-fail-closed.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/05-cold-relaunch.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/runtime.json",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/maestro.log",
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",

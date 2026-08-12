@@ -293,15 +293,6 @@ receipt = {
         "l'inventaire complet par TYPE de widget et la reference OFF figee "
         "(le runtime ne peut pas builder les deux configurations)"
     ),
-    "non_runtime_proofs": (
-        "unsupportedTaxYear + regulatoryConstantsUnattested : tests widget "
-        "cites au contrat (l'annee du sim et le registre embarque ne sont "
-        "pas alterables au runtime)"
-    ),
-    "unsupported_tax_year_proof": (
-        "annee hors registre prouvee par test widget cite : 'a year outside "
-        "the attested registry renders the unattested invitation' (2027)"
-    ),
     "dependent_invalidation_tests": [
         "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
         "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: moving an entry across tax years bumps both buckets",
