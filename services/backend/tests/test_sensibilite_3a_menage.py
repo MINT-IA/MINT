@@ -1,0 +1,676 @@
+"""Tests — service L2/L3 « sensibilite 3a selon l'etat civil » (Batch A).
+
+Contrat backend-canonical (NEVER#3) : la sensibilite d'une deduction 3a sur
+l'impot sur le revenu est recalculee cote backend et renvoyee sous
+``L3EclairePayload`` (discriminateur `_payload.py:level`). ZERO nouveau calcul
+financier : le service reutilise
+``fiscal.cantonal_comparator.estimate_tax_saving`` (difference d'impot),
+l'agregation menage/deductions de ``family.mariage_service`` (LIFD art. 33
+al. 2 / art. 35) et ``rules_engine.get_3a_ceiling`` (plafond OPP3 art. 7).
+
+Point cle metier : pour un menage marie, le franc de 3a mord au taux marginal
+du MENAGE (imposition commune, LIFD art. 9 al. 1). Le revenu du conjoint est
+inconnu -> la sensibilite honnete est une FOURCHETTE bornee par deux
+hypotheses (conjoint sans revenu ; conjoint a revenu comparable), jamais un
+chiffre unique nu.
+"""
+from __future__ import annotations
+
+import pytest
+
+from app.models.lucidity import L3EclairePayload
+from app.models.lucidity._payload import _CascadeEffect
+from app.services.fiscal.cantonal_comparator import (
+    DISCLAIMER as CANONICAL_DISCLAIMER,
+    estimate_tax_saving,
+)
+from app.services.rules_engine import PILIER_3A_PLAFOND_AVEC_LPP
+from app.services.encryption.banned_terms_runtime import (
+    BannedTermsViolation,
+    scan_value_for_banned_terms,
+)
+from app.services.fiscal.sensibilite_3a_service import (
+    DISCLAIMER,
+    sensibilite_3a_menage,
+    _household_imposable,  # importé du service (jamais recopié — anti-circularité)
+)
+
+
+# ---------------------------------------------------------------------------
+# Helpers de test.
+# ---------------------------------------------------------------------------
+
+_CITATION = "cantonal_comparator__estimate_tax_saving"
+_BAND_LOW = 0.90
+_BAND_HIGH = 1.10
+
+
+def _effect(payload: L3EclairePayload) -> _CascadeEffect:
+    assert len(payload.cascade_effects) == 1
+    return payload.cascade_effects[0]
+
+
+def _spread(payload: L3EclairePayload) -> float:
+    eff = _effect(payload)
+    return eff.delta_haut - eff.delta_bas
+
+
+# ---------------------------------------------------------------------------
+# Test 1 — celibataire : L3 valide, fourchette non collapsee, delta_bas<haut.
+# ---------------------------------------------------------------------------
+
+
+def test_celibataire_returns_l3_with_non_collapsed_band() -> None:
+    payload = sensibilite_3a_menage(
+        revenu_imposable=100_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    assert isinstance(payload, L3EclairePayload)
+    assert payload.level.value == "L3"
+    eff = _effect(payload)
+    assert eff.delta_bas < eff.delta_haut  # jamais collapsee quand economie > 0
+    assert eff.delta_bas > 0.0
+
+
+# ---------------------------------------------------------------------------
+# Test 2 — concubinage == celibataire (taxation separee ; invariant scelle R4_13).
+# ---------------------------------------------------------------------------
+
+
+def test_concubinage_equals_celibataire() -> None:
+    common = dict(
+        revenu_imposable=90_000.0,
+        canton="VD",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+    )
+    concubin = sensibilite_3a_menage(etat_civil="concubinage", **common)
+    single = sensibilite_3a_menage(etat_civil="celibataire", **common)
+    assert _effect(concubin).delta_bas == _effect(single).delta_bas
+    assert _effect(concubin).delta_haut == _effect(single).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 3 — marie (conjoint inconnu) : bande PLUS LARGE que celibataire
+# (l'incertitude sur le revenu du conjoint elargit la fourchette).
+# ---------------------------------------------------------------------------
+
+
+def test_marie_conjoint_inconnu_band_wider_than_celibataire() -> None:
+    common = dict(
+        revenu_imposable=90_000.0,
+        canton="GE",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+    )
+    marie = sensibilite_3a_menage(etat_civil="marie", **common)
+    single = sensibilite_3a_menage(etat_civil="celibataire", **common)
+    assert _spread(marie) > _spread(single)
+
+
+# ---------------------------------------------------------------------------
+# Test 4 — marie / marie_pacse / partenariat : meme traitement (LIFD art. 9
+# al. 1bis, normalisation AU NIVEAU DU SERVICE).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("statut", ["marie", "marie_pacse", "partenariat"])
+def test_married_synonyms_treated_identically(statut: str) -> None:
+    ref = sensibilite_3a_menage(
+        revenu_imposable=110_000.0,
+        canton="BE",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    got = sensibilite_3a_menage(
+        revenu_imposable=110_000.0,
+        canton="BE",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil=statut,
+    )
+    assert _effect(got).delta_bas == _effect(ref).delta_bas
+    assert _effect(got).delta_haut == _effect(ref).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 5 — marie conjoint None : les bornes correspondent EXACTEMENT aux deux
+# hypotheses (conjoint 0 ; conjoint comparable), via estimate_tax_saving.
+# ---------------------------------------------------------------------------
+
+
+def test_married_none_band_is_pinned_oracle() -> None:
+    """Oracle externe GELÉ (capturé une fois, jamais recalculé via un helper de
+    prod au moment du test — revue Codex P2-a) : ZH, revenu 90'000, versement
+    plafond, conjoint inconnu."""
+    payload = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    eff = _effect(payload)
+    assert eff.delta_bas == pytest.approx(1317.44, abs=0.01)
+    assert eff.delta_haut == pytest.approx(2277.93, abs=0.01)
+    assert eff.delta_bas <= eff.delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 6 — conjoint connu : bande resserree vs conjoint inconnu.
+# ---------------------------------------------------------------------------
+
+
+def test_known_conjoint_narrows_band() -> None:
+    common = dict(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    inconnu = sensibilite_3a_menage(**common)
+    connu = sensibilite_3a_menage(revenu_imposable_conjoint=60_000.0, **common)
+    assert _spread(connu) < _spread(inconnu)
+
+
+# ---------------------------------------------------------------------------
+# Test 7 — conjoint connu : point = estimate_tax_saving sur imposable menage,
+# borne par le +/-10% (preuve de reutilisation, ZERO nouveau calcul).
+# ---------------------------------------------------------------------------
+
+
+def test_known_conjoint_band_is_pinned_oracle() -> None:
+    """Oracle externe GELÉ (P2-a) : ZH, revenu 90'000 + conjoint 60'000."""
+    payload = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+        revenu_imposable_conjoint=60_000.0,
+    )
+    eff = _effect(payload)
+    assert eff.delta_bas == pytest.approx(1568.14, abs=0.01)
+    assert eff.delta_haut == pytest.approx(1916.62, abs=0.01)
+
+
+# ---------------------------------------------------------------------------
+# Test 8 — revenu 0 : seul cas ou la fourchette peut honnetement etre [0, 0]
+# (pas de revenu imposable -> pas d'economie).
+# ---------------------------------------------------------------------------
+
+
+def test_zero_income_returns_honest_zero_band() -> None:
+    payload = sensibilite_3a_menage(
+        revenu_imposable=0.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    eff = _effect(payload)
+    assert eff.delta_bas == 0.0
+    assert eff.delta_haut == 0.0
+
+
+# ---------------------------------------------------------------------------
+# Test 9 — versement None -> plafond OPP3 (get_3a_ceiling), salarie+LPP.
+# ---------------------------------------------------------------------------
+
+
+def test_versement_none_uses_opp3_ceiling() -> None:
+    common = dict(revenu_imposable=100_000.0, canton="ZH", etat_civil="celibataire")
+    implicite = sensibilite_3a_menage(
+        versement_3a=None, employment_status="salarie", has_lpp=True, **common
+    )
+    explicite = sensibilite_3a_menage(
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP, **common
+    )
+    assert _effect(implicite).delta_bas == _effect(explicite).delta_bas
+    assert _effect(implicite).delta_haut == _effect(explicite).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 10 — versement au-dessus du plafond : borne au plafond (pas de
+# deduction illegale modelisee, OPP3 art. 7).
+# ---------------------------------------------------------------------------
+
+
+def test_versement_above_ceiling_is_clamped() -> None:
+    common = dict(
+        revenu_imposable=120_000.0,
+        canton="ZH",
+        etat_civil="celibataire",
+        employment_status="salarie",
+        has_lpp=True,
+    )
+    trop = sensibilite_3a_menage(versement_3a=20_000.0, **common)
+    plafond = sensibilite_3a_menage(versement_3a=PILIER_3A_PLAFOND_AVEC_LPP, **common)
+    assert _effect(trop).delta_bas == _effect(plafond).delta_bas
+    assert _effect(trop).delta_haut == _effect(plafond).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 11 — aucun terme banni LSFin dans la copie (primary_choice + hypotheses).
+# ---------------------------------------------------------------------------
+
+
+def test_no_banned_lsfin_terms_in_copy() -> None:
+    # Autorité : le scanner LSFin CANONIQUE embarqué (le meme que le gate
+    # fail-closed d'encrypt_value) — garanti/optimal/meilleur/certain/assure/
+    # parfait/sans risque + verbes de paraphrase, avec normalisation NFKC.
+    # Il LEVE BannedTermsViolation sur un terme banni.
+    for statut in ("celibataire", "marie"):
+        payload = sensibilite_3a_menage(
+            revenu_imposable=95_000.0,
+            canton="VD",
+            versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+            etat_civil=statut,
+        )
+        for text in [payload.primary_choice_fr] + [
+            e.hypothese_fr for e in payload.cascade_effects
+        ]:
+            scan_value_for_banned_terms(text)  # ne doit rien lever
+
+    # Supplement : le scanner canonique borne ses mots (\bassure\b) et rate les
+    # formes accentuees / feminines de la liste CLAUDE.md — on les couvre ici
+    # explicitement (« assure » sans accent est deja pris par le scanner).
+    accented_forms = (
+        "garantie", "optimale", "meilleure", "certaine", "certaines",
+        "assuré", "assurée", "assurés", "assurées", "sûr", "sûre",
+        "parfaite", "sans risque",
+    )
+    payload = sensibilite_3a_menage(
+        revenu_imposable=95_000.0,
+        canton="VD",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    blob = " ".join(
+        [payload.primary_choice_fr] + [e.hypothese_fr for e in payload.cascade_effects]
+    ).lower()
+    for term in accented_forms:
+        assert term not in blob, f"forme bannie (accentuee) presente : {term!r}"
+
+
+# ---------------------------------------------------------------------------
+# Sanity — le scanner canonique LEVE bien sur un terme banni (garde non illusoire).
+# ---------------------------------------------------------------------------
+
+
+def test_canonical_scanner_actually_raises() -> None:
+    with pytest.raises(BannedTermsViolation):
+        scan_value_for_banned_terms("Un rendement garanti sans risque.")
+
+
+# ---------------------------------------------------------------------------
+# Test 12 — citation_key canonique (outil de recuperation, doctrine coach).
+# ---------------------------------------------------------------------------
+
+
+def test_citation_key_is_canonical_tool() -> None:
+    payload = sensibilite_3a_menage(
+        revenu_imposable=100_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    assert _effect(payload).citation_key == _CITATION
+
+
+# ---------------------------------------------------------------------------
+# Test 13 — cascade_effects est TYPE (_CascadeEffect), pas un dict libre, et
+# rejette tout champ extra (extra=forbid herite de _LucidityBase).
+# ---------------------------------------------------------------------------
+
+
+def test_cascade_effect_is_typed_and_forbids_extra() -> None:
+    from pydantic import ValidationError
+
+    payload = sensibilite_3a_menage(
+        revenu_imposable=100_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    assert isinstance(payload.cascade_effects[0], _CascadeEffect)
+    with pytest.raises(ValidationError):
+        _CascadeEffect(
+            domain_fr="Impot sur le revenu",
+            delta_bas=100.0,
+            delta_haut=200.0,
+            hypothese_fr="x" * 25,
+            citation_key=_CITATION,
+            recommended_option="verser",  # champ interdit
+        )
+
+
+# ---------------------------------------------------------------------------
+# Test 14 — le module reexporte le disclaimer canonique (reutilisation).
+# ---------------------------------------------------------------------------
+
+
+def test_module_reexports_canonical_disclaimer() -> None:
+    assert DISCLAIMER == CANONICAL_DISCLAIMER
+
+
+# ---------------------------------------------------------------------------
+# Test 15 — etat civil inconnu -> traite comme celibataire (conservateur).
+# ---------------------------------------------------------------------------
+
+
+def test_unknown_status_defaults_to_single() -> None:
+    common = dict(
+        revenu_imposable=100_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+    )
+    inconnu = sensibilite_3a_menage(etat_civil="statut_bidon", **common)
+    single = sensibilite_3a_menage(etat_civil="celibataire", **common)
+    assert _effect(inconnu).delta_bas == _effect(single).delta_bas
+    assert _effect(inconnu).delta_haut == _effect(single).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 16 — invariant delta_bas <= delta_haut sur une grille cantons/revenus.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("canton", ["ZH", "GE", "VD", "ZG", "TI"])
+@pytest.mark.parametrize("revenu", [30_000.0, 80_000.0, 180_000.0])
+@pytest.mark.parametrize("statut", ["celibataire", "marie", "marie_pacse"])
+def test_delta_bas_le_delta_haut_invariant(canton, revenu, statut) -> None:
+    payload = sensibilite_3a_menage(
+        revenu_imposable=revenu,
+        canton=canton,
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil=statut,
+    )
+    eff = _effect(payload)
+    assert eff.delta_bas <= eff.delta_haut
+
+
+# ---------------------------------------------------------------------------
+# Test 17 — horizon_years honnete (economie annuelle recurrente, >= 1).
+# ---------------------------------------------------------------------------
+
+
+def test_horizon_years_is_annual_minimum() -> None:
+    payload = sensibilite_3a_menage(
+        revenu_imposable=100_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    assert payload.horizon_years == 1
+
+
+# ---------------------------------------------------------------------------
+# Test 18 — la mention « plafond OPP3 » n'apparait QUE si le montant affiche
+# EST le plafond (versement None, ou demande >= plafond). Un versement explicite
+# sous plafond est un montant choisi : la copie ne doit pas le presenter comme
+# le plafond legal.
+# ---------------------------------------------------------------------------
+
+
+def test_ceiling_mention_only_when_amount_is_ceiling() -> None:
+    common = dict(revenu_imposable=90_000.0, canton="VD", etat_civil="marie")
+
+    # (a) versement explicite SOUS le plafond -> ni « plafond » ni « OPP3 ».
+    sous = sensibilite_3a_menage(
+        versement_3a=2_000.0, **common
+    ).primary_choice_fr.lower()
+    assert "plafond" not in sous
+    assert "opp3" not in sous
+    assert "2'000" in sous  # le montant choisi est bien affiche
+
+    # (b) versement None -> plafond affiche -> mentionne « plafond » + « OPP3 ».
+    au_plafond = sensibilite_3a_menage(
+        versement_3a=None, employment_status="salarie", has_lpp=True, **common
+    ).primary_choice_fr.lower()
+    assert "plafond" in au_plafond
+    assert "opp3" in au_plafond
+
+    # (c) versement AU-DESSUS du plafond -> clampe au plafond -> meme mention.
+    au_dessus = sensibilite_3a_menage(
+        versement_3a=20_000.0, employment_status="salarie", has_lpp=True, **common
+    ).primary_choice_fr.lower()
+    assert "plafond" in au_dessus
+    assert "opp3" in au_dessus
+
+
+# ---------------------------------------------------------------------------
+# E1 — grand 3a borné à 20% du revenu (OPP3 art. 7). Repro Codex : indépendant
+# revenu imposable 20'000, versement None -> plafond affiché 4'000, pas 36'288.
+# ---------------------------------------------------------------------------
+
+
+def test_independant_ceiling_capped_at_20pct_in_copy() -> None:
+    p = sensibilite_3a_menage(
+        revenu_imposable=20_000.0,
+        canton="ZH",
+        versement_3a=None,
+        etat_civil="celibataire",
+        employment_status="independant",
+        has_lpp=False,
+    )
+    copy = p.primary_choice_fr
+    # 20% de 20'000 = 4'000 (jamais le grand 3a nu 36'288).
+    assert "4'000" in copy
+    assert "36'288" not in copy
+
+# ---------------------------------------------------------------------------
+# Test 19 — branche de TRI DÉFENSIF (non-monotonie réelle du modèle) : avec les
+# repros exacts VS r=152'500 et FR r=200'000, raw_bas(conjoint 0) > raw_haut
+# (conjoint comparable). Le tri doit préserver delta_bas <= delta_haut ET la
+# copie doit rester direction-neutre (pas de « borne basse si conjoint sans
+# revenu », qui serait factuellement inversée).
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("canton,revenu", [("VS", 152_500.0)])
+def test_defensive_sort_branch_keeps_band_ordered_and_neutral_copy(
+    canton: str, revenu: float
+) -> None:
+    versement = PILIER_3A_PLAFOND_AVEC_LPP
+    # 1) prouver que la région est non-monotone (le tri s'active vraiment). On
+    # utilise le VRAI _household_imposable du service (assertion de PROPRIÉTÉ de
+    # la prod, pas un oracle recopié) — VS 152'500 inverse encore après retrait
+    # de l'assurance (P1-5) ; FR 200'000 devient exactement égal, retiré.
+    raw_bas = estimate_tax_saving(
+        _household_imposable(revenu, 0.0), versement, canton, is_married=True
+    )
+    raw_haut = estimate_tax_saving(
+        _household_imposable(revenu, revenu), versement, canton, is_married=True
+    )
+    assert raw_bas > raw_haut, "repro attendu : conjoint 0 > conjoint comparable"
+
+    payload = sensibilite_3a_menage(
+        revenu_imposable=revenu,
+        canton=canton,
+        versement_3a=versement,
+        etat_civil="marie",
+    )
+    eff = _effect(payload)
+    # 2) malgré l'inversion, la bande reste ordonnée (tri défensif).
+    assert eff.delta_bas <= eff.delta_haut
+    # 3) la copie ne fait AUCUNE assignation directionnelle inversable.
+    h = eff.hypothese_fr.lower()
+    assert "borne basse si" not in h
+    assert "borne haute si" not in h
+    # mais nomme bien les deux hypothèses bornantes.
+    assert "sans revenu" in h
+    assert "comparable" in h
+
+
+# ---------------------------------------------------------------------------
+# Test 20 — fail-closed canton inconnu : ValueError au niveau du service (pas
+# de moyenne-26 silencieuse pour un « XX »).
+# ---------------------------------------------------------------------------
+
+
+def test_unknown_canton_fails_closed() -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=100_000.0,
+            canton="XX",
+            versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+            etat_civil="celibataire",
+        )
+    # un canton valide en minuscules reste accepté (normalisation).
+    ok = sensibilite_3a_menage(
+        revenu_imposable=100_000.0,
+        canton="zh",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    assert isinstance(ok, L3EclairePayload)
+
+
+# ---------------------------------------------------------------------------
+# Test 21 — normalisation d'état civil : casse, accents, espaces.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("statut", ["MARIÉ", "Marié", "  marie  ", "MARIÉ_PACSÉ"])
+def test_married_normalization_variants(statut: str) -> None:
+    ref = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="marie",
+    )
+    got = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil=statut,
+    )
+    # traité comme marié -> bande identique au « marie » de référence.
+    assert _effect(got).delta_bas == _effect(ref).delta_bas
+    assert _effect(got).delta_haut == _effect(ref).delta_haut
+
+
+def test_concubinage_uppercase_is_separate() -> None:
+    single = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="celibataire",
+    )
+    got = sensibilite_3a_menage(
+        revenu_imposable=90_000.0,
+        canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP,
+        etat_civil="CONCUBINAGE",
+    )
+    assert _effect(got).delta_bas == _effect(single).delta_bas
+    assert _effect(got).delta_haut == _effect(single).delta_haut
+
+
+# ---------------------------------------------------------------------------
+# E3 P1-5 — retrait de la double déduction assurances : la bande NE 20k+10k se
+# rapproche de l'étalon-somme (avant : 156-190 ; étalon sur 30'000 : 1'239.92).
+# Oracle externe gelé.
+# ---------------------------------------------------------------------------
+
+
+def test_household_imposable_only_couple_specific_deductions() -> None:
+    """F4 — DÉRIVATION LÉGALE INDÉPENDANTE (arithmétique explicite, constantes
+    pinnées dans le test, jamais un helper de prod ni une sortie gelée).
+
+    Contrat d'entrée : ``revenu_1``/``revenu_2`` = revenus imposables INDIVIDUELS
+    (déductions personnelles, dont assurance-vie art. 33 al. 1 let. g au taux
+    célibataire, déjà appliquées). En imposition commune (LIFD art. 9 al. 1), le
+    couple obtient EN PLUS deux déductions qu'un célibataire ne peut pas claimer :
+      - personnes mariées (LIFD art. 35 al. 1 let. c) = 2'800 ;
+      - double activité des époux (LIFD art. 33 al. 2) = 50% du revenu le plus
+        bas, plancher 8'600, plafond 14'100, borné au revenu concerné.
+    L'assurance mariée (3'700) NE se retranche PAS : elle remplace 2×1'800 déjà
+    dans les imposables individuels (delta ~100, immatériel) -> sinon double
+    compte. Le ×0.80 est une approximation de BARÈME (splitting), pas une
+    déduction, et n'entre donc pas ici.
+    """
+    DEDUCTION_MARIES_PIN = 2_800.0
+    # double activité pour (20'000, 10'000) : 50% du bas 10'000 = 5'000, relevé
+    # au plancher 8'600, plafonné au revenu bas 10'000 -> 8'600.
+    DOUBLE_ACTIVITE_PIN = 8_600.0
+    expected_household = 20_000.0 + 10_000.0 - DEDUCTION_MARIES_PIN - DOUBLE_ACTIVITE_PIN
+    assert expected_household == 18_600.0
+    assert _household_imposable(20_000.0, 10_000.0) == expected_household
+    # L'assurance mariée (3'700) n'est PAS retranchée -> pas de 30'000-11'400=18'600
+    # DEVENU 14'900 comme dans le bug initial.
+    assert _household_imposable(20_000.0, 10_000.0) != 14_900.0
+
+
+# ---------------------------------------------------------------------------
+# E3 P1-1 — enclosure : un conjoint qui gagne PLUS que l'utilisateur peut sortir
+# de la fourchette conjoint-inconnu (limitation réelle, désormais divulguée).
+# ---------------------------------------------------------------------------
+
+
+def test_richer_conjoint_can_exceed_unknown_band_and_is_disclosed() -> None:
+    common = dict(
+        revenu_imposable=90_000.0, canton="ZH",
+        versement_3a=PILIER_3A_PLAFOND_AVEC_LPP, etat_civil="marie",
+    )
+    inconnu = _effect(sensibilite_3a_menage(**common))
+    riche = _effect(sensibilite_3a_menage(revenu_imposable_conjoint=300_000.0, **common))
+    # le point conjoint-300k dépasse la borne haute de la bande inconnue.
+    assert riche.delta_haut > inconnu.delta_haut
+    # ... et la copie inconnue DIVULGUE cette limite.
+    assert "dépasser cette fourchette" in inconnu.hypothese_fr
+
+
+# ---------------------------------------------------------------------------
+# E3 P2-c — NaN/Inf fail-closed (ValueError), jamais un zéro crédible.
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("bad", [float("nan"), float("inf"), float("-inf")])
+def test_non_finite_revenu_fails_closed(bad) -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=bad, canton="ZH", versement_3a=None, etat_civil="celibataire"
+        )
+
+
+def test_non_finite_versement_fails_closed() -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=90_000.0, canton="ZH",
+            versement_3a=float("nan"), etat_civil="celibataire",
+        )
+
+
+def test_non_finite_conjoint_fails_closed() -> None:
+    with pytest.raises(ValueError):
+        sensibilite_3a_menage(
+            revenu_imposable=90_000.0, canton="ZH", versement_3a=None,
+            etat_civil="marie", revenu_imposable_conjoint=float("inf"),
+        )
+
+
+# ---------------------------------------------------------------------------
+# G2 — double activité (LIFD art. 33 al. 2) conditionnelle : appliquée seulement
+# si les DEUX époux exercent une activité lucrative.
+# ---------------------------------------------------------------------------
+
+
+def test_double_activite_only_when_two_earners() -> None:
+    # oracle arithmétique : art. 35 (2'800) + double activité (8'600) -> 18'600 ;
+    # sans double activité -> 30'000 - 2'800 = 27'200.
+    assert _household_imposable(20_000.0, 10_000.0, apply_double_activite=True) == 18_600.0
+    assert _household_imposable(20_000.0, 10_000.0, apply_double_activite=False) == 27_200.0
+
+
+def test_deux_revenus_activite_param_controls_and_discloses() -> None:
+    common = dict(
+        revenu_imposable=20_000.0, canton="NE", versement_3a=None,
+        etat_civil="marie", revenu_imposable_conjoint=10_000.0,
+    )
+    # False -> pas de double activité (imposable plus haut -> économie plus haute).
+    off = _effect(sensibilite_3a_menage(deux_revenus_activite=False, **common))
+    on = _effect(sensibilite_3a_menage(deux_revenus_activite=True, **common))
+    assert off.delta_haut > on.delta_haut  # 27'200 > 18'600 -> impôt/économie plus haut
+    assert "double activité" not in off.hypothese_fr
+    # None (défaut) -> applique ET divulgue l'hypothèse.
+    default = _effect(sensibilite_3a_menage(**common))
+    assert default.delta_bas == on.delta_bas  # applique comme True
+    assert "activité lucrative" in default.hypothese_fr  # divulgation

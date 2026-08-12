@@ -23,16 +23,16 @@ Finder _byIdentifier(String id) => find.byWidgetPredicate(
       (w) => w is Semantics && w.properties.identifier == id,
     );
 
-Widget _host() => const MaterialApp(
-      localizationsDelegates: [
+Widget _host([Locale locale = const Locale('fr')]) => MaterialApp(
+      localizationsDelegates: const [
         S.delegate,
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [Locale('fr')],
-      locale: Locale('fr'),
-      home: DividendeVsSalaireScreen(),
+      supportedLocales: S.supportedLocales,
+      locale: locale,
+      home: const DividendeVsSalaireScreen(),
     );
 
 /// Grande surface : l'écran est un CustomScrollView lazy — les enfants sous la
@@ -94,5 +94,93 @@ void main() {
       find.textContaining('Risque de requalification'),
       findsNothing,
     );
+  });
+
+  testWidgets(
+      'légendes du graphe localisées (« Split adapté » accentué) + titres en '
+      'casse normale (VOICE_SYSTEM, plus d\'UPPERCASE)', (tester) async {
+    _bigSurface(tester);
+    await tester.pumpWidget(_host());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    final ctx = tester.element(find.byType(DividendeVsSalaireScreen));
+    final l = S.of(ctx)!;
+
+    // Légende : accent corrigé (audit #1185, « Split adapte » -> « Split adapté »)
+    // et strings sorties du code vers l'ARB 6 langues.
+    expect(l.dividendeLegendSplitAdapte, 'Split adapté');
+    expect(find.text('Split adapté'), findsOneWidget);
+    expect(find.text('Split adapte'), findsNothing); // plus de variante ASCII
+    expect(find.text(l.dividendeLegendChargeTotale), findsWidgets);
+    expect(find.text(l.dividendeLegendPositionActuelle), findsOneWidget);
+
+    // Casse normale : l'UPPERCASE non conforme VOICE_SYSTEM a disparu.
+    expect(find.text('CHARGE TOTALE PAR SPLIT'), findsNothing);
+    expect(find.text('À RETENIR'), findsNothing);
+    expect(find.text(l.dividendeChargeCurveTitle), findsOneWidget);
+    expect(find.text(l.dividendeEducationTitle), findsOneWidget);
+  });
+
+  // ── FR-residuals PR : extraction i18n de l'en-tête, des lignes de résultat,
+  // des cartes édu et des disclaimers (audit #1185 / rapport #1190). ──────────
+  testWidgets('en-tête : accent corrigé « le plus adapté » (plus « adapte ») '
+      'et sorti vers l\'ARB', (tester) async {
+    _bigSurface(tester);
+    await tester.pumpWidget(_host());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    final ctx = tester.element(find.byType(DividendeVsSalaireScreen));
+    final l = S.of(ctx)!;
+
+    // Bug accent de l'audit #1185 corrigé dans l'ARB.
+    expect(l.dividendeHeaderIntro, contains('le plus adapté'));
+    expect(l.dividendeHeaderIntro.contains('adapte.'), isFalse);
+    // L'en-tête rendu vient bien de l'ARB.
+    expect(find.text(l.dividendeHeaderIntro), findsOneWidget);
+  });
+
+  testWidgets('lignes de résultat + cartes édu + disclaimers rendus depuis '
+      'l\'ARB (locale fr)', (tester) async {
+    _bigSurface(tester);
+    await tester.pumpWidget(_host());
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    final ctx = tester.element(find.byType(DividendeVsSalaireScreen));
+    final l = S.of(ctx)!;
+
+    // Lignes de résultat (dont les 2 clés orphelines ré-câblées).
+    expect(find.text(l.dividendeResultPartDividende), findsOneWidget);
+    expect(find.text(l.dividendeVsSalaireChargeSalaire), findsOneWidget);
+    expect(find.text(l.dividendeResultChargeTotale), findsOneWidget);
+    expect(find.text(l.dividendeVsSalaireCharge100Salaire), findsOneWidget);
+    // Cartes éducatives.
+    expect(find.text(l.dividendeEduImpotBeneficeTitle), findsOneWidget);
+    expect(find.text(l.dividendeEduAvsTitle), findsOneWidget);
+    expect(find.text(l.dividendeEduCantonalTitle), findsOneWidget);
+    // Disclaimer conformité (scénario pédagogique, pas conseil).
+    expect(find.text(l.dividendeComplianceEducatif), findsOneWidget);
+    expect(find.text(l.dividendeComplianceSources), findsOneWidget);
+  });
+
+  testWidgets('locale en : en-tête ANGLAIS rendu, en-tête FR absent '
+      '(vraie localisation, pas chaîne FR en dur)', (tester) async {
+    _bigSurface(tester);
+    await tester.pumpWidget(_host(const Locale('en')));
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    final ctx = tester.element(find.byType(DividendeVsSalaireScreen));
+    final l = S.of(ctx)!;
+    expect(l.dividendeHeaderIntro, contains('If you own an SA'));
+
+    expect(find.textContaining('If you own an SA'), findsOneWidget);
+    // La chaîne FR en dur (HEAD) ne doit plus s'afficher en locale en.
+    expect(find.textContaining('Si tu possèdes'), findsNothing);
+    // Carte édu en anglais présente ; le titre FR absent.
+    expect(find.text(l.dividendeEduCantonalTitle), findsOneWidget);
+    expect(find.text('Pratique cantonale'), findsNothing);
   });
 }

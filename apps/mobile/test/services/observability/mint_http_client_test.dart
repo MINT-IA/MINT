@@ -194,6 +194,49 @@ void main() {
       expect(encoded, isNot(contains('550e8400')));
       expect(encoded, isNot(contains('raw_user_123456789abcdef')));
     });
+
+    test('journals the outbound request body at the boundary in debug',
+        () async {
+      final logs = <String>[];
+      final prior = debugPrint;
+      debugPrint = (message, {wrapWidth}) {
+        if (message != null) logs.add(message);
+      };
+      addTearDown(() => debugPrint = prior);
+
+      final inner = MockClient((req) async => http.Response('{}', 200));
+      await MintHttpClient(inner).post(
+        Uri.parse('https://example.test/profile'),
+        body: jsonEncode({'q_outbound_probe': 42}),
+      );
+
+      final joined = logs.join('\n');
+      expect(joined, contains('REQBODY'));
+      expect(joined, contains('q_outbound_probe'),
+          reason: 'the zero-transmission runtime proof greps this boundary '
+              '— the outbound payload must be observable');
+    });
+
+    test('marks a request whose body cannot be read as unobserved', () async {
+      final logs = <String>[];
+      final prior = debugPrint;
+      debugPrint = (message, {wrapWidth}) {
+        if (message != null) logs.add(message);
+      };
+      addTearDown(() => debugPrint = prior);
+
+      final inner = MockClient((req) async => http.Response('{}', 200));
+      final multipart = http.MultipartRequest(
+          'POST', Uri.parse('https://example.test/upload'))
+        ..fields['note'] = 'x';
+      await MintHttpClient(inner).send(multipart);
+
+      expect(logs.join('\n'), contains('REQBODY'));
+      expect(logs.join('\n'), contains('unobserved'),
+          reason: 'an unreadable outbound body must surface, never be '
+              'silently skipped — the runtime proof fails on it');
+    });
+
   });
 }
 

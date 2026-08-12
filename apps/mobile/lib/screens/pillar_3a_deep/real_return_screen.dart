@@ -49,6 +49,9 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         rendementBrut: _rendementBrut,
         fraisGestion: _fraisGestion,
         dureeAnnees: _dureeAnnees,
+        // Route the disclaimer through AppLocalizations so the localized ARB
+        // copy renders instead of the calculation-path fallback.
+        l: S.of(context),
       );
 
   @override
@@ -437,9 +440,14 @@ class _RealReturnScreenState extends State<RealReturnScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary)),
+            Expanded(
+              child: Text(label,
+                  style: MintTextStyles.labelSmall(color: MintColors.textPrimary)),
+            ),
+            const SizedBox(width: 12),
             Text(
               'CHF\u00a0${formatChf(amount)}',
+              textAlign: TextAlign.end,
               style: MintTextStyles.bodySmall(color: color).copyWith(fontWeight: FontWeight.w700),
             ),
           ],

@@ -1,4 +1,5 @@
 import 'dart:async' show unawaited;
+import 'dart:convert' show jsonEncode;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
@@ -8,6 +9,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
+import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -21,9 +28,12 @@ import 'package:mint_mobile/services/coach/coach_cache_service.dart';
 import 'package:mint_mobile/services/coach/coach_profile_seeds.dart';
 import 'package:mint_mobile/services/coach/conversation_store.dart';
 import 'package:mint_mobile/services/coach_narrative_service.dart';
+import 'package:mint_mobile/services/confidence/confidence_history_service.dart';
+import 'package:mint_mobile/services/financial_core/confidence_scorer.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
     show VoicePreference;
 
@@ -45,6 +55,14 @@ import 'package:mint_mobile/services/voice/voice_cursor_contract.dart'
 ///
 /// Le profil est recalcule a chaque appel a [loadFromWizard()].
 class CoachProfileProvider extends ChangeNotifier {
+  @visibleForTesting
+  static Future<void> Function()? debugAfter3aSaveBeforeVerification;
+  @visibleForTesting
+  static Future<void> Function()? debugHousingAfterDrain;
+  @visibleForTesting
+  static Future<void> Function()? debugHousingAfterCanonicalWrite;
+  @visibleForTesting
+  static Future<void> Function()? debugAfterOwnedSecurePurgePrearm;
   CoachProfile? _profile;
   bool _isLoading = false;
   bool _isLoaded = false;
@@ -62,6 +80,370 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Le profil Coach construit a partir des reponses wizard.
   /// Null si le wizard n'a pas ete complete.
   CoachProfile? get profile => _profile;
+
+  MintNextHousingFact? get housingFact =>
+      MintNextHousingFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextDomicileFact? get domicileFact =>
+      MintNextDomicileFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextCivilStatusFact? get civilStatusFact =>
+      MintNextCivilStatusFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextRevenuFact? get revenuFact =>
+      MintNextRevenuFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextLppAffiliationFact? get lppAffiliationFact =>
+      MintNextLppAffiliationFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextVersements3aFact? get versements3aFact =>
+      MintNextVersements3aFact.fromWizardAnswers(_lastAnswers);
+
+  /// Persiste la LISTE complète des versements 3a par la transaction
+  /// coordonnée scellée — l'ajout/correction/suppression d'UNE entrée passe
+  /// par les mutations pures du fait puis ce commit unique. Local uniquement
+  /// (ADR 2026-08-08).
+  Future<void> saveVersements3aFact(MintNextVersements3aFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalVersements3a(fact)) {
+            throw StateError('Canonical versements 3a persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'Versements 3a cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime la liste entière par tombstone canonique ; les réponses non
+  /// liées survivent.
+  Future<void> deleteVersements3aFact() =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalVersements3aDeleted()) {
+            throw StateError('Canonical versements 3a deletion failed');
+          }
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) =>
+                MintNextVersements3aFact.wizardKeys.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'Versements 3a cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Persiste le fait affiliation LPP par la transaction coordonnée scellée.
+  /// Aucune projection legacy. Local uniquement (ADR 2026-08-08).
+  Future<void> saveLppAffiliationFact(MintNextLppAffiliationFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalLppAffiliation(fact)) {
+            throw StateError('Canonical LPP affiliation persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'LPP affiliation cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime le fait par tombstone canonique : l'affiliation redevient
+  /// INCONNUE — jamais « non ». Les réponses non liées survivent.
+  Future<void> deleteLppAffiliationFact() =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalLppAffiliationDeleted()) {
+            throw StateError('Canonical LPP affiliation deletion failed');
+          }
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) =>
+                MintNextLppAffiliationFact.wizardKeys.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'LPP affiliation cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Persiste le fait revenu par la transaction coordonnée scellée (mêmes
+  /// verrous globaux) : l'enregistrement canonique unique commet fait +
+  /// métadonnées atomiquement ; la projection legacy
+  /// (q_net_income_period_chf / q_pay_frequency) part dans le même commit de
+  /// cache pour les consommateurs historiques. Local uniquement
+  /// (ADR 2026-08-08).
+  Future<void> saveRevenuFact(MintNextRevenuFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalRevenu(fact)) {
+            throw StateError('Canonical revenu persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers())
+            ..addAll(fact.legacyProjectionAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint('Revenu cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime le fait revenu par tombstone canonique ; la projection legacy
+  /// est purgée avec le bundle possédé (les consommateurs historiques ne
+  /// doivent pas continuer d'afficher un revenu supprimé) ; les réponses non
+  /// liées survivent.
+  Future<void> deleteRevenuFact() => _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalRevenuDeleted()) {
+            throw StateError('Canonical revenu deletion failed');
+          }
+          final tombstoned = MintNextRevenuFact.deletionWizardAnswers().keys;
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) => tombstoned.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'Revenu cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Persiste le fait état civil par la transaction coordonnée scellée
+  /// (mêmes verrous globaux que le logement) : l'enregistrement canonique
+  /// unique commet fait + métadonnées atomiquement ; le cache wizard est
+  /// secondaire et jamais autoritaire. Local uniquement (pas de contrat de
+  /// sync — ADR 2026-08-08).
+  Future<void> saveCivilStatusFact(MintNextCivilStatusFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalCivilStatus(fact)) {
+            throw StateError('Canonical civil status persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'Civil status cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime le fait par tombstone canonique ; les réponses non liées
+  /// survivent.
+  Future<void> deleteCivilStatusFact() => _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalCivilStatusDeleted()) {
+            throw StateError('Canonical civil status deletion failed');
+          }
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) =>
+                MintNextCivilStatusFact.wizardKeys.contains(key) ||
+                key == MintNextCivilStatusFact.legacyChoiceKey);
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'Civil status cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Persists the fiscal-domicile fact through the canonical answer pipeline.
+  /// Local-only by design: no backend sync until a versioned consent contract
+  /// exists (ADR 2026-08-08).
+  Future<void> saveDomicileFact(MintNextDomicileFact fact) => mergeAnswers(
+        fact.toWizardAnswers(),
+        syncToBackend: false,
+        failOnPersistenceError: true,
+      );
+
+  /// Deletes the owned domicile keys; the shared legacy `q_canton` and every
+  /// unrelated answer survive.
+  Future<void> deleteDomicileFact() => mergeAnswers(
+        MintNextDomicileFact.deletionWizardAnswers(),
+        syncToBackend: false,
+        failOnPersistenceError: true,
+      );
+
+  Future<void> _runHousingCoordinated(Future<void> Function() action) async {
+    try {
+      await ReportPersistenceService.runHousingTransaction(
+          () => SecureWizardStore.runCanonicalHousingTransaction(action));
+    } on StateError catch (error) {
+      if (error.message.contains('superseded')) {
+        _lastAnswers = const {};
+        _profile = null;
+        notifyListeners();
+      }
+      rethrow;
+    }
+  }
+
+  /// Persists the complete owned bundle through the canonical answer pipeline.
+  Future<void> saveHousingFact(MintNextHousingFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          await debugHousingAfterDrain?.call();
+          if (!await SecureWizardStore.writeCanonicalHousing(fact)) {
+            throw StateError('Canonical housing persistence failed');
+          }
+          await debugHousingAfterCanonicalWrite?.call();
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          // Canonical remains authoritative if this cache write returns false.
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'Housing cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Deletes the complete owned bundle without disturbing other answers.
+  Future<void> deleteHousingFact() => _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          await debugHousingAfterDrain?.call();
+          if (!await SecureWizardStore.writeCanonicalHousingDeleted()) {
+            throw StateError('Canonical housing deletion failed');
+          }
+          await debugHousingAfterCanonicalWrite?.call();
+          await SecureWizardStore.deleteKeys(MintNextHousingFact.wizardKeys);
+          snapshot.removeWhere(
+              (key, _) => MintNextHousingFact.wizardKeys.contains(key));
+          // Tombstone remains authoritative if this cache write returns false.
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(snapshot);
+          if (!cacheSaved) {
+            debugPrint(
+                'Housing cache cleanup failed; tombstone remains authority');
+          }
+          _lastAnswers = snapshot;
+          _profile = snapshot.isEmpty
+              ? null
+              : CoachProfile.fromWizardAnswers(snapshot);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
 
   /// S47: Stamp dataTimestamps for a set of field paths.
   /// Merges with existing timestamps — only overwrites the given fields.
@@ -752,6 +1134,7 @@ class CoachProfileProvider extends ChangeNotifier {
       'q_spouse_avs_contribution_years',
       'q_avs_contribution_years',
       'q_target_retirement_age',
+      'q_housing_status',
     };
     if (backendHydrationKeys.any((key) => _isAnswered(answers[key]))) {
       return true;
@@ -794,6 +1177,15 @@ class CoachProfileProvider extends ChangeNotifier {
 
     // Charger l'historique des scores mensuels
     _scoreHistory = await ReportPersistenceService.loadScoreHistory();
+
+    // D5 — socle « évolution visible » : capture un point de confiance daté
+    // à chaque hydratation (une fois par session, dédupliqué par jour) pour
+    // donner une origine à la courbe même sans scan/check-in. Guardé et
+    // silencieux : un échec d'écriture ne doit jamais casser l'hydratation.
+    await ConfidenceHistoryService.record(
+      ConfidenceScorer.scoreEnhanced(_profile!),
+      trigger: 'profile_load',
+    );
   }
 
   /// Met a jour le profil directement a partir d'un map d'answers.
@@ -813,7 +1205,11 @@ class CoachProfileProvider extends ChangeNotifier {
   /// Used by chat inline pickers to update one field at a time without
   /// overwriting the rest of the profile. A null value deletes the key, which
   /// lets edit screens clear optional values instead of preserving stale data.
-  Future<void> mergeAnswers(Map<String, dynamic> partial) async {
+  Future<void> mergeAnswers(
+    Map<String, dynamic> partial, {
+    bool syncToBackend = true,
+    bool failOnPersistenceError = false,
+  }) async {
     if (partial.isEmpty) return;
     return _enqueueProfilePersistence(() async {
       // Deep-walk crack #15: always re-read the on-disk answers before
@@ -837,7 +1233,45 @@ class CoachProfileProvider extends ChangeNotifier {
       if (_isSingleHouseholdType(partial['q_household_type'])) {
         _removePartnerAnswers(merged);
       }
-      final persisted = await _saveAnswersReturningPersisted(merged);
+      final deletionKeys = partial.entries
+          .where((entry) => entry.value == null)
+          .map((entry) => entry.key)
+          .where(SecureWizardStore.isSensitive)
+          .toSet();
+      var secureDeletePrepared = false;
+      if (failOnPersistenceError && deletionKeys.isNotEmpty) {
+        secureDeletePrepared =
+            await SecureWizardStore.prepareDeleteTransaction(deletionKeys);
+        if (!secureDeletePrepared) {
+          throw StateError('Secure wizard deletion backup failed');
+        }
+        final deleted = await SecureWizardStore.deleteKeys(deletionKeys);
+        if (!deleted) {
+          throw StateError('Secure wizard key deletion failed');
+        }
+      }
+      late final Map<String, dynamic> persisted;
+      try {
+        persisted = await _saveAnswersReturningPersisted(
+          merged,
+          failOnPersistenceError: failOnPersistenceError,
+        );
+      } catch (_) {
+        rethrow;
+      }
+      if (secureDeletePrepared) {
+        final committed = await SecureWizardStore.commitDeleteTransaction();
+        if (!committed) {
+          await ReportPersistenceService.restorePreparedDeleteAnswerMap(
+              current);
+          throw StateError('Secure wizard deletion commit failed');
+        }
+        // The verified answer-map write above is the deletion commit point.
+        // Journal promotion/cleanup is recoverable maintenance: a cold load
+        // reconciles a still-prepared journal from the now-absent target keys.
+        // Reporting failure here would retain the card in memory even though
+        // restart deterministically completes the already-committed deletion.
+      }
       _lastAnswers = persisted;
       _profile =
           persisted.isEmpty ? null : CoachProfile.fromWizardAnswers(persisted);
@@ -846,7 +1280,83 @@ class CoachProfileProvider extends ChangeNotifier {
       _profileUpdatedSinceBudget = true;
       CoachNarrativeService.invalidateCache(profile: _profile);
       notifyListeners();
-      _syncToBackend(); // Fire-and-forget, does not block UI
+      if (syncToBackend) {
+        _syncToBackend(); // Fire-and-forget, does not block UI
+      }
+    });
+  }
+
+  Future<void> addSelfOwned3aAccount({
+    required String provider,
+    required double balance,
+    required DateTime balanceAsOf,
+  }) async {
+    final normalizedProvider = provider.trim();
+    final balanceDate = DateTime(
+      balanceAsOf.year,
+      balanceAsOf.month,
+      balanceAsOf.day,
+    );
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    if (normalizedProvider.isEmpty ||
+        !balance.isFinite ||
+        balance < 0 ||
+        balanceDate.isAfter(todayDate)) {
+      throw ArgumentError('Invalid self-owned 3a account');
+    }
+    await _enqueueProfilePersistence(() async {
+      final current = await ReportPersistenceService.loadAnswers();
+      final rawAccounts = current['_coach_3a_accounts_v1'];
+      final preservedRecords =
+          rawAccounts is List ? List<dynamic>.from(rawAccounts) : <dynamic>[];
+      final existingAccounts = preservedRecords
+          .map(Compte3a.tryFromCanonicalJson)
+          .whereType<Compte3a>()
+          .toList();
+      final usedSuffixes = existingAccounts
+          .map((account) =>
+              RegExp(r'^self-3a-(\d+)$').firstMatch(account.id ?? ''))
+          .whereType<RegExpMatch>()
+          .map((match) => int.parse(match.group(1)!))
+          .toSet();
+      var suffix = 1;
+      while (usedSuffixes.contains(suffix)) {
+        suffix++;
+      }
+      final account = <String, dynamic>{
+        'id': 'self-3a-$suffix',
+        'owner': Compte3aOwner.self.name,
+        'provider': normalizedProvider,
+        'balance': balance,
+        'balanceAsOf': balanceDate.toIso8601String(),
+        'source': ProfileDataSource.userInput.name,
+      };
+      final merged = Map<String, dynamic>.from(current)
+        ..['_coach_3a_accounts_v1'] = [...preservedRecords, account]
+        ..['_coach_3a_accounts_revision_v1'] =
+            ((current['_coach_3a_accounts_revision_v1'] as num?)?.toInt() ??
+                    0) +
+                1;
+      final previousSecure =
+          await SecureWizardStore.read('_coach_3a_accounts_v1');
+      late final Map<String, dynamic> persisted;
+      try {
+        persisted = await _saveAnswersReturningPersisted(
+          merged,
+          failOnPersistenceError: true,
+        );
+      } catch (_) {
+        await SecureWizardStore.restoreCanonical3aPayload(previousSecure);
+        rethrow;
+      }
+      _lastAnswers = persisted;
+      _profile = CoachProfile.fromWizardAnswers(persisted);
+      _hasSessionOnlyProfile = false;
+      _isLoaded = true;
+      _profileUpdatedSinceBudget = true;
+      CoachNarrativeService.invalidateCache(profile: _profile);
+      notifyListeners();
     });
   }
 
@@ -910,10 +1420,29 @@ class CoachProfileProvider extends ChangeNotifier {
   }
 
   Future<Map<String, dynamic>> _saveAnswersReturningPersisted(
-    Map<String, dynamic> answers,
-  ) async {
+    Map<String, dynamic> answers, {
+    bool failOnPersistenceError = false,
+  }) async {
     final fullySealed = await ReportPersistenceService.saveAnswers(answers);
-    if (fullySealed) return answers;
+    if (failOnPersistenceError &&
+        answers.containsKey('_coach_3a_accounts_v1')) {
+      await debugAfter3aSaveBeforeVerification?.call();
+    }
+    if (fullySealed) {
+      if (failOnPersistenceError) {
+        // SharedPreferences setters may report `false` without throwing. Read
+        // the committed view back before finalizing a secure delete; while the
+        // transaction is open, secure placeholders resolve through its backup.
+        final committed = await ReportPersistenceService.loadAnswers();
+        if (jsonEncode(committed) != jsonEncode(answers)) {
+          throw StateError('Wizard answer-map commit failed');
+        }
+      }
+      return answers;
+    }
+    if (failOnPersistenceError) {
+      throw StateError('Secure wizard persistence failed');
+    }
     return ReportPersistenceService.loadAnswers();
   }
 
@@ -1730,9 +2259,14 @@ class CoachProfileProvider extends ChangeNotifier {
 
   /// W15: Create a financial snapshot from the current profile state.
   /// Fire-and-forget — errors are logged, never surfaced to the user.
+  ///
+  /// D5: also records a dated confidence point so « Ton histoire » can draw
+  /// the confidence curve. The snapshot's `confidenceScore` is now the real
+  /// combined 4-axis score instead of the historical `0.0` placeholder.
   void _createSnapshotFromProfile(String trigger) {
     final p = _profile;
     if (p == null) return;
+    final confidence = ConfidenceScorer.scoreEnhanced(p);
     SnapshotService.createSnapshot(
       trigger: trigger,
       age: p.age,
@@ -1742,8 +2276,10 @@ class CoachProfileProvider extends ChangeNotifier {
           0.0, // Computed by projection services, not available here
       monthsLiquidity: 0.0, // Requires budget data not in CoachProfile
       taxSavingPotential: 0.0, // Requires tax simulation
-      confidenceScore: 0.0, // Requires projection
+      confidenceScore: confidence.combined,
     );
+    // Fire-and-forget: a history-write failure must never break enrichment.
+    ConfidenceHistoryService.record(confidence, trigger: trigger);
   }
 
   void _persistHousingFieldsSync(
@@ -3135,10 +3671,20 @@ class CoachProfileProvider extends ChangeNotifier {
     _lastAnswers = const {};
     _hasSessionOnlyProfile = false;
     notifyListeners();
-    // Durable reset: wait for persisted diagnostic and companion local stores
-    // to clear before callers navigate or relaunch.
+    // Capture the caller's namespace before the first await so a concurrent
+    // account switch cannot redirect this reset to the new user's history.
     final conversationNamespacePurge =
         ConversationStore.clearCurrentNamespace();
+    final purgeRetryArmed =
+        await InstallLifecycleService.recordOwnedSecurePurgeResult(false);
+    if (!purgeRetryArmed) {
+      throw StateError(
+        'Owned secure purge retry marker could not be persisted',
+      );
+    }
+    await debugAfterOwnedSecurePurgePrearm?.call();
+    // Durable reset: wait for persisted diagnostic and companion local stores
+    // to clear before callers navigate or relaunch.
     String? conversationUserId;
     try {
       conversationUserId = await AuthService.getUserId();
@@ -3152,7 +3698,16 @@ class CoachProfileProvider extends ChangeNotifier {
     final securePurged = await InstallLifecycleService.purgeMintSecureStorage(
       includeAuthSession: false,
     );
-    await InstallLifecycleService.recordOwnedSecurePurgeResult(securePurged);
+    final purgeResultRecorded =
+        await InstallLifecycleService.recordOwnedSecurePurgeResult(
+      securePurged,
+    );
+    if (!securePurged) {
+      throw StateError('Owned secure purge deferred for startup retry');
+    }
+    if (!purgeResultRecorded) {
+      throw StateError('Owned secure purge completion could not be persisted');
+    }
   }
 
   /// Sub-phase 01.5 W02-T03 Task 6 — nLPD art. 6 minimization

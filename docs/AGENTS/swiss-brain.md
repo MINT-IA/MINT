@@ -48,8 +48,14 @@ Consultez un·e spécialiste pour votre situation spécifique. »
 
 **Mortgage** (FINMA/ASB) : Taux théorique **5%** | Amortissement **1%/an** | Frais **1%/an** | Charges max **1/3 revenu brut** | Fonds propres **20%** (max 10% du 2e pilier).
 
-**Capital withdrawal tax** (progressive) :
-`0-100k : ×1.00 | 100-200k : ×1.15 | 200-500k : ×1.30 | 500k-1M : ×1.50 | 1M+ : ×1.70`.
+**Capital withdrawal tax** : étalon ESTV calibré — backend
+`app/services/fiscal/cantonal_comparator.py::estimate_capital_withdrawal_tax`
+(IFD art. 38 exact + interpolation capital ESTV, coefficient marié par canton) ;
+côté mobile, `tax_calculator.dart::capitalWithdrawalTax` délègue à
+`estimateCapitalWithdrawalTaxV2` (130 points officiels ESTV). L'ancienne table
+par multiplicateurs (×1.00 → ×1.70 par tranche) approximait à ±40 % sur
+certains cantons : ne JAMAIS la recomposer (lint anti-nouvelle-table par
+canton, PR #1062 ; doctrine `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`).
 
 ## 4. 8 Financial Archetypes
 

@@ -11,6 +11,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/onboarding_intent.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 // NOTE (sub-phase 01.5 W02-T05): ProfileMigrationService is consulted by
@@ -22,6 +23,7 @@ import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/income_converter.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 /// Une ligne visible du dossier, affichée dans la bande en bas d'écran.
 @immutable
@@ -513,7 +515,27 @@ class OnboardingProvider extends ChangeNotifier {
     // are PII keys: they flow ONLY through this flush map into the encrypted
     // SecureWizardStore (sealed by SecureWizardStore._sensitiveKeys +
     // the q_avs_ prefix rule), never into logs or analytics.
-    if (_civilStatus != null) answers['q_civil_status'] = _civilStatus;
+    // Lego 2 : la valeur EST le fait — le writer W2 passe par
+    // l'enregistrement canonique scellé (le store sérialise ses writes),
+    // jamais par une clé nue. Échec canonique → clé retenue, pas de
+    // demi-fait.
+    final civilStatusValue =
+        MintNextCivilStatusFact.statusFromToken(_civilStatus);
+    if (civilStatusValue != null) {
+      final civilStatusFact = MintNextCivilStatusFact(
+        status: civilStatusValue,
+        assertedAt: DateTime.now().toUtc(),
+        source: MintNextCivilStatusFact.userDeclarationSource,
+        schemaVersion: 1,
+        needsConfirmation: false,
+      );
+      if (await SecureWizardStore.writeCanonicalCivilStatus(civilStatusFact)) {
+        answers.addAll(civilStatusFact.toWizardAnswers());
+      } else {
+        debugPrint('Onboarding civil status canonical write failed; '
+            'value withheld rather than half-written');
+      }
+    }
     if (_avsLacunesStatus != null) {
       answers['q_avs_lacunes_status'] = _avsLacunesStatus;
       if (_avsArrivalYear != null) {

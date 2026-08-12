@@ -68,6 +68,8 @@ enum MintAccountDataState {
   deletePending,
 }
 
+enum _OwnedSecurePurgeOutcome { purged, retryArmed, retryUnarmed }
+
 /// Translate an [AuthError] code to a localized user-facing string.
 ///
 /// Called by UI screens (login, register, profile) to display the error.
@@ -108,6 +110,20 @@ String localizeAuthException(
     _authErrorFromException(error, appleContext: appleContext),
     l,
   );
+}
+
+/// Public classifier: map an exception-like auth failure to its [AuthError].
+///
+/// UI screens use this when they need the *code* (not just the localized
+/// string) — e.g. to decide whether to surface the "recreate account" CTA
+/// after an Apple sign-in returns `recreate_required`. Never expose
+/// `error.toString()` or a backend `message` to the user; always route it
+/// through [localizeAuthError]/[localizeAuthException] instead.
+AuthError authErrorFromException(
+  Object error, {
+  bool appleContext = false,
+}) {
+  return _authErrorFromException(error, appleContext: appleContext);
 }
 
 AuthError _authErrorFromException(
@@ -242,6 +258,10 @@ class AuthProvider extends ChangeNotifier {
   /// production code paths.
   @visibleForTesting
   static String? debugE2eArchetypeOverride;
+  @visibleForTesting
+  static Future<void> Function()? debugEarlyLocalPurgeFailure;
+  @visibleForTesting
+  static Future<void> Function()? debugAfterOwnedSecurePurgePrearm;
   static const _mintInstallIdKey = '_mint_install_id';
 
   static String _localDataSyncPendingKey(String userId) =>
@@ -644,11 +664,12 @@ class AuthProvider extends ChangeNotifier {
           _isLocalMode = true;
           await prefs.setBool(_authLocalModeKey, true);
         }
-        _authLifecycle = (_isLocalMode && hasExplicitLocalMode) || e2eSeededGuest
-            ? AuthLifecycleState.guestEmpty(
-                installId: await _loadOrCreateInstallId(prefs),
-              )
-            : AuthLifecycleState.freshVisitor();
+        _authLifecycle =
+            (_isLocalMode && hasExplicitLocalMode) || e2eSeededGuest
+                ? AuthLifecycleState.guestEmpty(
+                    installId: await _loadOrCreateInstallId(prefs),
+                  )
+                : AuthLifecycleState.freshVisitor();
       }
       // F3-2: Restore email verification state from SharedPreferences.
       // Survives cold start so the verify-email screen is shown again.
@@ -1000,7 +1021,7 @@ class AuthProvider extends ChangeNotifier {
       // V6-4 audit fix: purge ALL local data on account deletion
       // FIX-W11-7: Clear user prefix on account deletion.
       ConversationStore.setCurrentUserId(null);
-      await _purgeLocalData();
+      final mayPersistSignedOutPrefs = await _purgeLocalData();
       _isLoggedIn = false;
       _userId = null;
       _email = null;
@@ -1013,10 +1034,12 @@ class AuthProvider extends ChangeNotifier {
         activeDataScope: AuthDataScope.none,
         syncMode: AuthSyncMode.none,
       );
-      await (await SharedPreferences.getInstance()).setBool(
-        _authLocalModeKey,
-        false,
-      );
+      if (mayPersistSignedOutPrefs) {
+        await (await SharedPreferences.getInstance()).setBool(
+          _authLocalModeKey,
+          false,
+        );
+      }
       _isDeletingAccount = false;
       _isLoading = false;
       notifyListeners();
@@ -1115,7 +1138,7 @@ class AuthProvider extends ChangeNotifier {
     await AuthService.logout();
     // FIX-W11-7: Clear user prefix on logout.
     ConversationStore.setCurrentUserId(null);
-    await _purgeLocalData();
+    final mayPersistSignedOutPrefs = await _purgeLocalData();
     _isLoggedIn = false;
     _userId = null;
     _email = null;
@@ -1126,10 +1149,12 @@ class AuthProvider extends ChangeNotifier {
     // Persist AFTER _purgeLocalData (which prefs.clear()s the store).
     // Logout = fully out; the user can re-enable local mode by tapping
     // "Continuer en mode local" on the register/login screens.
-    await (await SharedPreferences.getInstance()).setBool(
-      _authLocalModeKey,
-      false,
-    );
+    if (mayPersistSignedOutPrefs) {
+      await (await SharedPreferences.getInstance()).setBool(
+        _authLocalModeKey,
+        false,
+      );
+    }
     _error = null;
     notifyListeners();
   }
@@ -1137,9 +1162,11 @@ class AuthProvider extends ChangeNotifier {
   /// V6-4 audit fix: purge ALL local data artifacts to prevent
   /// cross-account data bleed on shared devices.
   /// Same purge sequence as profile_screen.dart deleteAccount flow.
-  Future<void> _purgeLocalData() async {
+  Future<bool> _purgeLocalData() async {
     // TODO(P2): Implement cloud backup of conversations/check-ins before purge
+    final ownedSecureOutcome = await _purgeOwnedSecureData();
     try {
+      await debugEarlyLocalPurgeFailure?.call();
       // FIX-W11-2: Log purge scope for observability before destroying data
       // Purge conversation history
       final store = ConversationStore();
@@ -1166,44 +1193,129 @@ class AuthProvider extends ChangeNotifier {
       final preservedLocale = prefs.getString('mint_locale');
       final preservedB2bOrg = prefs.getString('_b2b_organization');
       final preservedWhiteLabel = prefs.getString('_white_label_config');
-      await prefs.clear();
-      // Restore device-level preferences
-      if (preservedLocale != null) {
-        await prefs.setString('mint_locale', preservedLocale);
-      }
-      if (preservedB2bOrg != null) {
-        await prefs.setString('_b2b_organization', preservedB2bOrg);
-      }
-      if (preservedWhiteLabel != null) {
-        await prefs.setString('_white_label_config', preservedWhiteLabel);
+      if (ownedSecureOutcome == _OwnedSecurePurgeOutcome.purged) {
+        await prefs.clear();
+        // Restore device-level preferences
+        if (preservedLocale != null) {
+          await prefs.setString('mint_locale', preservedLocale);
+        }
+        if (preservedB2bOrg != null) {
+          await prefs.setString('_b2b_organization', preservedB2bOrg);
+        }
+        if (preservedWhiteLabel != null) {
+          await prefs.setString('_white_label_config', preservedWhiteLabel);
+        }
+      } else if (ownedSecureOutcome == _OwnedSecurePurgeOutcome.retryArmed) {
+        const preservedKeys = {
+          InstallLifecycleService.ownedSecurePurgePendingKey,
+          'mint_locale',
+          '_b2b_organization',
+          '_white_label_config',
+        };
+        for (final key in prefs.getKeys().toList()) {
+          if (!preservedKeys.contains(key)) await prefs.remove(key);
+        }
       }
       await ReportPersistenceService.clearDiagnostic();
-      final ownedSecurePurged =
-          await InstallLifecycleService.purgeMintSecureStorage(
-        includeAuthSession: false,
-      );
-      await InstallLifecycleService.recordOwnedSecurePurgeResult(
-        ownedSecurePurged,
-        prefs: prefs,
-      );
-      await _bestEffortPurge('BYOK key', () => ByokProvider.clearStoredKey());
-      await _bestEffortPurge(
-        'partner estimate',
-        () => PartnerEstimateService.clear(),
-      );
-      await _bestEffortPurge(
-        'anonymous session',
-        () => AnonymousSessionService.clearSession(),
-      );
-      await _bestEffortPurge(
-        'biography key',
-        () => BiographyRepository.clearEncryptionKey(),
-      );
     } catch (e) {
       // Purge is best-effort — never block auth flow
       if (kDebugMode) {
         debugPrint('[AuthProvider] Local data purge failed: $e');
       }
+    }
+    if (ownedSecureOutcome == _OwnedSecurePurgeOutcome.retryUnarmed) {
+      final forcedFreshInstall = await _clearPrefsForFreshInstallRetry();
+      if (!forcedFreshInstall && kDebugMode) {
+        debugPrint(
+          '[AuthProvider] Unable to verify empty prefs after unarmed purge',
+        );
+      }
+    }
+    await _bestEffortPurge('BYOK key', () => ByokProvider.clearStoredKey());
+    await _bestEffortPurge(
+      'partner estimate',
+      () => PartnerEstimateService.clear(),
+    );
+    await _bestEffortPurge(
+      'anonymous session',
+      () => AnonymousSessionService.clearSession(),
+    );
+    await _bestEffortPurge(
+      'biography key',
+      () => BiographyRepository.clearEncryptionKey(),
+    );
+    return ownedSecureOutcome != _OwnedSecurePurgeOutcome.retryUnarmed;
+  }
+
+  Future<_OwnedSecurePurgeOutcome> _purgeOwnedSecureData() async {
+    var prearmed = false;
+    try {
+      prearmed =
+          await InstallLifecycleService.recordOwnedSecurePurgeResult(false);
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Owned secure purge pre-arm failed: $e');
+      }
+    }
+    try {
+      await debugAfterOwnedSecurePurgePrearm?.call();
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Owned secure purge interrupted: $e');
+      }
+      return prearmed
+          ? _OwnedSecurePurgeOutcome.retryArmed
+          : _OwnedSecurePurgeOutcome.retryUnarmed;
+    }
+
+    var purged = false;
+    try {
+      purged = await InstallLifecycleService.purgeMintSecureStorage(
+        includeAuthSession: false,
+      );
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Owned secure purge failed: $e');
+      }
+    }
+    if (!purged && prearmed) {
+      return _OwnedSecurePurgeOutcome.retryArmed;
+    }
+    try {
+      final recorded =
+          await InstallLifecycleService.recordOwnedSecurePurgeResult(
+        purged,
+      );
+      if (purged) return _OwnedSecurePurgeOutcome.purged;
+      return recorded
+          ? _OwnedSecurePurgeOutcome.retryArmed
+          : _OwnedSecurePurgeOutcome.retryUnarmed;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Owned secure purge retry record failed: $e');
+      }
+      return purged
+          ? _OwnedSecurePurgeOutcome.purged
+          : _OwnedSecurePurgeOutcome.retryUnarmed;
+    }
+  }
+
+  Future<bool> _clearPrefsForFreshInstallRetry() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.clear();
+      await prefs.reload();
+      if (prefs.getKeys().isEmpty) return true;
+      for (final key in prefs.getKeys().toList()) {
+        await prefs.remove(key);
+      }
+      await prefs.reload();
+      return prefs.getKeys().isEmpty;
+    } catch (e) {
+      if (kDebugMode) {
+        debugPrint('[AuthProvider] Fresh-install prefs fallback failed: $e');
+      }
+      return false;
     }
   }
 

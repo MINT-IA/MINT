@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "b4ff3fa2c0e0d9a9267d26e4a28c0369d9361b55",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_lpp_affiliation_lifecycle.yaml",
+  "flow_sha256": "bb8f9d10f11f30b1031f8cc0bc88d0e41671601ad8a006ab81b9d814a2b9c46c",
+  "app_sha256": "c6806bf77cdafa2114daf89ad1473b3bfa893e091631af93b3f63a37a214a730",
+  "app_signature": "adhoc",
+  "app_cdhash": "62fbe0f17bd2825f118d418d67cb4a8825193b1f",
+  "device_udid": "1F5FA771-D9B1-40E3-A9C8-B1DAD9BF3569",
+  "device_name": "Mint LPP Proof-b4ff3fa2c-62279",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
+  "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
+  "command": "bash tools/runtime/mint_next_lpp_affiliation_lifecycle.sh --runtime-commit b4ff3fa2c0e0d9a9267d26e4a28c0369d9361b55 --capture-evidence",
+  "captured_at": "2026-08-11T14:26:42Z",
+  "ordered_outcomes": [
+    "saved affiliation visible in ma situation",
+    "saved affiliation survives cold relaunch",
+    "corrected answer visible after yes to no edit",
+    "delete dialog dismissed and affiliation absent (unknown, never no)",
+    "deletion survives cold relaunch"
+  ],
+  "screenshots": {
+    "01-created-visible.png": {
+      "sha256": "98b6efeb958f3d04f142686782bd9157f644cd7a394494e338c7864243db7417",
+      "bytes": 189355
+    },
+    "02-cold-relaunch-visible.png": {
+      "sha256": "98b6efeb958f3d04f142686782bd9157f644cd7a394494e338c7864243db7417",
+      "bytes": 189355
+    },
+    "03-edited-visible.png": {
+      "sha256": "a97c4ca6c790054cbb8e29127d032de6c7cbfa08dee475daa7cdb158f642d914",
+      "bytes": 185947
+    },
+    "04-deleted-absent.png": {
+      "sha256": "022fbcc3b62130a8b6e9839aa787b0b54c541a55dea2ae90bd26b85f7366615d",
+      "bytes": 169295
+    },
+    "05-delete-survives-relaunch.png": {
+      "sha256": "022fbcc3b62130a8b6e9839aa787b0b54c541a55dea2ae90bd26b85f7366615d",
+      "bytes": 169295
+    }
+  },
+  "maestro_log_sha256": "a6b304f25144e062670187905187990be179f1ac8ac6711df88154770571870e"
+}

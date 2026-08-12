@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "538c52647e58394be16bc87c68e1e6e814a7613e",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_housing_lifecycle.yaml",
+  "flow_sha256": "9dcfee8712c7fb3fc071d0f3bdeba6019bb91bcc2b3b7249193c20418546edcb",
+  "app_sha256": "44e28c0e2bc7f07c4ace8c36d8e33f553b1dfa8fad9c846cd242f60c5d0729f0",
+  "app_signature": "adhoc",
+  "app_cdhash": "547f288e324270c69f2b34ee53e8e2e2615e7a06",
+  "device_udid": "A356AF11-8FB0-49FC-8A76-7EFB30ABEA4B",
+  "device_name": "Mint Housing Proof-538c52647-18777",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "command": "bash tools/runtime/mint_next_housing_lifecycle.sh --runtime-commit 538c52647e58394be16bc87c68e1e6e814a7613e --capture-evidence",
+  "captured_at": "2026-08-09T09:12:31Z",
+  "ordered_outcomes": [
+    "saved fact visible",
+    "saved fact survives cold relaunch",
+    "edited fact visible",
+    "delete dialog dismissed and fact absent",
+    "deletion survives cold relaunch"
+  ],
+  "screenshots": {
+    "01-created-visible.png": {
+      "sha256": "25feb0e252226cae100820ace89b57ebe2350a94fa7992111b02f85a4bc311fa",
+      "bytes": 215473
+    },
+    "02-cold-relaunch-visible.png": {
+      "sha256": "25feb0e252226cae100820ace89b57ebe2350a94fa7992111b02f85a4bc311fa",
+      "bytes": 215473
+    },
+    "03-edited-visible.png": {
+      "sha256": "1ae2048c1a0e138e35ca48a5cdd7e123e888c2db3efe94396ad07f4f3773a934",
+      "bytes": 221797
+    },
+    "04-deleted-absent.png": {
+      "sha256": "f189c12e4acbef2fd616589f8c57919744b14233833ba770d23a1c5d81c25e55",
+      "bytes": 168420
+    },
+    "05-delete-survives-relaunch.png": {
+      "sha256": "f189c12e4acbef2fd616589f8c57919744b14233833ba770d23a1c5d81c25e55",
+      "bytes": 168420
+    }
+  },
+  "maestro_log_sha256": "bf1951a96538957ccb18004447047362b9bb6c1bfbf89140e5c9e28e614af428"
+}

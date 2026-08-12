@@ -18,7 +18,8 @@ services/backend/
 │   │   └── endpoints/       # REST endpoints
 │   ├── schemas/             # Pydantic v2 models (camelCase alias)
 │   ├── services/
-│   │   └── rules_engine.py  # ALL financial calculations
+│   │   ├── fiscal/          # ★ Modèles fiscaux canoniques (étalon ESTV, cf. section finale)
+│   │   └── rules_engine.py  # Calculs historiques — pour l'impôt, fiscal/ fait foi
 │   └── routes/
 │       └── wizard.py        # Wizard logic
 └── tests/                   # pytest suite
@@ -132,12 +133,13 @@ LPP art. 7 / 8 / 14-16 / 79b | LAVS art. 21-40 / 35 | LIFD art. 22 / 38 | OPP2 a
 
 `services/backend/app/constants/` — backend est source of truth. Flutter `lib/constants/social_insurance.dart` miroir.
 
-Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
+Exposé via MCP tool `get_swiss_constants(category)` (cf. CLAUDE.md §3).
 
-## 10. Error handling (pre-Phase 31)
+## 10. Error handling
 
-- Current : 56 bare catches in backend (CLAUDE.md anti-pattern, Phase 36 FIX-05 target).
-- Pre-Phase 31 : no new bare catches allowed (GUARD-02 lint enforce in Phase 34).
+- Aucun nouveau bare catch (fallback silencieux = interdit, rules.md NEVER DO).
+  Le comptage « 56 bare catches » et la numérotation Phases 31/34/36 datent du
+  roadmap 2026-03 abandonné — la règle reste vivante, pas la numérotation.
 - Logging : structured JSON, include trace_id quand available.
 
 ## 11. FastAPI patterns
@@ -147,7 +149,10 @@ Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
 - Health endpoint `/health` requis pour Railway deploys.
 - Env vars : `ANTHROPIC_API_KEY` sur les deux Railway environments.
 
-## 12. Active Chantiers (references)
+## 12. Chantiers (historique 2026-03)
+
+> Liste figée — vérifier `.planning/journeys/BOARD.md` avant de rouvrir quoi
+> que ce soit ici ; ce ne sont plus des chantiers actifs.
 
 - **Certificate → Profile persistence** : `POST /document-parser/lpp`, wire vers `CoachProfile.prevoyance`.
   Files : `app/services/document_parser/*.py`, `app/schemas/profile.py`.
@@ -157,8 +162,9 @@ Phase 30.6 (cette phase) exposera via MCP tool `get_swiss_constants(category)`.
 
 - `SOT.md` — data contracts (Profile, SessionReport, EnhancedConfidence).
 - `tools/openapi/mint.openapi.canonical.json` — API contract canonique.
-- Subagents : `mint-backend` + `mint-quality-gate` par défaut. Expertise
-  externe uniquement pour un gap nommé.
+- Subagents : `mint-backend` + `mint-quality-gate` par défaut ;
+  `mint-integrations-security` pour consentement, provenance et design de
+  connecteurs externes. Expertise externe uniquement pour un gap nommé.
 - `LEGAL_RELEASE_CHECK.md` — pre-release compliance gate.
 
 ## 14. Staging promotion authority

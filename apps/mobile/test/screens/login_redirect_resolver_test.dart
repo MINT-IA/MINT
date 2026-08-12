@@ -1,9 +1,18 @@
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/screens/auth/auth_redirect.dart';
 
 void main() {
-  setUp(() => SharedPreferences.setMockInitialValues(const <String, Object>{}));
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUp(() {
+    SharedPreferences.setMockInitialValues(const <String, Object>{});
+    // La lecture canonique des réponses passe désormais par le secure store
+    // (canonicalisation logement) — sans mock, la lecture échoue et le
+    // dossier anonyme paraît vide.
+    FlutterSecureStorage.setMockInitialValues({});
+  });
 
   test('resolvePostAuthRedirect prefers safe redirect query param', () {
     expect(

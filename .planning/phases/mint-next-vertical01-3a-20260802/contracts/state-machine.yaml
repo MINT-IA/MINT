@@ -1,0 +1,470 @@
+schema_version: 1
+contract_id: mint_next_three_a_state_machine_v1
+phase: mint-next-vertical01-3a-20260802
+status: present_unaccepted
+authority:
+  kind: spec_markdown_table
+  path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  heading: Canonical navigation and state machine
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+  row_count: 33
+entry_adapters:
+- adapter_id: today_intent
+  surface: today
+  target: loading
+  payload_policy: intent_only
+  payload_contract_ref: today_visibility_guard
+  financial_value_allowed: false
+- adapter_id: coach_intent_resume
+  surface: coach
+  target: loading
+  payload_policy: intent_only
+  payload_contract_ref: coach_entry_contract
+  financial_value_allowed: false
+today_visibility_guard:
+  all_of:
+  - tax_year_2026_open
+  - probable_eligibility
+  any_of:
+  - fresh_decision_critical_fact_missing
+  - time_sensitive_action_exists
+  otherwise: silent
+  forbidden_prompts:
+  - streak
+  - guilt
+  - artificial_urgency
+  - daily_nag
+coach_entry_contract:
+  schema_version: 1
+  payload_type: three_a_intent_v1
+  dispatch_kind: typed_intent_deep_link
+  allowed_fields:
+  - intent_id
+  - resume_ref
+  intent_routes:
+    three_a_opportunity: loading
+    three_a_review: loading
+    three_a_resume: loading
+  intent_id:
+    type: string
+    allowlist:
+    - three_a_opportunity
+    - three_a_review
+    - three_a_resume
+  resume_ref:
+    type: opaque_reference
+    required_for_intent: three_a_resume
+    forbidden_for_other_intents: true
+    max_bytes: 128
+    format: opaque_token
+  authority_limits:
+  - no_extract_canonical_values
+  - no_calculate
+  - no_supply_truth
+  - free_text_never_prefills_proposal
+  additional_fields: false
+  forbidden_fields:
+  - financial_value
+  - amount
+  - free_text
+  - proposal
+  - url
+  - deep_link
+  - target_state
+noncanonical_draft_contract:
+  canonical_writes_allowed: false
+  effects:
+    preserve_confirmation_draft:
+      draft_kind: confirmation
+      scope: current_interruption
+    preserve_plan_confirmation_draft:
+      draft_kind: plan_confirmation
+      scope: current_interruption
+    interruption_preserves_resume_state:
+      preserves: resume_state
+      scope: current_interruption
+  lifecycle:
+    preserve_before_commit_transition_refs:
+    - 10
+    - 13
+    - 31
+    commit_transition_refs:
+    - 10
+    - 13
+    - 31
+    discard_after_commit_transition_refs:
+    - 10
+    - 13
+    - 31
+    purge_transition_refs:
+    - 32
+states:
+- calculation_impossible
+- calculation_ready
+- completed
+- confirmation
+- contradiction
+- deleted
+- known
+- loading
+- missing
+- offline
+- plan_confirmation
+- refusal
+- result
+- rules_explanation
+- rules_unavailable
+- secure_fail
+- stale
+- unsupported
+- unsupported_explanation
+selectors:
+  any fact state:
+    predicate: fact_workflow_state
+    expands_to:
+    - confirmation
+    - contradiction
+    - known
+    - missing
+    - stale
+    excludes:
+    - calculation_impossible
+    - calculation_ready
+    - completed
+    - deleted
+    - loading
+    - offline
+    - plan_confirmation
+    - refusal
+    - result
+    - rules_explanation
+    - rules_unavailable
+    - secure_fail
+    - unsupported
+    - unsupported_explanation
+    rationale: Only states that collect, confirm, compare, or refresh decision-critical facts.
+  any persisted state:
+    predicate: has_live_persisted_graph
+    expands_to:
+    - calculation_impossible
+    - calculation_ready
+    - confirmation
+    - contradiction
+    - known
+    - missing
+    - plan_confirmation
+    - refusal
+    - result
+    - rules_explanation
+    - rules_unavailable
+    - stale
+    - unsupported
+    - unsupported_explanation
+    excludes:
+    - completed
+    - deleted
+    - loading
+    - offline
+    - secure_fail
+    rationale: The transition is eligible only when a live persisted dependency graph exists; state membership alone never proves persistence.
+fallback:
+  unlisted_pair: stay_in_current_state
+  writes: '0'
+  cta: none
+terminal:
+  state: completed
+  on_entry: render_today_and_discard_resume_token
+  accepted_events: []
+  accepted_ctas: []
+invariants:
+  coach_intent_contains_financial_value: false
+  free_text_prefills_proposal: false
+  chf_zero:
+    event: choose CHF 0
+    writes: 1 decision, 0 plan
+    next: completed
+  plan:
+    event: confirm
+    source: plan_confirmation
+    writes: exactly 1 plan
+    next: completed
+  rules_unavailable:
+    state: rules_unavailable
+    financial_output_allowed: false
+  delete:
+    event: revoke/delete
+    writes: 1 tombstone + purge graph
+    next: deleted
+    stale_resume_allowed: false
+  idempotence:
+    event: double-submit
+    writes: exactly 1 idempotent write
+    next: known
+transitions:
+- ordinal: 1
+  source: loading
+  event: facts complete
+  next: known
+  writes: '0'
+  cta: none
+  continuation: exit; resume intent
+  destination: fact review
+- ordinal: 2
+  source: loading
+  event: facts incomplete
+  next: missing
+  writes: '0'
+  cta: none
+  continuation: exit; resume intent
+  destination: fact review
+- ordinal: 3
+  source: loading
+  event: offline
+  next: offline
+  writes: '0'
+  cta: Retry
+  continuation: exit; resume loading
+  destination: same route
+- ordinal: 4
+  source: loading
+  event: key/secure-store failure
+  next: secure_fail
+  writes: '0'
+  cta: Recover
+  continuation: exit only; no plaintext fallback
+  destination: privacy recovery
+- ordinal: 5
+  source: offline
+  event: retry
+  next: loading
+  writes: '0'
+  cta: none
+  continuation: exit; resume loading
+  destination: same route
+- ordinal: 6
+  source: secure_fail
+  event: recovery succeeds
+  next: loading
+  writes: '0'
+  cta: none
+  continuation: exit; resume loading
+  destination: same route
+- ordinal: 7
+  source: secure_fail
+  event: recovery fails
+  next: secure_fail
+  writes: '0'
+  cta: Retry recovery
+  continuation: exit only
+  destination: privacy recovery
+- ordinal: 8
+  source: known
+  event: continue
+  next: calculation_ready
+  writes: '0'
+  cta: See my situation
+  continuation: back Today
+  destination: scenario
+- ordinal: 9
+  source: missing
+  event: submit proposal
+  next: confirmation
+  writes: '0'
+  cta: Confirm
+  continuation: back keeps local draft only
+  destination: confirmation
+- ordinal: 10
+  source: confirmation
+  event: confirm
+  next: known
+  writes: exactly 1 fact version
+  cta: Continue
+  continuation: interruption resumes confirmation
+  destination: fact review
+- ordinal: 11
+  source: confirmation
+  event: refuse
+  next: refusal
+  writes: '0'
+  cta: Continue without saving
+  continuation: back/exit
+  destination: safe exit
+- ordinal: 12
+  source: refusal
+  event: continue without saving
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  destination: Today
+- ordinal: 13
+  source: confirmation
+  event: double-submit
+  next: known
+  writes: exactly 1 idempotent write
+  cta: Continue
+  continuation: same
+  destination: fact review
+- ordinal: 14
+  source: any fact state
+  event: contradiction/conflict
+  next: contradiction
+  writes: '0'
+  cta: Resolve
+  continuation: exit; resume conflict
+  destination: comparison
+- ordinal: 15
+  source: any fact state
+  event: expiry/life event
+  next: stale
+  writes: '0'
+  cta: Update
+  continuation: exit; resume stale
+  destination: one-fact refresh
+- ordinal: 16
+  source: contradiction
+  event: select confirmed version
+  next: known
+  writes: exactly 1 supersession
+  cta: Continue
+  continuation: exit; resume conflict
+  destination: fact review
+- ordinal: 17
+  source: stale
+  event: submit replacement proposal
+  next: confirmation
+  writes: '0'
+  cta: Confirm
+  continuation: back keeps local draft only
+  destination: confirmation
+- ordinal: 18
+  source: calculation_ready
+  event: unsupported
+  next: unsupported
+  writes: '0'
+  cta: What I can still do
+  continuation: back Today
+  destination: explanation
+- ordinal: 19
+  source: unsupported
+  event: show explanation
+  next: unsupported_explanation
+  writes: '0'
+  cta: Done
+  continuation: back Today
+  destination: explanation
+- ordinal: 20
+  source: unsupported_explanation
+  event: done
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  destination: Today
+- ordinal: 21
+  source: calculation_ready
+  event: facts missing
+  next: calculation_impossible
+  writes: '0'
+  cta: Review facts
+  continuation: back/exit
+  destination: fact review
+- ordinal: 22
+  source: calculation_ready
+  event: rules unavailable
+  next: rules_unavailable
+  writes: '0'
+  cta: Why unavailable
+  continuation: back/exit
+  destination: explanation
+- ordinal: 23
+  source: calculation_impossible
+  event: facts complete
+  next: known
+  writes: '0'
+  cta: Continue
+  continuation: back/exit
+  destination: fact review
+- ordinal: 24
+  source: calculation_impossible
+  event: facts incomplete
+  next: missing
+  writes: '0'
+  cta: Complete facts
+  continuation: back/exit
+  destination: fact review
+- ordinal: 25
+  source: rules_unavailable
+  event: show explanation
+  next: rules_explanation
+  writes: '0'
+  cta: Retry later
+  continuation: back Today
+  destination: explanation
+- ordinal: 26
+  source: rules_explanation
+  event: retry
+  next: calculation_ready
+  writes: '0'
+  cta: none
+  continuation: exit
+  destination: availability check
+- ordinal: 27
+  source: rules_explanation
+  event: done
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  destination: Today
+- ordinal: 28
+  source: calculation_ready
+  event: compute
+  next: result
+  writes: 1 result receipt
+  cta: Understand
+  continuation: back keeps facts
+  destination: widget
+- ordinal: 29
+  source: result
+  event: choose CHF 0
+  next: completed
+  writes: 1 decision, 0 plan
+  cta: Finish
+  continuation: resume completed
+  destination: Today
+- ordinal: 30
+  source: result
+  event: choose affordable amount
+  next: plan_confirmation
+  writes: '0'
+  cta: Confirm plan
+  continuation: back result
+  destination: confirmation
+- ordinal: 31
+  source: plan_confirmation
+  event: confirm
+  next: completed
+  writes: exactly 1 plan
+  cta: Finish
+  continuation: interruption resumes
+  destination: Today
+- ordinal: 32
+  source: any persisted state
+  event: revoke/delete
+  next: deleted
+  writes: 1 tombstone + purge graph
+  cta: Done
+  continuation: no stale resume
+  destination: Today/privacy
+- ordinal: 33
+  source: deleted
+  event: done
+  next: completed
+  writes: '0'
+  cta: Done
+  continuation: exit
+  destination: Today
+runtime_binding: none
+does_not_activate_runtime: true
+does_not_close_B0: true

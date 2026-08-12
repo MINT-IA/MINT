@@ -1,9 +1,12 @@
 import 'dart:math';
 
+import 'package:uuid/uuid.dart';
+
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/financial_core.dart';
+import 'package:mint_mobile/services/financial_core/money_truth_receipt.dart';
 
 // ────────────────────────────────────────────────────────────
 //  FORECASTER SERVICE — Sprint C3 / MINT Coach
@@ -343,6 +346,131 @@ class ForecasterService {
       ],
       confidenceScore: confidence.score,
       enrichmentPrompts: confidence.prompts.map((p) => p.label).toList(),
+    );
+  }
+
+  // ════════════════════════════════════════════════════════════
+  //  MoneyTruthReceipt — revenu mensuel de retraite projeté (V2-4)
+  // ════════════════════════════════════════════════════════════
+
+  static const int _retirementReceiptTaxYear = 2026;
+  static const String _retirementReceiptEngineVersion =
+      'retirement-monthly-income-receipt-v1';
+
+  /// Scelle le revenu mensuel de retraite AFFICHÉ (`monthlyIncome`, le chiffre
+  /// héro du dashboard /retraite) en [MoneyTruthReceipt], pour que le coach le
+  /// RÉSOLVE par receiptId et rende LA même valeur (parité dashboard↔coach hors
+  /// firstJob — V2-4, propagation north-star).
+  ///
+  /// Le receipt ENVELOPPE le nombre affiché : `monthlyIncome`, `rangeLow` et
+  /// `rangeHigh` DOIVENT être les valeurs exactes déjà calculées par le
+  /// dashboard depuis la [ProjectionResult] (couple-agrégées le cas échéant).
+  /// Cette méthode NE recalcule aucune projection (NEVER #3) — elle sérialise
+  /// la provenance (composantes AVS/LPP/3a, bande prudent↔optimiste, confiance)
+  /// et produit l'`inputsHash` déterministe des drivers réels de l'écran.
+  ///
+  /// `receiptId` / `computedAt` sont injectables pour les tests déterministes.
+  static MoneyTruthReceipt buildRetirementIncomeReceipt({
+    required double monthlyIncome,
+    // Bande d'incertitude AFFICHÉE (scénarios prudent/optimiste). Nullable :
+    // omise quand elle ne correspondrait pas au rendu (ex. ménage — le héro
+    // affiche une bande mono-personne à côté d'une valeur couple). range=null
+    // -> le coach n'ancre aucune fourchette (pas de divergence écran↔coach).
+    double? rangeLow,
+    double? rangeHigh,
+    required double avsMensuel,
+    required double lppMensuel,
+    required double troisAMensuel,
+    required String canton,
+    required int currentAge,
+    required int retirementAge,
+    required bool isCouple,
+    required String civilStatus,
+    required double confidenceScore,
+    String? receiptId,
+    String? computedAt,
+  }) {
+    final cantonNorm = canton.toUpperCase();
+    final etatNorm = civilStatus.toLowerCase();
+
+    // Drivers RÉELS du chiffre affiché (jamais d'invention) — quantifiés par
+    // computeInputsHash. Les composantes mensuelles rendent le hash sensible à
+    // toute évolution de la projection.
+    final inputs = <String, dynamic>{
+      'canton': cantonNorm,
+      'currentAge': currentAge,
+      'retirementAge': retirementAge,
+      'isCouple': isCouple,
+      'avsMensuel': avsMensuel,
+      'lppMensuel': lppMensuel,
+      'troisAMensuel': troisAMensuel,
+    };
+
+    // confidenceScore arrive en [0,100] (ProjectionResult.confidenceScore issu
+    // de ConfidenceScorer) — ramené en [0,1] pour la forme fil EnhancedConfidence.
+    final confNorm = (confidenceScore > 1.0)
+        ? (confidenceScore / 100.0).clamp(0.0, 1.0)
+        : confidenceScore.clamp(0.0, 1.0);
+
+    // Fourchette triée et FINIE (le rendu coach « entre low et high » suppose
+    // low<=high). Omise si absente ou non finie.
+    MoneyTruthRange? range;
+    if (rangeLow != null &&
+        rangeHigh != null &&
+        rangeLow.isFinite &&
+        rangeHigh.isFinite) {
+      final low = rangeLow <= rangeHigh ? rangeLow : rangeHigh;
+      final high = rangeLow <= rangeHigh ? rangeHigh : rangeLow;
+      range = MoneyTruthRange(low: low, high: high);
+    }
+
+    return MoneyTruthReceipt(
+      claimId: kRetirementMonthlyIncomeClaimId,
+      receiptId: receiptId ?? const Uuid().v4(),
+      inputs: inputs,
+      inputsHash: computeInputsHash(inputs),
+      jurisdiction: 'CH-$cantonNorm',
+      taxYear: _retirementReceiptTaxYear,
+      // revenuAnnuelRetraite est BRUT (avant impôt) — forecaster_service:301.
+      base: 'brut',
+      civilStatus: etatNorm,
+      assumptions: [
+        'Revenu mensuel de retraite avant impôt, scénario de base', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+        'AVS + rente LPP + 3a annualisé (décaissement)', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+        if (isCouple)
+          'Revenu de ménage — conjoint·e inclus·e', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+        'Hors adaptations futures des rentes et de l\'inflation', // lint-ignore: no_hardcoded_fr (receipt interne, i18n dette L1)
+      ],
+      engine: 'financial_core.forecaster_service',
+      engineVersion: _retirementReceiptEngineVersion,
+      rounding: 'CHF arrondi au 1 franc',
+      sources: const [
+        MoneyTruthSource(
+          id: 'avs',
+          label: 'Rente AVS (LAVS art. 21-29)', // lint-ignore: no_hardcoded_fr (citation de source du receipt, i18n dette L1)
+          vintage: _retirementReceiptTaxYear,
+        ),
+        MoneyTruthSource(
+          id: 'lpp',
+          label: 'Rente LPP (LPP art. 14 — taux de conversion)', // lint-ignore: no_hardcoded_fr (citation de source du receipt, i18n dette L1)
+          vintage: _retirementReceiptTaxYear,
+        ),
+        MoneyTruthSource(
+          id: '3a',
+          label: 'Pilier 3a annualisé (OPP3 art. 7)', // lint-ignore: no_hardcoded_fr (citation de source du receipt, i18n dette L1)
+          vintage: _retirementReceiptTaxYear,
+        ),
+      ],
+      value: monthlyIncome,
+      range: range,
+      confidence: MoneyTruthConfidence(
+        completeness: confNorm,
+        accuracy: 0.85,
+        freshness: 1.0,
+        understanding: 0.60,
+        score: confNorm,
+      ),
+      computedAt: computedAt ?? DateTime.now().toUtc().toIso8601String(),
     );
   }
 

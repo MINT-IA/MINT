@@ -6,6 +6,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 /// Service for managing JWT authentication tokens and user session.
 /// Uses flutter_secure_storage (Keychain on iOS, Keystore on Android).
@@ -118,11 +119,33 @@ class AuthService {
             'fallback active for this session): $e');
       }
     }
+    // E2E harness only (no-op hors MINT_E2E_SEAL_FALLBACK) : le keychain
+    // re-signé est flaky sur sim — la session est aussi stashée pour
+    // survivre au relaunch, sinon l'app retombe sur le portail d'accueil.
+    await SecureWizardStore.e2eStashWrite(_tokenKey, token);
+    await SecureWizardStore.e2eStashWrite(_userIdKey, userId);
+    await SecureWizardStore.e2eStashWrite(_userEmailKey, email);
+    if (displayName != null) {
+      await SecureWizardStore.e2eStashWrite(_displayNameKey, displayName);
+    }
+    if (refreshToken != null && refreshToken.trim().isNotEmpty) {
+      await SecureWizardStore.e2eStashWrite(_refreshTokenKey, refreshToken);
+    }
   }
+
+  /// E2E harness only : session restaurée du stash quand le keychain est
+  /// mort ; null hors fallback.
+  static Future<String?> _stashedSession(String key) =>
+      SecureWizardStore.e2eStashRead(key);
 
   /// Get stored access token (null if not logged in)
   static Future<String?> getToken() async {
     if (_memToken != null) return _memToken;
+    final stashed = await _stashedSession(_tokenKey);
+    if (stashed != null && stashed.isNotEmpty) {
+      _memToken = stashed;
+      return stashed;
+    }
     try {
       final v = await _storage.read(key: _tokenKey);
       if (v != null && v.isNotEmpty) _memToken = v;
@@ -138,6 +161,11 @@ class AuthService {
   /// Get stored refresh token
   static Future<String?> getRefreshToken() async {
     if (_memRefreshToken != null) return _memRefreshToken;
+    final stashed = await _stashedSession(_refreshTokenKey);
+    if (stashed != null && stashed.isNotEmpty) {
+      _memRefreshToken = stashed;
+      return stashed;
+    }
     try {
       final v = await _storage.read(key: _refreshTokenKey);
       if (v != null && v.isNotEmpty) _memRefreshToken = v;
@@ -153,6 +181,11 @@ class AuthService {
   /// Get stored user ID
   static Future<String?> getUserId() async {
     if (_memUserId != null) return _memUserId;
+    final stashed = await _stashedSession(_userIdKey);
+    if (stashed != null && stashed.isNotEmpty) {
+      _memUserId = stashed;
+      return stashed;
+    }
     try {
       final v = await _storage.read(key: _userIdKey);
       if (v != null && v.isNotEmpty) _memUserId = v;
@@ -168,6 +201,11 @@ class AuthService {
   /// Get stored email
   static Future<String?> getUserEmail() async {
     if (_memUserEmail != null) return _memUserEmail;
+    final stashed = await _stashedSession(_userEmailKey);
+    if (stashed != null && stashed.isNotEmpty) {
+      _memUserEmail = stashed;
+      return stashed;
+    }
     try {
       final v = await _storage.read(key: _userEmailKey);
       if (v != null && v.isNotEmpty) _memUserEmail = v;
@@ -183,6 +221,11 @@ class AuthService {
   /// Get stored display name
   static Future<String?> getDisplayName() async {
     if (_memDisplayName != null) return _memDisplayName;
+    final stashed = await _stashedSession(_displayNameKey);
+    if (stashed != null && stashed.isNotEmpty) {
+      _memDisplayName = stashed;
+      return stashed;
+    }
     try {
       final v = await _storage.read(key: _displayNameKey);
       if (v != null && v.isNotEmpty) _memDisplayName = v;
@@ -291,10 +334,12 @@ class AuthService {
     _memUserEmail = null;
     _memDisplayName = null;
     var purged = true;
+    await SecureWizardStore.e2eStashDelete(_sessionKeys);
     for (final key in _sessionKeys) {
       try {
         await _storage.delete(key: key);
       } on PlatformException catch (e) {
+        if (SecureWizardStore.isTolerableE2eKeychainAbsence(e)) continue;
         purged = false;
         if (kDebugMode) {
           debugPrint('[AuthService] Keychain purge failed for $key: $e');

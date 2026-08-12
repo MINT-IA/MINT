@@ -97,17 +97,20 @@ class TestCoaching3a:
         assert not _has_tip(tips, "3a_deadline")
 
     def test_3a_deadline_independant_plafond(self, engine):
-        """Independant: use higher plafond (36288)."""
+        """Independant SANS LPP : grand 3a borné à 20% du revenu (OPP3 art. 7).
+        revenu 85'000 -> plafond 17'000 (pas 36'288) ; 7'258 versé < 17'000
+        donc marge restante -> tip généré (revue Codex P1-2)."""
         profile = _profile(
             has_3a=True,
             montant_3a=7258.0,
             employment_status="independant",
+            has_lpp=False,
+            revenu_annuel=85_000.0,
         )
         tips = engine.generate_tips(profile, today_date=date(2026, 11, 1))
-        # 7258 < 36288 -> should generate tip
+        # plafond 17'000 > 7'258 versé -> marge restante -> tip
         assert _has_tip(tips, "3a_deadline")
         tip = _find_tip(tips, "3a_deadline")
-        # Montant deductible = 35280 - 7056 = 28224
         assert tip.estimated_impact_chf > 0
 
     def test_3a_deadline_retraite_excluded(self, engine):
@@ -515,14 +518,36 @@ class TestCoachingIndependant:
     """Tests for independent worker coaching tips."""
 
     def test_independant_alert(self, engine):
-        """Independent worker: should get no-LPP alert."""
-        profile = _profile(employment_status="independant")
+        """Independent worker sans LPP + revenu élevé: no-LPP alert, plafond réel
+        (grand 3a borné, ici 36'288 à revenu 200k)."""
+        profile = _profile(
+            employment_status="independant", has_lpp=False, revenu_annuel=200_000.0
+        )
         tips = engine.generate_tips(profile, today_date=date(2026, 5, 1))
         assert _has_tip(tips, "independant_no_lpp")
         tip = _find_tip(tips, "independant_no_lpp")
         assert "36,288" in tip.message or "36'288" in tip.message
         assert "LPP art. 4" in tip.source
         assert tip.priority == "haute"
+
+    def test_independant_no_income_shows_rule(self, engine):
+        """Indépendant sans LPP ET sans revenu -> le tip affiche LA RÈGLE
+        (« 20 % ... au maximum 36'288 »), pas un plafond chiffré isolé faux
+        (revue Codex F1). missing_3a idem -> cohérent, plus de 4'000/36'288
+        contradictoires dans la même réponse."""
+        profile = _profile(
+            employment_status="independant", has_lpp=False,
+            revenu_annuel=0.0, has_3a=False, age=35,
+        )
+        tips = engine.generate_tips(profile, today_date=date(2026, 5, 1))
+        alert = _find_tip(tips, "independant_no_lpp")
+        missing = _find_tip(tips, "missing_3a")
+        assert alert is not None and missing is not None
+        # les DEUX tips montrent la règle (20% + OPP3), aucun ne propose un
+        # plafond chiffré nu -> plus de contradiction 4'000 vs 36'288.
+        for msg in (alert.message, missing.message):
+            assert "20 %" in msg and "OPP3 art. 7" in msg
+        assert missing.estimated_impact_chf is None
 
     def test_salarie_no_independant_alert(self, engine):
         """Salaried worker: no independant alert."""
@@ -745,3 +770,215 @@ class TestCoachingEndpoints:
         data = response.json()
         tip_ids = [t["id"] for t in data["tips"]]
         assert "independant_no_lpp" in tip_ids
+
+
+# ---------------------------------------------------------------------------
+# Marginal rate honours civil status (Batch C — coherence fix).
+#
+# Le coach appelait estimate_marginal_rate SANS is_married : un marie recevait
+# le taux marginal celibataire, alors que rules_engine.calculate_marginal_tax_rate
+# respecte deja le statut. C'est le vice « un seul taux marginal » (#1061/#1062).
+# ---------------------------------------------------------------------------
+
+
+class TestCoachingMarginalRateCivilStatus:
+
+    def test_married_and_single_get_different_impact_public_path(self, engine):
+        """Regression (public path) : le tip missing_3a affiche une economie
+        d'impot = plafond x taux marginal. Un marie et un celibataire, meme
+        revenu/canton, doivent obtenir des impacts DIFFERENTS."""
+        common = dict(has_3a=False, age=30, canton="ZH", revenu_annuel=120_000.0)
+        marie = _find_tip(
+            engine.generate_tips(
+                _profile(etat_civil="marie", **common), today_date=date(2026, 5, 1)
+            ),
+            "missing_3a",
+        )
+        single = _find_tip(
+            engine.generate_tips(
+                _profile(etat_civil="celibataire", **common),
+                today_date=date(2026, 5, 1),
+            ),
+            "missing_3a",
+        )
+        assert marie is not None and single is not None
+        assert marie.estimated_impact_chf != single.estimated_impact_chf
+
+    def test_marginal_rate_matches_rules_engine_and_etalon(self, engine):
+        """Le taux coach == etalon ESTV avec is_married, ET == ce que
+        rules_engine produirait pour le meme statut (surfaces reconciliees)."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+        from app.services.rules_engine import calculate_marginal_tax_rate
+
+        canton, revenu = "ZH", 120_000.0
+        taux_marie = engine._get_marginal_rate(canton, revenu, "marie")
+        taux_single = engine._get_marginal_rate(canton, revenu, "celibataire")
+
+        assert taux_marie != taux_single
+        assert taux_marie == estimate_marginal_rate(revenu, canton, is_married=True)
+        assert taux_single == estimate_marginal_rate(revenu, canton, is_married=False)
+        assert taux_marie == calculate_marginal_tax_rate(canton, revenu, "married")
+        assert taux_single == calculate_marginal_tax_rate(canton, revenu, "single")
+
+    def test_single_rate_is_non_regressed(self, engine):
+        """Non-regression : le taux celibataire est INCHANGE (defaut historique
+        = celibataire), egal a l'etalon is_married=False."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        canton, revenu = "GE", 85_000.0
+        # defaut de signature (pas d'etat civil passe) == celibataire explicite.
+        assert engine._get_marginal_rate(canton, revenu) == estimate_marginal_rate(
+            revenu, canton, is_married=False
+        )
+        assert engine._get_marginal_rate(canton, revenu, "celibataire") == (
+            estimate_marginal_rate(revenu, canton, is_married=False)
+        )
+
+    @pytest.mark.parametrize("statut", ["marie", "marie_pacse", "MARIÉ", "partenariat"])
+    def test_married_synonyms_use_married_rate(self, engine, statut):
+        """Synonymes maries (normalisation partagee fiscal.civil_status) ->
+        taux marie."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        canton, revenu = "ZH", 120_000.0
+        assert engine._get_marginal_rate(canton, revenu, statut) == (
+            estimate_marginal_rate(revenu, canton, is_married=True)
+        )
+
+    @pytest.mark.parametrize("statut", ["celibataire", "divorce", "veuf", "concubinage"])
+    def test_separate_taxation_statuses_use_single_rate(self, engine, statut):
+        """Divorce, veuvage, concubinage = taxation separee -> taux celibataire
+        (jamais le taux marie)."""
+        from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
+
+        canton, revenu = "ZH", 120_000.0
+        assert engine._get_marginal_rate(canton, revenu, statut) == (
+            estimate_marginal_rate(revenu, canton, is_married=False)
+        )
+
+
+class TestCoachingCeilingOPP3:
+    """Batch E1 — le grand 3a (indépendant sans LPP) est borné à 20% du revenu
+    (OPP3 art. 7). Repro Codex : indépendant 20'000 -> 4'000, pas 36'288."""
+
+    def test_ceiling_independant_capped_at_20pct(self, engine):
+        p = _profile(employment_status="independant", has_lpp=False, revenu_annuel=20_000.0)
+        # oracle externe : 20% de 20'000 = 4'000
+        assert engine._ceiling_3a(p) == 4_000.0
+        assert engine._ceiling_3a(p) != 36_288.0
+
+    def test_ceiling_independant_with_lpp_is_small_3a(self, engine):
+        from app.constants.social_insurance import PILIER_3A_PLAFOND_AVEC_LPP
+
+        p = _profile(employment_status="independant", has_lpp=True, revenu_annuel=20_000.0)
+        assert engine._ceiling_3a(p) == PILIER_3A_PLAFOND_AVEC_LPP
+
+    def test_missing_3a_tip_shows_capped_ceiling(self, engine):
+        """Public path : le tip missing_3a d'un indépendant modeste ne propose
+        plus 36'288 mais le plafond borné."""
+        p = _profile(
+            has_3a=False, age=35, employment_status="independant",
+            has_lpp=False, revenu_annuel=20_000.0, canton="ZH",
+        )
+        tips = engine.generate_tips(p, today_date=date(2026, 5, 1))
+        tip = _find_tip(tips, "missing_3a")
+        assert tip is not None
+        # le plafond borné 4'000 apparaît, le grand 3a nu 36'288 disparaît.
+        assert ("4,000" in tip.message) or ("4'000" in tip.message)
+        assert "36,288" not in tip.message and "36'288" not in tip.message
+
+
+class TestCoachingTaxSavingIsDifference:
+    """Batch E2 — les 3 tips affichent la DIFFÉRENCE d'impôt (estimate_tax_saving),
+    pas déduction × taux marginal (revue Codex P1-4)."""
+
+    def test_missing_3a_repro_ne_marie_16k(self, engine):
+        """Repro Codex exécuté : NE, marié, 16'000. Ancien coach = 1'055.39
+        (7'258 × taux), nouveau = 294.93 (différence d'impôt). Oracle externe."""
+        p = _profile(
+            has_3a=False, age=35, canton="NE",
+            revenu_annuel=16_000.0, etat_civil="marie",
+            employment_status="salarie", has_lpp=True,
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 5, 1)), "missing_3a")
+        assert tip is not None
+        assert tip.estimated_impact_chf == pytest.approx(294.93, abs=0.01)  # externe
+        assert tip.estimated_impact_chf != pytest.approx(1055.39, abs=0.01)  # ancien produit
+
+    def test_deadline_incremental_already_contributed(self, engine):
+        """F2 — économie du RESTANT incrémentale : NE marié 16'000, 3'000 déjà
+        versés -> 101.73 (différence entre revenu-3'000 et revenu-plafond), pas
+        223.25 (base = revenu brut). Oracle externe exécuté."""
+        p = _profile(
+            has_3a=True, montant_3a=3_000.0, canton="NE", revenu_annuel=16_000.0,
+            etat_civil="marie", employment_status="salarie", has_lpp=True, age=35,
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 11, 1)), "3a_deadline")
+        assert tip is not None
+        assert tip.estimated_impact_chf == pytest.approx(101.73, abs=0.01)
+        assert tip.estimated_impact_chf != pytest.approx(223.25, abs=0.01)
+
+    def test_missing_3a_equals_canonical_difference(self, engine):
+        """Le montant du tip == estimate_tax_saving (jamais plafond × taux)."""
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+        p = _profile(
+            has_3a=False, age=35, canton="ZH", revenu_annuel=90_000.0,
+            etat_civil="marie", employment_status="salarie", has_lpp=True,
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 5, 1)), "missing_3a")
+        plafond = engine._ceiling_3a(p)
+        expected = estimate_tax_saving(90_000.0, plafond, "ZH", is_married=True)
+        assert tip.estimated_impact_chf == pytest.approx(round(expected, 2), abs=0.01)
+
+    def test_lpp_buyback_equals_canonical_difference(self, engine):
+        from app.services.fiscal.cantonal_comparator import estimate_tax_saving
+
+        p = _profile(
+            age=40, canton="VD", revenu_annuel=100_000.0, lacune_lpp=30_000.0,
+            etat_civil="celibataire",
+        )
+        tip = _find_tip(engine.generate_tips(p, today_date=date(2026, 5, 1)), "lpp_buyback")
+        montant = min(30_000.0, 20_000.0)
+        expected = estimate_tax_saving(100_000.0, montant, "VD", is_married=False)
+        assert tip.estimated_impact_chf == pytest.approx(round(expected, 2), abs=0.01)
+
+    def test_married_caveat_present_only_when_married(self, engine):
+        common = dict(
+            has_3a=False, age=35, canton="ZH", revenu_annuel=90_000.0,
+            employment_status="salarie", has_lpp=True,
+        )
+        marie = _find_tip(
+            engine.generate_tips(_profile(etat_civil="marie", **common), today_date=date(2026, 5, 1)),
+            "missing_3a",
+        )
+        single = _find_tip(
+            engine.generate_tips(_profile(etat_civil="celibataire", **common), today_date=date(2026, 5, 1)),
+            "missing_3a",
+        )
+        assert "conjoint" in marie.message.lower()
+        assert "conjoint" not in single.message.lower()
+
+
+class TestCoachingEndpointBoundaryValidation:
+    """F3 — l'endpoint rejette proprement (422) les revenus non finis au lieu de
+    renvoyer 200 + 36'288 (repro Codex endpoint exécuté)."""
+
+    def test_infinite_income_returns_clean_422_not_36288(self):
+        from fastapi.testclient import TestClient
+        from app.main import app
+
+        client = TestClient(app, raise_server_exceptions=False)
+        raw = (
+            '{"age":35,"canton":"NE","revenuAnnuel":Infinity,"has3a":false,'
+            '"montant3a":0,"hasLpp":false,"avoirLpp":0,"lacuneLpp":0,'
+            '"tauxActivite":100,"chargesFixesMensuelles":2000,'
+            '"epargneDisponible":5000,"detteTotale":0,"hasBudget":true,'
+            '"employmentStatus":"independant","etatCivil":"celibataire"}'
+        )
+        r = client.post(
+            "/api/v1/coaching/tips", content=raw,
+            headers={"content-type": "application/json"},
+        )
+        assert r.status_code == 422  # propre, pas 200 ni 500
+        assert "36288" not in r.text and "36'288" not in r.text

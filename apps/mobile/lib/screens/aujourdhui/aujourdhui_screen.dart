@@ -29,6 +29,9 @@ import 'package:mint_mobile/theme/mint_spacing.dart';
 // ChangeNotifierProxyProvider wired in `app.dart`.
 import 'package:mint_mobile/widgets/aujourdhui/cap_du_jour_banner.dart';
 import 'package:mint_mobile/widgets/aujourdhui/commitments_and_checkins_card.dart';
+import 'package:mint_mobile/widgets/aujourdhui/confidence_evolution_card.dart';
+import 'package:mint_mobile/widgets/aujourdhui/mint_next_3a_handoff_card.dart';
+import 'package:mint_mobile/widgets/aujourdhui/mint_next_housing_card.dart';
 // Walker 2026-05-08 / Aujourdhui-wire fix: surface the persistent
 // FinancialPlan + ConfidenceScore right after the Cap du jour banner.
 // Both widgets existed (lib/widgets/home/) but had ZERO callers — the
@@ -218,15 +221,18 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       return Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
-          child: Column(
-            children: [
-              const CapDuJourBanner(),
+          child: CustomScrollView(
+            slivers: [
+              const SliverToBoxAdapter(child: CapDuJourBanner()),
+              const SliverToBoxAdapter(child: MintNext3aHandoffCard()),
+              const SliverToBoxAdapter(child: MintNextHousingCard()),
               // Walker 2026-05-08: even on an empty timeline, surface the
               // persistent plan if one exists (user can have a plan via
               // coach without a timeline yet).
-              if (planSection != null) planSection,
+              if (planSection != null) SliverToBoxAdapter(child: planSection),
               if (!hasAnyProfileFact)
-                Expanded(
+                SliverFillRemaining(
+                  hasScrollBody: false,
                   child: Center(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -271,14 +277,12 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
               // reachable (PR-D). Scrollable so `scrollUntilVisible` resolves
               // the card. Shown only when a profile yields suggestions.
               else if (lifeEventSection != null)
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.only(top: 8, bottom: 24),
-                    child: lifeEventSection,
-                  ),
+                SliverPadding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 24),
+                  sliver: SliverToBoxAdapter(child: lifeEventSection),
                 )
               else
-                const Spacer(),
+                const SliverToBoxAdapter(child: SizedBox(height: 1)),
             ],
           ),
         ),
@@ -315,6 +319,13 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             // changes (save_fact, scan enrichment, wizard load).
             const SliverToBoxAdapter(
               child: CapDuJourBanner(),
+            ),
+
+            const SliverToBoxAdapter(
+              child: MintNext3aHandoffCard(),
+            ),
+            const SliverToBoxAdapter(
+              child: MintNextHousingCard(),
             ),
 
             // ── Persistent plan + confidence (Walker 2026-05-08) ──
@@ -384,6 +395,13 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
                   ],
                 ),
               ),
+            ),
+
+            // ── D5 — lucidity evolution curve (head of « Ton histoire ») ──
+            // Self-hides on 0 points (no empty section, D4). Renders the
+            // monotone confidence curve « toi d'avant vs toi maintenant ».
+            const SliverToBoxAdapter(
+              child: ConfidenceEvolutionCard(),
             ),
 
             // ── Timeline months + nodes ────────────────────────

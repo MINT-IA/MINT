@@ -1,0 +1,144 @@
+schema_version: 1
+contract_id: three_a_legacy_harvest_v1
+phase_status: pre_activation
+decision: STOP
+activation: 'OFF'
+real_user_exposure: forbidden
+code_imported: false
+runtime_enabled: false
+authority_promoted: false
+does_not_close_B0: true
+scope: bounded_3a_2026_direct_candidates
+source_parent_commit: 2533238a534d3c014dd349e8bcc114729a8ea6d0
+discovery:
+  roots:
+  - apps/mobile/lib
+  - apps/mobile/test
+  - services/backend/app
+  - services/backend/tests
+  tracked_regular_text_only: true
+  maximum_bytes: 300000
+  match_pattern: (?:3a|three[_-]?a|pillar[_-]?3a)
+  selected_path_patterns:
+  - (?:^|/)[^/]*(?:3a|three[_-]?a|pillar[_-]?3a)[^/]*$
+  - ^apps/mobile/lib/constants/social_insurance\.dart$
+  - ^services/backend/app/constants/social_insurance\.py$
+  - ^apps/mobile/lib/models/coach_profile\.dart$
+  - ^apps/mobile/lib/providers/coach_profile_provider\.dart$
+  - ^apps/mobile/lib/services/document_parser/tax_declaration_parser\.dart$
+  - ^apps/mobile/lib/services/(?:mint_next_3a_task_store|pillar_3a_calculator|tax_estimator_service)\.dart$
+  - ^apps/mobile/lib/(?:models/financial_plan|services/(?:plan_generation_service|plan_tracking_service|consent_manager|privacy_service|secure_wizard_store|observability/sentry_scrub)|screens/mortgage/affordability_screen)\.dart$
+  - ^apps/mobile/lib/services/financial_core/(?:pillar3a_room_calculator|tax_calculator|cross_pillar_calculator)\.dart$
+  - ^apps/mobile/lib/routes/(?:mint_next_3a_route_gate|route_metadata)\.dart$
+  - ^apps/mobile/lib/screens/(?:aujourdhui/aujourdhui_screen|coach/coach_chat_screen|mint_next_3a/mint_next_3a_handoff_screen)\.dart$
+  - ^apps/mobile/lib/widgets/(?:aujourdhui/mint_next_3a_handoff_card|coach/(?:clause_3a_widget|countdown_3a_widget|lpp_vs_3a_decision_tree)|comparators/pillar3a_comparator_widget)\.dart$
+  - ^services/backend/app/services/(?:rules_engine|fiscal/sensibilite_3a_service|coach/(?:coach_tools|profile_extractor)|coach/bundles/pillar3a_optimizer|pillar_3a_deep/[^/]+)\.py$
+  - ^services/backend/app/services/(?:mortgage/affordability_service|privacy/fact_key_allowlist|privacy_service|reengagement/consent_manager)\.py$
+  - ^apps/mobile/test/(?:models/coach_profile_[^/]+|providers/coach_profile_provider_[^/]+|services/document_parser/tax_declaration_parser_test|services/financial_core/tax_calculator[^/]*|services/tax_estimator_service_test|routes/route_metadata_test)\.dart$
+  - ^apps/mobile/test/(?:models/financial_plan_test|services/(?:financial_plan_followup_integration_test|plan_generation_service_test|plan_tracking_service_test|secure_wizard_store_test|observability/sentry_scrub_test)|screens/coach/coach_consent_gate_flow_test)\.dart$
+  - ^services/backend/tests/(?:privacy/[^/]+|services/privacy/[^/]+|test_(?:consent_guards|privacy|mortgage_affordability_grounding))\.py$
+  - ^apps/mobile/lib/services/financial_core/income_tax_model_v2\.dart$
+  - ^apps/mobile/lib/services/financial_plan_service\.dart$
+  - ^apps/mobile/lib/domain/budget/(?:budget_inputs|budget_service)\.dart$
+  - ^apps/mobile/lib/services/(?:fiscal_service|tax_scales_loader)\.dart$
+  - ^apps/mobile/lib/widgets/(?:educational/tax_savings_insert_widget|coach/fiscal_superpower_widget)\.dart$
+  - ^services/backend/app/services/fiscal/cantonal_comparator\.py$
+  excluded_segments:
+  - /generated/
+  - /build/
+  - /.dart_tool/
+  - /cache/
+  - /fixtures/
+  - /golden/
+  - /goldens/
+  - /evidence/
+  secret_segments:
+  - secret
+  - credential
+  - .env
+  - private_key
+  every_direct_match_included_or_excluded_with_reason: true
+  named_seed_families:
+    tax_models:
+    - apps/mobile/lib/services/financial_core/income_tax_model_v2.dart
+    financial_plans:
+    - apps/mobile/lib/services/financial_plan_service.dart
+    budget:
+    - apps/mobile/lib/domain/budget/budget_inputs.dart
+    - apps/mobile/lib/domain/budget/budget_service.dart
+    fiscal_services:
+    - apps/mobile/lib/services/fiscal_service.dart
+    - apps/mobile/lib/services/tax_scales_loader.dart
+    pedagogy:
+    - apps/mobile/lib/widgets/educational/tax_savings_insert_widget.dart
+    - apps/mobile/lib/widgets/coach/fiscal_superpower_widget.dart
+    backend_comparison:
+    - services/backend/app/services/fiscal/cantonal_comparator.py
+  selection_semantics: manually_selected_named_seed_families
+  no_dependency_closure_claim: true
+  semantic_assessment_scope: bounded_manual_representative_artifacts
+  semantic_assessment_paths:
+  - apps/mobile/lib/domain/budget/budget_inputs.dart
+  - apps/mobile/lib/domain/budget/budget_service.dart
+  - apps/mobile/lib/services/financial_core/income_tax_model_v2.dart
+  - apps/mobile/lib/services/financial_core/pillar3a_room_calculator.dart
+  - apps/mobile/lib/services/financial_core/tax_calculator.dart
+  - apps/mobile/lib/services/financial_plan_service.dart
+  - apps/mobile/lib/services/fiscal_service.dart
+  - apps/mobile/lib/services/mint_next_3a_task_store.dart
+  - apps/mobile/lib/services/plan_generation_service.dart
+  - apps/mobile/lib/services/plan_tracking_service.dart
+  - apps/mobile/lib/services/tax_scales_loader.dart
+  - apps/mobile/lib/widgets/coach/fiscal_superpower_widget.dart
+  - apps/mobile/lib/widgets/educational/tax_savings_insert_widget.dart
+  - services/backend/app/services/fiscal/cantonal_comparator.py
+  non_manifest_semantics: not_assessed_file_level_classification_only
+  operations:
+  - git_tree_read
+  - byte_hash
+  - line_hash
+  - symbol_name_hash
+  forbidden_operations:
+  - execute
+  - import_legacy
+  - network
+  - ocr
+classification_enum:
+- reuse_exact
+- adapt_pattern
+- defer
+- reject
+- archive_receipt
+risk_taxonomy:
+- api_boundary
+- calculation_authority
+- historical_governance
+- llm_authority
+- navigation_experience
+- personal_data
+- test_oracle
+classification_policy:
+  reuse_exact:
+    allowed_action: classify_only
+    runtime_reuse_authorized: false
+  adapt_pattern:
+    allowed_action: design_successor_under_named_contract
+    runtime_reuse_authorized: false
+  defer:
+    allowed_action: wait_for_named_gate
+    runtime_reuse_authorized: false
+  reject:
+    allowed_action: do_not_harvest
+    runtime_reuse_authorized: false
+  archive_receipt:
+    allowed_action: retain_as_non_oracle_evidence
+    runtime_reuse_authorized: false
+authority_boundary:
+  hashes_prove_bytes_only: true
+  formula_constant_output_never_authority_or_oracle: true
+  legacy_tests_never_oracle: true
+  legacy_unchanged: true
+upstream_pins:
+  .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+  tools/checks/mint_next_three_a_b01_authority_fms_guard.py: b09553627f68829050ce644ad0a5d6137cb53c91425d1da1f6234eccb81390ac
+  tools/checks/mint_next_three_a_b02_record_contract_guard.py: 827b35806df97314ebf82ca707e519d43d8af4bb30d5e78ac24a8cbfe7ab8f1e

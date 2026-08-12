@@ -1,0 +1,1133 @@
+schema_version: 1
+contract_id: anti_pii
+phase: mint-next-vertical01-3a-20260802
+status: design_complete_external_review_pending
+contract_kind: design_only_anti_pii_contract
+prepared_on: '2026-08-10'
+review_by: '2026-11-10'
+upstream_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/SPEC.md
+  sha256: 7d6f44f9885fbbf9e7c3c8763dd9bbdb46f47dc96f99e799b57a54b1ac01714d
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/privacy-contract.yaml
+  sha256: 8c4e4978c48d4f49f9b455bf955bc88095ab06423d2343d9d2be6e6097371756
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/retention-export-deletion.yaml
+  sha256: 339bc10d4d362d253748167653cd9429003eb660209506788f39c9b471def46c
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/threat-model.yaml
+  sha256: f41f63128720892b63ba4fc525f49902cc118b1fc45633ba17f6e4f703076181
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/key-contract.yaml
+  sha256: 899aa7d9fee4865ad81892af0a1ca14cd426fe060185a7836d2015d46b140481
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/threat-model-risk-register.json
+  sha256: 16ab5c7fa42c415569cb49bf6cc01d2700466f932fab716ed358a48df09f08eb
+surfaces:
+- application_logs
+- stdout_stderr
+- debug_logs
+- crash_exceptions_breadcrumbs
+- sentry_tags_context_attachments
+- telemetry_analytics
+- notifications
+- evidence_test_artifacts
+- filenames_paths
+- export_staging_manifest
+- clipboard_read
+- clipboard_write
+- os_share_sheet
+- network_http_request
+- network_http_response
+- ai_tool_request
+- ai_tool_response
+unknown_surface: drop_whole_event
+protected_store_boundary:
+  meaning: authorized_encrypted_user_content_storage_is_not_an_emission_surface
+  stores:
+  - encrypted_canonical_value_records
+  - encrypted_provenance_records
+  - encrypted_derived_read_models
+  - encrypted_plan_records
+  - encrypted_draft_records
+  - encrypted_provisional_extraction_records
+  - encrypted_application_caches
+  - in_memory_ephemeral_coach_turn
+  - local_non_content_security_audit
+  - local_notification_store
+  - local_telemetry_buffer
+  - platform_backup_ciphertext
+  - app_controlled_export_staging
+  - non_value_tombstone_store
+  rule: content_allowed_only_under_privacy_retention_key_contracts; every projection_to_surface_reclassified
+forbidden_taxonomy:
+  privacy_data_classes:
+  - identity_context
+  - household_context
+  - employment_and_income
+  - assets_and_liabilities
+  - housing
+  - insurance
+  - social_security_and_pension
+  - tax
+  - goals_and_preferences
+  - financial_documents
+  - provenance_and_audit_metadata
+  - calculation_outputs
+  - plan_3a_state_and_dependencies
+  - user_control_and_tombstone_metadata
+  - coach_transient_and_free_text
+  - notification_metadata
+  - telemetry_metadata
+  direct_identifiers:
+  - name
+  - email
+  - phone
+  - postal_address
+  - account_number
+  - iban
+  - card_number
+  - avs_ahv_identifier
+  - tax_identifier
+  - stable_cross_session_identifier
+  financial_values:
+  - amount
+  - currency_value_unit_combination
+  - salary
+  - debt
+  - balance
+  document_material:
+  - document_bytes
+  - document_metadata
+  - document_filename
+  - document_path
+  - source_content
+  - source_reference
+  free_text_and_prompts:
+  - coach_free_text
+  - prompt
+  - tool_argument_free_text
+  credentials_and_secrets:
+  - authentication_material
+  - encryption_key
+  - api_secret
+  - session_token
+allowlisted_event_schemas:
+- schema_id: operational_outcome_v1
+  event_id: operational_outcome
+  fields:
+  - name: outcome
+    type: enum
+    allowed_values:
+    - accepted
+    - dropped
+    max_length: 8
+    max_cardinality: 2
+  - name: platform
+    type: enum
+    allowed_values:
+    - ios
+    - android
+    - server
+    - design_fixture
+    max_length: 14
+    max_cardinality: 4
+  - name: trace_id
+    type: ephemeral_trace
+    allowed_values: []
+    max_length: 36
+    max_cardinality: 3
+  max_events_per_session: 5
+- schema_id: generic_notification_v1
+  event_id: generic_attention
+  fields:
+  - name: reason_code
+    type: enum
+    allowed_values:
+    - review_available
+    - action_available
+    max_length: 16
+    max_cardinality: 2
+  - name: coarse_state
+    type: enum
+    allowed_values:
+    - attention
+    max_length: 9
+    max_cardinality: 1
+  max_events_per_session: 3
+- schema_id: export_manifest_control_v1
+  event_id: export_control
+  fields:
+  - name: format_version
+    type: fixed_literal
+    allowed_values:
+    - v1
+    max_length: 2
+    max_cardinality: 1
+  - name: outcome
+    type: enum
+    allowed_values:
+    - ready
+    - failed
+    max_length: 6
+    max_cardinality: 2
+  max_events_per_session: 3
+surface_policy_matrix:
+- surface: application_logs
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: stdout_stderr
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: debug_logs
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: crash_exceptions_breadcrumbs
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: sentry_tags_context_attachments
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: telemetry_analytics
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: notifications
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - generic_notification_v1
+  allowed_recipients:
+  - local_user_device
+  default: drop_whole_event
+- surface: evidence_test_artifacts
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - operational_outcome_v1
+  allowed_recipients:
+  - local_process_only
+  default: drop_whole_event
+- surface: filenames_paths
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: export_staging_manifest
+  mode: exact_schema_allowlist
+  allowed_schema_ids:
+  - export_manifest_control_v1
+  allowed_recipients:
+  - local_user_device
+  default: drop_whole_event
+- surface: clipboard_read
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: clipboard_write
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: os_share_sheet
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: network_http_request
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: network_http_response
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: ai_tool_request
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+- surface: ai_tool_response
+  mode: no_emission
+  allowed_schema_ids: []
+  allowed_recipients: []
+  default: drop_whole_event
+fail_closed_policy:
+  unknown_event: drop_whole_event
+  unknown_field: drop_whole_event
+  unknown_type: drop_whole_event
+  unknown_value: drop_whole_event
+  unknown_recipient: drop_whole_event
+  best_effort_redaction: forbidden
+  rejected_payload_in_error: false
+  error_output: fixed_non_content_reason_code_only
+structured_value_policy:
+  nested_object: reject_container_and_drop_whole_event
+  list: reject_container_and_drop_whole_event
+  exception_message: reject_container_and_drop_whole_event
+  stack_trace: reject_container_and_drop_whole_event
+  filename: reject_container_and_drop_whole_event
+  path: reject_container_and_drop_whole_event
+ephemeral_trace_policy:
+  generation: cryptographically_random_not_derived_from_user_or_device
+  lifetime: single_session_maximum
+  rotation: every_session_and_on_auth_boundary
+  cross_session: false
+  exported: false
+  persisted: false
+  linkable_to_user: false
+notification_policy:
+  locked_content: generic_non_financial_non_identifying_copy_only
+  unknown_lock_state: treat_as_locked
+  preview: no_user_fact_no_amount_no_goal_no_document
+evidence_policy:
+  fixtures: synthetic_hostile_only
+  real_user_data: forbidden
+  screenshots: synthetic_content_only
+  dumps: forbidden
+  production_payload_replay: forbidden
+threat_to_controls:
+  T02:
+  - C03
+  - C10
+  T04:
+  - C05
+  - C08
+  T05:
+  - C06
+  - C09
+  T09:
+  - C04
+  - C05
+  - C08
+  T11:
+  - C08
+  - C09
+control_to_threats:
+  C03:
+  - T02
+  C04:
+  - T09
+  C05:
+  - T04
+  - T09
+  C06:
+  - T05
+  C08:
+  - T04
+  - T09
+  - T11
+  C09:
+  - T05
+  - T11
+  C10:
+  - T02
+surface_to_controls:
+  application_logs:
+  - C06
+  - C09
+  stdout_stderr:
+  - C06
+  - C09
+  debug_logs:
+  - C06
+  - C09
+  crash_exceptions_breadcrumbs:
+  - C06
+  - C09
+  sentry_tags_context_attachments:
+  - C06
+  - C09
+  - C10
+  telemetry_analytics:
+  - C06
+  - C09
+  notifications:
+  - C08
+  - C09
+  evidence_test_artifacts:
+  - C06
+  - C09
+  - C10
+  filenames_paths:
+  - C06
+  - C09
+  - C10
+  export_staging_manifest:
+  - C06
+  - C09
+  clipboard_read:
+  - C03
+  - C05
+  - C06
+  clipboard_write:
+  - C03
+  - C05
+  - C06
+  os_share_sheet:
+  - C03
+  - C05
+  - C06
+  network_http_request:
+  - C03
+  - C05
+  - C06
+  network_http_response:
+  - C03
+  - C05
+  - C06
+  ai_tool_request:
+  - C04
+  - C05
+  - C08
+  ai_tool_response:
+  - C04
+  - C05
+  - C08
+control_to_surfaces:
+  C03:
+  - clipboard_read
+  - clipboard_write
+  - os_share_sheet
+  - network_http_request
+  - network_http_response
+  C04:
+  - ai_tool_request
+  - ai_tool_response
+  C05:
+  - clipboard_read
+  - clipboard_write
+  - os_share_sheet
+  - network_http_request
+  - network_http_response
+  - ai_tool_request
+  - ai_tool_response
+  C06:
+  - application_logs
+  - stdout_stderr
+  - debug_logs
+  - crash_exceptions_breadcrumbs
+  - sentry_tags_context_attachments
+  - telemetry_analytics
+  - evidence_test_artifacts
+  - filenames_paths
+  - export_staging_manifest
+  - clipboard_read
+  - clipboard_write
+  - os_share_sheet
+  - network_http_request
+  - network_http_response
+  C08:
+  - notifications
+  - ai_tool_request
+  - ai_tool_response
+  C09:
+  - application_logs
+  - stdout_stderr
+  - debug_logs
+  - crash_exceptions_breadcrumbs
+  - sentry_tags_context_attachments
+  - telemetry_analytics
+  - notifications
+  - evidence_test_artifacts
+  - filenames_paths
+  - export_staging_manifest
+  C10:
+  - sentry_tags_context_attachments
+  - evidence_test_artifacts
+  - filenames_paths
+storage_projection_matrix:
+- storage_sink: encrypted_canonical_value_records
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: encrypted_provenance_records
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: encrypted_derived_read_models
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: encrypted_plan_records
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: encrypted_draft_records
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: encrypted_provisional_extraction_records
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: encrypted_application_caches
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: in_memory_ephemeral_coach_turn
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: local_non_content_security_audit
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: local_notification_store
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: local_telemetry_buffer
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: platform_backup_ciphertext
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: app_controlled_export_staging
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+- storage_sink: non_value_tombstone_store
+  authorized_content_at_rest: true
+  projection_rule: reclassify_each_projection_under_surface_policy_matrix
+scanner_policy:
+  role: defense_in_depth_not_runtime_proof
+  failure: block_emission
+  timeout: block_emission
+  unavailable: block_emission
+  match: drop_whole_event
+  no_match: still_require_exact_allowlist
+synthetic_decision_cases:
+- case_id: SAFE_SURFACE_00
+  surface: application_logs
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_00
+  surface: application_logs
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: prompt_free_text
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_01
+  surface: stdout_stderr
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_01
+  surface: stdout_stderr
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: amount_currency
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_02
+  surface: debug_logs
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_02
+  surface: debug_logs
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: document_path
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_03
+  surface: crash_exceptions_breadcrumbs
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_03
+  surface: crash_exceptions_breadcrumbs
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: exception_message
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_04
+  surface: sentry_tags_context_attachments
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_04
+  surface: sentry_tags_context_attachments
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: attachment_metadata
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_05
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_05
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: unknown_field
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_06
+  surface: notifications
+  schema_id: generic_notification_v1
+  payload:
+    reason_code: review_available
+    coarse_state: attention
+  recipient: local_user_device
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_06
+  surface: notifications
+  schema_id: generic_notification_v1
+  payload_fixture_kind: unknown_field
+  recipient: local_user_device
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_07
+  surface: evidence_test_artifacts
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_07
+  surface: evidence_test_artifacts
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: email
+  recipient: local_process_only
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_08
+  surface: filenames_paths
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: SAFE_SURFACE_09
+  surface: export_staging_manifest
+  schema_id: export_manifest_control_v1
+  payload:
+    format_version: v1
+    outcome: ready
+  recipient: local_user_device
+  lock_state: locked
+  expected: ALLOW
+- case_id: DROP_SURFACE_09
+  surface: export_staging_manifest
+  schema_id: export_manifest_control_v1
+  payload_fixture_kind: unknown_field
+  recipient: local_user_device
+  lock_state: locked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_10
+  surface: clipboard_read
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_11
+  surface: clipboard_write
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_12
+  surface: os_share_sheet
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_13
+  surface: network_http_request
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_14
+  surface: network_http_response
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_15
+  surface: ai_tool_request
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_NO_EMISSION_16
+  surface: ai_tool_response
+  schema_id: operational_outcome_v1
+  payload:
+    outcome: accepted
+    platform: ios
+    trace_id: SYNTH_EPHEMERAL_TRACE
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_00
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: iban
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_01
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: ahv
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_02
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: phone_unicode_separator
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_03
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: stable_identifier
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_04
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: document_filename
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_05
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: secret
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_06
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: nested_email
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_07
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: list_amount
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_08
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: stack_path
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_09
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: breadcrumb_free_text
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_10
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: sentry_tag_identifier
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_11
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: unknown_event
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_12
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: unknown_type
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_13
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: unknown_value
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_14
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: unknown_recipient
+  recipient: unknown_processor
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_15
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: unknown_surface
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_16
+  surface: notifications
+  schema_id: generic_notification_v1
+  payload_fixture_kind: locked_notification_content
+  recipient: local_user_device
+  lock_state: unknown
+  expected: DROP_WHOLE_EVENT
+- case_id: DROP_KIND_17
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  payload_fixture_kind: encoded_identifier
+  recipient: local_process_only
+  lock_state: unlocked
+  expected: DROP_WHOLE_EVENT
+external_security_review:
+  status: pending
+  receipt: null
+runtime_proof: absent
+does_not_prove:
+- runtime_enforcement
+- ios_runtime_behavior
+- android_runtime_behavior
+- sentry_configuration
+- network_payload_behavior
+- crash_pipeline_behavior
+- scanner_runtime_effectiveness
+- external_security_review_acceptance
+- B0_acceptance
+activation_gate: STOP
+feature_flag: 'OFF'
+does_not_close_B0: true
+schema_to_surfaces:
+  operational_outcome_v1:
+  - application_logs
+  - stdout_stderr
+  - debug_logs
+  - crash_exceptions_breadcrumbs
+  - sentry_tags_context_attachments
+  - telemetry_analytics
+  - evidence_test_artifacts
+  generic_notification_v1:
+  - notifications
+  export_manifest_control_v1:
+  - export_staging_manifest
+recipient_policy:
+  default: local_only_or_disabled
+  allowed:
+  - local_process_only
+  - local_user_device
+  external_processor: unresolved_therefore_blocked
+  jurisdiction: unresolved_therefore_blocked
+cardinality_policy:
+  state_scope: ephemeral_session_only
+  rotation_events:
+  - new_session
+  - authentication_boundary
+  overflow: drop_whole_event
+  runtime_enforcement_proof: deferred_to_B5
+synthetic_sequence_cases:
+- case_id: SEQ_EVENT_AT_LIMIT
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  expected:
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+- case_id: SEQ_EVENT_OVERFLOW
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  expected:
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - DROP_WHOLE_EVENT
+- case_id: SEQ_FIELD_CARDINALITY_OVERFLOW
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: dddddddddddddddddddddddddddddddd
+  expected:
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - DROP_WHOLE_EVENT
+- case_id: SEQ_REJECT_DOES_NOT_CONSUME_OR_POISON
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: invalid
+      platform: ios
+      trace_id: zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  expected:
+  - DROP_WHOLE_EVENT
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+- case_id: SEQ_AUTH_ROTATION
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  - rotation_event: authentication_boundary
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: dddddddddddddddddddddddddddddddd
+  expected:
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ROTATED
+  - ALLOW
+- case_id: SEQ_NEW_SESSION_ROTATION
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  - rotation_event: new_session
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: dddddddddddddddddddddddddddddddd
+  expected:
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ROTATED
+  - ALLOW
+- case_id: SEQ_UNKNOWN_ROTATION_NO_RESET
+  surface: telemetry_analytics
+  schema_id: operational_outcome_v1
+  recipient: local_process_only
+  steps:
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  - rotation_event: arbitrary_segment
+  - payload:
+      outcome: accepted
+      platform: ios
+      trace_id: cccccccccccccccccccccccccccccccc
+  expected:
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - ALLOW
+  - DROP_WHOLE_EVENT
+  - DROP_WHOLE_EVENT

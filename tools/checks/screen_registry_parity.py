@@ -57,6 +57,29 @@ _NOT_CHAT_ROUTABLE: Set[str] = {
     "/",
     "/start",
     "/onb",
+    # MINT Next housing (PR B atterrissage 2026-08-10) — flow derrière
+    # kill-flag enableMintNextHousing OFF, aucun intent coach câblé dans
+    # cette tranche ; deviendra chat-routable avec le shell coach MINT Next.
+    "/mint-next/housing",
+    # MINT Next 3a handoff (PR C atterrissage 2026-08-11) — même statut que le
+    # housing : kill-flag enableMintNext3aProductHandoff OFF, aucun intent
+    # coach câblé dans cette tranche.
+    "/mint-next/3a",
+    # Lego 1 domicile (2026-08-11) — kill-flag enableMintNextDomicile OFF,
+    # aucun intent coach dans cette tranche.
+    "/mint-next/domicile",
+    # Lego 2 état civil (2026-08-11) — kill-flag enableMintNextEtatCivil OFF,
+    # aucun intent coach dans cette tranche.
+    "/mint-next/etat-civil",
+    # Lego 3 revenu (2026-08-11) — kill-flag enableMintNextRevenu OFF,
+    # aucun intent coach dans cette tranche.
+    "/mint-next/revenu",
+    # Lego 4 affiliation LPP (2026-08-11) — kill-flag
+    # enableMintNextLppAffiliation OFF, aucun intent coach dans cette tranche.
+    "/mint-next/lpp-affiliation",
+    # Lego 5 versements 3a (2026-08-11) — kill-flag
+    # enableMintNextVersements3a OFF, aucun intent coach dans cette tranche.
+    "/mint-next/versements-3a",
     # FATCA hard-gate destination — non-calibrated archetypes land here.
     # Not chat-routable: the coach is BLOCKED for these users (the whole
     # point of the gate), so the LLM has no chat surface to suggest /waitlist.

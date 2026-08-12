@@ -29,6 +29,18 @@ import 'package:crypto/crypto.dart';
 /// Claim id du producteur v1 (SPEC D3 / §4.1).
 const String kFirstJobNetSalaryClaimId = 'firstjob.net_salary.v1';
 
+/// Claim id du revenu mensuel de retraite projeté (dashboard /retraite — V2-4).
+/// Scelle le CHIFFRE HÉRO affiché (revenu mensuel brut de retraite, scénario de
+/// base, couple-agrégé le cas échéant). Le coach résout par receiptId et rend
+/// LA même valeur (parité dashboard↔coach hors firstJob).
+const String kRetirementMonthlyIncomeClaimId = 'retirement.monthly_income.v1';
+
+/// Claim id de la rente LPP mensuelle nette comparée sur /retraite/rente-vs-
+/// capital (V2-4). Scelle `renteNetMensuelle` (le montant de rente affiché),
+/// distinct du revenu TOTAL de retraite ci-dessus — claimId dédié, pas de
+/// receipt contradictoire (chaque surface porte son propre claim).
+const String kRenteVsCapitalRenteClaimId = 'rente_vs_capital.rente_mensuelle.v1';
+
 // ════════════════════════════════════════════════════════════
 //  HASH DÉTERMINISTE DES INPUTS (miroir de compute_inputs_hash)
 // ════════════════════════════════════════════════════════════

@@ -72,7 +72,8 @@ void main() {
         if (call.method == 'write') {
           throw PlatformException(
             code: 'Unexpected security result code',
-            message: 'Code: -34018, Message: A required entitlement is missing.',
+            message:
+                'Code: -34018, Message: A required entitlement is missing.',
             details: -34018,
           );
         }
@@ -82,7 +83,8 @@ void main() {
 
     tearDown(SecureWizardStore.resetSealFallbackForTest);
 
-    test('DISABLED by default: -34018 still drops the sensitive value '
+    test(
+        'DISABLED by default: -34018 still drops the sensitive value '
         '(release-parity, privacy contract intact)', () async {
       mockMissingEntitlement();
 
@@ -121,7 +123,8 @@ void main() {
       expect(restored['q_canton'], 'VD');
     });
 
-    test('ENABLED: sealSensitiveKeys reports allSensitiveSealed = true '
+    test(
+        'ENABLED: sealSensitiveKeys reports allSensitiveSealed = true '
         '(so saveAnswers persists and the profile is not cleared)', () async {
       mockMissingEntitlement();
       SecureWizardStore.debugSealFallbackOverride = true;
@@ -158,7 +161,8 @@ void main() {
       );
     });
 
-    test('ENABLED: deleteAll purges even when the override is flipped off first',
+    test(
+        'ENABLED: deleteAll purges even when the override is flipped off first',
         () async {
       mockMissingEntitlement();
       SecureWizardStore.debugSealFallbackOverride = true;
@@ -204,6 +208,24 @@ void main() {
   });
 
   group('SecureWizardStore — happy path (provisioned keychain)', () {
+    test('classifies every canonical housing fact key as sensitive', () {
+      const keys = {
+        'q_housing_status',
+        'q_housing_mortgage_status',
+        'q_housing_mortgage_statement_availability',
+        'q_housing_mortgage_statement_year',
+        'q_housing_mortgage_annual_interest_cents',
+        'q_housing_mortgage_debt_balance_cents',
+        'q_housing_fact_asserted_at',
+        'q_housing_fact_source',
+        'q_housing_fact_schema_version',
+        'q_housing_fact_needs_confirmation',
+      };
+      for (final key in keys) {
+        expect(SecureWizardStore.isSensitive(key), isTrue, reason: key);
+      }
+    });
+
     test('classifies PR5 mapped wizard keys outside broad secure prefixes', () {
       const sensitive = {
         'q_employment_rate',
@@ -268,6 +290,75 @@ void main() {
       expect(await storage.read(key: 'auth_token'), 'keep-me');
       expect(await storage.read(key: 'q_net_income_period_chf'), isNull);
       expect(await storage.read(key: '_coach_depenses_custom'), isNull);
+    });
+
+    test('deleteKeys deletes only requested sensitive wizard keys', () async {
+      FlutterSecureStorage.setMockInitialValues({
+        'auth_token': 'keep-me',
+        'q_housing_status': 'owner_occupier',
+        'q_housing_fact_source': 'housing_flow',
+        'q_net_income_period_chf': '7000',
+      });
+
+      final deleted = await SecureWizardStore.deleteKeys({
+        'q_housing_status',
+        'q_housing_fact_source',
+        'auth_token',
+      });
+
+      expect(deleted, isTrue);
+      const storage = FlutterSecureStorage();
+      expect(await storage.read(key: 'q_housing_status'), isNull);
+      expect(await storage.read(key: 'q_housing_fact_source'), isNull);
+      expect(await storage.read(key: 'q_net_income_period_chf'), '7000');
+      expect(await storage.read(key: 'auth_token'), 'keep-me');
+    });
+
+    test('journal tracks absent members and is idempotent until finalized',
+        () async {
+      FlutterSecureStorage.setMockInitialValues({
+        'q_housing_status': 'owner_occupier',
+      });
+
+      final keys = {'q_housing_status', 'q_housing_fact_source'};
+      expect(await SecureWizardStore.prepareDeleteTransaction(keys), isTrue);
+      expect(await SecureWizardStore.prepareDeleteTransaction(keys), isTrue);
+      expect(await SecureWizardStore.deleteKeys(keys), isTrue);
+      expect(
+          await SecureWizardStore.read('q_housing_status'), 'owner_occupier');
+      expect(await SecureWizardStore.read('q_housing_fact_source'), isNull);
+
+      expect(await SecureWizardStore.commitDeleteTransaction(), isTrue);
+      final tombstone = await const FlutterSecureStorage()
+          .read(key: '_mint_wizard_delete_journal_v2');
+      expect(tombstone, contains('"state":"committed"'));
+      expect(tombstone, isNot(contains('owner_occupier')));
+      expect(tombstone, isNot(contains('"values"')));
+      expect(await SecureWizardStore.read('q_housing_status'), isNull);
+      expect(await SecureWizardStore.finalizeDeleteTransaction(), isTrue);
+      expect(
+        await const FlutterSecureStorage()
+            .read(key: '_mint_wizard_delete_journal_v2'),
+        isNull,
+      );
+    });
+
+    test('deleteAll purges an open encrypted deletion journal', () async {
+      FlutterSecureStorage.setMockInitialValues({
+        'q_housing_status': 'owner_occupier',
+      });
+      expect(
+        await SecureWizardStore.prepareDeleteTransaction({'q_housing_status'}),
+        isTrue,
+      );
+
+      expect(await SecureWizardStore.deleteAll(), isTrue);
+      expect(await SecureWizardStore.read('q_housing_status'), isNull);
+      expect(
+        await const FlutterSecureStorage()
+            .read(key: '_mint_wizard_delete_journal_v2'),
+        isNull,
+      );
     });
   });
 }

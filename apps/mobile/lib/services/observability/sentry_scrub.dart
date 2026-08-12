@@ -1,4 +1,5 @@
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:mint_mobile/services/observability/private_route_telemetry.dart';
 
 /// MINT Sentry `beforeSend` PII scrubber.
 ///
@@ -49,7 +50,9 @@ class MintSentryScrub {
   static final RegExp forbiddenKeyPattern = RegExp(
     r'^(prompt|completion|messages|response|coach_text|coach_response|'
     r'claude_(?!request_id$|model$|token_usage$).*'
-    r'|user_message|user_input|free_text|chat_history)$',
+    r'|user_message|user_input|free_text|chat_history|private_route_name|'
+    r'task_id|task_identity|task_status|tax_year|answers|profile_facts|'
+    r'financial_context)$',
     caseSensitive: false,
   );
 
@@ -93,22 +96,47 @@ class MintSentryScrub {
   /// is scoped to this call site — see TODO(S98-OBS-MIGRATE) for the
   /// follow-up migration to `Contexts` after Phase 2 ships.
   static SentryEvent? beforeSend(SentryEvent event, Hint hint) {
+    final privateFinancialEvent = _isPrivateFinancialEvent(event);
     // 1. Strip extras whose key matches the forbidden-key pattern.
-    // ignore: deprecated_member_use
-    final extraScrubbed = _scrubMap(event.extra);
+    final extraScrubbed = privateFinancialEvent
+        ? const <String, dynamic>{}
+        : _scrubMap(_legacyExtra(event));
 
     // 2. Sweep breadcrumbs — drop forbidden keys from `data`, scrub
     //    `message` content for PII regex.
-    final crumbs = event.breadcrumbs?.map(_scrubBreadcrumb).toList();
+    final crumbs = privateFinancialEvent
+        ? const <Breadcrumb>[]
+        : event.breadcrumbs?.map(_scrubBreadcrumb).toList();
 
     // 3. Scrub the top-level `message` field if present.
     final scrubbedMessage = event.message == null
         ? null
         : SentryMessage(
-            _scrubString(event.message!.formatted),
-            template: event.message!.template,
-            params: event.message!.params,
+            privateFinancialEvent
+                ? redacted
+                : _scrubString(event.message!.formatted),
+            template: event.message!.template == null
+                ? null
+                : privateFinancialEvent
+                    ? redacted
+                    : _scrubString(event.message!.template!),
+            params: privateFinancialEvent
+                ? event.message!.params
+                    ?.map((_) => redacted)
+                    .toList(growable: false)
+                : _scrubAny(event.message!.params),
           );
+
+    final scrubbedContexts = Contexts.fromJson(
+      privateFinancialEvent
+          ? const <String, dynamic>{}
+          : _scrubMap(event.contexts.toJson()) ?? const <String, dynamic>{},
+    );
+    final scrubbedTransaction = privateFinancialEvent
+        ? 'private_financial_flow'
+        : event.transaction == null
+            ? null
+            : _scrubString(event.transaction!);
 
     // 4. Drop request body wholesale — we can't trust contents.
     // `copyWith(data: null)` is a no-op in sentry_flutter 9.x (null means
@@ -117,14 +145,23 @@ class MintSentryScrub {
     // drop body, cookies, and headers.
     final request = event.request == null
         ? null
-        : SentryRequest(
-            url: event.request!.url,
-            method: event.request!.method,
-            queryString: null, // strip — may carry free-text
-            headers: const <String, String>{},
-            cookies: null,
-            data: null,
-          );
+        : privateFinancialEvent
+            ? SentryRequest(
+                url: redacted,
+                method: event.request!.method,
+                queryString: null,
+                headers: const <String, String>{},
+                cookies: null,
+                data: null,
+              )
+            : SentryRequest(
+                url: event.request!.url,
+                method: event.request!.method,
+                queryString: null, // strip — may carry free-text
+                headers: const <String, String>{},
+                cookies: null,
+                data: null,
+              );
 
     // 5. Scrub stack-frame local variables (per code-review I5). The
     // Flutter SDK includes local var values on Dart exceptions; an
@@ -132,16 +169,24 @@ class MintSentryScrub {
     // ship the raw value otherwise. File / function / lineNo untouched
     // (non-PII per Sentry's own classification).
     final exceptions = event.exceptions
-        ?.map(_scrubException)
+        ?.map((exception) =>
+            _scrubException(exception, redactValue: privateFinancialEvent))
         .toList(growable: false);
 
     // 6. Scrub tag VALUES — tags are typically system identifiers but
     // a future caller setting a free-text value would bypass the rest
     // of the scrubber. Keys preserved (Sentry UI lookup must stay
     // stable); values pass through the PII regex set. Per M6.
-    final tags = event.tags?.map<String, String>(
-      (k, v) => MapEntry(k, _scrubString(v)),
-    );
+    final tags = privateFinancialEvent
+        ? const <String, String>{'surface': 'private_financial_flow'}
+        : <String, String>{
+            ...?event.tags?.map<String, String>(
+              (k, v) => MapEntry(
+                k,
+                forbiddenKeyPattern.hasMatch(k) ? redacted : _scrubString(v),
+              ),
+            ),
+          };
 
     // ignore: deprecated_member_use
     return event.copyWith(
@@ -149,23 +194,90 @@ class MintSentryScrub {
       extra: extraScrubbed,
       breadcrumbs: crumbs,
       message: scrubbedMessage,
+      transaction: scrubbedTransaction,
+      contexts: scrubbedContexts,
       request: request,
       exceptions: exceptions,
       tags: tags,
     );
   }
 
-  static SentryException _scrubException(SentryException exc) {
-    final scrubbedValue = exc.value == null ? null : _scrubString(exc.value!);
+  static bool _isPrivateFinancialEvent(SentryEvent event) {
+    bool contains(dynamic value) {
+      if (value is String) {
+        return _privateMarkerPattern.hasMatch(value);
+      }
+      if (value is Map) {
+        return value.entries.any((entry) {
+          final key = entry.key.toString();
+          return _privateFieldKeyPattern.hasMatch(key) ||
+              contains(entry.value) ||
+              contains('$key=${entry.value}');
+        });
+      }
+      if (value is Iterable) return value.any(contains);
+      return false;
+    }
+
+    return MintPrivateFinancialTelemetryScope.isActive ||
+        contains(_legacyExtra(event)) ||
+        contains(event.tags) ||
+        contains(event.transaction) ||
+        contains(event.contexts.toJson()) ||
+        contains(event.message?.formatted) ||
+        contains(event.message?.template) ||
+        contains(event.message?.params) ||
+        contains(event.request?.url) ||
+        contains(event.exceptions?.map((exception) => exception.value)) ||
+        contains(event.exceptions?.expand(
+          (exception) =>
+              exception.stackTrace?.frames.map((frame) => frame.vars) ??
+              const <Map<String, String>>[],
+        )) ||
+        contains(event.breadcrumbs
+            ?.map((crumb) => [crumb.category, crumb.message, crumb.data]));
+  }
+
+  static Map<String, dynamic>? _legacyExtra(SentryEvent event) {
+    // ignore: deprecated_member_use
+    return event.extra;
+  }
+
+  static final RegExp _privateMarkerPattern = RegExp(
+    r'(/mint-next/3a|3a\.verify_annual_credited_total|annual_total|'
+    r'latest_payment_only|pay_max_without_checking|tax_year\s*[:=]\s*\d{4})',
+    caseSensitive: false,
+  );
+
+  static final RegExp _privateFieldKeyPattern = RegExp(
+    r'^(task_id|task_identity|task_status|tax_year|answers?|profile_facts|'
+    r'financial_context|balance|contribution|tax_delta|tax_range)$',
+    caseSensitive: false,
+  );
+
+  static SentryException _scrubException(
+    SentryException exc, {
+    bool redactValue = false,
+  }) {
+    final scrubbedValue = exc.value == null
+        ? null
+        : redactValue
+            ? redacted
+            : _scrubString(exc.value!);
     final scrubbedTrace = exc.stackTrace == null
         ? null
-        : _scrubStackTrace(exc.stackTrace!);
+        : _scrubStackTrace(exc.stackTrace!, clearVars: redactValue);
     // ignore: deprecated_member_use
     return exc.copyWith(value: scrubbedValue, stackTrace: scrubbedTrace);
   }
 
-  static SentryStackTrace _scrubStackTrace(SentryStackTrace trace) {
-    final frames = trace.frames.map(_scrubFrame).toList(growable: false);
+  static SentryStackTrace _scrubStackTrace(
+    SentryStackTrace trace, {
+    bool clearVars = false,
+  }) {
+    final frames = trace.frames
+        .map((frame) => _scrubFrame(frame, clearVars: clearVars))
+        .toList(growable: false);
     // ignore: deprecated_member_use
     return trace.copyWith(frames: frames);
   }
@@ -174,9 +286,16 @@ class MintSentryScrub {
   /// string-ified by the SDK at capture time — Dart values are
   /// repr'd into strings). We scrub each value via [_scrubString];
   /// keys are preserved for the Sentry UI's variable-name display.
-  static SentryStackFrame _scrubFrame(SentryStackFrame f) {
+  static SentryStackFrame _scrubFrame(
+    SentryStackFrame f, {
+    bool clearVars = false,
+  }) {
     final v = f.vars;
     if (v.isEmpty) return f;
+    if (clearVars) {
+      // ignore: deprecated_member_use
+      return f.copyWith(vars: const <String, String>{});
+    }
     final scrubbed = v.map<String, String>(
       (key, value) => MapEntry(key, _scrubString(value)),
     );
@@ -205,7 +324,7 @@ class MintSentryScrub {
   }
 
   static String _scrubString(String input) {
-    var out = input;
+    var out = input.replaceAll(RegExp(r'/mint-next/3a(?:\?[^\s]*)?'), redacted);
     for (final r in piiPatterns) {
       out = out.replaceAll(r, redacted);
     }

@@ -1267,6 +1267,7 @@
   "firstJobSalaryTitle": "Salaire brut mensuel",
   "firstJobActivityRate": "Taux d'activité",
   "firstJobAskCoach": "Demander au coach",
+  "askCoachCta": "Demander au coach",
   "firstJob3aHeader": "PILIER 3A — À ENVISAGER",
   "firstJob3aAnnualCap": "Plafond annuel",
   "firstJob3aMonthlySuggestion": "Suggestion /mois",
@@ -1313,6 +1314,15 @@
   "independantAnalysisHeader": "Analyse MINT — Ton kit indépendant",
   "independantSourcesTitle": "Sources",
   "independantSourcesBody": "LPP art. 4 (pas d'obligation pour indépendants) / LPP art. 44 (affiliation volontaire) / OPP3 art. 7 (3a grand : 20 % du revenu net, max 36'288) / LAVS art. 8 (cotisations indépendants) / LAA art. 4 / LAMal",
+  "independantLppRescueOption1Label": "Fondation de libre passage",
+  "independantLppRescueOption1Description": "Place ton avoir dans une fondation de libre passage : il continue de fructifier à un rendement correct.",
+  "independantLppRescueOption1LegalRef": "LFLP art. 4",
+  "independantLppRescueOption2Label": "Institution supplétive",
+  "independantLppRescueOption2Description": "Si tu ne fais rien, ton avoir y est transféré d'office après 6 mois — au rendement minimal.",
+  "independantLppRescueOption2LegalRef": "LFLP art. 4 al. 2",
+  "independantLppRescueOption3Label": "Nouvelle caisse LPP",
+  "independantLppRescueOption3Description": "Tu t'affilies volontairement à une caisse LPP.",
+  "independantLppRescueOption3LegalRef": "LPP art. 44",
   "independantDisclaimer": "Les montants présentés sont des estimations indicatives. Les cotisations réelles dépendent de ta situation personnelle et des offres d'assurance disponibles. Consulte un fiduciaire ou un assureur avant toute décision.",
   "jobCompareAgeTitle": "Ton âge",
   "jobCompareAgeSubtitle": "Utilisé pour projeter le capital retraite",
@@ -2196,7 +2206,7 @@
   "futurCompleterProfil": "Complete ton profil pour affiner la projection.",
   "futurDisclaimer": "Projection éducative — ne constitue pas un conseil (LSFin). SWR 4 % = règle des 4 %, résultats non assurés. Rentes AVS/LPP estimées selon LAVS art. 21-40, LPP art. 14-16.",
   "futurExplorerDetails": "Explorer les détails",
-  "financialSummaryTitle": "MON PROFIL",
+  "financialSummaryTitle": "MA SITUATION",
   "financialSummaryDossierTitle": "Dossier vérifiable",
   "financialSummaryDossierSubtitle": "Tes faits, leurs sources et tes corrections avant toute projection.",
   "financialSummaryDossierFactCountLabel": "faits suivis",
@@ -2232,6 +2242,40 @@
   "financialSummaryRachatPlanifie": "Rachat planifié",
   "financialSummaryCaisse": "Caisse",
   "financialSummary3a3ePilier": "3a (3e pilier)",
+  "threeAAccountsSmartAction": "Détailler tes comptes 3a",
+  "threeAAccountsSmartReason": "~1 min · pour préparer des retraits fiscalement échelonnés",
+  "threeAAccountAdd": "Ajouter un compte 3a",
+  "threeAAccountTitle": "Ajouter ton compte 3a",
+  "threeAAccountWhy": "Ces informations servent à montrer ton patrimoine et préparer les retraits. Elles restent sous ton contrôle dans Ma situation.",
+  "financialSummaryBalanceAsOf": "Solde au {date}",
+  "@financialSummaryBalanceAsOf": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
+  "financialSummaryBalanceDateUnknown": "Date du solde à confirmer",
+  "financialSummarySourceUserInput": "Saisi manuellement",
+  "threeAAccountProvider": "Établissement",
+  "threeAAccountBalance": "Solde actuel",
+  "threeAAccountBalanceDate": "Date du solde",
+  "threeAAccountOwnerSelf": "Propriétaire : toi",
+  "threeAAccountInvalid": "Indique un établissement et un solde valide.",
+  "threeAAccountSaveError": "Enregistrement impossible. Rien n’a été modifié.",
+  "threeAAccountSave": "Enregistrer ce compte",
+  "financialSummary3aPlannedAnnual": "Versement annuel planifié",
+  "financialSummary3aPlannedAnnualOwner": "{name} · versement annuel planifié",
+  "@financialSummary3aPlannedAnnualOwner": {
+    "placeholders": {
+      "name": {"type": "String"}
+    }
+  },
+  "financialSummaryDateUnknown": "Date à confirmer",
+  "financialSummaryUpdatedOn": "Mis à jour le {date}",
+  "@financialSummaryUpdatedOn": {
+    "placeholders": {
+      "date": {"type": "String"}
+    }
+  },
   "financialSummaryNComptes": "{n} compte(s)",
   "@financialSummaryNComptes": {
     "placeholders": {
@@ -2544,7 +2588,7 @@
       }
     }
   },
-  "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Rendements passés ne constituent pas une assurance de résultat pour les rendements futurs.",
+  "pillar3aDisclaimer": "Hypothèses pédagogiques basées sur rendements historiques moyens. Les rendements passés ne préjugent pas des rendements futurs.",
   "pillar3aCapitalEvolution": "Évolution de ton capital 3a",
   "pillar3aYearLabel": "Année",
   "pillar3aBank15": "Banque 1.5 %",
@@ -5090,6 +5134,9 @@
   "sim3aCtaCompare": "Comparer",
   "sim3aCtaCalculate": "Calculer",
   "sim3aCtaPlan": "Planifier",
+  "sim3aSavePlan": "Enregistrer ce projet",
+  "sim3aPlanSaved": "Projet enregistré",
+  "sim3aPlanRemoved": "Projet supprimé",
   "sim3aDisclaimer": "Estimation éducative. Les économies réelles dépendent de ton lieu de résidence et de ta situation familiale. Ne constitue pas un conseil financier (LSFin).",
   "sim3aDebtLockedTitle": "Priorité au désendettement",
   "sim3aDebtLockedMessage": "En mode protection, les recommandations d'action 3a sont désactivées. La priorité est de stabiliser ta situation financière avant de verser dans le 3a.",
@@ -5694,6 +5741,11 @@
   "pillar3aIndepEduInvestirBody": "Pour un horizon long (>10 ans), un 3a investi en actions peut offrir un rendement bien supérieur à un compte d’épargne 3a classique.",
   "pillar3aIndepDisclaimer": "L’impact fiscal est estimé sur la base du taux marginal indiqué. Le taux réel dépend de ton canton, de ta commune et de ta situation familiale. Consulte un·e spécialiste pour un calcul personnalisé.",
   "dividendeVsSalaireTitle": "Dividende vs Salaire",
+  "dividendeLegendChargeTotale": "Charge totale",
+  "dividendeLegendSplitAdapte": "Split adapté",
+  "dividendeLegendPositionActuelle": "Position actuelle",
+  "dividendeChargeCurveTitle": "Charge totale par split",
+  "dividendeEducationTitle": "À retenir",
   "dividendeVsSalaireChargeSalaire": "Charge sur salaire",
   "dividendeVsSalaireCharge100Salaire": "Charge si 100 % salaire",
   "dividendeVsSalairePctSalaire0": "0 % salaire",
@@ -5914,6 +5966,48 @@
   "timelineHeader": "Ta vie financière,\nétape par étape.",
   "timelineSubheader": "Outils essentiels et événements de vie — tout est là.",
   "timelineSectionTitle": "Ton histoire",
+  "confidenceCurveTitle": "Ta lucidité grandit",
+  "@confidenceCurveTitle": {
+    "description": "D5 lucidity-evolution card title (Ton histoire section)."
+  },
+  "confidenceCurveNow": "maintenant",
+  "@confidenceCurveNow": {
+    "description": "D5 curve endpoint caption for the current confidence value."
+  },
+  "confidenceCurveSinglePoint": "Reviens bientôt pour voir ta courbe grandir.",
+  "@confidenceCurveSinglePoint": {
+    "description": "D5 curve 1-point state invite (no line can be drawn yet)."
+  },
+  "confidenceCurveTrendSemantics": "Ta confiance est passée de {start} à {latest}.",
+  "@confidenceCurveTrendSemantics": {
+    "description": "D5 curve screen-reader trend sentence (from start to latest).",
+    "placeholders": {
+      "start": {
+        "type": "String"
+      },
+      "latest": {
+        "type": "String"
+      }
+    }
+  },
+  "confidenceCurveMilestoneScan": "Tu as éclairé un document le {date}.",
+  "@confidenceCurveMilestoneScan": {
+    "description": "D5 curve named milestone — a document scan on {date}.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "confidenceCurveMilestoneCheckin": "Tu as fait le point le {date}.",
+  "@confidenceCurveMilestoneCheckin": {
+    "description": "D5 curve named milestone — a monthly check-in on {date}.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "timelineSectionSubtitle": "Sélectionne un événement pour simuler son impact financier.",
   "cockpitDetailTitle": "Cockpit détaillé",
   "annualRefreshTitle": "Check-up annuel",
@@ -6616,12 +6710,48 @@
   "dividendeFourchette": "Fourchette selon le canton (impôt sur le bénéfice et part imposable du dividende) : de {low} à {high} par an.",
   "@dividendeFourchette": {
     "placeholders": {
-      "low": { "type": "String" },
-      "high": { "type": "String" }
+      "low": {
+        "type": "String"
+      },
+      "high": {
+        "type": "String"
+      }
     }
   },
   "dividendeConfidenceMessage": "Cette estimation intègre l'impôt sur le bénéfice via un taux suisse représentatif (moyenne KPMG 2025) et une part imposable du dividende simplifiée de 60 % ; la répartition réelle fédéral 70 % (LIFD art. 20 al. 1bis) / cantonal ≥ 50 % dépend du canton. Elle ne valorise pas les droits AVS/LPP acquis par le salaire. À valider avec une fiduciaire.",
   "dividendeSimulationDisclaimer": "Simulation simplifiée. L'impôt sur le bénéfice est intégré via un taux suisse représentatif (moyenne KPMG 2025) ; le taux exact du canton, les déductions personnelles, l'impôt sur la fortune et les droits AVS/LPP acquis par le salaire ne sont pas modélisés. Un salaire conforme au marché est supposé. Consulte un·e spécialiste pour une analyse complète.",
+  "dividendeHeaderIntro": "Si tu possèdes une SA ou une Sàrl, tu peux combiner salaire et dividendes. Le dividende est imposé à 50 % en cas de participation qualifiante et n'est pas soumis aux cotisations AVS. Cherche le split le plus adapté à ta situation.",
+  "dividendeEconomieCaptionSaving": "Le split adapté te fait économiser {amount}/an par rapport à 100 % salaire",
+  "@dividendeEconomieCaptionSaving": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "dividendeEconomieCaptionAdjust": "Ajuste le split pour trouver une économie",
+  "dividendeRequalificationTitle": "Risque de requalification",
+  "dividendeRequalificationBody": "Si la part salaire descend sous ~60 % du bénéfice, le fisc peut requalifier une partie des dividendes en salaire (la pratique varie d'un canton à l'autre). À la clé : des cotisations AVS réclamées rétroactivement.",
+  "dividendeResultPartDividende": "Part dividende",
+  "dividendeResultPctBenefice": "{pct} % du bénéfice",
+  "@dividendeResultPctBenefice": {
+    "placeholders": {
+      "pct": {
+        "type": "int"
+      }
+    }
+  },
+  "dividendeResultChargeDividende": "Charge sur dividende",
+  "dividendeResultChargeTotale": "Charge totale (split)",
+  "dividendeEduImpotBeneficeTitle": "Impôt sur le bénéfice",
+  "dividendeEduImpotBeneficeBody": "Rappelle-toi : le bénéfice distribué en dividende est imposé une première fois au niveau de la société, puis au niveau personnel — c'est la double imposition économique.",
+  "dividendeEduAvsTitle": "AVS uniquement sur le salaire",
+  "dividendeEduAvsBody": "Les cotisations AVS (environ 12.5 % au total) ne s'appliquent qu'à la part salaire. Le dividende échappe aux charges sociales, d'où l'intérêt d'ajuster le split.",
+  "dividendeEduCantonalTitle": "Pratique cantonale",
+  "dividendeEduCantonalBody": "Les autorités fiscales surveillent les distributions excessives de dividendes et attendent un salaire « conforme au marché ». La limite varie selon les cantons.",
+  "dividendeCantonalDisclaimer": "L'impact fiscal dépend de la pratique cantonale. Les seuils de requalification varient d'un canton à l'autre.",
+  "dividendeComplianceEducatif": "Outil éducatif — ne constitue pas un conseil financier (LSFin).",
+  "dividendeComplianceSources": "Sources : LIFD art. 18, 20, 33 ; CO art. 660",
   "successionUrgence": "Urgence immédiate",
   "successionDemarches": "Démarches administratives",
   "successionLegale": "Succession légale",
@@ -7280,6 +7410,13 @@
     }
   },
   "@disabilityGapSavingsDetail": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "@disabilityInsSavingsDetail": {
     "placeholders": {
       "months": {
         "type": "String"
@@ -8507,6 +8644,31 @@
   "authErrorNotVerified": "Ton e-mail n’est pas encore vérifié. Vérifie ton e-mail puis réessaie.",
   "authErrorRegistration": "Inscription indisponible pour le moment. Utilise le mode local puis réessaie plus tard.",
   "authErrorAccountDeletedRecreate": "Ce compte Apple a été supprimé. Recrée ton compte avec Apple pour continuer.",
+  "authRecreateAccountCta": "Recréer mon compte",
+  "pillar3aProviderNameFintechA": "Fintech A",
+  "pillar3aProviderNameFintechB": "Fintech B",
+  "pillar3aProviderNameFintechC": "Fintech C",
+  "pillar3aProviderNameBanque": "Banque classique (compte 3a)",
+  "pillar3aProviderNameAssurance": "Assurance 3a (mixte)",
+  "pillar3aProviderDescFintechA": "App mobile, stratégies passives indexées, gestion automatisée",
+  "pillar3aProviderDescFintechB": "Frais parmi les plus bas, stratégies globales, flexibilité",
+  "pillar3aProviderDescFintechC": "Solution digitale d’une banque cantonale",
+  "pillar3aProviderDescBanque": "Taux fixe, non exposé aux marchés, rendement limité",
+  "pillar3aProviderDescAssurance": "Combine épargne et couverture (décès, invalidité). Frais élevés, durée d’engagement longue.",
+  "pillar3aProviderAssuranceWarning": "À {age} ans, selon les hypothèses de frais et de couverture retenues, l’écart de capital final entre une assurance 3a et un prestataire fintech est d’environ CHF {montant} sur {duree} ans dans ta simulation. Une assurance 3a lie épargne et couverture ; ses frais et sa flexibilité varient selon le contrat.",
+  "@pillar3aProviderAssuranceWarning": {
+    "placeholders": {
+      "age": {
+        "type": "int"
+      },
+      "montant": {
+        "type": "String"
+      },
+      "duree": {
+        "type": "int"
+      }
+    }
+  },
   "authErrorService": "Le service de compte n’est pas disponible sur cet environnement. Utilise le mode local.",
   "authHidePassword": "Masquer le mot de passe",
   "authShowPassword": "Afficher le mot de passe",
@@ -9006,7 +9168,7 @@
   "deuxViesGap": "Écart de {amount}/mois en faveur de {name}",
   "deuxViesLever": "{lever} comblerait {impact} de l'écart",
   "deuxViesTitle": "Vos deux vies",
-  "disabilityGapAct1Detail": "80 % de ton salaire versé par ton employeur",
+  "disabilityGapAct1Detail": "100 % de ton salaire (obligation légale employeur)",
   "disabilityGapAct1Duration": "Semaines 1-26",
   "disabilityGapAct1Label": "ACTE 1 · Employeur",
   "disabilityGapAct2DetailIjm": "80 % du salaire assuré",
@@ -9016,13 +9178,16 @@
   "disabilityGapAct2LabelNoIjm": "ACTE 2 · Pas d’IJM",
   "disabilityGapAct2SubIjm": "Assurance collective — 80 % pendant 720 jours max",
   "disabilityGapAct2SubNoIjm": "Sans IJM, tu passes directement à l’AI après l’employeur",
-  "disabilityGapAct3Detail": "AI {aiAmount} + LPP {lppAmount} = {totalAmount} CHF/mois",
+  "disabilityGapAct3Detail": "AI {aiAmount} + LPP estimée {lppAmount} ≈ {totalAmount} CHF/mois",
   "disabilityGapAct3Duration": "Après 24 mois",
   "disabilityGapAct3Label": "ACTE 3 · AI + LPP (définitif)",
   "disabilityGapAgeLabel": "{age} ans",
   "disabilityGapAiDetail": "Max {amount} CHF/mois — délai ~14 mois",
   "disabilityGapAiLabel": "AI (assurance invalidité)",
   "disabilityGapApgLabel": "APG / IJM (perte de gain)",
+  "disabilityInsNoCoverage": "⚠️ Aucune couverture — hors période employeur, c’est 0 CHF",
+  "disabilityInsPrivateCoverage": "Assurance privée personnelle (vérifie les conditions)",
+  "disabilityInsSavingsDetail": "{months} mois de charges (objectif : 6 mois)",
   "disabilityGapIjmCoverage": "80 % pendant 720 jours — assurance collective",
   "disabilityGapLppCovered": "Rente invalidité ≈ 40 % salaire coordonné (LPP art. 23)",
   "disabilityGapLppLabel": "LPP invalidité (2e pilier)",
@@ -9178,8 +9343,12 @@
   "expatRightAvsImpact": "Chaque année manquante réduit ta rente AVS d'environ {perYear} %. 10 ans = −{tenYear} % à vie.",
   "@expatRightAvsImpact": {
     "placeholders": {
-      "perYear": { "type": "String" },
-      "tenYear": { "type": "String" }
+      "perYear": {
+        "type": "String"
+      },
+      "tenYear": {
+        "type": "String"
+      }
     }
   },
   "expatRightLppLabel": "LPP — 2e pilier",
@@ -9963,9 +10132,9 @@
   "pensionFundReconnectionNeeded": "Reconnexion nécessaire",
   "pensionFundSyncDate": "Synchro {date}",
   "pensionFundTitle": "Données certifiées",
-  "pillar3aProviderDisclaimer": "Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consultez un ou une spécialiste.",
-  "pillar3aRealReturnDisclaimer": "Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consultez un ou une spécialiste avant toute décision.",
-  "pillar3aStaggeredDisclaimer": "Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consultez un ou une spécialiste en prévoyance avant toute décision.",
+  "pillar3aProviderDisclaimer": "Rendements passés ne préjugent pas des rendements futurs. Les frais et rendements moyens sont basés sur des données historiques simplifiées à titre pédagogique. Le choix d’un prestataire 3a dépend de ta situation personnelle, de ton profil de risque et de ton horizon de placement. MINT n’est pas un intermédiaire financier et ne fournit aucun conseil en placement. Consulte un ou une spécialiste.",
+  "pillar3aRealReturnDisclaimer": "Simulation pédagogique basée sur des hypothèses de rendement constant. Les rendements passés ne préjugent pas des rendements futurs. Les frais et rendements varient selon le prestataire. L’impact fiscal dépend de ton taux marginal réel. Base légale : OPP3, LIFD art. 33 al. 1 let. e. Consulte un ou une spécialiste avant toute décision.",
+  "pillar3aStaggeredDisclaimer": "Simulation pédagogique à titre indicatif. L’impôt sur le retrait en capital dépend du canton, de la commune, de la situation personnelle et du montant total retiré dans l’année fiscale. Les taux utilisés sont des moyennes cantonales simplifiées. Base légale : OPP3, LIFD art. 38. Consulte un ou une spécialiste en prévoyance avant toute décision.",
   "portfolioAppBarTitle": "Mon patrimoine",
   "portfolioCompleteProfile": "Complète ton profil pour débloquer ton indice de préparation.",
   "portfolioLibrePlacement": "Libre (Compte Placement)",
@@ -12732,6 +12901,12 @@
   "safeModeWhyBlockedBody": "En mode protection, MINT priorise la stabilité de trésorerie avant les optimisations fiscales et prévoyance.",
   "safeModeWhyBlockedLink": "Pourquoi est-ce en pause ?",
   "safeModeFormalDesendettementNote": "Ces retraits restent possibles en cas de procédure de désendettement formelle — parle à un·e spécialiste.",
+  "safeModeContinueAnyway": "Continuer quand même",
+  "safeModeCorrectData": "Corriger mes données",
+  "safeModeReasonsIntro": "Ce qui déclenche la mise en pause :",
+  "safeModeReasonDebtLoad": "Des dettes en cours sont enregistrées dans ton profil.",
+  "safeModeReasonHighDebtRatio": "Tes mensualités de crédit dépassent le seuil recommandé face à ton revenu net.",
+  "safeModeReasonThinCushion": "Ton épargne de précaution déclarée couvre moins de trois mois de charges.",
   "scanSummaryLppCertificate": "Certificat LPP scanné",
   "@scanSummaryLppCertificate": {
     "description": "Persistent event summary when an LPP certificate is scanned."
@@ -13420,5 +13595,353 @@
   "librePassageOptionFondsLabel": "Fonds de placement",
   "librePassageOptionFondsDescription": "Potentiel de rendement plus élevé. Risque de marché à accepter sur l’horizon.",
   "librePassageOptionFondsLegalRef": "OLP art. 19a",
-  "lppRescueDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch."
+  "lppRescueDisclaimer": "Outil éducatif · ne constitue pas un conseil financier au sens de la LSFin. Source : LFLP art. 3-4, OLP art. 10. Transfert d’office entre 6 mois et 2 ans en l’absence d’instruction (LFLP art. 4 al. 2). Avoirs oubliés : sfbvg.ch.",
+  "lppRescueSemanticsLabel": "Sauvetage LPP 2e pilier libre passage",
+  "lppRescueTitle": "Opération sauvetage 2e pilier",
+  "lppRescueDaysLeft": "Il te reste {days} jours pour agir",
+  "@lppRescueDaysLeft": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "lppRescueBalance": "Ton avoir LPP : CHF {balance}",
+  "@lppRescueBalance": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      }
+    }
+  },
+  "lppRescueOptionLabel": "Option {number} : {label}",
+  "@lppRescueOptionLabel": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "lppRescueRecommended": "Recommandé",
+  "lppRescueGainPositive": "+CHF {gain} sur 5 ans",
+  "@lppRescueGainPositive": {
+    "placeholders": {
+      "gain": {
+        "type": "String"
+      }
+    }
+  },
+  "lppRescueGainLoss": "-CHF {gain} sur 5 ans",
+  "@lppRescueGainLoss": {
+    "placeholders": {
+      "gain": {
+        "type": "String"
+      }
+    }
+  },
+  "lppRescueSuppletiveTitle": "Ne rien faire = institution supplétive",
+  "lppRescueSuppletiveBody": "Le taux technique est bas et les frais élevés. Un avoir de CHF {balance} peut perdre jusqu’à CHF {loss} sur 5 ans vs un compte de libre passage adapté.",
+  "@lppRescueSuppletiveBody": {
+    "placeholders": {
+      "balance": {
+        "type": "String"
+      },
+      "loss": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNext3aTeachBackQuestion": "Que dois-tu vérifier avant de choisir combien verser sur ton 3a cette année ?",
+  "mintNext3aTeachBackChoiceAnnualTotal": "Le total que toutes mes banques et assurances 3a ont confirmé avoir reçu cette année, sans compter un transfert d’un 3a à un autre.",
+  "mintNext3aTeachBackChoiceLatestPayment": "Seulement le dernier débit de mon compte bancaire.",
+  "mintNext3aTeachBackChoicePayMax": "Le maximum tout de suite, sans vérification.",
+  "mintNext3aTeachBackFeedbackCorrect": "Oui. Vérifie ce que tous tes 3a ont confirmé avoir reçu cette année. Un transfert entre deux 3a ne s’ajoute pas au total.",
+  "mintNext3aTeachBackFeedbackRetry": "Pas tout à fait. Un débit sur ton compte ne prouve pas encore que ton 3a a reçu l’argent. Vérifie les confirmations de tous tes 3a.",
+  "mintNext3aCountingHelpTitle": "Que faut-il compter ?",
+  "mintNext3aCountingHelpBody": "Compte seulement l’argent nouveau que tes 3a confirment avoir reçu pour cette année. Un transfert d’un 3a à un autre ne s’ajoute pas.",
+  "mintNext3aCountingHelpUncertain": "Si un remboursement, un rachat rétroactif ou une correction apparaît, ne devine pas : vérifie le justificatif.",
+  "mintNext3aPersonalUnavailable": "Ton calcul personnel n’est pas disponible. Vérifie ton total annuel reçu ; aucun montant fiscal personnel n’est calculé.",
+  "mintNext3aTaskTitle": "Vérifier mon total 3a annuel",
+  "mintNext3aTaskBody": "Additionne les versements que toutes tes banques et assurances 3a ont confirmé avoir reçus pour {year}. MINT ne choisit aucun montant et n’effectue aucun versement.",
+  "mintNext3aStorageDisclosure": "Si tu la gardes, seule cette étape sera enregistrée sur cet appareil. Tes réponses et calculs de ce parcours seront effacés.",
+  "mintNext3aSave": "Garder cette étape",
+  "mintNext3aLeaveWithoutSaving": "Quitter sans la garder",
+  "mintNext3aSavedTitle": "Étape gardée",
+  "mintNext3aSavedLocation": "Tu la retrouveras dans Aujourd’hui.",
+  "mintNext3aExpiryDisclosure": "Elle sera supprimée automatiquement le 31 janvier {year}. Tu peux la supprimer avant.",
+  "mintNext3aReturnToday": "Retour à Aujourd’hui",
+  "mintNext3aTodayStatus": "{year} · À faire",
+  "mintNext3aTodayDoneStatus": "{year} · Terminé",
+  "mintNext3aMarkDone": "J’ai vérifié",
+  "mintNext3aDoneTitle": "C’est fait",
+  "mintNext3aOpenTask": "Ouvrir",
+  "mintNext3aDelete": "Supprimer cette étape",
+  "mintNext3aDeleteQuestion": "Supprimer cette prochaine étape ?",
+  "mintNext3aDeleteBoundary": "Le parcours financier n’est pas affecté.",
+  "mintNext3aCancel": "Annuler",
+  "mintNext3aDeleteConfirm": "Supprimer",
+  "mintNext3aSafeExitTitle": "Tu veux t’arrêter ici ?",
+  "mintNext3aSafeExitBody": "Rien de ce parcours ne sera enregistré.",
+  "mintNext3aSafeExitResume": "Continuer ici",
+  "mintNext3aSafeExitLeave": "Quitter sans enregistrer",
+  "mintNext3aStorageFailure": "{kind, select, read{Impossible de vérifier cette étape sur cet appareil. Elle peut encore être enregistrée.} verifyRead{Mint n’a pas pu vérifier si cette étape est bien enregistrée. Elle peut l’être.} delete{Impossible de supprimer cette étape sur cet appareil. Elle est encore enregistrée.} cleanupDelete{Mint n’a pas pu supprimer cette étape. Elle est encore enregistrée. Tu peux réessayer maintenant.} complete{Impossible de marquer cette étape comme terminée. Elle reste enregistrée comme à faire.} other{Impossible de garder cette étape sur cet appareil. Rien n’a été enregistré.}}",
+  "mintNext3aCleanupPending": "Suppression de cette étape en cours…",
+  "housingExplore": "Comprendre ma situation de logement",
+  "housingQuestion": "Pour le logement où tu vis aujourd’hui…",
+  "housingTenant": "Je le loue",
+  "housingOwnerOccupier": "J’en possède tout ou partie",
+  "housingOther": "Je suis dans une autre situation",
+  "housingUnknown": "Je ne sais pas",
+  "housingContinue": "Continuer",
+  "housingTenantBoundary": "Tu loues ce logement. Les questions fiscales liées à la propriété ne te concernent pas ici.",
+  "housingOwnerBoundary": "Ta réponse prépare seulement les prochaines questions. Aucun avantage fiscal n’est encore calculé.",
+  "housingOtherHelp": "Certaines situations ne sont ni simplement locataire ni propriétaire. Nous clarifierons sans deviner.",
+  "housingUnknownHelp": "Tu peux vérifier ton bail ou ton acte. Nous ne déduisons rien de cette incertitude.",
+  "housingBack": "Retour",
+  "housingFinish": "Retour à l’aperçu",
+  "housingSafeExit": "Faire une pause",
+  "housingResume": "Continuer ici",
+  "housingLeaveWithoutSaving": "Quitter sans enregistrer",
+  "housingMortgageQuestion": "Ce logement est-il financé par une hypothèque ?",
+  "housingMortgageYes": "Oui",
+  "housingMortgageNo": "Non",
+  "housingMortgageUnknown": "Je ne sais pas",
+  "housingMortgageYesBoundary": "Cette réponse permettra de poser les bonnes questions sur le financement. Rien n’est encore calculé.",
+  "housingMortgageNoBoundary": "Cette réponse permettra de poser les bonnes questions sur la propriété. Rien n’est encore calculé.",
+  "housingMortgageUnknownBoundary": "Tu peux vérifier ton relevé hypothécaire ou demander à ton établissement. Mint ne déduit rien de cette incertitude.",
+  "mortgageStatementQuestion": "As-tu l’attestation annuelle de ton hypothèque sous la main ?",
+  "mortgageStatementReady": "Oui, je l’ai",
+  "mortgageStatementFindLater": "Je la chercherai plus tard",
+  "mortgageStatementUnknown": "Je ne sais pas quel document chercher",
+  "mortgageStatementReadyBoundary": "Parfait. Plus tard, Mint pourra t’aider à relever les données utiles de ce document. Pour l’instant, aucun chiffre n’est lu ni enregistré.",
+  "mortgageStatementFindLaterBoundary": "Pas de problème. Tu pourras reprendre quand tu l’auras retrouvée. Pour l’instant, aucun chiffre n’est demandé ni enregistré.",
+  "mortgageStatementUnknownBoundary": "Mint t’expliquera comment reconnaître le bon document avant toute saisie. Pour l’instant, aucun chiffre n’est demandé ni enregistré.",
+  "mortgageInterestQuestion": "Quel montant d’intérêts hypothécaires est indiqué pour l’année ?",
+  "mortgageInterestHint": "Recopie uniquement le total annuel indiqué sur l’attestation. Mint ne calcule encore rien.",
+  "mortgageInterestLabel": "Intérêts annuels",
+  "mortgageInterestBoundary": "Pour {year}, tu as relevé CHF {amount} d’intérêts annuels. Ce chiffre reste local et aucune économie fiscale n’est encore calculée.",
+  "@mortgageInterestBoundary": {
+    "description": "Locally entered annual mortgage interest review, bound to the user-declared statement year.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "4’250.50"
+      },
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "mortgageDebtQuestion": "Quel solde de dette hypothécaire est indiqué au 31 décembre {year} ?",
+  "mortgageDebtHint": "Recopie le solde indiqué sur la même attestation. Mint ne déduit rien de ce montant seul.",
+  "mortgageDebtLabel": "Dette au 31 décembre",
+  "mortgageReviewTitle": "Ton attestation {year}, en deux chiffres",
+  "mortgageReviewInterest": "Intérêts annuels : CHF {amount}",
+  "mortgageReviewDebt": "Dette au 31 décembre : CHF {amount}",
+  "mortgageReviewBoundary": "Ces deux chiffres restent locaux. Ils ne constituent ni une déduction fiscale confirmée ni un résultat.",
+  "@mortgageReviewInterest": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "@mortgageReviewDebt": {
+    "description": "Locally entered CHF amount shown in the mortgage statement review.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "620’000"
+      }
+    }
+  },
+  "mortgageStatementYearLabel": "Année inscrite sur l’attestation",
+  "mortgageStatementYearHint": "Par exemple 2025",
+  "@mortgageDebtQuestion": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "@mortgageReviewTitle": {
+    "description": "User-declared mortgage statement year shown on the question or review.",
+    "placeholders": {
+      "year": {
+        "type": "int",
+        "example": "2025"
+      }
+    }
+  },
+  "housingSave": "Enregistrer ces informations",
+  "housingSaveError": "Impossible d’enregistrer pour l’instant. Rien n’a été perdu.",
+  "housingSavedTitle": "Ce que MINT sait de ton logement",
+  "housingSavedBody": "Enregistré sur cet appareil. Tu peux corriger ou supprimer ces informations à tout moment.",
+  "housingSavedProvenance": "Source : {source} · mise à jour le {date}.",
+  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "housingSavedSourceHousingFlow": "saisi par toi dans MINT",
+  "housingSavedSourceUnknown": "à vérifier",
+  "housingSavedPeriod": "Période du relevé : {year}.",
+  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "housingSavedEdit": "Corriger",
+  "housingSavedDelete": "Supprimer ces informations",
+  "housingSavedDeleteTitle": "Supprimer les informations logement ?",
+  "housingSavedDeleteBody": "MINT ne les utilisera plus dans ses prochains éclairages.",
+  "housingSavedDeleteCancel": "Garder",
+  "housingSavedDeleteConfirm": "Supprimer",
+  "mintNextDomicileTitle": "Ton domicile fiscal",
+  "mintNextDomicileQuestion": "Où habites-tu ?",
+  "mintNextDomicileWhy": "Ton canton et ta commune déterminent comment tes impôts sont calculés.",
+  "mintNextDomicileCantonLabel": "Canton",
+  "mintNextDomicileCommuneLabel": "Commune",
+  "mintNextDomicileCommuneHint": "Le nom de ta commune",
+  "mintNextDomicileContinue": "Continuer",
+  "mintNextDomicileBack": "Retour",
+  "mintNextDomicileReviewTitle": "MINT va retenir",
+  "mintNextDomicileReviewSource": "Déclaré par toi, le {date}",
+  "@mintNextDomicileReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextDomicileConfirm": "Enregistrer",
+  "mintNextDomicileSavedTitle": "Domicile enregistré",
+  "mintNextDomicileEdit": "Modifier",
+  "mintNextDomicileDelete": "Supprimer",
+  "mintNextDomicileDeleteTitle": "Supprimer ton domicile ?",
+  "mintNextDomicileDeleteBody": "MINT oubliera ta commune. Ton canton reste utilisé par ton profil.",
+  "mintNextDomicileDeleteCancel": "Garder",
+  "mintNextDomicileDeleteConfirm": "Supprimer",
+  "mintNextDomicileSafeExit": "Quitter sans enregistrer",
+  "mintNextDomicileErrorMissing": "Choisis ton canton et indique ta commune pour continuer.",
+  "mintNextDomicileSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
+  "mintNextEtatCivilTitle": "Ton état civil",
+  "mintNextEtatCivilQuestion": "Quelle est ta situation ?",
+  "mintNextEtatCivilHint": "Pour la fiscalité, ta situation au 31 décembre fait foi.",
+  "mintNextEtatCivilStatusCelibataire": "Célibataire",
+  "mintNextEtatCivilStatusMarie": "Marié·e",
+  "mintNextEtatCivilStatusPartenariatEnregistre": "En partenariat enregistré",
+  "mintNextEtatCivilStatusConcubinage": "En concubinage",
+  "mintNextEtatCivilStatusDivorce": "Divorcé·e",
+  "mintNextEtatCivilStatusVeuf": "Veuf·ve",
+  "mintNextEtatCivilContinue": "Continuer",
+  "mintNextEtatCivilBack": "Retour",
+  "mintNextEtatCivilReviewTitle": "MINT va retenir",
+  "mintNextEtatCivilReviewSource": "Déclaré par toi, le {date}",
+  "@mintNextEtatCivilReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextEtatCivilConfirm": "Enregistrer",
+  "mintNextEtatCivilSavedTitle": "État civil enregistré",
+  "mintNextEtatCivilEdit": "Modifier",
+  "mintNextEtatCivilDelete": "Supprimer",
+  "mintNextEtatCivilDeleteTitle": "Supprimer ton état civil ?",
+  "mintNextEtatCivilDeleteBody": "MINT oubliera ta situation civile. Tes autres informations ne changent pas.",
+  "mintNextEtatCivilDeleteCancel": "Garder",
+  "mintNextEtatCivilDeleteConfirm": "Supprimer",
+  "mintNextEtatCivilSafeExit": "Quitter sans enregistrer",
+  "mintNextEtatCivilErrorMissing": "Choisis ta situation pour continuer.",
+  "mintNextEtatCivilSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
+  "mintNextRevenuTitle": "Ton revenu",
+  "mintNextRevenuQuestion": "Combien reçois-tu ?",
+  "mintNextRevenuHint": "Ton revenu net, tel qu'il arrive sur ton compte.",
+  "mintNextRevenuAmountLabel": "Montant (CHF)",
+  "mintNextRevenuAmountHint": "Par exemple 6'500",
+  "mintNextRevenuPeriodMonthly": "Par mois",
+  "mintNextRevenuPeriodYearly": "Par an",
+  "mintNextRevenuContinue": "Continuer",
+  "mintNextRevenuBack": "Retour",
+  "mintNextRevenuReviewTitle": "MINT va retenir",
+  "mintNextRevenuReviewSource": "Déclaré par toi, le {date}",
+  "@mintNextRevenuReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextRevenuConfirm": "Enregistrer",
+  "mintNextRevenuSavedTitle": "Revenu enregistré",
+  "mintNextRevenuEdit": "Modifier",
+  "mintNextRevenuDelete": "Supprimer",
+  "mintNextRevenuDeleteTitle": "Supprimer ton revenu ?",
+  "mintNextRevenuDeleteBody": "MINT oubliera ton revenu. Tes autres informations ne changent pas.",
+  "mintNextRevenuDeleteCancel": "Garder",
+  "mintNextRevenuDeleteConfirm": "Supprimer",
+  "mintNextRevenuSafeExit": "Quitter sans enregistrer",
+  "mintNextRevenuErrorMissing": "Indique ton montant et choisis une période pour continuer.",
+  "mintNextRevenuSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
+  "mintNextLppAffiliationTitle": "Ta caisse de pension",
+  "mintNextLppAffiliationQuestion": "Es-tu affilié·e à une caisse de pension LPP ?",
+  "mintNextLppAffiliationHint": "Être affilié·e, c'est cotiser aujourd'hui au 2e pilier via ton employeur. Avoir un certificat ou un avoir LPP d'un ancien emploi ne suffit pas.",
+  "mintNextLppAffiliationYes": "Oui, je cotise actuellement",
+  "mintNextLppAffiliationNo": "Non, je ne cotise pas actuellement",
+  "mintNextLppAffiliationStatusYes": "Affilié·e à une caisse de pension",
+  "mintNextLppAffiliationStatusNo": "Pas affilié·e actuellement",
+  "mintNextLppAffiliationContinue": "Continuer",
+  "mintNextLppAffiliationBack": "Retour",
+  "mintNextLppAffiliationReviewTitle": "MINT va retenir",
+  "mintNextLppAffiliationReviewSource": "Déclaré par toi, le {date}",
+  "@mintNextLppAffiliationReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextLppAffiliationConfirm": "Enregistrer",
+  "mintNextLppAffiliationSavedTitle": "Caisse de pension enregistrée",
+  "mintNextLppAffiliationEdit": "Modifier",
+  "mintNextLppAffiliationDelete": "Supprimer",
+  "mintNextLppAffiliationDeleteTitle": "Supprimer ta réponse ?",
+  "mintNextLppAffiliationDeleteBody": "MINT oubliera ta réponse : ton affiliation redeviendra inconnue. Tes autres informations ne changent pas.",
+  "mintNextLppAffiliationDeleteCancel": "Garder",
+  "mintNextLppAffiliationDeleteConfirm": "Supprimer",
+  "mintNextLppAffiliationSafeExit": "Quitter sans enregistrer",
+  "mintNextLppAffiliationErrorMissing": "Choisis Oui ou Non pour continuer.",
+  "mintNextLppAffiliationSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
+  "mintNextVersements3aTitle": "Tes versements 3a",
+  "mintNextVersements3aListTitle": "Tes versements enregistrés",
+  "mintNextVersements3aYearTotal": "{year} · total {total}",
+  "@mintNextVersements3aYearTotal": {"placeholders": {"year": {"type": "String"}, "total": {"type": "String"}}},
+  "mintNextVersements3aQuestion": "Enregistrer ce versement",
+  "mintNextVersements3aHint": "Le montant et la date de crédit, tels qu'ils apparaissent sur ton compte 3a.",
+  "mintNextVersements3aAmountLabel": "Montant (CHF)",
+  "mintNextVersements3aAmountHint": "Par exemple 3'500",
+  "mintNextVersements3aDateLabel": "Date de crédit",
+  "mintNextVersements3aDateHint": "jj.mm.aaaa",
+  "mintNextVersements3aTaxYearLabel": "Année fiscale",
+  "mintNextVersements3aTaxYearHelper": "Par défaut celle de la date de crédit — modifiable pour un rachat.",
+  "mintNextVersements3aContinue": "Continuer",
+  "mintNextVersements3aBack": "Retour",
+  "mintNextVersements3aBackToList": "Retour à la liste",
+  "mintNextVersements3aReviewTitle": "MINT va retenir",
+  "mintNextVersements3aReviewTaxYear": "Compté pour l'année fiscale {year}",
+  "@mintNextVersements3aReviewTaxYear": {"placeholders": {"year": {"type": "String"}}},
+  "mintNextVersements3aEntryCredited": "Crédité le {date}",
+  "@mintNextVersements3aEntryCredited": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aConfirm": "Enregistrer",
+  "mintNextVersements3aAdd": "Ajouter un versement",
+  "mintNextVersements3aEdit": "Modifier",
+  "mintNextVersements3aDelete": "Supprimer",
+  "mintNextVersements3aDeleteEntryTitle": "Supprimer ce versement ?",
+  "mintNextVersements3aDeleteEntryBody": "MINT oubliera ce versement. Les autres ne changent pas.",
+  "mintNextVersements3aDeleteCancel": "Garder",
+  "mintNextVersements3aDeleteConfirm": "Supprimer",
+  "mintNextVersements3aSafeExit": "Quitter sans enregistrer",
+  "mintNextVersements3aErrorMissing": "Indique le montant et la date de crédit pour continuer.",
+  "mintNextVersements3aSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
+  "mintNextVersements3aReviewSource": "Déclaré par toi, le {date}",
+  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "mintNextVersements3aManage": "Gérer mes versements",
+  "mintNextVersements3aDeleteAll": "Tout supprimer",
+  "mintNextVersements3aDeleteAllTitle": "Supprimer tous tes versements ?",
+  "mintNextVersements3aDeleteAllBody": "MINT oubliera toute la liste. Tes autres informations ne changent pas.",
+  "mintNextMarge3aVerseRow": "Versé en {year}",
+  "@mintNextMarge3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "mintNextMarge3aPlafondRow": "Plafond {year}",
+  "@mintNextMarge3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "mintNextMarge3aMargeRow": "Marge restante",
+  "mintNextMarge3aDepasse": "Plafond dépassé de {amount}",
+  "@mintNextMarge3aDepasse": {"placeholders": {"amount": {"type": "String"}}},
+  "mintNextMarge3aProvenance": "OPP3 art. 7 · plafond {year} · jeu {version}",
+  "@mintNextMarge3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "mintNextMarge3aStateLppUnknown": "Indique si tu es affilié·e à une caisse de pension pour voir ton plafond 3a.",
+  "mintNextMarge3aStateIncomeMissing": "Indique ton revenu pour calculer ton plafond 3a sans caisse de pension.",
+  "mintNextMarge3aStateContributionsMissing": "Enregistre tes versements pour voir ta marge 3a.",
+  "mintNextMarge3aStateUnattested": "Le plafond {year} n'est pas encore attesté dans MINT.",
+  "@mintNextMarge3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "mintNext3aDomicileKnown": "Domicile : {commune} ({canton})",
+  "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
+  "mintNext3aDomicileMissing": "Domicile : pas encore renseigné"
 }

@@ -9,12 +9,59 @@
 ///   - FINMA circular 2023/1 (operational risk)
 library;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer' as dev;
+import 'dart:io' show File;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
+import 'package:path_provider/path_provider.dart'
+    show getTemporaryDirectory;
+import 'package:mint_mobile/models/mint_next_housing_fact.dart';
+
+enum CanonicalHousingStatus { missing, present, deleted, corrupt, unavailable }
+
+class CanonicalHousingRead {
+  final CanonicalHousingStatus status;
+  final MintNextHousingFact? fact;
+  const CanonicalHousingRead(this.status, [this.fact]);
+}
+
+class CanonicalCivilStatusRead {
+  final CanonicalHousingStatus status;
+  final MintNextCivilStatusFact? fact;
+  const CanonicalCivilStatusRead(this.status, [this.fact]);
+}
+
+class CanonicalLppAffiliationRead {
+  final CanonicalHousingStatus status;
+  final MintNextLppAffiliationFact? fact;
+  const CanonicalLppAffiliationRead(this.status, [this.fact]);
+}
+
+class CanonicalVersements3aRead {
+  final CanonicalHousingStatus status;
+  final MintNextVersements3aFact? fact;
+  const CanonicalVersements3aRead(this.status, [this.fact]);
+}
+
+class CanonicalRevenuRead {
+  final CanonicalHousingStatus status;
+  final MintNextRevenuFact? fact;
+
+  /// Tombstone uniquement : faux tant que la projection legacy périmée n'a
+  /// pas encore été purgée du cache (fenêtre d'échec : tombstone canonique
+  /// commis mais nettoyage du cache raté — review Codex Lego 3 P1).
+  final bool projectionPurged;
+  const CanonicalRevenuRead(this.status,
+      [this.fact, this.projectionPurged = true]);
+}
 
 class SecureWizardSealResult {
   final Map<String, dynamic> cleaned;
@@ -26,6 +73,13 @@ class SecureWizardSealResult {
   });
 }
 
+class SecureDeleteReconciliation {
+  final Map<String, dynamic> answers;
+  final bool rewriteRequired;
+
+  const SecureDeleteReconciliation(this.answers, this.rewriteRequired);
+}
+
 enum WizardStorageClassification {
   sensitive,
   nonSensitive,
@@ -34,6 +88,33 @@ enum WizardStorageClassification {
 }
 
 class SecureWizardStore {
+  static Completer<void> _canonicalMutationDone = Completer<void>()..complete();
+  static int _canonicalResetGeneration = 0;
+
+  static Future<T> runCanonicalHousingTransaction<T>(
+      Future<T> Function() action) async {
+    final resetAtRequest = _canonicalResetGeneration;
+    final previousDone = _canonicalMutationDone;
+    final done = Completer<void>();
+    _canonicalMutationDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
+    if (_canonicalResetGeneration != resetAtRequest) {
+      done.complete();
+      throw StateError('Secure reset superseded housing transaction');
+    }
+    try {
+      final result = await action();
+      if (_canonicalResetGeneration != resetAtRequest) {
+        throw StateError('Secure reset superseded housing transaction');
+      }
+      return result;
+    } finally {
+      done.complete();
+    }
+  }
+
   static const _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(encryptedSharedPreferences: true),
     iOptions: IOSOptions(
@@ -41,6 +122,28 @@ class SecureWizardStore {
   );
 
   static const _manifestKey = '_mint_wizard_secure_keys_v1';
+  static const _deleteJournalKey = '_mint_wizard_delete_journal_v2';
+  static const _canonicalHousingKey = '_mint_canonical_housing_v1';
+  static const _canonicalCivilStatusKey = '_mint_canonical_civil_status_v1';
+  static const _canonicalHousingInitializedKey =
+      '_mint_canonical_housing_initialized_v1';
+  static const _canonicalCivilStatusInitializedKey =
+      '_mint_canonical_civil_status_initialized_v1';
+  static const _canonicalRevenuKey = '_mint_canonical_revenu_v1';
+  static const _canonicalRevenuInitializedKey =
+      '_mint_canonical_revenu_initialized_v1';
+  static const _canonicalLppAffiliationKey =
+      '_mint_canonical_lpp_affiliation_v1';
+  static const _canonicalLppAffiliationInitializedKey =
+      '_mint_canonical_lpp_affiliation_initialized_v1';
+  static const _canonicalVersements3aKey = '_mint_canonical_versements_3a_v1';
+  static const _canonicalVersements3aInitializedKey =
+      '_mint_canonical_versements_3a_initialized_v1';
+  static int _processEpochCounter = 0;
+  static String _processEpoch = _newProcessEpoch();
+
+  static String _newProcessEpoch() =>
+      '${DateTime.now().microsecondsSinceEpoch}-${_processEpochCounter++}';
   static const _heldPrefix = '_mint_held_anonymous_wizard_';
   static const _heldManifestKey = '_mint_held_anonymous_wizard_secure_keys_v1';
 
@@ -76,10 +179,109 @@ class SecureWizardStore {
   // "never leak to production" reason.
   static final Map<String, String> _e2eSealFallbackStore = <String, String>{};
 
+  /// E2E harness only : le stash mémoire est adossé au tmp/ du container app
+  /// pour survivre aux relaunchs du harnais (un fait 100 % scellé n'a aucune
+  /// autre surface persistante quand le keychain du build CLI sim est sans
+  /// entitlement, -34018). Jamais SharedPreferences, jamais atteint en
+  /// release (gardé par [_sealFallbackEnabled], kReleaseMode-stripped) ;
+  /// purgé par clearState / désinstallation avec le container.
+  static bool _e2eSealFallbackHydrated = false;
+
+  /// Résolu par path_provider : Directory.systemTemp ne pointe pas vers un
+  /// chemin inscriptible du sandbox sim (preuve diag5 2026-08-11 : tmp/ du
+  /// container vide, fichier introuvable sur tout le device).
+  static Future<File> _sealFallbackFile() async => File(
+      '${(await getTemporaryDirectory()).path}/mint_e2e_seal_fallback.json');
+
+  static Future<void> _hydrateSealFallbackStore() async {
+    if (!_sealFallbackEnabled || _e2eSealFallbackHydrated) return;
+    _e2eSealFallbackHydrated = true;
+    try {
+      final decoded =
+          json.decode(await (await _sealFallbackFile()).readAsString());
+      if (decoded is Map<String, dynamic>) {
+        for (final entry in decoded.entries) {
+          if (entry.value is String) {
+            _e2eSealFallbackStore.putIfAbsent(
+                entry.key, () => entry.value as String);
+          }
+        }
+      }
+    } on Exception {
+      // Fichier absent = premier run du harnais.
+    }
+  }
+
+  /// E2E harness only : stash générique pour les clés hors wizard (session
+  /// AuthService). Le keychain d'une app re-signée ad hoc est FLAKY sur sim
+  /// (parfois vivant, souvent -34018) — sans session persistée, l'app
+  /// retombe sur le portail d'accueil au relaunch et toutes les surfaces
+  /// profondes deviennent injoignables (preuve diag9 2026-08-11). Null /
+  /// no-op hors fallback.
+  static Future<String?> e2eStashRead(String key) async {
+    if (!_sealFallbackEnabled) return null;
+    await _hydrateSealFallbackStore();
+    return _e2eSealFallbackStore[key];
+  }
+
+  static Future<void> e2eStashWrite(String key, String value) async {
+    if (!_sealFallbackEnabled) return;
+    await _hydrateSealFallbackStore();
+    _e2eSealFallbackStore[key] = value;
+    await _persistSealFallbackStore();
+  }
+
+  static Future<void> e2eStashDelete(Iterable<String> keys) async {
+    if (!_sealFallbackEnabled) return;
+    await _hydrateSealFallbackStore();
+    for (final key in keys) {
+      _e2eSealFallbackStore.remove(key);
+    }
+    await _persistSealFallbackStore();
+  }
+
+  static Future<void> _persistSealFallbackStore() async {
+    if (!_sealFallbackEnabled) return;
+    try {
+      final file = await _sealFallbackFile();
+      await file.writeAsString(json.encode(_e2eSealFallbackStore));
+      debugPrint('[SecureWizardStore] e2e stash persisted: ${file.path} '
+          '(${_e2eSealFallbackStore.length} keys)');
+    } on Object catch (e) {
+      // Best-effort harnais : le stash mémoire reste la session courante.
+      // debugPrint (pas dev.log) : visible dans os_log pour le diagnostic.
+      debugPrint('[SecureWizardStore] e2e stash persist FAILED: $e');
+    }
+  }
+
   /// Test seam mirroring `E2eRuntimeFlags.*Override`: forces the fallback on
   /// (or off) in widget/unit tests. Defaults to null -> the compile-time flag.
   @visibleForTesting
   static bool? debugSealFallbackOverride;
+
+  /// Failure-injection seam for atomic deletion tests.
+  @visibleForTesting
+  static Future<bool> Function(Set<String> keys)? debugDeleteKeysOverride;
+  static Future<bool> Function()? debugCommitDeleteOverride;
+  static Future<bool> Function()? debugFinalizeDeleteOverride;
+  @visibleForTesting
+  static Future<void> Function()? debugCanonicalMarkerWriteOverride;
+
+  static Future<void> restoreCanonical3aPayload(String? previous) async {
+    if (_sealFallbackEnabled) {
+      if (previous == null) {
+        _e2eSealFallbackStore.remove('_coach_3a_accounts_v1');
+      } else {
+        _e2eSealFallbackStore['_coach_3a_accounts_v1'] = previous;
+      }
+      return;
+    }
+    if (previous == null) {
+      await _storage.delete(key: '_coach_3a_accounts_v1');
+    } else {
+      await _storage.write(key: '_coach_3a_accounts_v1', value: previous);
+    }
+  }
 
   /// True only when the E2E seal fallback is active. Release short-circuits to
   /// false (const), so the fallback branches strip from the release snapshot.
@@ -91,6 +293,17 @@ class SecureWizardStore {
           defaultValue: false,
         );
   }
+
+  /// E2E harness only : vrai quand l'échec keychain est l'absence
+  /// d'entitlement attendue sous MINT_E2E_SEAL_FALLBACK (-34018, build CLI
+  /// sim linker-signed). Une purge est alors réussie côté keychain — le
+  /// stash purgé est le store autoritaire du harnais. Sans cette tolérance,
+  /// le flag « owned secure purge pending » ne se libère jamais et la purge
+  /// re-tourne à CHAQUE boot (preuve console diag4 2026-08-11), détruisant
+  /// les données scellées légitimes écrites après l'intention de purge.
+  /// Toujours faux en release.
+  static bool isTolerableE2eKeychainAbsence(Object error) =>
+      _sealFallbackEnabled && _isMissingEntitlement(error);
 
   static bool _isMissingEntitlement(Object error) {
     if (error is! PlatformException) return false;
@@ -113,7 +326,19 @@ class SecureWizardStore {
   @visibleForTesting
   static void resetSealFallbackForTest() {
     _e2eSealFallbackStore.clear();
+    _e2eSealFallbackHydrated = false;
     debugSealFallbackOverride = null;
+    debugDeleteKeysOverride = null;
+    debugCommitDeleteOverride = null;
+    debugFinalizeDeleteOverride = null;
+    debugCanonicalMarkerWriteOverride = null;
+    debugCanonicalCivilStatusWriteOverride = null;
+    _processEpoch = _newProcessEpoch();
+  }
+
+  @visibleForTesting
+  static void simulateNewProcessForTest() {
+    _processEpoch = _newProcessEpoch();
   }
 
   static const _classifiedSensitiveKeys = {
@@ -125,10 +350,42 @@ class SecureWizardStore {
     'q_pay_frequency',
     'q_self_employed_net_income_annual_chf',
     'q_target_retirement_age',
+    'q_housing_status',
+    'q_housing_mortgage_status',
+    'q_housing_mortgage_statement_availability',
+    'q_housing_mortgage_statement_year',
+    'q_housing_mortgage_annual_interest_cents',
+    'q_housing_mortgage_debt_balance_cents',
+    'q_housing_fact_asserted_at',
+    'q_housing_fact_source',
+    'q_housing_fact_schema_version',
+    'q_housing_fact_needs_confirmation',
+    'q_etat_civil_fact_asserted_at',
+    'q_etat_civil_fact_source',
+    'q_etat_civil_fact_schema_version',
+    'q_etat_civil_fact_needs_confirmation',
+    'q_revenu_fact_amount_cents',
+    'q_revenu_fact_period',
+    'q_revenu_fact_asserted_at',
+    'q_revenu_fact_source',
+    'q_revenu_fact_schema_version',
+    'q_revenu_fact_needs_confirmation',
+    'q_lpp_affiliation_fact_value',
+    'q_lpp_affiliation_fact_asserted_at',
+    'q_lpp_affiliation_fact_source',
+    'q_lpp_affiliation_fact_schema_version',
+    'q_lpp_affiliation_fact_needs_confirmation',
+    'q_versements_3a_fact_entries',
+    'q_versements_3a_fact_bucket_revisions',
+    'q_versements_3a_fact_asserted_at',
+    'q_versements_3a_fact_source',
+    'q_versements_3a_fact_schema_version',
+    'q_versements_3a_fact_needs_confirmation',
   };
 
   static const _nonSensitiveKeys = {
     'q_canton',
+    '_coach_3a_accounts_revision_v1',
   };
 
   static const _productPreferenceKeys = {
@@ -180,6 +437,7 @@ class SecureWizardStore {
     'q_total_3a',
     'q_3a_accounts_count',
     'q_3a_annual_contribution',
+    '_coach_3a_accounts_v1',
     '_coach_total_3a',
     'q_partner_salary',
     'q_partner_net_income_chf',
@@ -296,7 +554,9 @@ class SecureWizardStore {
         // E2E harness only (kReleaseMode-stripped): seal into a process-local
         // in-memory map so the flush succeeds off-keychain. NEVER reached in
         // release or in a default unit test.
+        await _hydrateSealFallbackStore();
         _e2eSealFallbackStore[key] = value;
+        await _persistSealFallbackStore();
         dev.log(
           'E2E seal fallback: sealed "$key" in debug in-memory store '
           '(keychain -34018, NOT a real keychain seal, NOT release)',
@@ -326,15 +586,722 @@ class SecureWizardStore {
     // authoritative store when active — a failed keychain read returns null
     // WITHOUT throwing (so a catch-only guard would silently lose the value),
     // and a live keychain read could return a stale value. Prefer the map.
+    await _hydrateSealFallbackStore();
     if (_sealFallbackEnabled && _e2eSealFallbackStore.containsKey(key)) {
       return _e2eSealFallbackStore[key];
     }
     try {
-      return await _storage.read(key: key);
+      final journal = await _readDeleteJournal();
+      final targets = _deleteJournalTargets(journal);
+      if (journal?['state'] == 'committed' && targets.contains(key)) {
+        return null;
+      }
+      final value = await _storage.read(key: key);
+      if (value != null) return value;
+      if (journal != null &&
+          journal['state'] == 'prepared' &&
+          (journal['values'] as Map<String, dynamic>).containsKey(key)) {
+        return (journal['values'] as Map<String, dynamic>)[key] as String?;
+      }
+      return null;
     } on Exception {
       if (_sealFallbackEnabled) return _e2eSealFallbackStore[key];
       return null;
     }
+  }
+
+  static Future<Map<String, dynamic>?> _readDeleteJournal() async {
+    final raw = await _storage.read(key: _deleteJournalKey);
+    if (raw == null || raw.isEmpty) return null;
+    final decoded = json.decode(raw);
+    if (decoded is! Map) return null;
+    if (decoded['state'] == 'prepared' && decoded['values'] is Map) {
+      return <String, dynamic>{
+        'state': 'prepared',
+        'values': Map<String, dynamic>.from(decoded['values'] as Map),
+      };
+    }
+    if (decoded['state'] == 'committed' && decoded['keys'] is List) {
+      return <String, dynamic>{
+        'state': 'committed',
+        'keys': (decoded['keys'] as List).whereType<String>().toList(),
+        'epoch': decoded['epoch'],
+      };
+    }
+    return null;
+  }
+
+  static Set<String> _deleteJournalTargets(Map<String, dynamic>? journal) {
+    if (journal == null) return {};
+    if (journal['state'] == 'prepared') {
+      return (journal['values'] as Map<String, dynamic>).keys.toSet();
+    }
+    return (journal['keys'] as List<String>).toSet();
+  }
+
+  /// Durably stages encrypted copies before any original is removed.
+  /// The manifest is written last, making an interrupted prepare harmless.
+  static Future<bool> prepareDeleteTransaction(Iterable<String> keys) async {
+    final targets = keys.where(isSensitive).toSet();
+    try {
+      final existing = await _readDeleteJournal();
+      if (existing != null) {
+        final existingKeys = _deleteJournalTargets(existing);
+        if (existing['state'] == 'prepared') {
+          return setEquals(existingKeys, targets);
+        }
+        if (setEquals(existingKeys, targets)) return true;
+        if (!await finalizeDeleteTransaction()) return false;
+      }
+      final values = <String, String?>{};
+      for (final key in targets) {
+        // Strict reads: an exception is a failed prepare, not "absent".
+        values[key] = await _storage.read(key: key);
+      }
+      await _storage.write(
+        key: _deleteJournalKey,
+        value: json.encode({'state': 'prepared', 'values': values}),
+      );
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<bool> commitDeleteTransaction() async {
+    final override = debugCommitDeleteOverride;
+    if (override != null) return override();
+    try {
+      final journal = await _readDeleteJournal();
+      if (journal == null) return true;
+      final targets = _deleteJournalTargets(journal);
+      await _storage.write(
+        key: _deleteJournalKey,
+        value: json.encode({
+          'state': 'committed',
+          'keys': targets.toList(),
+          'epoch': _processEpoch,
+        }),
+      );
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  /// Removes durable recovery material after the plain answer-map commit.
+  static Future<bool> finalizeDeleteTransaction() async {
+    final override = debugFinalizeDeleteOverride;
+    if (override != null) return override();
+    try {
+      await _storage.delete(key: _deleteJournalKey);
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  /// Uses the durable plain-map truth to resolve a crash between map commit and
+  /// journal commit. Presence of any target placeholder means rollback remains
+  /// necessary; otherwise deletion committed and only cleanup remains.
+  static Future<SecureDeleteReconciliation> reconcileDeleteTransaction(
+      Map<String, dynamic> persisted) async {
+    try {
+      final journal = await _readDeleteJournal();
+      if (journal == null) return SecureDeleteReconciliation(persisted, false);
+      final targets = _deleteJournalTargets(journal);
+      final anyPresent = targets.any(persisted.containsKey);
+      if (journal['state'] == 'prepared' && !anyPresent) {
+        await commitDeleteTransaction();
+        return SecureDeleteReconciliation(persisted, false);
+      }
+      if (journal['state'] == 'committed') {
+        if (!anyPresent) {
+          // A second read in the same process can observe SharedPreferences'
+          // cleaned cache before NSUserDefaults has flushed it. Only a new
+          // process epoch observing an already-clean raw map may retire the
+          // tombstone.
+          if (journal['epoch'] != _processEpoch) {
+            await finalizeDeleteTransaction();
+          }
+          return SecureDeleteReconciliation(persisted, false);
+        }
+        final cleaned = Map<String, dynamic>.from(persisted)
+          ..removeWhere((key, _) => targets.contains(key));
+        await _storage.write(
+          key: _deleteJournalKey,
+          value: json.encode({
+            'state': 'committed',
+            'keys': targets.toList(),
+            'epoch': _processEpoch,
+          }),
+        );
+        return SecureDeleteReconciliation(cleaned, true);
+      }
+    } on Exception {
+      // A later load retries; never discard recovery material on ambiguity.
+    }
+    return SecureDeleteReconciliation(persisted, false);
+  }
+
+  static Future<Set<String>> committedDeleteTargets() async {
+    try {
+      final journal = await _readDeleteJournal();
+      if (journal?['state'] != 'committed') return {};
+      return _deleteJournalTargets(journal)
+        ..removeAll(MintNextHousingFact.wizardKeys);
+    } on Exception {
+      return {};
+    }
+  }
+
+  static Future<CanonicalHousingRead> readCanonicalHousing() async {
+    late final String? raw;
+    try {
+      raw = await _storage.read(key: _canonicalHousingKey);
+    } on Exception {
+      return const CanonicalHousingRead(CanonicalHousingStatus.unavailable);
+    }
+    if (raw == null) {
+      return const CanonicalHousingRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalHousingRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalHousingRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextHousingFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalHousingRead(CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalHousingRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalHousingRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  static Future<bool> writeCanonicalHousing(MintNextHousingFact fact) async {
+    try {
+      await _storage.write(
+        key: _canonicalHousingKey,
+        value:
+            json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}),
+      );
+      try {
+        final override = debugCanonicalMarkerWriteOverride;
+        if (override != null) {
+          await override();
+        } else {
+          await _storage.write(
+              key: _canonicalHousingInitializedKey, value: '1');
+        }
+      } catch (_) {
+        // The single canonical record already closes migration while present.
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<bool> writeCanonicalHousingDeleted() async {
+    try {
+      await _storage.write(
+        key: _canonicalHousingKey,
+        value: json.encode({'state': 'deleted'}),
+      );
+      try {
+        final override = debugCanonicalMarkerWriteOverride;
+        if (override != null) {
+          await override();
+        } else {
+          await _storage.write(
+              key: _canonicalHousingInitializedKey, value: '1');
+        }
+      } catch (_) {
+        // The value-free canonical tombstone is already authoritative.
+      }
+      return true;
+    } on Exception {
+      return false;
+    }
+  }
+
+  static Future<Map<String, dynamic>> canonicalizeHousingAnswers(
+      Map<String, dynamic> answers) async {
+    final result = Map<String, dynamic>.from(answers)
+      ..removeWhere((key, _) => MintNextHousingFact.wizardKeys.contains(key));
+    final canonical = await readCanonicalHousing();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      // The wizard cache still projects secure placeholders, so its per-key
+      // encrypted values remain required while the canonical fact is present.
+      result.addAll(canonical.fact!.toWizardAnswers());
+    } else if (canonical.status == CanonicalHousingStatus.deleted) {
+      // Tombstone authority is independent of cleanup success. Retry obsolete
+      // legacy PII removal on every load/save until secure storage cooperates.
+      await deleteKeys(MintNextHousingFact.wizardKeys);
+    } else if (canonical.status == CanonicalHousingStatus.missing) {
+      try {
+        if (await _storage.read(key: _canonicalHousingInitializedKey) != null) {
+          return result;
+        }
+      } on Exception {
+        return result;
+      }
+      // Legacy answer maps contain `__secure__` placeholders. Only the truly
+      // missing-canonical branch may consult their per-key encrypted values.
+      final restoredLegacy = await restoreSensitiveKeys(answers);
+      final legacy = MintNextHousingFact.fromWizardAnswers(restoredLegacy);
+      if (legacy != null && await writeCanonicalHousing(legacy)) {
+        result.addAll(legacy.toWizardAnswers());
+      }
+    }
+    return result;
+  }
+
+  static Future<CanonicalCivilStatusRead> readCanonicalCivilStatus() async {
+    String? raw;
+    // E2E harness only (kReleaseMode-stripped) : sous fallback, le stash
+    // (mémoire + tmp/ du container) fait autorité — un keychain -34018
+    // rendrait sinon l'enregistrement invisible juste après son write.
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalCivilStatusKey)) {
+      raw = _e2eSealFallbackStore[_canonicalCivilStatusKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalCivilStatusKey);
+      } on Exception {
+        return const CanonicalCivilStatusRead(
+            CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalCivilStatusRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextCivilStatusFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalCivilStatusRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalCivilStatusRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Seam de test : force le résultat du write canonique état civil.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalCivilStatusWriteOverride;
+
+  static Future<bool> writeCanonicalCivilStatus(
+      MintNextCivilStatusFact fact) async {
+    final override = debugCanonicalCivilStatusWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalCivilStatusKey,
+        _canonicalCivilStatusInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalCivilStatusDeleted() =>
+      _writeCanonicalSealedRecord(_canonicalCivilStatusKey,
+          _canonicalCivilStatusInitializedKey, json.encode({'state': 'deleted'}));
+
+  static Future<bool> _writeCanonicalSealedRecord(
+      String key, String markerKey, String record) async {
+    try {
+      await _storage.write(key: key, value: record);
+    } on Exception catch (e) {
+      if (!(_sealFallbackEnabled && _isMissingEntitlement(e))) {
+        return false;
+      }
+      // E2E harness only (kReleaseMode-stripped) : l'app re-signée ad hoc
+      // perd le droit keychain (-34018) — l'enregistrement canonique bascule
+      // dans le stash (mémoire + tmp du container), même contrat que
+      // `write()`. Chemin dégradé documenté, jamais atteint en release.
+      await _hydrateSealFallbackStore();
+      _e2eSealFallbackStore[key] = record;
+      await _persistSealFallbackStore();
+      dev.log(
+        'E2E seal fallback: canonical record "$key" stashed '
+        '(keychain -34018, NOT a real keychain seal, NOT release)',
+        name: 'SecureWizardStore',
+      );
+      return true;
+    }
+    try {
+      await _storage.write(key: markerKey, value: '1');
+    } catch (_) {
+      // L'enregistrement canonique unique fait déjà autorité.
+    }
+    return true;
+  }
+
+  /// Seam de test : force le résultat du write canonique versements 3a.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalVersements3aWriteOverride;
+
+  static Future<bool> writeCanonicalVersements3a(
+      MintNextVersements3aFact fact) async {
+    final override = debugCanonicalVersements3aWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalVersements3aKey,
+        _canonicalVersements3aInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalVersements3aDeleted() =>
+      _writeCanonicalSealedRecord(
+          _canonicalVersements3aKey,
+          _canonicalVersements3aInitializedKey,
+          json.encode({'state': 'deleted'}));
+
+  static Future<CanonicalVersements3aRead> readCanonicalVersements3a() async {
+    String? raw;
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalVersements3aKey)) {
+      raw = _e2eSealFallbackStore[_canonicalVersements3aKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalVersements3aKey);
+      } on Exception {
+        return const CanonicalVersements3aRead(
+            CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalVersements3aRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalVersements3aRead(CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalVersements3aRead(CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextVersements3aFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalVersements3aRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalVersements3aRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalVersements3aRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Projette l'enregistrement canonique versements 3a dans les réponses.
+  /// Présent → le bundle possédé domine ; supprimé → purge (la liste
+  /// disparaît, faits atomiques compris) ; corrompu → bundle masqué (aucune
+  /// liste périmée ne ressuscite) ; manquant → aucune migration implicite.
+  static Future<Map<String, dynamic>> canonicalizeVersements3aAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalVersements3a();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextVersements3aFact.wizardKeys);
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+    }
+    return answers;
+  }
+
+  /// Seam de test : force le résultat du write canonique affiliation LPP.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalLppAffiliationWriteOverride;
+
+  static Future<bool> writeCanonicalLppAffiliation(
+      MintNextLppAffiliationFact fact) async {
+    final override = debugCanonicalLppAffiliationWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalLppAffiliationKey,
+        _canonicalLppAffiliationInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalLppAffiliationDeleted() =>
+      _writeCanonicalSealedRecord(
+          _canonicalLppAffiliationKey,
+          _canonicalLppAffiliationInitializedKey,
+          json.encode({'state': 'deleted'}));
+
+  static Future<CanonicalLppAffiliationRead>
+      readCanonicalLppAffiliation() async {
+    String? raw;
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalLppAffiliationKey)) {
+      raw = _e2eSealFallbackStore[_canonicalLppAffiliationKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalLppAffiliationKey);
+      } on Exception {
+        return const CanonicalLppAffiliationRead(
+            CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalLppAffiliationRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalLppAffiliationRead(
+            CanonicalHousingStatus.corrupt);
+      }
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalLppAffiliationRead(
+            CanonicalHousingStatus.deleted);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextLppAffiliationFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalLppAffiliationRead(
+              CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalLppAffiliationRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalLppAffiliationRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Projette l'enregistrement canonique affiliation LPP dans les réponses.
+  /// Aucune projection legacy n'existe : présent → le bundle possédé domine ;
+  /// supprimé → purge des clés possédées (l'affiliation redevient INCONNUE,
+  /// jamais « non ») ; manquant → aucune migration implicite.
+  static Future<Map<String, dynamic>> canonicalizeLppAffiliationAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalLppAffiliation();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextLppAffiliationFact.wizardKeys);
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Un enregistrement canonique corrompu masque le bundle du cache :
+      // un ancien « non » ressusciterait sinon en confirmed_no et piloterait
+      // un mauvais plafond (review Codex Lego 4 P1). `unavailable` (keychain
+      // injoignable) garde le chemin dégradé : le cache vient du même commit
+      // que le canonique.
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+    }
+    return answers;
+  }
+
+  /// Seam de test : force le résultat du write canonique revenu.
+  @visibleForTesting
+  static Future<bool> Function()? debugCanonicalRevenuWriteOverride;
+
+  static Future<bool> writeCanonicalRevenu(MintNextRevenuFact fact) async {
+    final override = debugCanonicalRevenuWriteOverride;
+    if (override != null) {
+      return override();
+    }
+    return _writeCanonicalSealedRecord(
+        _canonicalRevenuKey,
+        _canonicalRevenuInitializedKey,
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+  }
+
+  static Future<bool> writeCanonicalRevenuDeleted() =>
+      _writeCanonicalSealedRecord(_canonicalRevenuKey,
+          _canonicalRevenuInitializedKey, json.encode({'state': 'deleted'}));
+
+  static Future<CanonicalRevenuRead> readCanonicalRevenu() async {
+    String? raw;
+    await _hydrateSealFallbackStore();
+    if (_sealFallbackEnabled &&
+        _e2eSealFallbackStore.containsKey(_canonicalRevenuKey)) {
+      raw = _e2eSealFallbackStore[_canonicalRevenuKey];
+    } else {
+      try {
+        raw = await _storage.read(key: _canonicalRevenuKey);
+      } on Exception {
+        return const CanonicalRevenuRead(CanonicalHousingStatus.unavailable);
+      }
+    }
+    if (raw == null) {
+      return const CanonicalRevenuRead(CanonicalHousingStatus.missing);
+    }
+    try {
+      final decoded = json.decode(raw);
+      if (decoded is! Map) {
+        return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
+      }
+      // Deux formes exactes de tombstone — toute autre variante est corrupt
+      // (projection_purged: false/null/garbage relancerait la purge à chaque
+      // load et mangerait les écritures legacy post-suppression).
+      if (decoded['state'] == 'deleted' && decoded.length == 1) {
+        return const CanonicalRevenuRead(
+            CanonicalHousingStatus.deleted, null, false);
+      }
+      if (decoded['state'] == 'deleted' &&
+          decoded.length == 2 &&
+          decoded['projection_purged'] == true) {
+        return const CanonicalRevenuRead(
+            CanonicalHousingStatus.deleted, null, true);
+      }
+      if (decoded['state'] == 'present' && decoded['fact'] is Map) {
+        final fact = MintNextRevenuFact.fromWizardAnswers(
+          Map<String, dynamic>.from(decoded['fact'] as Map),
+        );
+        if (fact != null) {
+          return CanonicalRevenuRead(CanonicalHousingStatus.present, fact);
+        }
+      }
+      return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
+    } on Exception {
+      return const CanonicalRevenuRead(CanonicalHousingStatus.corrupt);
+    }
+  }
+
+  /// Projette l'enregistrement canonique revenu dans les réponses.
+  /// Présent : le bundle possédé ET la projection legacy dominent — une clé
+  /// legacy nue écrite entre-temps ne survit pas au rechargement. Supprimé :
+  /// seules les clés possédées sont purgées — les clés legacy partagées
+  /// restent libres pour les writers historiques (elles ne peuvent pas
+  /// ressusciter le fait : `fromWizardAnswers` ne lit que le bundle
+  /// possédé). Manquant : aucune migration implicite.
+  static Future<Map<String, dynamic>> canonicalizeRevenuAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalRevenu();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      result.addAll(canonical.fact!.legacyProjectionAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+      await deleteKeys(MintNextRevenuFact.wizardKeys);
+      if (!canonical.projectionPurged) {
+        // Fenêtre d'échec (tombstone commis, nettoyage du cache raté) : la
+        // projection périmée est purgée UNE fois, puis le drapeau bascule —
+        // une écriture legacy postérieure à la suppression survit ensuite.
+        result.remove(MintNextRevenuFact.legacyAmountKey);
+        result.remove(MintNextRevenuFact.legacyFrequencyKey);
+        await deleteKeys(const {
+          MintNextRevenuFact.legacyAmountKey,
+          MintNextRevenuFact.legacyFrequencyKey,
+        });
+        await _writeCanonicalSealedRecord(
+            _canonicalRevenuKey,
+            _canonicalRevenuInitializedKey,
+            json.encode({'state': 'deleted', 'projection_purged': true}));
+      }
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Canonique corrompu : le bundle possédé est masqué (le FAIT devient
+      // absent) ; la projection legacy reste — les consommateurs legacy
+      // gardent leur donnée, aucun fait périmé ne ressuscite.
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+    }
+    return answers;
+  }
+
+  /// Projette l'enregistrement canonique état civil dans les réponses.
+  /// Sans canonique (missing), la valeur legacy `q_civil_status` — scellée
+  /// par clé mais sans métadonnées — reste telle quelle pour les
+  /// consommateurs historiques ; aucune migration implicite : un fait
+  /// n'existe qu'après confirmation explicite.
+  static Future<Map<String, dynamic>> canonicalizeCivilStatusAnswers(
+      Map<String, dynamic> answers) async {
+    final canonical = await readCanonicalCivilStatus();
+    if (canonical.status == CanonicalHousingStatus.present) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+      result.addAll(canonical.fact!.toWizardAnswers());
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.deleted) {
+      // Le tombstone purge aussi l'alias legacy — sinon CoachProfile
+      // ressuscite l'ancien état civil via q_civil_status_choice.
+      const purged = {
+        ...MintNextCivilStatusFact.wizardKeys,
+        MintNextCivilStatusFact.legacyChoiceKey,
+      };
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere((key, _) => purged.contains(key));
+      await deleteKeys(purged);
+      return result;
+    }
+    if (canonical.status == CanonicalHousingStatus.corrupt) {
+      // Canonique corrompu : le bundle du cache est masqué (même règle que
+      // l'affiliation LPP — un statut périmé ne ressuscite pas).
+      return Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+    }
+    return answers;
   }
 
   static Future<Set<String>> _readManifest() async {
@@ -431,43 +1398,165 @@ class SecureWizardStore {
     for (final key in keys) {
       try {
         await _storage.delete(key: '$_heldPrefix$key');
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
       }
     }
     if (deletedAll) {
       try {
         await _storage.delete(key: _heldManifestKey);
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
       }
     }
     return deletedAll;
   }
 
+  /// Deletes a caller-provided, bounded subset of wizard-owned secure keys.
+  /// Non-sensitive keys are ignored so this cannot erase unrelated secrets.
+  static Future<bool> deleteKeys(Iterable<String> keys) async {
+    var deletedAll = true;
+    final sensitiveKeys = keys.where(isSensitive).toSet();
+    final override = debugDeleteKeysOverride;
+    if (override != null) return override(sensitiveKeys);
+    if (!kReleaseMode) {
+      await _hydrateSealFallbackStore();
+      for (final key in sensitiveKeys) {
+        _e2eSealFallbackStore.remove(key);
+      }
+      await _persistSealFallbackStore();
+    }
+    for (final key in sensitiveKeys) {
+      try {
+        await _storage.delete(key: key);
+      } on Exception {
+        deletedAll = false;
+      }
+    }
+    if (!deletedAll) return false;
+
+    try {
+      final manifest = await _readManifest()
+        ..removeAll(sensitiveKeys);
+      if (manifest.isEmpty) {
+        await _storage.delete(key: _manifestKey);
+      } else {
+        await _storage.write(
+          key: _manifestKey,
+          value: json.encode(manifest.toList()),
+        );
+      }
+    } on Exception {
+      return false;
+    }
+    return true;
+  }
+
+  /// Captures the encrypted values for a bounded set before a destructive
+  /// operation. Callers can use [restoreValues] to roll back a failed commit.
+  static Future<Map<String, String?>> backupValues(
+      Iterable<String> keys) async {
+    final backup = <String, String?>{};
+    for (final key in keys.where(isSensitive).toSet()) {
+      backup[key] = await read(key);
+    }
+    return backup;
+  }
+
+  /// Best-effort rollback companion to [backupValues].
+  static Future<bool> restoreValues(Map<String, String?> backup) async {
+    var restoredAll = true;
+    for (final entry in backup.entries) {
+      if (!isSensitive(entry.key)) continue;
+      try {
+        if (entry.value == null) {
+          await _storage.delete(key: entry.key);
+        } else {
+          await _storage.write(key: entry.key, value: entry.value);
+          restoredAll = await _rememberKey(entry.key) && restoredAll;
+        }
+      } on Exception {
+        restoredAll = false;
+      }
+    }
+    return restoredAll;
+  }
+
+  /// Réinitialise la chaîne de mutations canonique pour les tests — même
+  /// piège que ReportPersistenceService.debugResetTransactionQueueForTest :
+  /// un test de widget terminé pendant une mutation en vol laisse un Completer
+  /// jamais complété qui figerait tous les tests suivants du fichier.
+  @visibleForTesting
+  static void debugResetCanonicalQueueForTest() {
+    _canonicalMutationDone = Completer<void>()..complete();
+  }
+
   /// Delete all sensitive keys from encrypted storage.
   static Future<bool> deleteAll() async {
+    _canonicalResetGeneration++;
+    final previousDone = _canonicalMutationDone;
+    final done = Completer<void>();
+    _canonicalMutationDone = done;
+    if (!previousDone.isCompleted) {
+      await previousDone.future;
+    }
+    try {
+      return await deleteAllDuringCoordinatedReset();
+    } finally {
+      done.complete();
+    }
+  }
+
+  /// Caller already owns the ReportPersistenceService transaction coordinator.
+  static Future<bool> deleteAllDuringCoordinatedReset() async {
     var deletedAll = true;
-    // Privacy reset must also purge the E2E in-memory fallback. Gated on
-    // `!kReleaseMode` (NOT the E2E flag) so it strips from the release snapshot
-    // yet always runs in any debug/harness run — even if the override was
-    // flipped off after seals landed — leaving no PII resident.
+    // Privacy reset must also purge the E2E fallback — the in-memory map AND
+    // its tmp/ backing file, else _hydrateSealFallbackStore resurrects the
+    // supposedly deleted PII at next relaunch. Gated on `!kReleaseMode` (NOT
+    // the E2E flag) so it strips from the release snapshot yet always runs in
+    // any debug/harness run — even if the override was flipped off after
+    // seals landed — leaving no PII resident.
     if (!kReleaseMode) {
       _e2eSealFallbackStore.clear();
+    }
+    // La suppression du fichier reste sous le flag e2e : les écritures y
+    // sont gatées, donc sans flag le fichier n'existe pas — et l'appel
+    // path_provider gèlerait les tests widget (FakeAsync) du reset.
+    if (_sealFallbackEnabled) {
+      try {
+        await (await _sealFallbackFile()).delete();
+      } on Exception {
+        // Fichier absent — rien à purger.
+      }
     }
     final keys = {..._sensitiveKeys, ...await _readManifest()};
     for (final key in keys) {
       try {
         await _storage.delete(key: key);
-      } on Exception {
-        deletedAll = false;
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
         // Best-effort cleanup: do not block logout/reset on keychain state.
       }
     }
-    try {
-      await _storage.delete(key: _manifestKey);
-    } on Exception {
-      deletedAll = false;
+    // Les markers « initialized » SURVIVENT volontairement au reset : ils
+    // sont la mémoire « une génération canonique a existé » qui empêche la
+    // re-migration des débris scellés en fait après un privacy reset
+    // (contrat testé : « legacy migration never repeats after canonical
+    // generation existed »). Seules les VALEURS canoniques sont purgées.
+    for (final key in const [
+      _manifestKey,
+      _deleteJournalKey,
+      _canonicalHousingKey,
+      _canonicalCivilStatusKey,
+      _canonicalRevenuKey,
+      _canonicalLppAffiliationKey,
+      _canonicalVersements3aKey,
+    ]) {
+      try {
+        await _storage.delete(key: key);
+      } on Exception catch (e) {
+        if (!isTolerableE2eKeychainAbsence(e)) deletedAll = false;
+      }
     }
     return deletedAll;
   }
@@ -476,6 +1565,8 @@ class SecureWizardStore {
     Map<String, dynamic> answers,
   ) async {
     final cleaned = Map<String, dynamic>.from(answers);
+    final tombstoned = await committedDeleteTargets();
+    cleaned.removeWhere((key, _) => tombstoned.contains(key));
     var allSensitiveSealed = true;
     final sensitiveKeys = cleaned.keys.where(isSensitive).toList();
     final previousSecureValues = <String, String?>{};
@@ -483,7 +1574,10 @@ class SecureWizardStore {
     for (final key in sensitiveKeys) {
       if (cleaned.containsKey(key) && cleaned[key] != null) {
         previousSecureValues[key] = await read(key);
-        final sealed = await write(key, cleaned[key].toString());
+        final value = key == '_coach_3a_accounts_v1'
+            ? json.encode(cleaned[key])
+            : cleaned[key].toString();
+        final sealed = await write(key, value);
         if (sealed) {
           touchedKeys.add(key);
           cleaned[key] = '__secure__';
@@ -541,6 +1635,15 @@ class SecureWizardStore {
       if (!isSensitive(key)) continue;
       final value = await read(key);
       if (value != null) {
+        if (key == '_coach_3a_accounts_v1') {
+          try {
+            final decoded = json.decode(value);
+            restored[key] = decoded is List ? decoded : const <dynamic>[];
+          } on FormatException {
+            restored[key] = const <dynamic>[];
+          }
+          continue;
+        }
         if (value == 'true' || value == 'false') {
           restored[key] = value == 'true';
           continue;

@@ -154,7 +154,7 @@ tags:
       - waitForAnimationToEnd
 - extendedWaitUntil:
     visible:
-      text: "MON PROFIL"
+      text: "MA SITUATION"
     timeout: 8000
 - extendedWaitUntil:
     visible:

@@ -31,7 +31,6 @@ import 'package:mint_mobile/screens/auth/verify_email_screen.dart';
 import 'package:mint_mobile/services/account_handoff_service.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
-import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:mint_mobile/screens/simulator_compound_screen.dart';
 import 'package:mint_mobile/screens/simulator_leasing_screen.dart';
 import 'package:mint_mobile/screens/simulator_3a_screen.dart';
@@ -68,6 +67,7 @@ import 'package:mint_mobile/screens/document_detail_screen.dart';
 import 'package:mint_mobile/screens/bank_import_screen.dart';
 import 'package:mint_mobile/services/analytics_service.dart';
 import 'package:mint_mobile/services/analytics_observer.dart';
+import 'package:mint_mobile/services/observability/private_route_telemetry.dart';
 import 'package:mint_mobile/services/notification_service.dart';
 import 'package:mint_mobile/services/notifications_wiring_service.dart';
 import 'package:mint_mobile/services/slm/slm_engine.dart';
@@ -148,6 +148,14 @@ import 'package:mint_mobile/providers/household_provider.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/timeline_provider.dart';
 import 'package:mint_mobile/screens/aujourdhui/aujourdhui_screen.dart';
+import 'package:mint_mobile/routes/mint_next_3a_route_gate.dart';
+import 'package:mint_mobile/screens/mint_next_3a/mint_next_3a_handoff_screen.dart';
+import 'package:mint_mobile/screens/mint_next_domicile/mint_next_domicile_screen.dart';
+import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart';
+import 'package:mint_mobile/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart';
+import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart';
+import 'package:mint_mobile/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart';
+import 'package:mint_mobile/screens/mint_next_housing/mint_next_housing_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
@@ -230,7 +238,7 @@ final _authNotifier = ChangeNotifier();
 // See .planning/phases/32-cartographier/32-VALIDATION.md §Risks Risk 1.
 final List<NavigatorObserver> _routerObservers = [
   AnalyticsRouteObserver(),
-  SentryNavigatorObserver(setRouteNameAsTransaction: true),
+  MintPrivateRouteSentryObserver(),
 ];
 
 @visibleForTesting
@@ -769,6 +777,61 @@ final _router = GoRouter(
               route: '/libre-passage'),
         ],
       ),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/housing',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) => FeatureFlags.enableMintNextHousing ? null : '/home',
+      builder: (context, state) => const MintNextHousingScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/3a',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, state) => mintNext3aRouteRedirect(
+        flagEnabled: FeatureFlags.enableMintNext3aProductHandoff,
+        extra: state.extra,
+      ),
+      builder: (context, state) => const MintNext3aHandoffScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/domicile',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) => FeatureFlags.enableMintNextDomicile ? null : '/home',
+      builder: (context, state) => const MintNextDomicileScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/etat-civil',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) =>
+          FeatureFlags.enableMintNextEtatCivil ? null : '/home',
+      builder: (context, state) => const MintNextEtatCivilScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/revenu',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) => FeatureFlags.enableMintNextRevenu ? null : '/home',
+      builder: (context, state) => const MintNextRevenuScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/lpp-affiliation',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) =>
+          FeatureFlags.enableMintNextLppAffiliation ? null : '/home',
+      builder: (context, state) => const MintNextLppAffiliationScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/versements-3a',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) =>
+          FeatureFlags.enableMintNextVersements3a ? null : '/home',
+      builder: (context, state) => const MintNextVersements3aScreen(),
     ),
     ScopedGoRoute(
       path: '/explore/famille',
@@ -1938,6 +2001,53 @@ class MintApp extends StatefulWidget {
   State<MintApp> createState() => _MintAppState();
 }
 
+Future<void> _refreshFeatureFlagsOnResume() =>
+    FeatureFlags.refreshFromBackend();
+
+@visibleForTesting
+Future<void> debugRefreshFeatureFlagsOnResume() =>
+    _refreshFeatureFlagsOnResume();
+
+void handleMintAppResume(VoidCallback consumeNotificationRoute) {
+  // refreshFromBackend closes the gate before returning its Future, so this
+  // single production operation makes the navigation ordering indivisible.
+  unawaited(_refreshFeatureFlagsOnResume());
+  consumeNotificationRoute();
+}
+
+class MintNext3aLifecycleGate extends StatefulWidget {
+  const MintNext3aLifecycleGate({required this.builder, super.key});
+
+  final WidgetBuilder builder;
+
+  @override
+  State<MintNext3aLifecycleGate> createState() =>
+      _MintNext3aLifecycleGateState();
+}
+
+class _MintNext3aLifecycleGateState extends State<MintNext3aLifecycleGate> {
+  void _rebuildAfterMintNext3aGateChange() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    FeatureFlags.mintNext3aProductHandoffListenable
+        .addListener(_rebuildAfterMintNext3aGateChange);
+  }
+
+  @override
+  void dispose() {
+    FeatureFlags.mintNext3aProductHandoffListenable
+        .removeListener(_rebuildAfterMintNext3aGateChange);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context);
+}
+
 class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   @override
   void initState() {
@@ -1970,8 +2080,7 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // Check for notification taps that arrived while app was in background.
-      _consumeNotificationRoute();
+      handleMintAppResume(_consumeNotificationRoute);
     }
     if (state == AppLifecycleState.paused ||
         state == AppLifecycleState.detached) {
@@ -1983,6 +2092,10 @@ class _MintAppState extends State<MintApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    return MintNext3aLifecycleGate(builder: _buildApp);
+  }
+
+  Widget _buildApp(BuildContext context) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) {

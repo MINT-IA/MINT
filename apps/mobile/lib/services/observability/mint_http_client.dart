@@ -104,6 +104,22 @@ class MintHttpClient extends http.BaseClient {
       'req_id=$requestId host=${request.url.host}',
     );
 
+    // Debug builds journal the OUTBOUND body too — the zero-transmission
+    // runtime proof greps this boundary; a request type whose body cannot
+    // be read here is marked unobserved rather than silently skipped.
+    if (kDebugMode && !_runtimeDebugEvidenceEnabled) {
+      if (request is http.Request) {
+        if (request.body.isNotEmpty) {
+          _log(
+            'REQBODY req_id=$requestId bytes=${request.bodyBytes.length} '
+            'body=${_truncate(request.body, _bodyLogCap)}',
+          );
+        }
+      } else {
+        _log('REQBODY req_id=$requestId unobserved type=${request.runtimeType}');
+      }
+    }
+
     http.StreamedResponse upstream;
     try {
       upstream = await _inner.send(request);

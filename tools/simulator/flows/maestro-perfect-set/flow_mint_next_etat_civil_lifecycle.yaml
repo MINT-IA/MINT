@@ -1,0 +1,162 @@
+appId: ch.mint.app
+tags:
+  - mint-next-etat-civil
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/etat-civil"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/etat-civil"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.collect"
+    timeout: 15000
+# Six cartes, aucun clavier : le tap est direct. La carte et le CTA sous le
+# pli sont amenés à l'écran par scrollUntilVisible (no-op si déjà visibles).
+- tapOn:
+    id: "input:etat_civil.status_marie"
+- scrollUntilVisible:
+    element:
+      id: "action:etat_civil.continue"
+    direction: DOWN
+- tapOn:
+    id: "action:etat_civil.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.review"
+    timeout: 5000
+- tapOn:
+    id: "action:etat_civil.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.saved"
+    timeout: 10000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_etat_civil_fact"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_etat_civil_fact"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/02-cold-relaunch-visible"
+- tapOn:
+    id: "action:mon_argent.etat_civil.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.saved"
+    timeout: 8000
+- tapOn:
+    id: "action:etat_civil.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.collect"
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "input:etat_civil.status_divorce"
+    direction: DOWN
+- tapOn:
+    id: "input:etat_civil.status_divorce"
+- scrollUntilVisible:
+    element:
+      id: "action:etat_civil.continue"
+    direction: DOWN
+- tapOn:
+    id: "action:etat_civil.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.review"
+    timeout: 5000
+- tapOn:
+    id: "action:etat_civil.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:etat_civil.saved"
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_etat_civil_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
+- tapOn:
+    id: "action:mon_argent.etat_civil.delete"
+- extendedWaitUntil:
+    visible: "Supprimer ton état civil ?"
+    timeout: 5000
+- tapOn:
+    text: "^Supprimer$"
+- extendedWaitUntil:
+    notVisible: "Supprimer ton état civil ?"
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_etat_civil_fact"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/04-deleted-absent"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_etat_civil_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/05-delete-survives-relaunch"

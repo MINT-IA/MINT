@@ -109,6 +109,15 @@ MintPickerTile, MintChoiceCard, MintBottomSheet, MintDialog, MintEntrance, \
 MintHeroNumber, MintCountUp, MintConfidenceNotice. Les anciens noms \
 MintCard / MintSection / MintPremiumButton / MintGlassCard n'existent pas \
 dans le code — ne pas les citer ni les recréer.
+
+### Roster élargi (2026-08-03)
+
+`mint-experience` (`.claude/agents/mint-experience.md`) porte le contrat \
+d'expérience en amont (journey, architecture d'information, microcopy \
+pédagogique, accessibilité, critères de compréhension) ; `mint-mobile` \
+implémente contre ce contrat. Doctrine canonique : \
+`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`. Sortie \
+d'agent = finding, jamais vérité — reproduction mécanique exigée.
 """
 
 _BACKEND_MARKER_BODY = """\
@@ -162,6 +171,15 @@ interpolation ESTV, marié par canton) ; fortune : wealth_tax_service \
 (modèle simplifié OFS, PAS calibré ESTV). Ne \
 jamais recomposer un taux plat ni un proxy heuristique — parités croisées \
 gelées au centime (tools/fixtures/*.json). Modèle v1 supprimé.
+
+### Roster élargi (2026-08-03)
+
+`mint-integrations-security` (`.claude/agents/mint-integrations-security.md`) \
+porte consentement, provenance, design de connecteurs externes (scopes, \
+expiration, révocation, réconciliation) et sécurité ; `mint-backend` \
+implémente contre ce design. Doctrine canonique : \
+`.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md`. Sortie \
+d'agent = finding, jamais vérité — reproduction mécanique exigée.
 """
 
 

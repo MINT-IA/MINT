@@ -42,7 +42,230 @@ ALLOW = {
     # --- ops: sha de deploy dans /api/v1/health (vérification post-promotion) ---
     "services/backend/app/api/v1/endpoints/health.py",
     "services/backend/app/schemas/common.py",
+    "services/backend/app/schemas/coaching.py",
+    "services/backend/app/models/coach_tools/cross_pillar.py",
+    "services/backend/tests/test_coach_tools_cross_pillar.py",
     "services/backend/tests/test_health.py",
+    # --- doctrine 2026-08-10 : BRIEF partagé Claude×Codex (contexte lu à chaque
+    # session — ADR 2026-08-10-jumeau-financier-et-collaboration-codex.md). ---
+    "product/mint_next/BRIEF.md",
+    # --- PR B correctifs CI (2026-08-11) : relabel « MA SITUATION » dans le
+    # flow legacy (renommage financialSummaryTitle porté par la fondation). ---
+    "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
+    "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
+    "apps/mobile/test/app_router_observers_test.dart",
+    "tools/runtime/mint_next_versements_3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_versements_3a_lifecycle.yaml",
+    "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart",
+    "apps/mobile/test/screens/mon_argent_versements_3a_fact_test.dart",
+    "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
+    "apps/mobile/test/providers/coach_profile_provider_versements_3a_fact_test.dart",
+    "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart",
+    "product/mint_next/storyboard/versements_3a.storyboard.json",
+    "product/mint_next/storyboard/marge_3a_attestee.storyboard.json",
+    "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
+    "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
+    "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
+    "tools/runtime/mint_next_marge_3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_marge_3a_lifecycle.yaml",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/01-affiliated-marge-positive.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/02-overshoot-signed.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/03-non-affiliated-20pct.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/04-non-affiliated-capped.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/05-contributions-missing-after-delete.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/runtime.json",
+    "apps/mobile/lib/services/observability/mint_http_client.dart",
+    "apps/mobile/test/services/observability/mint_http_client_test.dart",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/runtime.json",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/runtime.json",
+    "tools/runtime/mint_next_lpp_affiliation_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_lpp_affiliation_lifecycle.yaml",
+    "apps/mobile/lib/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart",
+    "apps/mobile/test/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen_test.dart",
+    "apps/mobile/test/screens/mon_argent_lpp_affiliation_fact_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_lpp_affiliation_fact_test.dart",
+    "apps/mobile/lib/models/mint_next_lpp_affiliation_fact.dart",
+    "apps/mobile/test/models/mint_next_lpp_affiliation_fact_test.dart",
+    "product/mint_next/storyboard/lpp_affiliation.storyboard.json",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/revenu-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/revenu-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/revenu-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/revenu-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/revenu-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/revenu-lifecycle/runtime.json",
+    "tools/runtime/mint_next_revenu_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_revenu_lifecycle.yaml",
+    "apps/mobile/lib/screens/mint_next_revenu/mint_next_revenu_screen.dart",
+    "apps/mobile/test/screens/mint_next_revenu/mint_next_revenu_screen_test.dart",
+    "apps/mobile/test/screens/mon_argent_revenu_fact_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart",
+    "apps/mobile/lib/models/mint_next_revenu_fact.dart",
+    "apps/mobile/test/models/mint_next_revenu_fact_test.dart",
+    "product/mint_next/storyboard/revenu.storyboard.json",
+    "apps/mobile/lib/services/auth_service.dart",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/etat-civil-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/etat-civil-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/etat-civil-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/etat-civil-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/etat-civil-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/etat-civil-lifecycle/runtime.json",
+    "tools/runtime/mint_next_etat_civil_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_etat_civil_lifecycle.yaml",
+    "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_provider.dart",
+    "apps/mobile/lib/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart",
+    "apps/mobile/test/screens/mint_next_etat_civil/mint_next_etat_civil_screen_test.dart",
+    "apps/mobile/test/screens/mon_argent_etat_civil_fact_test.dart",
+    "apps/mobile/test/services/coach_profile_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart",
+    "apps/mobile/lib/models/mint_next_civil_status_fact.dart",
+    "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+    "product/mint_next/storyboard/etat_civil.storyboard.json",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/domicile-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/domicile-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/domicile-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/domicile-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/domicile-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/domicile-lifecycle/runtime.json",
+    "tools/runtime/mint_next_domicile_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_domicile_lifecycle.yaml",
+    "apps/mobile/test/screens/mon_argent_domicile_fact_test.dart",
+    ".planning/reports/hermeneutique/index.html",
+    "apps/mobile/lib/screens/mint_next_domicile/mint_next_domicile_screen.dart",
+    "apps/mobile/test/models/mint_next_3a_fiscal_context_domicile_test.dart",
+    "apps/mobile/test/screens/mint_next_domicile/mint_next_domicile_screen_test.dart",
+    # --- Lego 1 domicile fiscal (2026-08-11) : fait canonique domicile
+    # (mini-storyboard, modèle, provider, écran, consommateur 3a). ---
+    "apps/mobile/lib/models/mint_next_domicile_fact.dart",
+    "apps/mobile/test/models/mint_next_domicile_fact_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart",
+    "product/mint_next/storyboard/domicile_fiscal.storyboard.json",
+    # --- atterrissage PR C (cadrage n°1, 2026-08-11) : shell 3a minimal —
+    # handoff screen/card, route gate, store 3a, tax boundary + delta engine,
+    # machinerie flag fail-closed, tests dédiés. Flag OFF partout. ---
+    "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart",
+    "apps/mobile/lib/routes/mint_next_3a_route_gate.dart",
+    "apps/mobile/lib/screens/mint_next_3a/mint_next_3a_handoff_screen.dart",
+    "apps/mobile/lib/services/mint_next_3a_task_store.dart",
+    "apps/mobile/lib/services/mint_next_3a_tax_delta_engine.dart",
+    "apps/mobile/lib/widgets/aujourdhui/mint_next_3a_handoff_card.dart",
+    "apps/mobile/test/patrol/mint_next_3a_flag_off_task_test.dart",
+    "apps/mobile/test/patrol/mint_next_3a_product_handoff_test.dart",
+    "apps/mobile/test/screens/mint_next_3a/mint_next_3a_product_handoff_test.dart",
+    "apps/mobile/test/services/install_lifecycle_service_test.dart",
+    "apps/mobile/test/services/mint_next_3a_task_store_test.dart",
+    "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart",
+    # --- atterrissage PR B (cadrage n°1, 2026-08-10) : fondation canonique
+    # prouvée — cycle de vie du fait logement (modèle, écran, carte
+    # Aujourd'hui, transaction coordonnée SecureWizardStore, Ma situation),
+    # phase jumeau + évidence runtime, garde capture, flags OFF, ARB 6 langues,
+    # observabilité routes privées. Shell 3a strippé (PR C). ---
+    ".planning/phases/mint-next-user-twin-foundation-20260808/CONTEXT.md",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/PLAN.md",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/SPEC.md",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/VERIFICATION.md",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/maestro.log",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/housing-lifecycle/runtime.json",
+    "apps/mobile/lib/models/financial_plan.dart",
+    "apps/mobile/lib/models/mint_next_housing_fact.dart",
+    "apps/mobile/lib/screens/mint_next_housing/mint_next_housing_screen.dart",
+    "apps/mobile/lib/screens/mint_next_housing/mint_next_housing_screen.dart.capture.json",
+    "apps/mobile/lib/services/analytics_observer.dart",
+    "apps/mobile/lib/services/e2e_runtime_flags.dart",
+    "apps/mobile/lib/services/feature_flags.dart",
+    "apps/mobile/lib/services/install_lifecycle_service.dart",
+    "apps/mobile/lib/services/observability/private_route_telemetry.dart",
+    "apps/mobile/lib/services/observability/sentry_scrub.dart",
+    "apps/mobile/lib/widgets/aujourdhui/mint_next_housing_card.dart",
+    "apps/mobile/test/models/financial_plan_test.dart",
+    "apps/mobile/test/models/mint_next_housing_fact_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_housing_fact_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_secure_failure_test.dart",
+    "apps/mobile/test/providers/financial_plan_provider_test.dart",
+    "apps/mobile/test/screens/mint_next_housing/mint_next_housing_screen_test.dart",
+    "apps/mobile/test/screens/mon_argent_screen_test.dart",
+    "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_intent_migration_test.dart",
+    "apps/mobile/test/screens/onboarding/mvp_wedge/onboarding_archetype_flow_test.dart",
+    "apps/mobile/test/services/e2e_runtime_flags_test.dart",
+    "apps/mobile/test/services/feature_flags_test.dart",
+    "apps/mobile/test/services/observability/private_route_telemetry_test.dart",
+    "apps/mobile/test/services/observability/sentry_scrub_test.dart",
+    "apps/mobile/test/services/report_persistence_service_test.dart",
+    "apps/mobile/test/widgets/aujourdhui/mint_next_housing_card_test.dart",
+    "tools/checks/tests/test_mint_next_housing_lifecycle_runtime.py",
+    "tools/checks/tests/test_user_data_capture_contract.py",
+    "tools/checks/user_data_capture_contract.py",
+    "tools/runtime/mint_next_housing_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_housing_lifecycle.yaml",
+    # --- atterrissage PR A (cadrage n°1, 2026-08-10) : vérité produit de la
+    # fondation MINT Next — ADR jumeau, phase Golden 3a (SPEC amendé sans
+    # cérémonie B0-B5, contrats substantiels, annexes provenance, schémas),
+    # storyboard + garde + renderer, autorité design mint-v2, outillage
+    # provenance sources officielles. ---
+    ".planning/phases/mint-next-vertical01-3a-20260802/CONTEXT.md",
+    ".planning/phases/mint-next-vertical01-3a-20260802/PLAN.md",
+    ".planning/phases/mint-next-vertical01-3a-20260802/SPEC.md",
+    ".planning/phases/mint-next-vertical01-3a-20260802/VERIFICATION.md",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/aipd-processing-inventory.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/authority-receipts.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/bundle.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/calculation-oracle-goldens.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/content-review-receipt.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/golden-fixtures.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/legacy-harvest-corpus.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/legal-authority-sources.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/normalized-ruleset.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/parser-version-manifest.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/persona-case-matrix.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/source-authority-manifest.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/source-extractions.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/annexes/threat-model-risk-register.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/aipd-screening.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/anti-pii.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/calculation-contract.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/fact-minimum-set.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/feature-flag-kill-switch.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/key-contract.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/legacy-harvest.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/legal-memo.md",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/navigation-graph.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/privacy-contract.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/regulatory-applicability.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/retention-export-deletion.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/state-machine.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/contracts/threat-model.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/decisions/3a-authority-adr.md",
+    ".planning/phases/mint-next-vertical01-3a-20260802/migrations/fact-migrations.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/migrations/plan-migrations.yaml",
+    ".planning/phases/mint-next-vertical01-3a-20260802/migrations/schema-migration-fixtures.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/schemas/dependency.schema.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/schemas/fact.schema.json",
+    ".planning/phases/mint-next-vertical01-3a-20260802/schemas/plan.schema.json",
+    "product/mint_next/storyboard/index.html",
+    "product/mint_next/storyboard/storyboard.contract.schema.json",
+    "product/mint_next/storyboard/three_a.storyboard.json",
+    "tools/authority/normalize_three_a_2026_sources.py",
+    "tools/authority/tests/test_normalize_three_a_2026_sources.py",
+    "tools/checks/mint_next_storyboard_guard.py",
+    "tools/checks/mint_next_three_a_goal_annexes_guard.py",
+    "tools/checks/tests/test_mint_next_storyboard_guard.py",
+    "tools/checks/tests/test_mint_next_three_a_goal_annexes_guard.py",
+    "tools/storyboard/render_mint_storyboard.py",
     # --- prep Flutter 3.44.8 : ancêtre Material pour les tiles en carte colorée
     # (assertion debug ListTile._debugCheckBackgroundIsHidden). Écrans/widgets
     # partagés touchés, hors whitelist Journey OS existante. ---
@@ -67,14 +290,34 @@ ALLOW = {
     "apps/mobile/test/services/secure_wizard_store_test.dart",
     ".claude/AGENT_BOOTSTRAP.md",
     ".github/pull_request_template.md",
+    # Fix namespace-shadowing CI 2026-08-04 : tools/ devient un paquet régulier.
+    "tools/__init__.py",
+    "tools/checks/__init__.py",
+    # Décision S4-F1 (2026-08-04) : §4.8 vocabulaire de la confiance —
+    # trame vs courbe, acte l'écart majeur de l'audit de fidélité #1185.
+    "docs/DESIGN_SYSTEM.md",
     ".github/workflows/ai-workflow-guards.yml",
     ".github/workflows/journey-os-runtime-replay.yml",
+    # Batch 19 R1 (2026-08-03) : exécuteur CI neutre des preuves RED + job
+    # release-attestation dispatch-only (check_git=True non-waivé).
+    ".github/workflows/mint-next-proofs.yml",
+    # Garde du contrat de navigation MINT Next (2026-08-04) : gate CI mécanique
+    # bidirectionnel entre product/mint_next/batch6/navigation.yaml et le Design
+    # Lab. No-op vert tant que le contenu mint_next n'est pas sur cette base.
+    "tools/checks/mint_next_navigation_contract.py",
+    "tools/checks/mint_next_navigation_contract_waitlist.yaml",
+    "tools/checks/tests/test_mint_next_navigation_contract.py",
     # Spike upgrade Flutter 3.44.8 (ADR AX iOS 26.2 Étape 4) : pins CI unifiés.
     ".github/workflows/testflight.yml",
     ".github/workflows/play-store.yml",
     ".github/workflows/web.yml",
     ".github/workflows/walker_nightly.yml",
     "apps/mobile/pubspec.lock",
+    # Candidat TestFlight 2.13.0 (2026-08-01) : bump du version name pubspec
+    # (2.12.4 -> 2.13.0) pour la promotion staging. Fichier release/ops,
+    # orthogonal au périmètre Journey OS — même statut que pubspec.lock ci-dessus
+    # et testflight.yml plus haut.
+    "apps/mobile/pubspec.yaml",
     ".planning/ACTIVE_CONTEXT.md",
     ".planning/ACTIVE_CONTEXT.json",
     ".planning/decisions/2026-05-09-perimeter-b7-cascade-empty-state/STUB.md",
@@ -131,8 +374,18 @@ ALLOW = {
     ".github/workflows/ci.yml",
     # -dj3 : évolution doctrine 6 fichiers (UI Kit réel + fiscal v2)
     "CLAUDE.md",
+    # --- feat(agents) : roster élargi selon handoff 2026-08-03 §11.2/§11.4 —
+    # deux agents permanents ajoutés au roster canonique .claude/agents/. ---
+    ".claude/agents/mint-experience.md",
+    ".claude/agents/mint-integrations-security.md",
     "docs/AGENTS/flutter.md",
     "docs/AGENTS/backend.md",
+    # --- docs(doctrine) 2026-08-03 : neutralisation des couches doctrinales
+    # contradictoires (bandeau SUPERSEDED sur ROADMAP_V2, étalon ESTV dans
+    # swiss-brain §3). Carte :
+    # .planning/audit-etat-des-lieux-2026-07/carte-contradictions-doctrinales.md ---
+    "docs/ROADMAP_V2.md",
+    "docs/AGENTS/swiss-brain.md",
     ".claude/skills/mint-flutter-dev/SKILL.md",
     ".claude/skills/mint-backend-dev/SKILL.md",
     ".planning/decisions/2026-05-17-data-architecture-event-log-vs-bitemporal.md",
@@ -144,6 +397,10 @@ ALLOW = {
     "lefthook.yml",
     ".github/workflows/ai-workflow-guards.yml",
     ".planning/decisions/2026-07-24-campagne-contenu-officiel-garanti.md",
+    # ADR Atlas des écrans + mémos d'état de l'art (2026-08-05)
+    ".planning/decisions/2026-08-05-atlas-ecrans-construit-pas-adopte.md",
+    ".planning/audit/2026-08-05-atlas-ecosysteme-flutter.md",
+    ".planning/audit/2026-08-05-atlas-etat-de-lart-hors-flutter.md",
     # -b6k : littéral lppReturn -> reg() avec fallback
     "apps/mobile/test/screens/arbitrage/rvc_lpp_return_registry_test.dart",
     "tools/checks/ci_gate_aggregation_check.py",
@@ -167,6 +424,12 @@ ALLOW = {
     # -dy0 : contraste AA — sites texte greenDark -> greenForest
     "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
     "apps/mobile/lib/screens/pillar_3a_deep/staggered_withdrawal_screen.dart",
+    # fix(i18n) device-evidence : les 3 écrans 3a profonds passent `l` au
+    # simulateur (disclaimer localisé au lieu du fallback ASCII) ; le
+    # comparateur localise aussi name/description/warning. staggered était
+    # déjà whitelisté ci-dessus.
+    "apps/mobile/lib/screens/pillar_3a_deep/provider_comparator_screen.dart",
+    "apps/mobile/lib/screens/pillar_3a_deep/real_return_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
     "apps/mobile/lib/widgets/educational/leasing_cost_insert_widget.dart",
     "apps/mobile/lib/theme/colors.dart",
@@ -408,6 +671,11 @@ ALLOW = {
     "apps/mobile/test/services/financial_core/golden_couple_integrated_test.dart",
     "apps/mobile/test/services/regulatory_sync_integration_test.dart",
     "services/backend/app/services/fiscal/cantonal_comparator.py",
+    "services/backend/app/services/fiscal/sensibilite_3a_service.py",
+    "services/backend/app/services/fiscal/civil_status.py",
+    "services/backend/app/models/lucidity/_payload.py",
+    "services/backend/tests/test_sensibilite_3a_menage.py",
+    "services/backend/tests/test_coaching.py",
     "services/backend/tests/test_fiscal_low_nodes.py",
     "services/backend/app/services/regulatory/registry.py",
     "services/backend/tests/fixtures/coach_tools_parity_v1.jsonl",
@@ -418,6 +686,7 @@ ALLOW = {
     "services/backend/app/services/couple_optimizer/couple_optimizer.py",
     "services/backend/app/services/document_parser/avs_extract_parser.py",
     "services/backend/app/services/onboarding/minimal_profile_service.py",
+    "services/backend/app/services/onboarding/premier_eclairage_selector.py",
     "services/backend/app/services/retirement/avs_estimation_service.py",
     "services/backend/tests/test_golden_julien_lauren.py",
     "services/backend/tests/test_fiscal.py",
@@ -505,7 +774,9 @@ ALLOW = {
     "services/backend/app/services/rules_engine.py",
     "services/backend/app/services/arbitrage/rachat_vs_marche.py",
     "services/backend/app/services/arbitrage/calendrier_retraits.py",
+    "services/backend/app/services/arbitrage/cross_pillar_service.py",
     "services/backend/tests/test_rules_engine.py",
+    "services/backend/tests/test_w16_logic_gaps.py",
     # Lint prescriptions (ADR 2026-07-28-prescriptions U1-U4)
     "services/backend/app/services/coach/prescription_vocab.py",
     "services/backend/tests/test_prescription_vocab.py",
@@ -772,6 +1043,10 @@ ALLOW = {
     "services/backend/app/services/coach/compliance_guard.py",
     "services/backend/app/services/coach/structured_reasoning.py",
     "services/backend/app/services/coach/_route_intents_generated.py",
+    # codex/journey-os-coach-intent-couple-forcage (2026-08) : forçage de
+    # get_couple_optimization sur l'intent couple / prévoyance-à-deux
+    # (coach_chat.py déjà whitelisté ci-dessus). Ajout test-only.
+    "services/backend/tests/test_coach_couple_intent_force.py",
     "services/backend/app/services/llm/router.py",
     "services/backend/app/services/rag/guardrails.py",
     "services/backend/app/services/rag/hybrid_search_service.py",
@@ -790,6 +1065,10 @@ ALLOW = {
     "services/backend/tests/test_citation_gate/test_byte_identity_flag_off.py",
     "services/backend/tests/test_coach_chat_endpoint.py",
     "services/backend/tests/test_auth_apple.py",
+    # P0 2026-08-03 : cycle de vie du compte (suppression nLPD complète +
+    # reconnexion Apple propre après suppression).
+    "services/backend/tests/test_auth_apple_lifecycle.py",
+    ".planning/audit/2026-08-03-nlpd-suppression-compte-apple.md",
     "services/backend/tests/test_compliance_guard.py",
     "services/backend/tests/test_coach_tools.py",
     "services/backend/tests/test_e2e_coach_pipeline.py",
@@ -808,6 +1087,14 @@ ALLOW = {
     ".planning/audit/2026-07-life-event-screens-a11y-gap.md",
     # a11y ILLOG-02 contract : screen-root Semantics sur 3 écrans life-event premium
     "apps/mobile/lib/screens/disability/disability_gap_screen.dart",
+    # Drain 12D V2-2 : service invalidité UNIQUE (fin du doublon 3-têtes).
+    # `DisabilityService` (domain) miroir de disability_gap_service.py ; les 3
+    # écrans invalidité consomment le service ; goldens de parité + widget.
+    "apps/mobile/lib/domain/disability_gap_calculator.dart",
+    "apps/mobile/lib/screens/disability/disability_insurance_screen.dart",
+    "apps/mobile/lib/screens/disability/disability_self_employed_screen.dart",
+    "apps/mobile/test/domain/disability_service_parity_test.dart",
+    "apps/mobile/test/screens/disability/disability_screens_service_test.dart",
     "apps/mobile/lib/screens/deces_proche_screen.dart",
     "apps/mobile/test/screens/deces_gate_test.dart",
     "apps/mobile/lib/screens/demenagement_cantonal_screen.dart",
@@ -1081,6 +1368,14 @@ ALLOW = {
     # signature étendue (receiptId/inputsHash/receiptInputs) + heads alembic
     # attendus incluent p126.
     "apps/mobile/test/services/coach_context_packet_payload_test.dart",
+    # V2-4 (cluster Retraite deep + receipt) — propagation du MoneyTruthReceipt
+    # firstJob → retirement_dashboard + rente_vs_capital : chaque écran scelle son
+    # chiffre L1 affiché en receipt et le porte au coach (CTA retraite-ask-coach /
+    # rvc-ask-coach). Producteurs + CTA + parité écran↔receipt.
+    "apps/mobile/test/services/forecaster_retirement_receipt_test.dart",
+    "apps/mobile/test/services/financial_core/rvc_money_truth_receipt_test.dart",
+    "apps/mobile/test/screens/coach/retirement_ask_coach_cta_test.dart",
+    "apps/mobile/test/screens/arbitrage/rvc_ask_coach_cta_test.dart",
     # Phase 3' — harnais de parité coach × MoneyTruthReceipt contre STAGING réel
     # (SPEC TRANCHE-FIRSTJOB §4.3 / §4.4). Test integration_staging skippé par
     # défaut (opt-in MINT_STAGING_PARITY=1) : rejoue profil firstJob × questions
@@ -1124,6 +1419,11 @@ ALLOW = {
     "apps/mobile/lib/widgets/coach/lpp_rescue_widget.dart",
     "apps/mobile/lib/screens/independant_screen.dart",
     "apps/mobile/test/widgets/coach/lpp_rescue_widget_test.dart",
+    # fix(i18n) résidus FR (codex/journey-os-fr-residuals) : les LppTransferOption
+    # passés par independant_screen au widget partagé portaient label/description/
+    # legalRef en FR codé en dur (dette « débit du CALLER » #1190) → extraits en
+    # ARB 6 langues. Preuve de vraie localisation (EN-locale) dans ce test dédié.
+    "apps/mobile/test/screens/independant_lpp_rescue_i18n_test.dart",
     # Tranche AX 3 (ADR 2026-07-30, patron #1127/#1140/#1146) : migration
     # SliverAppBar → AppBar classique fixe sur 7 ecrans a route poussee
     # (CustomScrollView, barre titre-seule, sans expandedHeight/flexibleSpace).
@@ -1158,6 +1458,53 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_g2_julien_walkthrough.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_landing_to_register.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_narrator_refuses_uncited_numbers.yaml",
+    # codex/journey-os-d5-evolution : socle « évolution visible » (North Star
+    # D5). Historise le score de confiance 4 axes (un point daté / jour) pour
+    # rendre possible la courbe « toi d'avant vs toi maintenant ». Stockage
+    # local pur, câblé au contrat de reset. Widget de courbe = unité suivante.
+    "apps/mobile/lib/models/confidence_point.dart",
+    "apps/mobile/lib/services/confidence/confidence_history_service.dart",
+    "apps/mobile/lib/providers/coach_profile_provider.dart",
+    "apps/mobile/lib/services/report_persistence_service.dart",
+    "apps/mobile/test/services/confidence/confidence_history_service_test.dart",
+    "apps/mobile/test/providers/coach_profile_provider_confidence_history_test.dart",
+    "docs/data-flow.md",
+    ".planning/design/2026-07-31-d5-confidence-curve.md",
+    # feat/d5-confidence-curve : la courbe « toi d'avant vs toi maintenant »
+    # rendue visible en tête de « Ton histoire » (aujourdhui_screen). Lit le
+    # socle ci-dessus ; monotonie running-max au rendu (le service reste brut).
+    "apps/mobile/lib/widgets/aujourdhui/confidence_evolution_card.dart",
+    "apps/mobile/test/widgets/aujourdhui/confidence_evolution_card_test.dart",
+    # codex/journey-os-p0-gate-3a : P0 device (2026-08-03) — le gate dette
+    # (SafeMode, isInDebtCrisis Signal C) verrouillait à tort les écrans 3a
+    # profonds pour un profil salarié PARTIEL (épargne/charges non saisies lues
+    # comme coussin nul + base de charges fabriquée). Correctif faux positif +
+    # le mur explique (provenance), laisse corriger la donnée et offre toujours
+    # « Continuer quand même ». coach_profile.dart et les ARB sont déjà couverts.
+    "apps/mobile/lib/widgets/common/safe_mode_gate.dart",
+    "apps/mobile/test/models/coach_profile_safe_mode_test.dart",
+    "apps/mobile/test/safe_mode_gate_test.dart",
+    # Même P0 : le fix du faux positif ouvre le gate pour un profil partiel et
+    # DÉMASQUE deux bugs pré-existants de l'écran rachat échelonné (overflow
+    # horizontal 320pt iPhone SE + plan annuel 79b sous le pli d'un
+    # CustomScrollView paresseux). Correctif responsive + a11y (état sélectionné,
+    # cible 44pt) + test qui scrolle vers le contenu paresseux réel.
+    "apps/mobile/lib/screens/lpp_deep/rachat_echelonne_screen.dart",
+    "apps/mobile/test/screens/lpp_deep/rachat_echelonne_screen_test.dart",
+    # codex/journey-os-sweep-320pt-safemode : extension systémique de la leçon
+    # #1177. Le fix du faux positif ouvre le SafeModeGate pour un profil partiel
+    # et rend PLEINE HAUTEUR les autres écrans 3a/LPP profonds — jamais couverts
+    # par un test 320pt. Sweep : overflows RenderFlex horizontaux confirmés puis
+    # corrigés (Expanded/Flexible sur libellés, isExpanded sur dropdown, FittedBox
+    # sur chiffres, Flexible sur colonnes). epl_screen n'était pas encore
+    # whitelisté ; les autres écrans le sont déjà (lignes ci-dessus). Le widget
+    # partagé LppRescueWidget (hors gate, i18n en dette) est documenté, non touché.
+    "apps/mobile/lib/screens/lpp_deep/epl_screen.dart",
+    "apps/mobile/test/screens/sweep320_safemode_deep_test.dart",
+    # codex/journey-os-mx-fidelite-design : audit de fidélité au design validé
+    # (mint-experience, 5e lentille) sur les 4 surfaces ci-dessus + login/3a.
+    # Constat sans patch — aucune surface modifiée, un seul artefact d'audit.
+    ".planning/audit/2026-08-04-fidelite-design-mint-experience.md",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde
@@ -1902,6 +2249,73 @@ def _runtime_replay_coverage_errors(records: list[tuple[Path, dict[str, Any]]], 
         return [f"top Journey OS issue {top_issue.get('id')} must be replayable through runtime_replay.sets top"]
     return []
 
+
+STORYBOARD_DIR = "product/mint_next/storyboard"
+STORYBOARD_NO_NETWORK_FILES = (
+    "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
+    "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
+)
+
+def _storyboard_traceability_errors(root: Path) -> list[str]:
+    """Every test name a storyboard declares must exist verbatim in its
+    test_files (Dart adjacent string literals joined), and the versements
+    fact modules must stay free of HTTP client imports (zero-transmission
+    static guard)."""
+    import re as _re
+    errors: list[str] = []
+    for sb_path in sorted((root / STORYBOARD_DIR).glob("*.storyboard.json")):
+        try:
+            data = json.loads(sb_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{sb_path.relative_to(root)} unreadable storyboard: {exc}")
+            continue
+        for beat in data.get("beats", []) if isinstance(data.get("beats"), list) else []:
+            test_files = beat.get("test_files")
+            if not isinstance(test_files, list) or not test_files:
+                if beat.get("tests"):
+                    errors.append(
+                        f"{sb_path.relative_to(root)} beat {beat.get('id')}: tests declared without test_files — fictive traceability (use tests_planned before implementation)"
+                    )
+                continue
+            corpus = ""
+            for rel in test_files:
+                f = root / rel
+                if not f.is_file():
+                    errors.append(f"{sb_path.relative_to(root)} beat {beat.get('id')}: missing test file {rel}")
+                    continue
+                corpus += f.read_text(encoding="utf-8")
+            joined = _re.sub(r"'\s*\n\s*'", "", corpus).replace("\\'", "'")
+            for name in beat.get("tests", []) if isinstance(beat.get("tests"), list) else []:
+                if isinstance(name, str) and name not in joined:
+                    errors.append(
+                        f"{sb_path.relative_to(root)} beat {beat.get('id')}: declared test not found verbatim in test_files: {name}"
+                    )
+    # Ne s'applique qu'aux racines portant le storyboard versements — les
+    # fixtures synthétiques des tests de guard n'embarquent pas l'app.
+    if not (root / STORYBOARD_DIR / "versements_3a.storyboard.json").is_file():
+        return errors
+    # Lego 6 — unicité structurelle du calcul de marge : Ma situation ne
+    # porte JAMAIS le calculateur ni la formule (le vertical 3a est l'unique
+    # point d'entrée UI). Interdit avant même que le calculateur existe.
+    mon_argent = root / "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart"
+    if mon_argent.is_file():
+        body = mon_argent.read_text(encoding="utf-8")
+        for marker in ("MintNextMarge3aCalculator", "mint_next_marge_3a_calculator", "pillar3a_room_calculator"):
+            if marker in body:
+                errors.append(
+                    f"single-calculator guard: mon_argent_screen.dart references {marker} — la marge 3a n'a qu'une implémentation, affichée par le vertical"
+                )
+    for rel in STORYBOARD_NO_NETWORK_FILES:
+        f = root / rel
+        if not f.is_file():
+            errors.append(f"zero-transmission static guard: missing {rel}")
+            continue
+        body = f.read_text(encoding="utf-8")
+        for marker in ("package:http", "package:dio", "HttpClient("):
+            if marker in body:
+                errors.append(f"zero-transmission static guard: {rel} imports/uses {marker}")
+    return errors
+
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
@@ -1943,6 +2357,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
                 errors.append(f"{rel} missing Journey OS issue: {issue}")
     errors += _runtime_replay_coverage_errors(records, issues)
     errors += _generated_errors(root)
+    errors += _storyboard_traceability_errors(root)
     return errors
 
 def main(argv: list[str] | None = None) -> int:

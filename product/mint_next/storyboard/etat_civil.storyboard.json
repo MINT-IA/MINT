@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "etat_civil_lego2",
+    "title": "Dire ma situation civile — et que MINT la protège",
+    "promise": "L'état civil traverse le cycle canonique complet par le chemin scellé : enregistré atomiquement (fait + métadonnées), retrouvé après relance, visible dans Ma situation, corrigeable, supprimable, réutilisé par la préparation fiscale qui distingue imposition commune et séparée."
+  },
+  "generated_at": "2026-08-11",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
+    "cadrage": "verdict Codex LOOP: GO (Lego 2, 2026-08-11) — q_civil_status partagé scellé, q_civil_status_choice = alias legacy lecture seule jamais double-write, 6 tokens sans accents, transaction coordonnée scellée dédiée (le merge opportuniste ne garantit pas l'atomicité fait+métadonnées), cap 60k"
+  },
+  "classification_decision": "q_civil_status est déjà classé SENSIBLE (SecureWizardStore) : le fait suit le chemin scellé coordonné (pattern logement) — write canonique atomique du bundle fait+métadonnées, cache secondaire non-autoritaire. Les métadonnées possédées q_etat_civil_fact_* sont classées sensibles avec la valeur. Tokens internes stables sans accents : celibataire | marie | partenariat_enregistre | concubinage | divorce | veuf — jamais de libellé UI stocké ; la sémantique LIFD vit au backend (fiscal/civil_status.py).",
+  "known_defect_fixed": "CoachCivilStatus assimilait partenariat_enregistre à concubinage — fiscalement faux (imposition commune vs séparée) ; corrigé dans ce Lego.",
+  "beats": [
+    {
+      "id": "collect",
+      "story": "Une seule décision : ma situation civile — six cartes, aucune présélection, aucun menu déroulant. Un rappel discret : « Pour la fiscalité, ta situation au 31 décembre fait foi. » Rien n'est enregistré avant confirmation explicite.",
+      "code": "apps/mobile/lib/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart",
+      "tests": [
+        "collect shows six civil status cards none preselected and nothing persists before confirm",
+        "safe exit before confirmation writes nothing"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_etat_civil/mint_next_etat_civil_screen_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
+      ]
+    },
+    {
+      "id": "confirm_persist_sealed",
+      "story": "Je vois ce que MINT va retenir et je confirme. Le fait part par la transaction coordonnée scellée : fait + métadonnées commis atomiquement, jamais un état à moitié écrit.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveCivilStatusFact",
+      "tests": [
+        "confirm persists the sealed bundle atomically",
+        "a failed canonical write leaves no half-written fact",
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
+      ]
+    },
+    {
+      "id": "rehydrate",
+      "story": "Je relance l'app : ma situation civile est toujours là, restaurée depuis le scellement.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#civilStatusFact",
+      "tests": [
+        "civil status fact rehydrates from sealed storage after reload"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart"
+      ]
+    },
+    {
+      "id": "ma_situation",
+      "story": "Dans « Ma situation », je retrouve ma situation civile, sa provenance, et je peux la modifier ou la supprimer.",
+      "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+      "tests": [
+        "mon argent shows the saved civil status with provenance",
+        "mon argent delete removes the civil status after confirmation",
+        "delete tombstones the fact and preserves unrelated answers"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart",
+        "apps/mobile/test/screens/mon_argent_etat_civil_fact_test.dart"
+      ]
+    },
+    {
+      "id": "reuse_fiscal",
+      "story": "La préparation fiscale 3a lit ma situation civile sans me la redemander — et sait distinguer l'imposition commune (marié, partenariat enregistré) de la séparée. Aucun chiffre, moteur non attesté.",
+      "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aCivilStatusContext",
+      "tests": [
+        "fiscal context reports civil status known with joint taxation for marie and partenariat_enregistre",
+        "fiscal context reports separate taxation for concubinage and missing without a confirmed fact"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_3a_fiscal_context_domicile_test.dart"
+      ]
+    },
+    {
+      "id": "invalidate",
+      "story": "Si ma situation change (mariage, divorce), les dérivés fiscaux liés à l'ancienne révision se périment — rien d'autre (ni logement, ni budget, ni patrimoine).",
+      "code": "révision = assertedAt UTC ; aucun résultat fiscal persistant (NoAttestedEngine) — preuve par lecture vivante",
+      "tests": [
+        "a corrected status changes the revision"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "chaîne fiscale mariée backend (déjà mergée #1214, non câblée mobile)",
+    "conjoint / partenaire (faits distincts, Legos futurs)",
+    "migration des données q_civil_status_choice legacy (alias lu, jamais réécrit)",
+    "moteur fiscal (NoAttestedEngine)"
+  ],
+  "kill_flag": "enableMintNextEtatCivil",
+  "gate": "ADR 2026-08-10 — 5 conditions ; harnais runtime réutilisé (clone du runner domicile)"
+}

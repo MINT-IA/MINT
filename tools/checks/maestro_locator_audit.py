@@ -396,6 +396,24 @@ def codebase_has_key(key_id: str) -> bool:
             dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
         elif entry_key == "auth" and entry_value in {"present", "absent"}:
             dynamic_patterns.append(("e2e_mint2_axis_claim_${entry.key}_${entry.value}", suffix))
+    if key_id.startswith("mon_argent_versements_3a_total_"):
+        suffix = key_id.removeprefix("mon_argent_versements_3a_total_")
+        year, _, cents = suffix.partition("_")
+        if year.isdigit() and cents.isdigit():
+            dynamic_patterns.append((
+                "mon_argent_versements_3a_total_${year}_${fact.totalForYearCents(year)}",
+                suffix,
+            ))
+    if key_id.startswith("mint_next_marge_3a_marge_"):
+        suffix = key_id.removeprefix("mint_next_marge_3a_marge_")
+        if suffix.lstrip("-").isdigit():
+            dynamic_patterns.append(
+                ("mint_next_marge_3a_marge_${result.margeCents}", suffix))
+    if key_id.startswith("mint_next_marge_3a_state_"):
+        suffix = key_id.removeprefix("mint_next_marge_3a_state_")
+        if suffix.isidentifier():
+            dynamic_patterns.append(
+                ("mint_next_marge_3a_state_${result.status.name}", suffix))
     if key_id.startswith("rvc_age_state_"):
         suffix = key_id.removeprefix("rvc_age_state_")
         if suffix.isdigit() or suffix == "${output.rvc_expected_age}":

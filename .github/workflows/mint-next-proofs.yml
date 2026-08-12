@@ -1,0 +1,484 @@
+name: MINT Next Batch 19 R1 RED Proofs
+
+# Neutral CI executor + release attestation for the Batch 19 R1 expected-RED
+# contract. Two roles:
+#   - acceptance-contract / red-replay: run the guards directly on the executor
+#     branch that carries the contract. They no-op green on a base that does not
+#     carry the Batch 19 contract (e.g. dev), via a presence detection step.
+#   - release-attestation: workflow_dispatch-only. Checks out an immutable
+#     promotion SHA and runs the FULL guard `--release` (validate check_git=True,
+#     un-waived, + run_proofs + the state-agnostic hostile suite). This attests
+#     the git boundary mechanically at promotion time, without depending on a
+#     mutable branch push.
+
+on:
+  pull_request:
+    branches: [dev, staging, main]
+    paths:
+      - 'product/mint_next/**'
+      - 'tools/checks/mint_next_batch19_r1_red*'
+      - 'tools/checks/tests/test_mint_next_batch19_r1_red*'
+      - 'product/mint_next/batch20/**'
+      - 'tools/checks/mint_next_batch20_*'
+      - 'tools/checks/tests/test_mint_next_batch20_*'
+      - '.planning/journeys/path-owners/batch20-*'
+      - 'tools/checks/mint_next_navigation_contract*'
+      - 'tools/checks/tests/test_mint_next_navigation_contract*'
+      - '.planning/journeys/path-owners/**'
+      - '.github/workflows/mint-next-proofs.yml'
+  push:
+    branches:
+      - 'codex/mint-next-batch5-beginner-navigation-3a-20260802'
+    paths:
+      - 'product/mint_next/**'
+      - 'tools/checks/mint_next_batch19_r1_red*'
+      - 'tools/checks/tests/test_mint_next_batch19_r1_red*'
+      - 'product/mint_next/batch20/**'
+      - 'tools/checks/mint_next_batch20_*'
+      - 'tools/checks/tests/test_mint_next_batch20_*'
+      - '.planning/journeys/path-owners/batch20-*'
+      - 'tools/checks/mint_next_navigation_contract*'
+      - 'tools/checks/tests/test_mint_next_navigation_contract*'
+      - '.planning/journeys/path-owners/**'
+      - '.github/workflows/mint-next-proofs.yml'
+  workflow_dispatch:
+    inputs:
+      attestation_target:
+        description: 'Cible du dispatch (batch19-red | batch20-red | batch20-green | batch21-red | batch21-green | batch22-red | batch22-green). Vide = batch19/20 (compat) ; les cibles batch21+ sont explicites-seulement (leur chaîne porte des chemins non couverts par les owned-tails batch19/20).'
+        required: false
+        default: ''
+        type: string
+      promotion_sha:
+        description: 'Immutable promotion-branch head SHA to attest with --release (check_git=True, un-waived). Leave empty for the executor jobs.'
+        required: false
+        type: string
+
+concurrency:
+  group: mint-next-batch19-r1-red-proofs-${{ github.ref }}-${{ inputs.promotion_sha }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  acceptance-contract:
+    name: Batch19 acceptance guard hostile suite (34) + receipt substance
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Detect Batch19 contract presence
+        id: detect
+        run: |
+          if [ -f tools/checks/tests/test_mint_next_batch19_r1_red_acceptance_guard.py ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Batch19 contract absent on this base — job no-ops green."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        if: steps.detect.outputs.present == 'true'
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          python3 -m pip install PyYAML==6.0.2
+          # run_proofs' trusted dependency_site probe (exercised by the
+          # sitecustomize-isolation test) requires the user site-packages DIR to
+          # exist. A fresh runner has none, so create it directly.
+          python3 -c "import site, os; os.makedirs(site.getusersitepackages(), exist_ok=True)"
+      - name: Fire the 34 hostile acceptance-guard mutations
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_red_acceptance_guard
+      - name: Verify acceptance receipt substance (pending OR accepted; payload + schema + RED integrity; git boundary attested separately by release-attestation)
+        if: steps.detect.outputs.present == 'true'
+        run: >-
+          python3 -c "import sys; sys.path.insert(0, '.');
+          from tools.checks.mint_next_batch19_r1_red_acceptance_guard import validate, REPO_ROOT;
+          validate(REPO_ROOT, check_git=False);
+          print('ACCEPTANCE RECEIPT SUBSTANCE OK')"
+
+  red-replay:
+    name: Batch19 R1 expected-RED replay (2 pass / 13 behavioral fail)
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Detect Batch19 RED contract presence
+        id: detect
+        run: |
+          if [ -f tools/checks/mint_next_batch19_r1_red_guard.py ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Batch19 RED contract absent on this base — job no-ops green."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        if: steps.detect.outputs.present == 'true'
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m pip install PyYAML==6.0.2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        if: steps.detect.outputs.present == 'true'
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        if: steps.detect.outputs.present == 'true'
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
+        if: steps.detect.outputs.present == 'true'
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Replay expected-RED contract and assert exact 2/13 behavioral pattern
+        if: steps.detect.outputs.present == 'true'
+        run: python3 tools/checks/mint_next_batch19_r1_red_guard.py
+      - name: Fire the 40 hostile RED-guard mutations
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch19_r1_red_guard
+
+  navigation-contract:
+    name: MINT Next navigation contract guard (bidirectional parity)
+    # Enforces "every control has one declared destination; a control that is
+    # not declared does not exist" between product/mint_next/batch6/navigation.yaml
+    # and the Design Lab. The unit tests always run (they prove the guard logic
+    # on synthetic fixtures); the guard itself no-ops green until the contract +
+    # design lab land on this base, then enforces bidirectional parity with the
+    # explicit waitlist.
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Detect navigation contract guard presence
+        id: detect
+        run: |
+          if [ -f tools/checks/mint_next_navigation_contract.py ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Navigation contract guard absent on this base — job no-ops green."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        if: steps.detect.outputs.present == 'true'
+        with:
+          python-version: '3.11'
+      - name: Install guard dependencies
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m pip install PyYAML==6.0.2 pytest==8.4.2
+      - name: Unit-test the guard (synthetic fixtures — proves the bidirectional logic)
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m pytest tools/checks/tests/test_mint_next_navigation_contract.py -q
+      - name: Run the navigation contract guard (no-ops green until the contract + design lab land)
+        if: steps.detect.outputs.present == 'true'
+        run: python3 tools/checks/mint_next_navigation_contract.py
+
+  batch20-red-contract:
+    name: Batch20 R2 hostile RED suite + acceptance receipt substance + hostile acceptance suite
+    # Mirrors the Batch19 red-replay + acceptance-contract executor jobs, folded
+    # into one: the hostile RED-guard mutations, the acceptance receipt substance
+    # (validate check_git=False), and the hostile acceptance-guard mutations. It
+    # no-ops green on a base that does not carry the Batch20 R2 contract (e.g.
+    # dev), via a presence detection step. The full git boundary is attested
+    # separately by batch20-red-release-attestation (dispatch-only).
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+      - name: Detect Batch20 R2 contract presence
+        id: detect
+        run: |
+          if [ -f tools/checks/mint_next_batch20_r2_red_guard.py ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Batch20 R2 contract absent on this base — job no-ops green."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        if: steps.detect.outputs.present == 'true'
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependencies (system + USER site — the detached -ISB proof's sys.path is [root, user-site] only)
+        if: steps.detect.outputs.present == 'true'
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - name: Fire the hostile RED-guard mutations
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch20_r2_red_guard
+      - name: Verify acceptance receipt substance (pending OR accepted; payload + schema + RED integrity; git boundary attested separately by release-attestation)
+        if: steps.detect.outputs.present == 'true'
+        run: >-
+          python3 -c "import sys; sys.path.insert(0, '.');
+          from tools.checks.mint_next_batch20_r2_red_acceptance_guard import validate, REPO_ROOT;
+          validate(REPO_ROOT, check_git=False);
+          print('ACCEPTANCE RECEIPT SUBSTANCE OK')"
+      - name: Fire the hostile acceptance-guard mutations
+        if: steps.detect.outputs.present == 'true'
+        run: python3 -m unittest tools.checks.tests.test_mint_next_batch20_r2_red_acceptance_guard
+
+  release-attestation:
+    name: Batch19 R1 RED release attestation (check_git=True, un-waived, dispatch-only)
+    if: github.event_name == 'workflow_dispatch' && (inputs.attestation_target == '' || inputs.attestation_target == 'batch19-red')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Immutable promotion head SHA. On a PENDING receipt --release exits 1
+          # ("still pending"); on the accepted flip commit it runs the full
+          # validate(check_git=True) boundary un-waived + run_proofs + the
+          # state-agnostic hostile suite and exits 0.
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency (system + USER site — the detached proof's sys.path is [root, user-site] only)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          # Only the SDK that satisfies the design_lab pinned pubspec.lock under
+          # --enforce-lockfile; --release replays the RED via run_proofs.
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling check rejects ignored files under protected paths; pub cache stays warm in ~/.pub-cache)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full guard release attestation (validate check_git=True + run_proofs + hostile suite)
+        run: python3 -I tools/checks/mint_next_batch19_r1_red_acceptance_guard.py --release
+
+  batch20-red-release-attestation:
+    name: Batch20 R2 RED release attestation (check_git=True, un-waived, dispatch-only)
+    if: github.event_name == 'workflow_dispatch' && (inputs.attestation_target == '' || inputs.attestation_target == 'batch20-red')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Immutable promotion head SHA. On a PENDING receipt --release exits 1
+          # ("still pending"); on the accepted flip commit it runs the full
+          # validate(check_git=True) boundary un-waived + run_proofs + the
+          # state-agnostic hostile suite and exits 0.
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency (system + USER site — the detached proof's sys.path is [root, user-site] only)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          # Only the SDK that satisfies the design_lab pinned pubspec.lock under
+          # --enforce-lockfile; --release replays the RED via run_proofs.
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling check rejects ignored files under protected paths; pub cache stays warm in ~/.pub-cache)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full guard release attestation (validate check_git=True + run_proofs + hostile suite)
+        run: python3 -I tools/checks/mint_next_batch20_r2_red_acceptance_guard.py --release
+
+  batch21-red-release-attestation:
+    name: Batch21 R3 RED release attestation (check_git=True, un-waived, dispatch-only)
+    # Explicit-only (never on the '' compat target): the batch21 chain carries
+    # paths outside the batch19/20 owned-tails, so those jobs must not be
+    # co-dispatched at a batch21 promotion SHA.
+    if: github.event_name == 'workflow_dispatch' && inputs.attestation_target == 'batch21-red'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          # Immutable promotion head SHA. On a PENDING receipt --release exits 1
+          # ("still pending"); on the accepted flip commit it runs the full
+          # validate(check_git=True) boundary un-waived + run_proofs + the
+          # state-agnostic hostile suite and exits 0. The expected-RED replay it
+          # fires is the linear integration-journey contract (2/12/0) — green
+          # flips at the declared integration batch (registry.deferred_integration).
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency (system + USER site — the detached proof's sys.path is [root, user-site] only)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling check rejects ignored files under protected paths; pub cache stays warm in ~/.pub-cache)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full guard release attestation (validate check_git=True + run_proofs + hostile suite)
+        run: python3 -I tools/checks/mint_next_batch21_r3_red_acceptance_guard.py --release
+
+  batch22-red-release-attestation:
+    name: Batch22 R4 RED release attestation (check_git=True, un-waived, dispatch-only)
+    # Explicit-only, mirror of batch21-red. The expected-RED replay it fires is
+    # the integration-journey contract (2/14/0 — scenarios_versement +
+    # fact_etat_civil asserted absent at the delivered eclairage boundary);
+    # green flips at the declared R4 integration batch. The C0 pre-positioned
+    # owners/ALLOW make this a native single-sha attestation (journey proof
+    # passes at the flip commit).
+    if: github.event_name == 'workflow_dispatch' && inputs.attestation_target == 'batch22-red'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install exact guard dependency (system + USER site — the detached proof's sys.path is [root, user-site] only)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Guarantee the pinned lockfile is byte-identical before the guard reads it
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling check rejects ignored files under protected paths; pub cache stays warm in ~/.pub-cache)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full guard release attestation (validate check_git=True + run_proofs + hostile suite)
+        run: python3 -I tools/checks/mint_next_batch22_r4_red_acceptance_guard.py --release
+
+  batch20-green-release-attestation:
+    name: Batch20 R2 GREEN release attestation (accepted, full green replay, dispatch-only)
+    if: github.event_name == 'workflow_dispatch' && inputs.attestation_target == 'batch20-green'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install guard deps (system + user-site — detached proofs see [root, user-site] only)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Restore pinned lockfile byte-identical
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling rejects ignored files; pub cache stays warm)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full GREEN release attestation (accepted state + inventory seal + executed full-green replay)
+        run: python3 -I tools/checks/mint_next_batch20_r2_green_gate_guard.py --release
+
+  batch21-green-release-attestation:
+    name: Batch21 R3 GREEN release attestation (accepted, wired journey, full 14/14 replay, dispatch-only)
+    # Explicit-only, mirror of batch21-red: acceptance means runtime AND wiring
+    # (green_gate_semantics — no pin may attest runtime-only without wiring);
+    # --release replays the linear integration-journey test within the wired
+    # screens (14/14) and exits 1 on a PENDING manifest.
+    if: github.event_name == 'workflow_dispatch' && inputs.attestation_target == 'batch21-green'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install guard deps (system + user-site — detached proofs see [root, user-site] only)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Restore pinned lockfile byte-identical
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling rejects ignored files; pub cache stays warm)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full GREEN release attestation (accepted state + inventory seal + executed wired 14/14 replay)
+        run: python3 -I tools/checks/mint_next_batch21_r3_green_gate_guard.py --release
+
+  batch22-green-release-attestation:
+    name: Batch22 R4 GREEN release attestation (accepted, wired arc, full 16/16 replay, dispatch-only)
+    # Explicit-only, mirror of batch21-green. Seals the complete R1-R4 arc:
+    # acceptance = runtime AND inbound wiring (eclairage.continue->scenarios,
+    # refine->etat_civil), byte-identical sealed test (no amendment).
+    if: github.event_name == 'workflow_dispatch' && inputs.attestation_target == 'batch22-green'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ inputs.promotion_sha }}
+          fetch-depth: 0
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065b # v5.6.0
+        with:
+          python-version: '3.11'
+      - name: Install guard deps (system + user-site)
+        run: |
+          python3 -m pip install PyYAML==6.0.2 jsonschema
+          python3 -m pip install --user --ignore-installed PyYAML==6.0.2 jsonschema
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
+        with:
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+      - name: Warm pub cache with the LOCKED versions (no lock rewrite)
+        working-directory: product/mint_next/batch7/design_lab
+        run: flutter pub get --enforce-lockfile
+      - name: Restore pinned lockfile byte-identical
+        run: git checkout -- product/mint_next/batch7/design_lab/pubspec.lock
+      - name: Restore pristine tree before the guard (anti-smuggling rejects ignored files; pub cache stays warm)
+        run: git clean -fdx product/mint_next/batch7/design_lab
+      - name: Full GREEN release attestation (accepted state + inventory seal + executed wired 16/16 replay)
+        run: python3 -I tools/checks/mint_next_batch22_r4_green_gate_guard.py --release

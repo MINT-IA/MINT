@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "capture": true,
+  "fact_ids": [
+    "housing.primary_home.tenure",
+    "housing.mortgage.exists",
+    "housing.mortgage.statement.availability",
+    "housing.mortgage.statement.tax_year",
+    "housing.mortgage.interest_paid_chf",
+    "housing.mortgage.debt_balance_chf"
+  ],
+  "canonical_write_ref": "apps/mobile/lib/providers/coach_profile_provider.dart#saveHousingFact",
+  "visibility_ref": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart#mon_argent_housing_fact",
+  "edit_ref": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart#action:mon_argent.housing.edit",
+  "delete_ref": "apps/mobile/lib/providers/coach_profile_provider.dart#deleteHousingFact",
+  "external_consumer_refs": [
+    "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart#_HousingFactSurface"
+  ],
+  "lifecycle_test_ref": "apps/mobile/test/screens/mon_argent_screen_test.dart#housing-only fact is visible and deletable while flag is off"
+}

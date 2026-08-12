@@ -1,5 +1,17 @@
 # MINT — Strategic Roadmap V2 (Benchmark-Driven)
 
+> **⚠️ SUPERSEDED (2026-08-03) — conservé pour archéologie.** Ce roadmap de mars 2026
+> ne route plus aucun travail. Doctrine canonique :
+> `.planning/decisions/2026-08-03-doctrine-reconstruction-mint.md` (PR #1173) ·
+> expérience cible : `.planning/decisions/2026-07-31-north-star-experience.md`
+> (chantiers D1-D5) · file d'exécution : `.planning/journeys/` (Journey OS).
+> Les statuts « SHIPPED » ci-dessous sont des claims sans citation déterministe,
+> plusieurs démentis par le code (ex. « 0 GoogleFonts in lib/ » alors que GoogleFonts
+> est présent dans `apps/mobile/lib/app.dart` et `lib/theme/mint_text_styles.dart`).
+> Le principe d'exécution « autoresearch nightly agents » est abandonné : le workflow
+> vivant est le batch A→I avec runtime touchable et preuves CI liées au SHA.
+> Ne jamais rouvrir un sprint S51-S75 depuis ce document.
+
 > Date: March 2026 | Version: 3.0 | Production: v1.0.0
 > Updated: 29 March 2026 — All 4 phases audited, 102+ bugs fixed, all features wired E2E
 > Based on: `visions/MINT_Analyse_Strategique_Benchmark.md` (40+ apps, 18 research themes)

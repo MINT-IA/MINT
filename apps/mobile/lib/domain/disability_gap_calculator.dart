@@ -270,3 +270,230 @@ DisabilityGapResult computeDisabilityGap({
     lppDisabilityBenefit: lppDisabilityBenefit,
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════
+//  DisabilityService — étalon mobile UNIQUE des 3 écrans invalidité.
+//
+//  Fin du doublon « C5-disability à 3 têtes » (cf.
+//  .planning/phases/mint-utilisable-12d-vague2/V2-2-INVENTORY.md) : avant, les
+//  3 écrans (disability_gap / disability_insurance / disability_self_employed)
+//  ré-implémentaient EN INLINE la rente invalidité LPP, la rente AI, le score
+//  de couverture, l'échelle mois-de-réserve et le ratio de charges — avec des
+//  constantes nues divergentes. Ce service centralise ces calculs, miroir de
+//  l'étalon backend `services/backend/app/services/disability_gap_service.py`
+//  (via `computeDisabilityGap` ci-dessus pour le gap 3-phases) et des
+//  constantes `constants/social_insurance.dart`.
+//
+//  Verdicts actuaire/juriste (Codex borné, 2026-07-31) intégrés :
+//   • Acte employeur = 100 % (CO art. 324a), PAS 80 % (l'ancien affichage était
+//     FAUX ; 80 % = IJM, phase suivante).
+//   • Rente invalidité LPP = PROXY éducatif (~40 % salaire coordonné), jamais un
+//     droit personnalisé garanti — la rente réelle dépend de l'avoir acquis, des
+//     bonifications futures, du taux de conversion et du degré (LSFin : scénario
+//     sourcé + réserve de confiance, pas un montant promis).
+//   • Rente AI entière = MAXIMUM légal (degré ≥ 70 %, carrière pleine), pas un dû
+//     automatique.
+//   • Ratio de charges 70 % = hypothèse budgétaire pédagogique nommée.
+//
+//  ASSIETTE (brut vs net) — le simulateur mobile raisonne sur le SALAIRE BRUT
+//  mensuel (le curseur des 3 écrans est libellé « salaire brut »), tandis que
+//  l'étalon backend `compute_disability_gap` prend un `revenu_mensuel_net`. Les
+//  BARÈMES et COEFFICIENTS sont identiques (échelle 324a, IJM 0.80, barème AI,
+//  seuils/plafonds LPP) — c'est cette parité-là que fige le fixture ; les
+//  MONTANTS absolus ne sont donc PAS directement comparables (assiette
+//  différente). Choix éducatif conservé (pas de re-bascule brut→net ici).
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Taux sourcés du simulateur invalidité éducatif — source of truth unique.
+class DisabilityRates {
+  DisabilityRates._();
+
+  /// CO art. 324a — pendant la période légale (échelle cantonale), l'employeur
+  /// maintient **100 %** du salaire. Verdict actuaire (Codex 2026-07-31, A =
+  /// JUSTE) : afficher 80 % pour cet acte était FAUX — le 80 % correspond à
+  /// l'IJM (phase suivante), pas à l'obligation employeur.
+  static const double employerCoverage = 1.0;
+
+  /// IJM (indemnités journalières maladie) — **80 %** du salaire assuré,
+  /// 720 j / 24 mois max, SI une police est souscrite (délai d'attente selon
+  /// contrat). Miroir de `IJM_COVERAGE_RATE` (disability_gap_service.py:87).
+  static const double ijmCoverage = 0.80;
+
+  /// Proxy ÉDUCATIF de la rente d'invalidité LPP : ~40 % du salaire coordonné
+  /// (ordre de grandeur LPP art. 23-24). CE N'EST PAS le calcul exact ni un
+  /// droit personnalisé (verdict Codex 2026-07-31, C = FAUX comme calcul
+  /// personnalisé) : la rente réelle = avoir de vieillesse acquis + bonifications
+  /// futures sans intérêt jusqu'à 65 ans, × taux de conversion, × degré. Affiché
+  /// comme scénario sourcé avec réserve de confiance, jamais garanti (LSFin).
+  static const double lppInvalidityOfCoordinated = 0.40;
+
+  /// Hypothèse budgétaire pédagogique : dépenses ≈ **70 %** du revenu (réserve
+  /// d'urgence + compte à rebours). À remplacer par les dépenses réelles quand
+  /// disponibles (verdict Codex 2026-07-31, E = PROXY-ACCEPTABLE).
+  static const double educationalExpenseRatio = 0.70;
+}
+
+/// Projection des trois « actes » de la falaise invalidité (revenus mensuels).
+class DisabilityActProjection {
+  /// Acte 1 — employeur (CO art. 324a) : 100 % du salaire.
+  final double employerIncome;
+
+  /// Acte 2 — IJM : 80 % du salaire si souscrite, sinon 0.
+  final double ijmIncome;
+
+  /// Composante rente AI de l'acte 3 (maximum légal, degré ≥ 70 %).
+  final double aiRente;
+
+  /// Composante rente invalidité LPP de l'acte 3 (proxy éducatif).
+  final double lppInvalidity;
+
+  /// Acte 3 — long terme : rente AI + rente invalidité LPP.
+  final double longTermIncome;
+
+  const DisabilityActProjection({
+    required this.employerIncome,
+    required this.ijmIncome,
+    required this.aiRente,
+    required this.lppInvalidity,
+    required this.longTermIncome,
+  });
+}
+
+/// Bulletin de couverture invalidité (notes lettres locale-indépendantes +
+/// chiffres). Les LIBELLÉS restent composés à l'écran (i18n ARB) — le service ne
+/// retourne jamais de texte FR.
+class DisabilityCoverage {
+  final String ijmGrade;
+  final String aiGrade;
+  final String lppGrade;
+  final String savingsGrade;
+  final String overallGrade;
+
+  /// Mois de charges couverts par l'épargne (dépenses = 70 % du revenu).
+  final double reserveMonths;
+
+  /// Chute de revenu à long terme (%) : 1 − (AI + LPP) / salaire, borné 0-100.
+  final double lifeDropPercent;
+
+  /// Vrai si le salaire annuel atteint le seuil d'entrée LPP.
+  final bool hasLpp;
+
+  const DisabilityCoverage({
+    required this.ijmGrade,
+    required this.aiGrade,
+    required this.lppGrade,
+    required this.savingsGrade,
+    required this.overallGrade,
+    required this.reserveMonths,
+    required this.lifeDropPercent,
+    required this.hasLpp,
+  });
+}
+
+/// Service invalidité mobile unique — patron `GenderGapService`.
+class DisabilityService {
+  DisabilityService._();
+
+  /// Rente AI mensuelle selon le degré d'invalidité (barème LAI art. 28).
+  /// Miroir de `get_ai_rente_monthly` (backend) via le barème partagé de
+  /// `computeDisabilityGap`.
+  static double aiRenteMonthly(int degreInvalidite) =>
+      _getAiRente(degreInvalidite);
+
+  /// Rente AI ENTIÈRE = maximum légal (degré ≥ 70 %, carrière pleine). N'est pas
+  /// un dû automatique — dépend des années de cotisation et du revenu moyen
+  /// (verdict Codex 2026-07-31, D). Affiché comme « maximum ».
+  static double get aiRenteFullMonthly => _getAiRente(100);
+
+  /// Rente invalidité LPP mensuelle (PROXY éducatif : ~40 % du salaire
+  /// coordonné). Retourne 0 sous le seuil d'entrée LPP.
+  static double lppInvalidityMonthly(double annualGross) {
+    if (annualGross < lppSeuilEntree) return 0.0;
+    final coordinated = (annualGross - lppDeductionCoordination)
+        .clamp(lppSalaireCoordMin, lppSalaireCoordMax);
+    return coordinated * DisabilityRates.lppInvalidityOfCoordinated / 12;
+  }
+
+  /// Dépenses mensuelles estimées (hypothèse pédagogique : 70 % du revenu).
+  static double monthlyExpenses(double income) =>
+      income * DisabilityRates.educationalExpenseRatio;
+
+  /// Les trois actes de la falaise (employeur 100 % → IJM 80 %/0 → AI + LPP).
+  static DisabilityActProjection acts({
+    required double grossMonthly,
+    required bool hasIjm,
+  }) {
+    final employer = grossMonthly * DisabilityRates.employerCoverage;
+    final ijm = hasIjm ? grossMonthly * DisabilityRates.ijmCoverage : 0.0;
+    final lpp = lppInvalidityMonthly(grossMonthly * 12);
+    final ai = aiRenteFullMonthly;
+    return DisabilityActProjection(
+      employerIncome: employer,
+      ijmIncome: ijm,
+      aiRente: ai,
+      lppInvalidity: lpp,
+      longTermIncome: ai + lpp,
+    );
+  }
+
+  /// Bulletin de couverture (notes + réserve + chute de revenu). Subsume les
+  /// deux variantes : `disability_gap` (sans assurance privée) et
+  /// `disability_insurance` (avec `hasPrivateInsurance`).
+  static DisabilityCoverage coverage({
+    required double grossMonthly,
+    required double savings,
+    required bool hasIjm,
+    bool hasPrivateInsurance = false,
+  }) {
+    final annualGross = grossMonthly * 12;
+    final hasLpp = annualGross >= lppSeuilEntree;
+    final expenses = grossMonthly * DisabilityRates.educationalExpenseRatio;
+    final reserveMonths = expenses > 0 ? savings / expenses : 0.0;
+
+    final ijmGrade = hasIjm ? 'B+' : (hasPrivateInsurance ? 'B' : 'F');
+    const aiGrade = 'C';
+    final lppGrade = hasLpp ? 'A-' : 'D';
+    final String savingsGrade;
+    if (reserveMonths >= 6) {
+      savingsGrade = 'A';
+    } else if (reserveMonths >= 3) {
+      savingsGrade = 'C+';
+    } else if (reserveMonths >= 1) {
+      savingsGrade = 'D';
+    } else {
+      savingsGrade = 'F';
+    }
+
+    int score = 0;
+    if (hasIjm || hasPrivateInsurance) score += 3;
+    if (hasLpp) score += 2;
+    if (reserveMonths >= 3) score += 2;
+    if (reserveMonths >= 6) score += 1;
+    final String overallGrade;
+    if (score >= 7) {
+      overallGrade = 'B+';
+    } else if (score >= 5) {
+      overallGrade = 'C+';
+    } else if (score >= 3) {
+      overallGrade = 'C-';
+    } else {
+      overallGrade = 'D';
+    }
+
+    final longTerm = aiRenteFullMonthly + lppInvalidityMonthly(annualGross);
+    final lifeDropPercent = grossMonthly > 0
+        ? ((1 - longTerm / grossMonthly) * 100).clamp(0.0, 100.0)
+        : 0.0;
+
+    return DisabilityCoverage(
+      ijmGrade: ijmGrade,
+      aiGrade: aiGrade,
+      lppGrade: lppGrade,
+      savingsGrade: savingsGrade,
+      overallGrade: overallGrade,
+      reserveMonths: reserveMonths,
+      lifeDropPercent: lifeDropPercent,
+      hasLpp: hasLpp,
+    );
+  }
+}

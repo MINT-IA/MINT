@@ -13,6 +13,7 @@ identical pattern). If this ever changes, override with an explicit
 """
 from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 from pydantic.alias_generators import to_camel
@@ -26,8 +27,10 @@ class CrossPillarAnalysisResponse(BaseModel):
     )
 
     annual_3a_contribution: Decimal
-    three_a_ceiling: Decimal
-    three_a_remaining: Decimal
+    # None = plafond 3a inconnu (grand 3a sans revenu déterminant) — jamais un
+    # zéro fabriqué (revue Codex G1). Le coach affiche alors la règle.
+    three_a_ceiling: Optional[Decimal]
+    three_a_remaining: Optional[Decimal]
     lpp_buyback_max: Decimal
     lpp_capital: Decimal
     tax_saving_potential: Decimal

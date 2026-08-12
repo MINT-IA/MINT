@@ -76,9 +76,14 @@ void main() {
         // grep — cheap regression guard. Empirical verification happens
         // on staging TestFlight by querying Sentry Issues API with
         // `transaction:<expected-route-path>` (D-11 §J0 Task 2).
-        final source = File('lib/app.dart').readAsStringSync();
+        // 2026-08-11 (PR B) : la config vit désormais dans le wrapper
+        // MintPrivateRouteSentryObserver (redaction des routes privées),
+        // pas dans app.dart.
+        final source =
+            File('lib/services/observability/private_route_telemetry.dart')
+                .readAsStringSync();
         expect(
-          source.contains('SentryNavigatorObserver(setRouteNameAsTransaction: true)'),
+          source.contains('setRouteNameAsTransaction: true'),
           isTrue,
           reason: 'SentryNavigatorObserver MUST pass '
               'setRouteNameAsTransaction: true to bind scope.transaction '

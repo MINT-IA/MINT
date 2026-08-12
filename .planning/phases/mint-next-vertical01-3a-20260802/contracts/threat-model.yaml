@@ -1,0 +1,120 @@
+schema_version: 1
+contract_id: mint_next_three_a_threat_model_v1
+phase: mint-next-vertical01-3a-20260802
+status: partial_design_threats_identified_controls_unproven
+contract_kind: internal_design_threat_model_not_security_assessment
+prepared_on: '2026-08-10'
+review_by: '2026-11-08'
+upstream_dependencies:
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/aipd-screening.yaml
+  sha256: dd9f991b971e80479f2cdc5959cc55e35f28926fab750b151a8bcb257d63436f
+- path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/aipd-processing-inventory.json
+  sha256: b4c67f82729a1aa2a94ea322507dae7b4273fc12924e3fb9a2b26b33c1f341b2
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/state-machine.yaml
+  sha256: 9692936cabed8f7edc92b9410e18e0088b7bf8d26928910e073133ed8aa905c3
+- path: .planning/phases/mint-next-vertical01-3a-20260802/contracts/navigation-graph.yaml
+  sha256: a03d46af6980d5b36f3f1524e906e751da565da470f7740c056f6018b5cb333d
+threat_register:
+  path: .planning/phases/mint-next-vertical01-3a-20260802/annexes/threat-model-risk-register.json
+  sha256: 16ab5c7fa42c415569cb49bf6cc01d2700466f932fab716ed358a48df09f08eb
+  status: design_only_controls_unproven
+method:
+  classification: stride_and_privacy_harm_design_walkthrough
+  scope: local_first_three_a_vertical
+  risk_scoring: not_performed
+  residual_risk: unassessed
+coverage:
+  risk_signals:
+  - coach_boundary_escape
+  - deletion_or_export_failure
+  - device_or_key_compromise
+  - financial_profile_concentration
+  - incorrect_or_stale_fact_harm
+  - manipulative_or_overconfident_personalization
+  - recipient_or_transfer_opacity
+  - telemetry_linkability_or_content_leakage
+  - unauthorized_local_access
+  threat_ids:
+  - T01
+  - T02
+  - T03
+  - T04
+  - T05
+  - T06
+  - T07
+  - T08
+  - T09
+  - T10
+  - T11
+  - T12
+  - T13
+  asset_ids:
+  - calculation_inputs_outputs
+  - canonical_financial_facts
+  - coach_boundary
+  - encrypted_local_repository
+  - notification_metadata
+  - plan_state
+  - platform_key_material
+  - telemetry_evidence
+  - user_control_artifacts
+  trust_boundary_ids:
+  - build_to_mobile_application
+  - engine_to_widgets_and_coach
+  - facts_to_deterministic_engine
+  - mobile_to_local_repository
+  - mobile_to_os_notifications
+  - mobile_to_platform_keystore
+  - mobile_to_telemetry_processor
+  - mobile_to_user_selected_export
+  - user_to_mobile_ui
+  actor_ids:
+  - accidental_operator
+  - compromised_local_process
+  - input_manipulator
+  - lost_or_shared_device_actor
+  - stale_data_hazard
+  - supply_chain_actor
+  - telemetry_observer
+  control_ids:
+  - C01
+  - C02
+  - C03
+  - C04
+  - C05
+  - C06
+  - C07
+  - C08
+  - C09
+  - C10
+design_decision:
+  outcome: design_threats_identified_controls_unproven
+  effect: blocks_real_user_exposure
+  runtime_security: unproven
+  risk_acceptance: none
+external_security_review:
+  status: pending
+  reviewer: null
+  receipt: null
+  reviewed_product_sha: null
+prohibitions:
+- no_secure_or_compliant_claim
+- no_control_effectiveness_claim
+- no_residual_risk_acceptance
+- no_external_review_claim
+- no_penetration_test_claim
+- no_real_user_exposure
+does_not_prove:
+- implemented_controls
+- key_contract
+- privacy_contract
+- retention_export_deletion
+- anti_pii
+- external_security_review
+- penetration_test
+- runtime
+- B0
+runtime_binding: none
+real_user_exposure: forbidden
+does_not_activate_runtime: true
+does_not_close_B0: true

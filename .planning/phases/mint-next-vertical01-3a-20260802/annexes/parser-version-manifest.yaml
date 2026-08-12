@@ -1,0 +1,14 @@
+schema_version: 1
+parser_id: three_a_authority_normalizer
+parser_version: 1.0.0
+status: executable_offline_provenance_pending_independent_content_review
+input_receipt_schema: authority-receipts-v1
+source_extractions_sha256: 080658b9388b9c7eea748d904ec73b406d50b91560d2ed3b62ba7a1759fb54a0
+prohibitions:
+- network_at_runtime
+- LLM_parsing
+- silent_fallback
+- product_output
+- tax_calculation
+output_claims_schema: normalized-claims-v1
+pdftotext_version: pdftotext version 26.03.0

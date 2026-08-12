@@ -108,3 +108,43 @@ from the 5-expert MINT panel synthesis at
 `.planning/decisions/2026-05-04-phase-53-target.md`. Mirrors the
 `tools/checks/route_registry_parity-KNOWN-MISSES.md` discipline established
 in Phase 32-04 (MAP-04).
+
+## 2026-08-10 — /mint-next/housing (PR B atterrissage fondation jumeau)
+
+Flow logement MINT Next derrière kill-flag `enableMintNextHousing` (OFF par
+défaut, fail-closed). Aucun intent coach n'est câblé dans cette tranche : le
+coach ne doit pas pouvoir suggérer une route invisible. À retirer de
+`_NOT_CHAT_ROUTABLE` quand le shell coach MINT Next câblera l'intent typé.
+
+## 2026-08-11 — /mint-next/3a (PR C atterrissage shell 3a)
+
+Flow handoff 3a MINT Next derrière kill-flag `enableMintNext3aProductHandoff`
+(OFF par défaut, fail-closed serveur). Aucun intent coach câblé dans cette
+tranche. Même sortie prévue que /mint-next/housing.
+
+## 2026-08-11 — /mint-next/domicile (Lego 1 fait domicile fiscal)
+
+Cycle canonique du fait domicile derrière kill-flag `enableMintNextDomicile`
+(OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/etat-civil (Lego 2 fait état civil)
+
+Cycle canonique du fait état civil derrière kill-flag `enableMintNextEtatCivil`
+(OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/revenu (Lego 3 fait revenu)
+
+Cycle canonique du fait revenu derrière kill-flag `enableMintNextRevenu`
+(OFF par défaut, fail-closed). Aucun intent coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/lpp-affiliation (Lego 4 fait affiliation LPP)
+
+Cycle canonique du fait affiliation LPP derrière kill-flag
+`enableMintNextLppAffiliation` (OFF par défaut, fail-closed). Aucun intent
+coach câblé dans cette tranche.
+
+## 2026-08-11 — /mint-next/versements-3a (Lego 5 fait versements 3a)
+
+Cycle canonique de la liste des versements 3a derrière kill-flag
+`enableMintNextVersements3a` (OFF par défaut, fail-closed). Aucun intent
+coach câblé dans cette tranche.

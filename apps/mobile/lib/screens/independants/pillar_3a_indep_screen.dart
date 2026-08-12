@@ -400,13 +400,18 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
       label: S.of(context)!.semanticsMetricLabelValue(label, value),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: MintTextStyles.bodyMedium(color: color ?? MintColors.textSecondary),
+          Expanded(
+            child: Text(
+              label,
+              style: MintTextStyles.bodyMedium(color: color ?? MintColors.textSecondary),
+            ),
           ),
+          const SizedBox(width: 12),
           Text(
             value,
+            textAlign: TextAlign.end,
             style: MintTextStyles.bodyMedium(color: color ?? MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
           ),
         ],
@@ -446,19 +451,23 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                   style: MintTextStyles.labelSmall(color: MintColors.textMuted).copyWith(letterSpacing: 1, fontWeight: FontWeight.w700),
                 ),
               ),
-              if (!_affilieLpp)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: MintColors.success,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    S.of(context)!.pillar3aIndepSuperPouvoir(multiplier),
-                    style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+              if (!_affilieLpp) ...[
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: MintColors.success,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      S.of(context)!.pillar3aIndepSuperPouvoir(multiplier),
+                      style: MintTextStyles.labelSmall(color: MintColors.white).copyWith(fontWeight: FontWeight.w700),
+                    ),
                   ),
                 ),
+              ],
             ],
           ),
           const SizedBox(height: 20),
@@ -512,14 +521,20 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildProjectionColumn(
-                          S.of(context)!.pillar3aIndepSalarie, proj20Salarie, MintColors.info),
+                      Flexible(
+                        child: _buildProjectionColumn(
+                            S.of(context)!.pillar3aIndepSalarie, proj20Salarie, MintColors.info),
+                      ),
+                      const SizedBox(width: 8),
                       Text(
                         S.of(context)!.pillar3aIndepVs,
                         style: MintTextStyles.bodyMedium(color: MintColors.textMuted),
                       ),
-                      _buildProjectionColumn(
-                          S.of(context)!.pillar3aIndepToi, proj20Indep, MintColors.success),
+                      const SizedBox(width: 8),
+                      Flexible(
+                        child: _buildProjectionColumn(
+                            S.of(context)!.pillar3aIndepToi, proj20Indep, MintColors.success),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -543,12 +558,16 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         : '${(amount / 1000).toStringAsFixed(0)}k';
     return Column(
       children: [
-        Text(
-          'CHF\u00a0$display',
-          style: MintTextStyles.headlineMedium(color: color).copyWith(fontWeight: FontWeight.w800),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            'CHF\u00a0$display',
+            style: MintTextStyles.headlineMedium(color: color).copyWith(fontWeight: FontWeight.w800),
+          ),
         ),
         Text(
           label,
+          textAlign: TextAlign.center,
           style: MintTextStyles.micro(color: MintColors.textMuted),
         ),
       ],
@@ -569,12 +588,16 @@ class _Pillar3aIndepScreenState extends State<Pillar3aIndepScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: MintTextStyles.bodySmall(color: highlight ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: highlight ? FontWeight.w600 : FontWeight.w400),
+            Expanded(
+              child: Text(
+                label,
+                style: MintTextStyles.bodySmall(color: highlight ? MintColors.textPrimary : MintColors.textSecondary).copyWith(fontWeight: highlight ? FontWeight.w600 : FontWeight.w400),
+              ),
             ),
+            const SizedBox(width: 12),
             Text(
               IndependantsService.formatChf(value),
+              textAlign: TextAlign.end,
               style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w600),
             ),
           ],

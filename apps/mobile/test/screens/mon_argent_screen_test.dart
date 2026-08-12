@@ -10,12 +10,15 @@ import 'package:mint_mobile/models/budget_snapshot.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/models/mint_user_state.dart';
+import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
 import 'package:mint_mobile/services/lifecycle/lifecycle_phase.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -1155,6 +1158,185 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets('housing-only fact is visible and deletable while flag is off',
+      (tester) async {
+    FeatureFlags.enableMintNextHousing = false;
+    addTearDown(() => FeatureFlags.enableMintNextHousing = false);
+    final provider = _HousingProvider(_housingFact());
+
+    await tester.pumpWidget(_housingApp(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mon_argent_housing_fact')), findsOneWidget);
+    expect(find.text('Ce que MINT sait de ton logement'), findsOneWidget);
+    expect(find.text('Je le loue'), findsOneWidget);
+    expect(find.textContaining('saisi par toi dans MINT'), findsOneWidget);
+    final provenance = tester.widget<Text>(
+      find.byKey(const Key('mon_argent_housing_fact_provenance')),
+    );
+    expect(provenance.data, contains('2026'));
+    expect(find.text('Corriger'), findsNothing);
+    expect(find.text('Supprimer ces informations'), findsOneWidget);
+
+    await tester.tap(find.text('Supprimer ces informations'));
+    await tester.pumpAndSettle();
+    expect(find.text('Supprimer les informations logement ?'), findsOneWidget);
+    await tester.tap(find.text('Supprimer').last);
+    await tester.pumpAndSettle();
+
+    expect(provider.deleteCalls, 1);
+    expect(find.byKey(const Key('mon_argent_housing_fact')), findsNothing);
+  });
+
+  testWidgets('housing edit reaches existing route only while flag is on',
+      (tester) async {
+    FeatureFlags.enableMintNextHousing = true;
+    addTearDown(() => FeatureFlags.enableMintNextHousing = false);
+    final provider = _HousingProvider(_housingFact());
+
+    await tester.pumpWidget(_housingApp(provider));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Corriger'));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('housing_route_probe')), findsOneWidget);
+  });
+
+  testWidgets('housing mortgage fact names its statement period',
+      (tester) async {
+    FeatureFlags.enableMintNextHousing = false;
+    addTearDown(() => FeatureFlags.enableMintNextHousing = false);
+    final provider = _HousingProvider(
+      MintNextHousingFact(
+        tenure: PrimaryHomeTenure.ownerOccupier,
+        mortgageStatus: HousingMortgageStatus.yes,
+        statementAvailability: MortgageStatementAvailability.ready,
+        statementYear: 2025,
+        assertedAt: DateTime.utc(2026, 8, 8),
+        source: MintNextHousingFact.userDeclarationSource,
+        schemaVersion: 1,
+        needsConfirmation: false,
+      ),
+    );
+
+    await tester.pumpWidget(_housingApp(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Période du relevé : 2025.'), findsOneWidget);
+    expect(
+      find.byKey(const Key('mon_argent_housing_fact_period')),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'housing fact never disguises an unknown provenance as user input',
+      (tester) async {
+    FeatureFlags.enableMintNextHousing = false;
+    addTearDown(() => FeatureFlags.enableMintNextHousing = false);
+    final provider = _HousingProvider(
+      MintNextHousingFact(
+        tenure: PrimaryHomeTenure.tenant,
+        assertedAt: DateTime.utc(2026, 8, 8),
+        source: 'future_import',
+        schemaVersion: 1,
+        needsConfirmation: true,
+      ),
+    );
+
+    await tester.pumpWidget(_housingApp(provider));
+    await tester.pumpAndSettle();
+
+    expect(find.textContaining('Source : à vérifier'), findsOneWidget);
+    expect(find.textContaining('saisi par toi dans MINT'), findsNothing);
+  });
+
+  testWidgets('housing delete failure remains visible and reports the error',
+      (tester) async {
+    FeatureFlags.enableMintNextHousing = false;
+    addTearDown(() => FeatureFlags.enableMintNextHousing = false);
+    final provider = _HousingProvider(_housingFact(), failDelete: true);
+
+    await tester.pumpWidget(_housingApp(provider));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Supprimer ces informations'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Supprimer').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('mon_argent_housing_fact')), findsOneWidget);
+    expect(
+      find.text('Impossible d’enregistrer pour l’instant. Rien n’a été perdu.'),
+      findsOneWidget,
+    );
+  });
+}
+
+MintNextHousingFact _housingFact() => MintNextHousingFact(
+      tenure: PrimaryHomeTenure.tenant,
+      assertedAt: DateTime.utc(2026, 8, 8),
+      source: MintNextHousingFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+
+Widget _housingApp(CoachProfileProvider provider) {
+  final router = GoRouter(
+    initialLocation: '/money',
+    routes: [
+      GoRoute(
+        path: '/money',
+        builder: (_, __) => MultiProvider(
+          providers: [
+            ChangeNotifierProvider<BudgetProvider>(
+                create: (_) => BudgetProvider()),
+            ChangeNotifierProvider<CoachProfileProvider>.value(value: provider),
+            ChangeNotifierProvider<MintStateProvider>(
+              create: (_) => MintStateProvider(),
+            ),
+          ],
+          child: const MonArgentScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/mint-next/housing',
+        builder: (_, __) => const Scaffold(
+          body: SizedBox(key: Key('housing_route_probe')),
+        ),
+      ),
+    ],
+  );
+  return MaterialApp.router(
+    locale: const Locale('fr'),
+    localizationsDelegates: const [
+      S.delegate,
+      GlobalMaterialLocalizations.delegate,
+      GlobalWidgetsLocalizations.delegate,
+      GlobalCupertinoLocalizations.delegate,
+    ],
+    supportedLocales: S.supportedLocales,
+    routerConfig: router,
+  );
+}
+
+class _HousingProvider extends CoachProfileProvider {
+  _HousingProvider(this.fact, {this.failDelete = false});
+
+  MintNextHousingFact? fact;
+  final bool failDelete;
+  int deleteCalls = 0;
+
+  @override
+  MintNextHousingFact? get housingFact => fact;
+
+  @override
+  Future<void> deleteHousingFact() async {
+    deleteCalls++;
+    if (failDelete) throw StateError('persistence failed');
+    fact = null;
+    notifyListeners();
+  }
 }
 
 CoachProfile _profileWithBudget({

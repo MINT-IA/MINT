@@ -187,31 +187,41 @@ class _IndependantScreenState extends State<IndependantScreen> {
                     LppRescueWidget(
                       lppBalance: _revenuNet * 0.15,
                       daysElapsed: 0,
-                      options: const [
+                      // Libell\u00e9s localis\u00e9s c\u00F4t\u00e9 CALLER (dette #1190 : \u00AB d\u00e9bit du
+                      // CALLER, pas du widget \u00BB). M\u00EAme patron que
+                      // libre_passage_screen. Les montants fiveYearGain restent
+                      // des param\u00e8tres caller (hors p\u00e9rim\u00e8tre i18n).
+                      options: [
                         LppTransferOption(
-                          label: 'Fondation de libre passage',
+                          label: S.of(context)!.independantLppRescueOption1Label,
                           emoji: '\u{1F3E6}',
-                          description:
-                              'Place ton avoir en libre passage avec un rendement correct.',
+                          description: S
+                              .of(context)!
+                              .independantLppRescueOption1Description,
                           fiveYearGain: 8500,
                           recommended: true,
-                          legalRef: 'LFLP art. 4',
+                          legalRef:
+                              S.of(context)!.independantLppRescueOption1LegalRef,
                         ),
                         LppTransferOption(
-                          label: 'Institution suppl\u00e9tive',
+                          label: S.of(context)!.independantLppRescueOption2Label,
                           emoji: '\u26A0\uFE0F',
-                          description:
-                              'Transfert automatique apr\u00e8s 6 mois \u2014 rendement minimal.',
+                          description: S
+                              .of(context)!
+                              .independantLppRescueOption2Description,
                           fiveYearGain: 1200,
-                          legalRef: 'LFLP art. 4 al. 2',
+                          legalRef:
+                              S.of(context)!.independantLppRescueOption2LegalRef,
                         ),
                         LppTransferOption(
-                          label: 'Nouvelle caisse LPP',
+                          label: S.of(context)!.independantLppRescueOption3Label,
                           emoji: '\u{1F504}',
-                          description:
-                              'Tu t\'affilies volontairement \u00e0 une caisse LPP.',
+                          description: S
+                              .of(context)!
+                              .independantLppRescueOption3Description,
                           fiveYearGain: 12000,
-                          legalRef: 'LPP art. 44',
+                          legalRef:
+                              S.of(context)!.independantLppRescueOption3LegalRef,
                         ),
                       ],
                     ),

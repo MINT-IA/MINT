@@ -310,17 +310,23 @@ def _estimate_lpp_from_age_25(
     return round(capital, 2)
 
 
-def _compute_marginal_tax_rate(gross_salary: float, canton: str) -> float:
+def _compute_marginal_tax_rate(
+    gross_salary: float, canton: str, *, is_married: bool = False
+) -> float:
     """Taux marginal — PENTE du modele fiscal canonique, plus une table.
 
     `effective_rates_100k` (courbe a 100k x ajustement de revenu x1.3,
     clamp [0.05, 0.45]) donnait 0.1290 pour ZH la ou l'etalon donne
     0.1323 a 100k, et son plancher de 5 % inventait un taux pour des
     revenus quasi non imposes.
+
+    is_married (imposition commune, LIFD art. 9 al. 1) : sans lui, l'onboarding
+    servait un taux marginal celibataire meme a un menage marie (vice
+    « un seul taux marginal », #1061/#1062).
     """
     from app.services.fiscal.cantonal_comparator import estimate_marginal_rate
 
-    return estimate_marginal_rate(gross_salary, canton.upper())
+    return estimate_marginal_rate(gross_salary, canton.upper(), is_married=is_married)
 
 
 def _estimate_tax_saving(
@@ -328,11 +334,12 @@ def _estimate_tax_saving(
     income: float,
     deduction: float,
     canton: str,
+    is_married: bool = False,
 ) -> float:
     """Economie fiscale — DIFFERENCE d'impot de l'etalon, plus une integration en 10 pas."""
     from app.services.fiscal.cantonal_comparator import estimate_tax_saving
 
-    return estimate_tax_saving(income, deduction, canton.upper())
+    return estimate_tax_saving(income, deduction, canton.upper(), is_married=is_married)
 
 
 def _estimate_3a_tax_impact(
@@ -340,15 +347,25 @@ def _estimate_3a_tax_impact(
     canton: str,
     *,
     has_lpp: bool,
+    household_type: str | None = "single",
 ) -> tuple[float, float, float]:
     """Estimate 3a tax impact for onboarding.
 
     Source: OPP3 art. 7 (deductible 3a ceiling).
     Hypotheses: educational marginal-rate estimate from canton + gross salary.
 
+    ``household_type`` (vocabulaire ANGLAIS married/couple/family) est normalise
+    via ``rules_engine.is_married_household`` (le BON domaine — pas l'etat civil
+    FR) : l'imposition commune (LIFD art. 9 al. 1) abaisse le taux marginal du
+    menage marie, donc l'economie 3a et le taux affiches sur l'onboarding.
+
     Returns:
         (tax_saving_3a, marginal_tax_rate, annual_ceiling).
     """
+    from app.services.rules_engine import is_married_household
+
+    is_married = is_married_household(household_type)
+
     if gross_salary <= 0 or canton.upper() not in TAUX_IMPOT_RETRAIT_CAPITAL:
         ceiling = (
             PILIER_3A_PLAFOND_AVEC_LPP
@@ -365,6 +382,7 @@ def _estimate_3a_tax_impact(
     marginal_tax_rate = _compute_marginal_tax_rate(
         gross_salary - annual_ceiling / 2,
         canton,
+        is_married=is_married,
     )
     return (
         round(
@@ -372,6 +390,7 @@ def _estimate_3a_tax_impact(
                 income=gross_salary,
                 deduction=annual_ceiling,
                 canton=canton,
+                is_married=is_married,
             ),
             2,
         ),
@@ -645,6 +664,7 @@ def compute_minimal_profile(input: MinimalProfileInput) -> MinimalProfileResult:
         input.gross_salary,
         canton,
         has_lpp=has_lpp_for_3a,
+        household_type=household_type,
     )
 
     # ── Liquidity ───────────────────────────────────────────────────────────

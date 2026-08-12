@@ -58,7 +58,7 @@ tags:
 - openLink: "mintapp:///profile/bilan"
 - extendedWaitUntil:
     visible:
-      text: "MON PROFIL"
+      text: "MA SITUATION"
     timeout: 12000
 - assertNotVisible:
     text: "37'600"

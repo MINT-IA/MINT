@@ -33,11 +33,16 @@ FinancialPlan _makePlan({
   );
 }
 
-CoachProfile _makeProfile({double salary = 10000.0, String canton = 'VS'}) {
+CoachProfile _makeProfile({
+  double salary = 10000.0,
+  String canton = 'VS',
+  String? housingStatus,
+}) {
   return CoachProfile(
     birthYear: 1977,
     canton: canton,
     salaireBrutMensuel: salary,
+    housingStatus: housingStatus,
     goalA: GoalA(
       type: GoalAType.achatImmo,
       targetDate: DateTime(2028, 6, 1),
@@ -111,6 +116,20 @@ void main() {
 
       expect(provider.hasPlan, isFalse);
       expect(provider.currentPlan, isNull);
+    });
+
+    test('a housing status correction marks the current plan stale', () {
+      final tenant = _makeProfile(housingStatus: 'tenant');
+      final plan = _makePlan(profileHash: computeProfileHash(tenant));
+      final provider = FinancialPlanProvider()..setPlanDirect(plan);
+
+      expect(provider.isPlanStale, isFalse);
+
+      provider.checkStalenessForTest(
+        _makeProfile(housingStatus: 'owner_occupier'),
+      );
+
+      expect(provider.isPlanStale, isTrue);
     });
 
     test(

@@ -105,6 +105,13 @@
 /lpp-deep/libre-passage | authenticated
 /lpp-deep/rachat | authenticated
 /mariage | authenticated
+/mint-next/3a | public
+/mint-next/domicile | public
+/mint-next/etat-civil | public
+/mint-next/housing | public
+/mint-next/lpp-affiliation | public
+/mint-next/revenu | public
+/mint-next/versements-3a | public
 /mortgage/affordability | authenticated
 /mortgage/amortization | authenticated
 /mortgage/epl-combined | authenticated

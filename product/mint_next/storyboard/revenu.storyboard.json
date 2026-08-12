@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "revenu_lego3",
+    "title": "Dire ce que je reçois — et que MINT le comprenne sans le déformer",
+    "promise": "Le revenu traverse le cycle canonique complet par le chemin scellé à clés possédées : enregistré atomiquement (montant + période + métadonnées), retrouvé après relance, visible dans Ma situation, corrigeable sans jamais doubler un facteur 12, supprimable par tombstone qui domine la projection legacy, réutilisé par la préparation fiscale 3a qui distingue petite et grande cotisation sans jamais deviner l'affiliation LPP."
+  },
+  "generated_at": "2026-08-11",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
+    "cadrage": "verdict Codex LOOP: GO (Lego 3, 2026-08-11) — fait à clés POSSÉDÉES + projection legacy (pattern housing, entièrement scellé) ; ne PAS rerouter les writers legacy dans ce Lego ; une divergence legacy n'écrase jamais silencieusement un fait confirmé ; cap 100k, checkpoint 70k, arrêt si dérive vers migration globale des writers"
+  },
+  "semantic_contract": "Le fait capture le REVENU NET ENCAISSÉ par période — ce que la personne reçoit réellement (salaire net versé, ou revenu net d'activité indépendante encaissé), en centimes (int), avec période explicite (monthly | yearly). Ce n'est NI le salaire brut NI le revenu net imposable/AVS : toute conversion vers un « revenu déterminant » fiscal est la responsabilité du consommateur, jamais du fait. Normalisation annuelle = amount_cents × 12 si monthly, × 1 si yearly — appliquée UNE seule fois, à la frontière du consommateur.",
+  "classification_decision": "Clés possédées q_revenu_fact_{amount_cents,period,asserted_at,source,schema_version,needs_confirmation} — toutes classées SENSIBLES (SecureWizardStore), bundle commis atomiquement par un enregistrement canonique scellé dédié (pattern état civil : write canonique unique, cache secondaire jamais autoritaire). PROJECTION legacy en écriture seule vers q_net_income_period_chf + q_pay_frequency (consommateurs historiques : budget, CoachProfile) — projetée à chaque commit canonique et à la canonicalisation au rechargement ; jamais lue comme source du fait. Les writers legacy de ces clés partagées (onboarding, budget setup, coach, scan) restent intacts : leurs écritures ne créent PAS de fait et ne survivent pas à la projection quand un fait confirmé existe. Tokens de période stables sans accents : monthly | yearly.",
+  "known_risks_from_cadrage": [
+    "sémantique : net encaissé ≠ net AVS/imposable ≠ brut — contrat explicite ci-dessus, répété dans le doc du modèle",
+    "fréquences legacy hétérogènes (annual/yearly/annuel/Yearly) : normalisation stricte à la frontière de projection, jamais dans le fait",
+    "correction mensuel↔annuel : le montant ne doit jamais subir deux fois un facteur 12 (scénario runtime dédié)",
+    "tombstone : purge le bundle possédé ET la projection legacy, sans toucher les versements 3a sources",
+    "affiliation LPP : fait distinct, jamais déduit du statut d'emploi — le contexte fiscal reste fail-closed tant qu'elle n'est pas confirmée"
+  ],
+  "beats": [
+    {
+      "id": "collect",
+      "story": "Une seule décision cognitive : « combien je reçois, selon quelle période ». Un montant, deux cartes de période (par mois / par an), aucune présélection de période. Un rappel discret : « Ton revenu net, tel qu'il arrive sur ton compte. » Rien n'est enregistré avant confirmation explicite.",
+      "code": "apps/mobile/lib/screens/mint_next_revenu/mint_next_revenu_screen.dart",
+      "tests": [
+        "collect shows amount entry and two period cards none preselected and nothing persists before confirm",
+        "safe exit before confirmation writes nothing",
+        "missing amount or period blocks with a visible error"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_revenu/mint_next_revenu_screen_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
+      ]
+    },
+    {
+      "id": "confirm_persist_sealed",
+      "story": "Je vois ce que MINT va retenir — montant et période, tels que je les ai dits — et je confirme. Le fait part par la transaction coordonnée scellée : bundle commis atomiquement, projection legacy écrite dans le même commit, jamais un état à moitié écrit.",
+      "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveRevenuFact",
+      "tests": [
+        "confirm persists the sealed bundle atomically with legacy projection",
+        "a failed canonical write leaves no half-written fact",
+        "legacy projection carries CHF per period and normalized frequency",
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+        "apps/mobile/test/models/mint_next_revenu_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
+      ]
+    },
+    {
+      "id": "rehydrate",
+      "story": "Je relance l'app : mon revenu est toujours là, restauré depuis le scellement — et la projection legacy est reconstruite depuis le canonique, jamais l'inverse. Un writer legacy qui a écrit entre-temps ne remplace pas silencieusement mon fait confirmé.",
+      "code": "apps/mobile/lib/services/secure_wizard_store.dart#canonicalizeRevenuAnswers",
+      "tests": [
+        "revenu fact rehydrates from sealed storage after reload",
+        "a bare legacy write never outlives the canonical fact"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
+      ]
+    },
+    {
+      "id": "ma_situation",
+      "story": "Dans « Ma situation », je retrouve mon revenu, sa provenance et sa période, et je peux le modifier ou le supprimer. La suppression est un tombstone : le bundle possédé ET la projection legacy disparaissent, mes autres réponses restent.",
+      "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
+      "tests": [
+        "mon argent shows the saved revenu with provenance and period",
+        "delete tombstones the bundle AND the projection, preserves the rest"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart",
+        "apps/mobile/test/screens/mon_argent_revenu_fact_test.dart"
+      ]
+    },
+    {
+      "id": "reuse_fiscal",
+      "story": "La préparation 3a lit mon revenu sans me le redemander : revenu annuel normalisé une seule fois + révision. Le plafond petite/grande cotisation exige EN PLUS l'affiliation LPP confirmée — inconnue, le contexte dit « plafond non déterminé », jamais une déduction depuis le statut d'emploi. Aucun chiffre montré, moteur non attesté.",
+      "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aRevenuContext",
+      "tests": [
+        "annualization applies the factor twelve exactly once and only for monthly",
+        "plafond determination stays fail-closed with a known revenu — the LPP affiliation is a distinct fact, never derived from employment status"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_revenu_fact_test.dart",
+        "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart"
+      ]
+    },
+    {
+      "id": "invalidate",
+      "story": "Je corrige mon revenu — y compris en changeant seulement la période (mensuel↔annuel) : la révision change, les dérivés fiscaux liés à l'ancienne révision se périment, et le montant n'a jamais subi deux fois un facteur 12. Rien d'autre ne bouge (ni domicile, ni état civil, ni versements 3a).",
+      "code": "révision = assertedAt UTC ; normalisation annuelle à la frontière du consommateur uniquement",
+      "tests": [
+        "a corrected revenu changes the revision",
+        "switching period monthly to yearly and back never applies the factor twelve twice"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
+      ]
+    }
+  ],
+  "out_of_scope": [
+    "reroutage des writers legacy du revenu (onboarding, budget setup, coach, scan) — chantier distinct, la projection garantit la cohérence en attendant",
+    "statut d'emploi et affiliation LPP (faits distincts, Legos futurs)",
+    "revenu brut, revenu imposable, revenu du conjoint (sémantiques distinctes)",
+    "moteur fiscal (NoAttestedEngine) et tout chiffre 3a affiché",
+    "versements 3a (Lego suivant)"
+  ],
+  "kill_flag": "enableMintNextRevenu",
+  "gate": "ADR 2026-08-10 — 5 conditions ; harnais runtime hérité (clone du runner état civil, scénario correction mensuel↔annuel inclus)"
+}

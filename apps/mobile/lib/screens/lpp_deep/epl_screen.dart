@@ -418,14 +418,19 @@ class _EplScreenState extends State<EplScreen> {
           MintEntrance(delay: const Duration(milliseconds: 400), child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                l.eplLabelCanton,
-                style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+              Flexible(
+                child: Text(
+                  l.eplLabelCanton,
+                  style: MintTextStyles.bodySmall(color: MintColors.textPrimary),
+                ),
               ),
-              Semantics(
+              const SizedBox(width: 12),
+              Flexible(
+                child: Semantics(
                 label: l.eplLabelCanton,
                 child: DropdownButton<String>(
                   value: _canton,
+                  isExpanded: true,
                   underline: const SizedBox(),
                   style: MintTextStyles.bodySmall(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                   items: sortedCantonCodes.map((code) {
@@ -438,6 +443,7 @@ class _EplScreenState extends State<EplScreen> {
                   onChanged: (v) {
                     if (v != null) setState(() { _hasUserInteracted = true; _canton = v; });
                   },
+                ),
                 ),
               ),
             ],
@@ -561,15 +567,20 @@ class _EplScreenState extends State<EplScreen> {
       padding: const EdgeInsets.symmetric(vertical: MintSpacing.xs),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: isBold
-                ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
-                : MintTextStyles.bodySmall(color: MintColors.textSecondary),
+          Expanded(
+            child: Text(
+              label,
+              style: isBold
+                  ? MintTextStyles.bodySmall(color: MintColors.textPrimary)
+                  : MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
           ),
+          const SizedBox(width: 12),
           Text(
             value,
+            textAlign: TextAlign.end,
             style: MintTextStyles.bodySmall(color: color ?? MintColors.textPrimary)
                 .copyWith(fontWeight: isBold ? FontWeight.bold : FontWeight.w600),
           ),
@@ -633,9 +644,13 @@ class _EplScreenState extends State<EplScreen> {
         Expanded(
           child: Text(label, style: MintTextStyles.labelSmall(color: MintColors.textPrimary)),
         ),
-        Text(
-          amount,
-          style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
+        const SizedBox(width: 8),
+        Flexible(
+          child: Text(
+            amount,
+            textAlign: TextAlign.end,
+            style: MintTextStyles.labelSmall(color: MintColors.error).copyWith(fontWeight: FontWeight.bold),
+          ),
         ),
       ],
     );

@@ -12,6 +12,15 @@ import 'package:mint_mobile/services/e2e_runtime_flags.dart';
 import 'package:mint_mobile/services/sentry_breadcrumbs.dart';
 
 class FeatureFlags {
+  static const _mintNext3aDecisionDeadline = Duration(milliseconds: 700);
+  static int _refreshGeneration = 0;
+
+  @visibleForTesting
+  static Future<Map<String, dynamic>> Function()? debugBackendFetcher;
+
+  @visibleForTesting
+  static Duration? debugBackendRefreshTimeout;
+
   /// Timer for periodic backend refresh (set in main, cancellable).
   static Timer? periodicRefreshTimer;
 
@@ -110,6 +119,91 @@ class FeatureFlags {
   /// When false, `/onb` keeps the existing MVP wedge intent cards.
   static bool enableMint2FirstExperienceEntry = false;
 
+  /// Product handoff from the 3a learning flow to one explicit next action.
+  ///
+  /// This flag is intentionally fail-closed. Every backend refresh resets it
+  /// before doing I/O; only the latest successful response containing the
+  /// exact boolean `true` may open the gate.
+  static final ValueNotifier<bool> _mintNext3aProductHandoff =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNext3aProductHandoff =>
+      _mintNext3aProductHandoff.value;
+  static set enableMintNext3aProductHandoff(bool value) =>
+      _mintNext3aProductHandoff.value = value;
+
+  static ValueListenable<bool> get mintNext3aProductHandoffListenable =>
+      _mintNext3aProductHandoff;
+
+  static final ValueNotifier<bool> _mintNextHousing =
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static final ValueNotifier<bool> _mintNextDomicile =
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static bool get enableMintNextDomicile => _mintNextDomicile.value;
+  static set enableMintNextDomicile(bool value) =>
+      _mintNextDomicile.value = value;
+
+  static ValueListenable<bool> get mintNextDomicileListenable =>
+      _mintNextDomicile;
+
+  static final ValueNotifier<bool> _mintNextEtatCivil =
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static bool get enableMintNextEtatCivil => _mintNextEtatCivil.value;
+  static set enableMintNextEtatCivil(bool value) =>
+      _mintNextEtatCivil.value = value;
+
+  static ValueListenable<bool> get mintNextEtatCivilListenable =>
+      _mintNextEtatCivil;
+
+  static final ValueNotifier<bool> _mintNextRevenu = ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static bool get enableMintNextRevenu => _mintNextRevenu.value;
+  static set enableMintNextRevenu(bool value) =>
+      _mintNextRevenu.value = value;
+
+  static ValueListenable<bool> get mintNextRevenuListenable =>
+      _mintNextRevenu;
+
+  static final ValueNotifier<bool> _mintNextLppAffiliation =
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static bool get enableMintNextLppAffiliation =>
+      _mintNextLppAffiliation.value;
+  static set enableMintNextLppAffiliation(bool value) =>
+      _mintNextLppAffiliation.value = value;
+
+  static ValueListenable<bool> get mintNextLppAffiliationListenable =>
+      _mintNextLppAffiliation;
+
+  static final ValueNotifier<bool> _mintNextVersements3a =
+      ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static bool get enableMintNextVersements3a => _mintNextVersements3a.value;
+  static set enableMintNextVersements3a(bool value) =>
+      _mintNextVersements3a.value = value;
+
+  static ValueListenable<bool> get mintNextVersements3aListenable =>
+      _mintNextVersements3a;
+
+  static final ValueNotifier<bool> _mintNextMarge3a = ValueNotifier<bool>(const bool.fromEnvironment('MINT_NEXT_PREVIEW'));
+
+  static bool get enableMintNextMarge3a => _mintNextMarge3a.value;
+  static set enableMintNextMarge3a(bool value) =>
+      _mintNextMarge3a.value = value;
+
+  static ValueListenable<bool> get mintNextMarge3aListenable =>
+      _mintNextMarge3a;
+
+  static bool get enableMintNextHousing => _mintNextHousing.value;
+  static set enableMintNextHousing(bool value) =>
+      _mintNextHousing.value = value;
+
+  static ValueListenable<bool> get mintNextHousingListenable =>
+      _mintNextHousing;
+
   /// Sub-phase 01.5 archetype HARD GATE kill switch (Codex R5 release-blocker).
   ///
   /// **Default: `true`** — gate is active. Non-supported archetypes
@@ -180,6 +274,33 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mint2FirstExperienceEntry) {
       enableMint2FirstExperienceEntry = true;
     }
+    if (E2eRuntimeFlags.mintNext3aHarness) {
+      final remoteDecision = E2eRuntimeFlags.mintNext3aRemoteFlag;
+      if (remoteDecision != null) {
+        enableMintNext3aProductHandoff = remoteDecision;
+      }
+    }
+    if (E2eRuntimeFlags.mintNextHousing) {
+      enableMintNextHousing = true;
+    }
+    if (E2eRuntimeFlags.mintNextDomicile) {
+      enableMintNextDomicile = true;
+    }
+    if (E2eRuntimeFlags.mintNextEtatCivil) {
+      enableMintNextEtatCivil = true;
+    }
+    if (E2eRuntimeFlags.mintNextRevenu) {
+      enableMintNextRevenu = true;
+    }
+    if (E2eRuntimeFlags.mintNextLppAffiliation) {
+      enableMintNextLppAffiliation = true;
+    }
+    if (E2eRuntimeFlags.mintNextVersements3a) {
+      enableMintNextVersements3a = true;
+    }
+    if (E2eRuntimeFlags.mintNextMarge3a) {
+      enableMintNextMarge3a = true;
+    }
   }
 
   /// Apply flags from a backend response map.
@@ -220,6 +341,33 @@ class FeatureFlags {
           data['enableMint2FirstExperienceEntry'] == true ||
               E2eRuntimeFlags.mint2FirstExperienceEntry;
     }
+    if (data.containsKey('enableMintNext3aProductHandoff')) {
+      enableMintNext3aProductHandoff =
+          data['enableMintNext3aProductHandoff'] == true;
+    }
+    if (data.containsKey('enableMintNextHousing')) {
+      enableMintNextHousing = data['enableMintNextHousing'] == true;
+    }
+    if (data.containsKey('enableMintNextDomicile')) {
+      enableMintNextDomicile = data['enableMintNextDomicile'] == true;
+    }
+    if (data.containsKey('enableMintNextEtatCivil')) {
+      enableMintNextEtatCivil = data['enableMintNextEtatCivil'] == true;
+    }
+    if (data.containsKey('enableMintNextRevenu')) {
+      enableMintNextRevenu = data['enableMintNextRevenu'] == true;
+    }
+    if (data.containsKey('enableMintNextLppAffiliation')) {
+      enableMintNextLppAffiliation =
+          data['enableMintNextLppAffiliation'] == true;
+    }
+    if (data.containsKey('enableMintNextVersements3a')) {
+      enableMintNextVersements3a =
+          data['enableMintNextVersements3a'] == true;
+    }
+    if (data.containsKey('enableMintNextMarge3a')) {
+      enableMintNextMarge3a = data['enableMintNextMarge3a'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -250,22 +398,66 @@ class FeatureFlags {
   /// Refresh server-driven flags from backend.
   /// Called at app launch + every 6 hours.
   static Future<void> refreshFromBackend() async {
+    final generation = ++_refreshGeneration;
+    enableMintNext3aProductHandoff = false;
+    enableMintNextHousing = false;
+    enableMintNextDomicile = false;
+    enableMintNextEtatCivil = false;
+    enableMintNextRevenu = false;
+    enableMintNextLppAffiliation = false;
+    enableMintNextVersements3a = false;
+    enableMintNextMarge3a = false;
+    final decisionClock = Stopwatch()..start();
     try {
-      final data = await ApiService.get('/config/feature-flags');
-      applyFromMap(data);
+      // Debug seams are ignored by compiled release builds. Production always
+      // uses ApiService and its established 30-second transport timeout.
+      final fetcher = kReleaseMode ? null : debugBackendFetcher;
+      final request =
+          fetcher == null ? ApiService.get('/config/feature-flags') : fetcher();
+      final data = await request;
+      if (generation != _refreshGeneration) return;
+      final decisionDeadline =
+          !kReleaseMode && debugBackendRefreshTimeout != null
+              ? debugBackendRefreshTimeout!
+              : _mintNext3aDecisionDeadline;
+      final handoffMayOpen = decisionClock.elapsed <= decisionDeadline &&
+          data['enableMintNext3aProductHandoff'] == true;
+      // Do not discard the shared config response: the deadline is scoped
+      // only to this new product gate. A late response may refresh legacy
+      // flags but must never transiently notify an open Mint Next handoff.
+      final sharedFlags = Map<String, dynamic>.of(data)
+        ..remove('enableMintNext3aProductHandoff');
+      applyFromMap(sharedFlags);
+      enableMintNext3aProductHandoff = handoffMayOpen;
       // OBS-05 — feature_flags breadcrumb on success (D-03 4-level).
       MintBreadcrumbs.featureFlagsRefresh(
         success: true,
         flagCount: data.length,
       );
     } on TimeoutException {
-      // Keep current values on failure — safe fallback
+      if (generation == _refreshGeneration) {
+        enableMintNext3aProductHandoff = false;
+        enableMintNextHousing = false;
+        enableMintNextDomicile = false;
+        enableMintNextEtatCivil = false;
+        enableMintNextRevenu = false;
+        enableMintNextLppAffiliation = false;
+        enableMintNextVersements3a = false;
+      }
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
         errorCode: 'network_timeout',
       );
     } catch (e) {
-      // Keep current values on failure — safe fallback
+      if (generation == _refreshGeneration) {
+        enableMintNext3aProductHandoff = false;
+        enableMintNextHousing = false;
+        enableMintNextDomicile = false;
+        enableMintNextEtatCivil = false;
+        enableMintNextRevenu = false;
+        enableMintNextLppAffiliation = false;
+        enableMintNextVersements3a = false;
+      }
       // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
       // literal `failure`, NOT `error`). Error code enum only — no raw
       // exception message (may contain PII / stack detail).

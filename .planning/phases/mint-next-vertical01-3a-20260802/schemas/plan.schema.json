@@ -1,0 +1,656 @@
+{
+  "$id": "https://mint.local/schemas/three-a/plan-record-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "economic_effort_requested": {
+            "const": false
+          },
+          "lifecycle_state": {
+            "const": "live"
+          }
+        },
+        "required": [
+          "economic_effort_requested"
+        ]
+      },
+      "then": {
+        "properties": {
+          "required_fact_types": {
+            "const": [
+              "calculation_instant",
+              "tax_year",
+              "avs_eligibility_confirmed",
+              "lpp_active_confirmed",
+              "credited_contributions",
+              "provider_inventory_complete",
+              "liquid_assets_chf",
+              "selected_emergency_buffer_chf",
+              "debts_due_90d_chf",
+              "essential_expenses_30d_chf",
+              "monthly_surplus_chf",
+              "overdue_debt_present",
+              "maximum_debt_apr_percent"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "economic_effort_requested": {
+            "const": true
+          },
+          "lifecycle_state": {
+            "const": "live"
+          }
+        },
+        "required": [
+          "economic_effort_requested"
+        ]
+      },
+      "then": {
+        "properties": {
+          "required_fact_types": {
+            "const": [
+              "calculation_instant",
+              "tax_year",
+              "avs_eligibility_confirmed",
+              "lpp_active_confirmed",
+              "credited_contributions",
+              "provider_inventory_complete",
+              "full_year_lausanne_domicile",
+              "ordinary_full_year_liability",
+              "civil_status_single",
+              "dependants_count",
+              "ifd_taxable_income_pre_3a_chf",
+              "vd_taxable_income_pre_3a_chf",
+              "liquid_assets_chf",
+              "selected_emergency_buffer_chf",
+              "debts_due_90d_chf",
+              "essential_expenses_30d_chf",
+              "monthly_surplus_chf",
+              "overdue_debt_present",
+              "maximum_debt_apr_percent"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "needs_refresh"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "completed_at"
+          ]
+        },
+        "required": [
+          "refresh_reason"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "const": "completed"
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "refresh_reason"
+          ]
+        },
+        "properties": {
+          "progress": {
+            "minItems": 1
+          }
+        },
+        "required": [
+          "completed_at"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "state": {
+            "enum": [
+              "on_track",
+              "paused"
+            ]
+          }
+        },
+        "required": [
+          "state"
+        ]
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "refresh_reason"
+              ]
+            },
+            {
+              "required": [
+                "completed_at"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle_state": {
+            "const": "revoked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tombstone": {
+            "properties": {
+              "kind": {
+                "const": "revoked"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "lifecycle_state": {
+            "const": "deleted"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "tombstone": {
+            "properties": {
+              "kind": {
+                "const": "deleted"
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "oneOf": [
+    {
+      "not": {
+        "required": [
+          "tombstone"
+        ]
+      },
+      "properties": {
+        "lifecycle_state": {
+          "const": "live"
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "plan_id",
+        "subject_local_id",
+        "lifecycle_state",
+        "created_at",
+        "updated_at",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "chosen_amount_whole_chf",
+        "target",
+        "dependency_record_id",
+        "dependency_set_hash",
+        "required_fact_types",
+        "economic_effort_requested",
+        "confirmed_at",
+        "confirmation_nonce",
+        "selected_emergency_buffer_whole_chf",
+        "state",
+        "state_changed_at",
+        "progress"
+      ],
+      "title": "live_plan"
+    },
+    {
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "chosen_amount_whole_chf"
+            ]
+          },
+          {
+            "required": [
+              "target"
+            ]
+          },
+          {
+            "required": [
+              "dependency_record_id"
+            ]
+          },
+          {
+            "required": [
+              "dependency_set_hash"
+            ]
+          },
+          {
+            "required": [
+              "required_fact_types"
+            ]
+          },
+          {
+            "required": [
+              "economic_effort_requested"
+            ]
+          },
+          {
+            "required": [
+              "confirmed_at"
+            ]
+          },
+          {
+            "required": [
+              "confirmation_nonce"
+            ]
+          },
+          {
+            "required": [
+              "selected_emergency_buffer_whole_chf"
+            ]
+          },
+          {
+            "required": [
+              "state"
+            ]
+          },
+          {
+            "required": [
+              "state_changed_at"
+            ]
+          },
+          {
+            "required": [
+              "refresh_reason"
+            ]
+          },
+          {
+            "required": [
+              "completed_at"
+            ]
+          },
+          {
+            "required": [
+              "progress"
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "lifecycle_state": {
+          "enum": [
+            "revoked",
+            "deleted"
+          ]
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "plan_id",
+        "subject_local_id",
+        "lifecycle_state",
+        "created_at",
+        "updated_at",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "tombstone"
+      ],
+      "title": "plan_tombstone"
+    }
+  ],
+  "properties": {
+    "chosen_amount_whole_chf": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "completed_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "confirmation_nonce": {
+      "pattern": "^[A-Za-z0-9_-]{16,64}$",
+      "type": "string"
+    },
+    "confirmed_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "dependency_record_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "dependency_set_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "economic_effort_requested": {
+      "type": "boolean"
+    },
+    "key_contract_ref": {
+      "const": "unresolved"
+    },
+    "lifecycle_state": {
+      "enum": [
+        "live",
+        "revoked",
+        "deleted"
+      ]
+    },
+    "plan_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "privacy_contract_ref": {
+      "const": "unresolved"
+    },
+    "progress": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "amount_whole_chf": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "contribution_fact_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "contribution_fact_version": {
+            "minimum": 1,
+            "type": "integer"
+          },
+          "contribution_local_token": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "credited_at": {
+            "format": "date-time",
+            "pattern": "(?:\\+01:00|\\+02:00)$",
+            "type": "string"
+          },
+          "kind": {
+            "const": "credited_contribution"
+          },
+          "manually_confirmed_at": {
+            "format": "date-time",
+            "pattern": "(?:\\+01:00|\\+02:00)$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "contribution_fact_id",
+          "contribution_fact_version",
+          "credited_at",
+          "manually_confirmed_at",
+          "contribution_local_token",
+          "amount_whole_chf"
+        ],
+        "type": "object"
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "record_type": {
+      "const": "mint_next_3a_plan"
+    },
+    "record_version": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "refresh_reason": {
+      "enum": [
+        "fact_superseded",
+        "fact_revoked",
+        "fact_deleted",
+        "fact_expired",
+        "event_invalidated",
+        "ruleset_changed",
+        "schema_migrated",
+        "dependency_missing",
+        "conflict"
+      ]
+    },
+    "required_fact_types": {
+      "items": {
+        "enum": [
+          "calculation_instant",
+          "tax_year",
+          "avs_eligibility_confirmed",
+          "lpp_active_confirmed",
+          "credited_contributions",
+          "provider_inventory_complete",
+          "full_year_lausanne_domicile",
+          "ordinary_full_year_liability",
+          "civil_status_single",
+          "dependants_count",
+          "ifd_taxable_income_pre_3a_chf",
+          "vd_taxable_income_pre_3a_chf",
+          "liquid_assets_chf",
+          "selected_emergency_buffer_chf",
+          "debts_due_90d_chf",
+          "essential_expenses_30d_chf",
+          "monthly_surplus_chf",
+          "overdue_debt_present",
+          "maximum_debt_apr_percent"
+        ]
+      },
+      "type": "array",
+      "uniqueItems": true
+    },
+    "retention_contract_ref": {
+      "const": "unresolved"
+    },
+    "schema_id": {
+      "const": "mint_next_3a_plan_record"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "selected_emergency_buffer_whole_chf": {
+      "minimum": 0,
+      "type": "integer"
+    },
+    "state": {
+      "enum": [
+        "on_track",
+        "needs_refresh",
+        "completed",
+        "paused"
+      ]
+    },
+    "state_changed_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "subject_local_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "target": {
+      "additionalProperties": false,
+      "properties": {
+        "credited_by": {
+          "const": "2026-12-31T23:59:59+01:00"
+        },
+        "tax_year": {
+          "const": 2026
+        },
+        "timezone": {
+          "const": "Europe/Zurich"
+        }
+      },
+      "required": [
+        "tax_year",
+        "timezone",
+        "credited_by"
+      ],
+      "type": "object"
+    },
+    "tombstone": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "revoked",
+            "deleted"
+          ]
+        },
+        "occurred_at": {
+          "format": "date-time",
+          "pattern": "(?:\\+01:00|\\+02:00)$",
+          "type": "string"
+        },
+        "predecessor_plan_version": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "purge_graph_ref": {
+          "pattern": "^purge_[A-Za-z0-9_-]{8,64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "occurred_at",
+        "predecessor_plan_version",
+        "purge_graph_ref"
+      ],
+      "type": "object"
+    },
+    "updated_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    }
+  },
+  "title": "MINT Next 3a Plan3aRecord v1",
+  "type": "object",
+  "x-mint-contract": {
+    "activation": "OFF",
+    "allowed_state_transitions": [
+      "on_track->needs_refresh",
+      "on_track->paused",
+      "on_track->completed",
+      "needs_refresh->on_track",
+      "needs_refresh->paused",
+      "paused->on_track",
+      "paused->needs_refresh"
+    ],
+    "canonicalization_algorithm": "rfc8785_embedded_v1",
+    "contract_id": "three_a_plan_record_v1",
+    "creation_blocked_by_overdue_debt_or_apr_gte_percent": 5,
+    "creation_requires_affordability_available": true,
+    "creation_requires_amount_lte_room": true,
+    "creation_requires_free_cash_gte_amount": true,
+    "creation_requires_monthly_surplus_positive": true,
+    "decision": "STOP",
+    "does_not_close_B0": true,
+    "forbidden_fields": [
+      "payment",
+      "provider",
+      "account",
+      "transaction",
+      "free_text"
+    ],
+    "generic_plan": false,
+    "intent_or_order_is_progress": false,
+    "invalidation_map": {
+      "avs_eligibility_confirmed": "needs_refresh",
+      "calculation_instant": "needs_refresh",
+      "credited_contributions": "needs_refresh",
+      "debts_due_90d_chf": "needs_refresh",
+      "essential_expenses_30d_chf": "needs_refresh",
+      "liquid_assets_chf": "needs_refresh",
+      "lpp_active_confirmed": "needs_refresh",
+      "maximum_debt_apr_percent": "needs_refresh",
+      "monthly_surplus_chf": "needs_refresh",
+      "overdue_debt_present": "needs_refresh",
+      "provider_inventory_complete": "needs_refresh",
+      "ruleset_sha256": "needs_refresh",
+      "selected_emergency_buffer_chf": "needs_refresh",
+      "tax_year": "needs_refresh"
+    },
+    "invalidation_transition": "needs_refresh",
+    "phase_status": "pre_activation",
+    "progress_identity_fields": [
+      "contribution_fact_id",
+      "contribution_fact_version",
+      "contribution_local_token"
+    ],
+    "progress_source": "manual_confirmed_credited_contribution_fact_only",
+    "real_user_exposure": "forbidden",
+    "record_graph_version_policy": "current_v1_single_record_per_plan_id",
+    "runtime_implemented": false,
+    "silent_recompute": false,
+    "states": [
+      "on_track",
+      "needs_refresh",
+      "completed",
+      "paused"
+    ],
+    "tax_delta_required_only_for_economic_effort": true,
+    "temporal_order": [
+      "created_at<=confirmed_at",
+      "confirmed_at<=state_changed_at",
+      "state_changed_at<=updated_at",
+      "state_changed_at<=completed_at<=updated_at",
+      "progress.credited_at<=progress.manually_confirmed_at<=updated_at",
+      "dependency.computed_at<=confirmed_at"
+    ],
+    "tombstone_value_free": true
+  }
+}

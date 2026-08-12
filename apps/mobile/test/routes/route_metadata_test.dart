@@ -104,10 +104,74 @@ void main() {
   });
 
   group('kRouteRegistry (MAP-01)', () {
-    test('has exactly 153 entries', () {
-      // 147 in Phase 32 ; 6 routes added since. Refresh count when adding /
+    test('has exactly 160 entries', () {
+      // 147 in Phase 32 ; 13 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 153);
+      expect(kRouteRegistry.length, 160);
+    });
+
+    test('/mint-next/3a is the public local private-flow route', () {
+      final route = kRouteRegistry['/mint-next/3a'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNext3aProductHandoff');
+    });
+
+    test('/mint-next/domicile is the canonical domicile fact flow', () {
+      final route = kRouteRegistry['/mint-next/domicile'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextDomicile');
+    });
+
+    test('/mint-next/etat-civil is the canonical civil-status fact flow', () {
+      final route = kRouteRegistry['/mint-next/etat-civil'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextEtatCivil');
+    });
+
+    test('/mint-next/revenu is the canonical income fact flow', () {
+      final route = kRouteRegistry['/mint-next/revenu'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextRevenu');
+    });
+
+    test('/mint-next/lpp-affiliation is the canonical LPP affiliation flow',
+        () {
+      final route = kRouteRegistry['/mint-next/lpp-affiliation'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextLppAffiliation');
+    });
+
+    test('/mint-next/versements-3a is the canonical 3a payments flow', () {
+      final route = kRouteRegistry['/mint-next/versements-3a'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextVersements3a');
+    });
+
+    test('/mint-next/housing is a separately killable public flow', () {
+      final route = kRouteRegistry['/mint-next/housing'];
+      expect(route, isNotNull);
+      expect(route!.category, RouteCategory.flow);
+      expect(route.owner, RouteOwner.system);
+      expect(route.requiresAuth, isFalse);
+      expect(route.killFlag, 'enableMintNextHousing');
     });
 
     test('every entry path matches its key', () {

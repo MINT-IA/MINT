@@ -106,17 +106,31 @@ def test_missing_token_returns_71(monkeypatch):
 # ---------- DRY_RUN health output ----------
 
 
-def test_health_dry_run_produces_153_json_lines():
+def test_health_dry_run_produces_160_json_lines():
     # Baseline bumped 151 → 152 on 2026-05-23 (added /waitlist RouteMeta
     # for sub-phase 01.5 FATCA hard-gate destination — see commit ce71460e).
     # Baseline bumped 152 → 153 on 2026-06-30 (canonicalized
     # /retraite/rente-vs-capital while keeping /rente-vs-capital as alias).
     # Prior 152 → 151 on 2026-05-06, 152 → 153 / 43 → 44 redirect counts
     # are documented in memory `feedback_audit_verification_logs.md`.
+    # Baseline bumped 153 → 154 on 2026-08-10 (added /mint-next/housing
+    # RouteMeta — atterrissage PR B fondation jumeau, kill-flag OFF).
+    # Baseline bumped 154 → 155 on 2026-08-11 (added /mint-next/3a RouteMeta
+    # — atterrissage PR C shell 3a, kill-flag OFF).
+    # Baseline bumped 155 → 156 on 2026-08-11 (added /mint-next/domicile
+    # RouteMeta — Lego 1 fait domicile, kill-flag OFF).
+    # Baseline bumped 156 → 157 on 2026-08-11 (added /mint-next/etat-civil
+    # RouteMeta — Lego 2 fait état civil, kill-flag OFF).
+    # Baseline bumped 157 → 158 on 2026-08-11 (added /mint-next/revenu
+    # RouteMeta — Lego 3 fait revenu, kill-flag OFF).
+    # Baseline bumped 158 → 159 on 2026-08-11 (added /mint-next/lpp-affiliation
+    # RouteMeta — Lego 4 fait affiliation LPP, kill-flag OFF).
+    # Baseline bumped 159 → 160 on 2026-08-11 (added /mint-next/versements-3a
+    # RouteMeta — Lego 5 fait versements 3a, kill-flag OFF).
     r = _run(["health", "--json"], env_extra={"MINT_ROUTES_DRY_RUN": "1"})
     assert r.returncode == 0, r.stderr.decode()[:400]
     lines = [ln for ln in r.stdout.decode().splitlines() if ln.strip()]
-    assert len(lines) == 153, "expected 153 JSON lines, got {}".format(
+    assert len(lines) == 160, "expected 160 JSON lines, got {}".format(
         len(lines)
     )
 

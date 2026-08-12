@@ -80,6 +80,9 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         versementAnnuel: _versementAnnuel,
         duree: _duree,
         profilRisque: _profilRisque,
+        // Route the disclaimer + assurance warning through AppLocalizations so
+        // the localized ARB copy renders instead of the calculation fallback.
+        l: S.of(context),
       );
 
   @override
@@ -355,8 +358,11 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(result.provider.nom, style: MintTextStyles.titleMedium()),
-                    Text(result.provider.description, style: MintTextStyles.labelSmall(color: MintColors.textMuted)),
+                    Text(_localizedProviderName(l, result.provider),
+                        style: MintTextStyles.titleMedium()),
+                    Text(_localizedProviderDescription(l, result.provider),
+                        style:
+                            MintTextStyles.labelSmall(color: MintColors.textMuted)),
                   ],
                 ),
               ),
@@ -382,40 +388,63 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
           // Metrics row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.providerComparatorRendement, style: MintTextStyles.micro(color: MintColors.textMuted)),
-                  Text(
-                    '${(result.rendementNet * 100).toStringAsFixed(1)}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(l.providerComparatorFrais, style: MintTextStyles.micro(color: MintColors.textMuted)),
-                  Text(
-                    '${(result.provider.fraisGestion * 100).toStringAsFixed(2)}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-                  ),
-                ],
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(l.providerComparatorCapitalFinal, style: MintTextStyles.micro(color: MintColors.textMuted)),
-                  Text(
-                    'CHF ${formatChf(result.capitalFinal)}',
-                    style: MintTextStyles.titleMedium(
-                      color: isWarning
-                              ? MintColors.error
-                              : MintColors.textPrimary,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.providerComparatorRendement, style: MintTextStyles.micro(color: MintColors.textMuted)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${(result.rendementNet * 100).toStringAsFixed(1)}%',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l.providerComparatorFrais, style: MintTextStyles.micro(color: MintColors.textMuted)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        '${(result.provider.fraisGestion * 100).toStringAsFixed(2)}%',
+                        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(l.providerComparatorCapitalFinal,
+                        textAlign: TextAlign.end,
+                        style: MintTextStyles.micro(color: MintColors.textMuted)),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'CHF ${formatChf(result.capitalFinal)}',
+                        style: MintTextStyles.titleMedium(
+                          color: isWarning
+                                  ? MintColors.error
+                                  : MintColors.textPrimary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
@@ -471,6 +500,45 @@ class _ProviderComparatorScreenState extends State<ProviderComparatorScreen> {
         const SizedBox(height: MintSpacing.lg),
       ],
     ];
+  }
+
+  /// Localized provider name. The service keeps `provider.nom` as a stable
+  /// identifier (also used by tests); the UI resolves the display label
+  /// through AppLocalizations so archetype labels are never hardcoded FR.
+  String _localizedProviderName(S l, Provider3a provider) {
+    switch (provider.nom) {
+      case 'Fintech A':
+        return l.pillar3aProviderNameFintechA;
+      case 'Fintech B':
+        return l.pillar3aProviderNameFintechB;
+      case 'Fintech C':
+        return l.pillar3aProviderNameFintechC;
+      case 'Banque classique (compte 3a)':
+        return l.pillar3aProviderNameBanque;
+      case 'Assurance 3a (mixte)':
+        return l.pillar3aProviderNameAssurance;
+      default:
+        return provider.nom;
+    }
+  }
+
+  /// Localized provider description, resolved from the stable `provider.nom`
+  /// identifier through AppLocalizations.
+  String _localizedProviderDescription(S l, Provider3a provider) {
+    switch (provider.nom) {
+      case 'Fintech A':
+        return l.pillar3aProviderDescFintechA;
+      case 'Fintech B':
+        return l.pillar3aProviderDescFintechB;
+      case 'Fintech C':
+        return l.pillar3aProviderDescFintechC;
+      case 'Banque classique (compte 3a)':
+        return l.pillar3aProviderDescBanque;
+      case 'Assurance 3a (mixte)':
+        return l.pillar3aProviderDescAssurance;
+      default:
+        return '';
+    }
   }
 
   Widget _buildDisclaimer(String disclaimer) {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/domain/disability_gap_calculator.dart';
+import 'package:mint_mobile/utils/chf_formatter.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -32,6 +34,11 @@ class _DisabilitySelfEmployedScreenState
   bool _hasPerteDegain = false;
   bool _seededFromProfile = false;
 
+  /// Hypothèse pédagogique de départ : l'épargne de démarrage du compte à
+  /// rebours = 3 mois de revenu (à ajuster par l'utilisateur). Nommée pour
+  /// éviter un multiplicateur nu.
+  static const int _assumedSavingsMonths = 3;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -60,13 +67,13 @@ class _DisabilitySelfEmployedScreenState
                 MintEntrance(child: _buildRevenueSlider()),
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 100), child: DisabilityRedScreenWidget(
-                  monthlyExpenses: _monthlyRevenue * 0.70,
+                  monthlyExpenses: DisabilityService.monthlyExpenses(_monthlyRevenue),
                   hasPerteDegain: _hasPerteDegain,
                 )),
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 200), child: DisabilityCountdownWidget(
-                  monthlyExpenses: _monthlyRevenue * 0.70,
-                  initialSavings: _monthlyRevenue * 3, // hypothèse 3 mois
+                  monthlyExpenses: DisabilityService.monthlyExpenses(_monthlyRevenue),
+                  initialSavings: _monthlyRevenue * _assumedSavingsMonths,
                 )),
                 const SizedBox(height: 20),
                 MintEntrance(delay: const Duration(milliseconds: 300), child: _buildPerteDegainToggle()),
@@ -163,7 +170,7 @@ class _DisabilitySelfEmployedScreenState
             min: 2000,
             max: 25000,
             divisions: 46,
-            formatValue: (v) => "CHF ${_fmtChf(v)}",
+            formatValue: (v) => "CHF ${formatChf(v)}",
             activeColor: MintColors.critical,
             onChanged: (v) => setState(() => _monthlyRevenue = v),
           ),
@@ -255,15 +262,5 @@ class _DisabilitySelfEmployedScreenState
       ),
       ),
     );
-  }
-
-  static String _fmtChf(double v) {
-    final n = v.round().abs();
-    if (n >= 1000) {
-      final t = n ~/ 1000;
-      final r = n % 1000;
-      return r == 0 ? "$t'000" : "$t'${r.toString().padLeft(3, '0')}";
-    }
-    return '$n';
   }
 }

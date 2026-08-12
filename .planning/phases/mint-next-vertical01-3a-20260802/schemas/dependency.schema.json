@@ -1,0 +1,789 @@
+{
+  "$id": "https://mint.local/schemas/three-a/dependency-record-v1.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "owner_type": {
+            "const": "plan3a"
+          },
+          "profile": {
+            "const": "plan_affordability"
+          }
+        },
+        "required": [
+          "owner_type",
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fact_refs": {
+            "allOf": [
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "calculation_instant"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "tax_year"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "avs_eligibility_confirmed"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "lpp_active_confirmed"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "credited_contributions"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "provider_inventory_complete"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "liquid_assets_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "selected_emergency_buffer_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "debts_due_90d_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "essential_expenses_30d_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "monthly_surplus_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "overdue_debt_present"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "maximum_debt_apr_percent"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              }
+            ],
+            "maxItems": 13,
+            "minItems": 13
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "owner_type": {
+            "const": "plan3a"
+          },
+          "profile": {
+            "const": "plan_economic_effort"
+          }
+        },
+        "required": [
+          "owner_type",
+          "profile"
+        ]
+      },
+      "then": {
+        "properties": {
+          "fact_refs": {
+            "allOf": [
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "calculation_instant"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "tax_year"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "avs_eligibility_confirmed"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "lpp_active_confirmed"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "credited_contributions"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "provider_inventory_complete"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "full_year_lausanne_domicile"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "ordinary_full_year_liability"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "civil_status_single"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "dependants_count"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "ifd_taxable_income_pre_3a_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "vd_taxable_income_pre_3a_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "liquid_assets_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "selected_emergency_buffer_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "debts_due_90d_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "essential_expenses_30d_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "monthly_surplus_chf"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "overdue_debt_present"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              },
+              {
+                "contains": {
+                  "properties": {
+                    "fact_type": {
+                      "const": "maximum_debt_apr_percent"
+                    }
+                  },
+                  "required": [
+                    "fact_type"
+                  ]
+                },
+                "maxContains": 1,
+                "minContains": 1
+              }
+            ],
+            "maxItems": 19,
+            "minItems": 19
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "owner_type": {
+            "const": "plan3a"
+          }
+        },
+        "required": [
+          "owner_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "profile": {
+            "enum": [
+              "plan_affordability",
+              "plan_economic_effort"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "owner_type": {
+            "const": "result"
+          }
+        },
+        "required": [
+          "owner_type"
+        ]
+      },
+      "then": {
+        "properties": {
+          "profile": {
+            "const": "result"
+          }
+        }
+      }
+    }
+  ],
+  "oneOf": [
+    {
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "stale_at"
+            ]
+          },
+          {
+            "required": [
+              "stale_reason"
+            ]
+          }
+        ]
+      },
+      "properties": {
+        "status": {
+          "const": "live"
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "dependency_id",
+        "owner_type",
+        "profile",
+        "owner_id",
+        "fact_refs",
+        "ruleset",
+        "dependency_set_hash",
+        "computed_at",
+        "status",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "subject_local_id"
+      ],
+      "title": "live"
+    },
+    {
+      "properties": {
+        "status": {
+          "const": "stale"
+        }
+      },
+      "required": [
+        "record_type",
+        "schema_id",
+        "schema_version",
+        "record_version",
+        "dependency_id",
+        "owner_type",
+        "profile",
+        "owner_id",
+        "fact_refs",
+        "ruleset",
+        "dependency_set_hash",
+        "computed_at",
+        "status",
+        "key_contract_ref",
+        "privacy_contract_ref",
+        "retention_contract_ref",
+        "stale_at",
+        "stale_reason",
+        "subject_local_id"
+      ],
+      "title": "stale"
+    }
+  ],
+  "properties": {
+    "computed_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "dependency_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "dependency_set_hash": {
+      "pattern": "^[0-9a-f]{64}$",
+      "type": "string"
+    },
+    "fact_refs": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "fact_id": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "fact_type": {
+            "enum": [
+              "calculation_instant",
+              "tax_year",
+              "avs_eligibility_confirmed",
+              "lpp_active_confirmed",
+              "credited_contributions",
+              "provider_inventory_complete",
+              "full_year_lausanne_domicile",
+              "ordinary_full_year_liability",
+              "civil_status_single",
+              "dependants_count",
+              "ifd_taxable_income_pre_3a_chf",
+              "vd_taxable_income_pre_3a_chf",
+              "liquid_assets_chf",
+              "selected_emergency_buffer_chf",
+              "debts_due_90d_chf",
+              "essential_expenses_30d_chf",
+              "monthly_surplus_chf",
+              "overdue_debt_present",
+              "maximum_debt_apr_percent"
+            ]
+          },
+          "fact_version": {
+            "minimum": 1,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "fact_id",
+          "fact_version",
+          "fact_type"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "key_contract_ref": {
+      "const": "unresolved"
+    },
+    "owner_id": {
+      "format": "uuid",
+      "type": "string"
+    },
+    "owner_type": {
+      "enum": [
+        "result",
+        "plan3a"
+      ]
+    },
+    "privacy_contract_ref": {
+      "const": "unresolved"
+    },
+    "profile": {
+      "enum": [
+        "plan_affordability",
+        "plan_economic_effort",
+        "result"
+      ]
+    },
+    "record_type": {
+      "const": "mint_next_3a_dependency"
+    },
+    "record_version": {
+      "minimum": 1,
+      "type": "integer"
+    },
+    "retention_contract_ref": {
+      "const": "unresolved"
+    },
+    "ruleset": {
+      "additionalProperties": false,
+      "properties": {
+        "ruleset_id": {
+          "const": "three_a_lausanne_2026"
+        },
+        "ruleset_sha256": {
+          "pattern": "^[0-9a-f]{64}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "ruleset_id",
+        "ruleset_sha256"
+      ],
+      "type": "object"
+    },
+    "schema_id": {
+      "const": "mint_next_3a_dependency_record"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "stale_at": {
+      "format": "date-time",
+      "pattern": "(?:\\+01:00|\\+02:00)$",
+      "type": "string"
+    },
+    "stale_reason": {
+      "enum": [
+        "fact_superseded",
+        "fact_revoked",
+        "fact_deleted",
+        "fact_expired",
+        "event_invalidated",
+        "ruleset_changed",
+        "schema_migrated",
+        "dependency_missing",
+        "conflict"
+      ]
+    },
+    "status": {
+      "enum": [
+        "live",
+        "stale"
+      ]
+    },
+    "subject_local_id": {
+      "format": "uuid",
+      "type": "string"
+    }
+  },
+  "title": "MINT Next 3a DependencyRecord v1",
+  "type": "object",
+  "x-mint-contract": {
+    "activation": "OFF",
+    "canonical_order": "fact_type_then_fact_id_then_version",
+    "canonicalization_algorithm": "rfc8785_embedded_v1",
+    "contains_financial_values": false,
+    "contract_id": "three_a_dependency_record_v1",
+    "decision": "STOP",
+    "dependency_set_hash_algorithm": "sha256_over_rfc8785_embedded_v1_fact_refs_plus_ruleset",
+    "does_not_close_B0": true,
+    "duplicates_forbidden": true,
+    "fact_ref_format": "fact_id@fact_version",
+    "phase_status": "pre_activation",
+    "real_user_exposure": "forbidden",
+    "runtime_implemented": false,
+    "silent_recompute": false,
+    "stale_synchronously": true,
+    "temporal_order": [
+      "max(referenced_fact.availability_at)<=computed_at"
+    ],
+    "third_store": false
+  }
+}
