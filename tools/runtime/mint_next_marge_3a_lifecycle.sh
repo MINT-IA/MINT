@@ -40,7 +40,7 @@ delete_disposable_device() {
 
 self_test() {
   local sandbox fake_xcrun
-  sandbox="$(mktemp -d "${TMPDIR:-/tmp}/mint-versements-self-test.XXXXXX")"
+  sandbox="$(mktemp -d "${TMPDIR:-/tmp}/mint-marge-self-test.XXXXXX")"
   trap 'rm -rf "$sandbox"' RETURN
   mkdir -p "$sandbox/final"
   printf old >"$sandbox/final/runtime.json"
@@ -67,7 +67,7 @@ self_test() {
   export DELETE_LOG="$sandbox/deletes.log" XCRUN_BIN="$fake_xcrun"
   delete_disposable_device disposable-udid
   grep -Fx 'simctl delete disposable-udid' "$DELETE_LOG" >/dev/null
-  echo "OK mint_next_versements_3a_lifecycle self-test"
+  echo "OK mint_next_marge_3a_lifecycle self-test"
 }
 
 if [[ "${1:-}" == "--self-test" ]]; then self_test; exit 0; fi
@@ -270,7 +270,7 @@ receipt = {
         "entitlements, -34018)"
     ),
     "command": (
-        "bash tools/runtime/mint_next_versements_3a_lifecycle.sh "
+        "bash tools/runtime/mint_next_marge_3a_lifecycle.sh "
         f"--runtime-commit {os.environ['RUNTIME_COMMIT']} "
         "--capture-evidence"
     ),
@@ -329,4 +329,4 @@ if ((CAPTURE)); then
   promote_evidence "$STAGING" "$PHASE_EVIDENCE" "$PREVIOUS"
 fi
 
-echo "OK versements 3a lifecycle runtime: $RUNTIME_COMMIT"
+echo "OK marge 3a lifecycle runtime: $RUNTIME_COMMIT"
