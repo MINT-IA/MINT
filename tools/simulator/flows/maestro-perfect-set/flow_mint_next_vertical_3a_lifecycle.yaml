@@ -27,12 +27,28 @@ tags:
 - waitForAnimationToEnd:
     timeout: 10000
 # ─── Outcome 1 : aller-retour depuis l'entrée (Aujourd'hui) ───
+# /home est gardé : sans session, la coque retombe sur le landing —
+# franchir par « Continuer sans compte » (conditionnel, idempotent).
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
 - openLink: "mintapp:///home"
 - waitForAnimationToEnd:
     timeout: 5000
 - openLink: "mintapp:///home"
 - waitForAnimationToEnd:
     timeout: 5000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
 - scrollUntilVisible:
     element:
       id: "action:vertical_3a.entry"
