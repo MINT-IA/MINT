@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "local_reset_bascule2",
+    "title": "Bascule 2 — repartir à zéro sur cet appareil, honnêtement",
+    "promise": "En préversion uniquement, le centre de confidentialité offre « Repartir à zéro » : purge locale complète des données métier (faits scellés, projections, historique, quota anonyme) SANS toucher session, consentements, langue, disclosure ni marqueurs anti-remigration. Le compte serveur n'est PAS supprimé et aucune réhydratation silencieuse ne ressuscite l'état — quarantaine explicite. Échec partiel = rouge honnête + retry au boot. Idempotent. Hors préversion : rien n'existe, rien ne change."
+  },
+  "generated_at": "2026-08-12",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
+    "cadrage": "verdict Codex GO bascule 2 (2026-08-12) — strictement locale, visible uniquement sous MINT_NEXT_PREVIEW (via PreviewShellPolicy), orchestrateur canonique unique LocalPreviewResetService.reset(), jamais FlutterSecureStorage.deleteAll(), quota anonyme purgé UNIQUEMENT parce que preview-only (jamais un contournement anti-abus public)"
+  },
+  "semantic_contract": "Deux INVENTAIRES CONSTANTS exposés par le service : purged (SharedPreferences métier — wizard/onboarding/handoff/faits/projections/budget/scores/check-ins/historique coach/conversations/brouillons/caches ; les 5 valeurs canoniques _mint_canonical_{housing,civil_status,revenu,lpp_affiliation,versements_3a}_v1 ; journaux de suppression ; held stores anonymes ; fallbacks E2E ; anonymous_session_id + anonymous_message_count ; état mémoire des providers) et preserved (session/auth, consentements applicables, langue/accessibilité/préférences, disclosure TestFlight, marqueurs d'installation/retry, les 5 marqueurs _mint_canonical_*_initialized_v1 anti-remigration). JAMAIS de purge aveugle par préfixe _mint_ (valeurs et marqueurs ont des contrats opposés). Ordre transactionnel : reset_pending durable → blocage mutations/hydratations → purges → reset providers → quarantaine de sync locale (local_profile_reset_epoch_<userId> : aucune hydratation serveur automatique tant que présent) → vérification zéro résidu → levée du marqueur → racine vide de la coque. Résidu ou échec partiel ⇒ reset ROUGE, reset_pending conservé, retry au boot. Guard anti-dérive : toute nouvelle clé MINT sensible doit être classée purge OU preserve explicitement.",
+  "classification_decision": "Aucune clé de fait nouvelle côté jumeau ; le service possède reset_pending et local_profile_reset_epoch_<userId>. UI : centre de confidentialité, section « Préversion » gatée par PreviewShellPolicy (jamais un flag dispersé). Copie bornée LSFin : « MINT effacera ta situation financière et ton historique enregistrés sur cet appareil. Ton compte, ta connexion et tes consentements restent inchangés. Les données déjà enregistrées sur nos serveurs ne seront pas supprimées. » — jamais « toutes tes données ». Confirmation forte par saisie REPARTIR À ZÉRO.",
+  "known_risks_from_cadrage": [
+    "deleteAll Keychain brut = interdit (marqueurs anti-remigration et session détruits)",
+    "purge par préfixe _mint_ = interdit (les marqueurs initialized doivent survivre)",
+    "réhydratation serveur silencieuse post-reset = mensonge produit — quarantaine obligatoire",
+    "échec partiel silencieux = demi-état pire que tout — rouge honnête + retry au boot",
+    "quota anonyme : purge acceptable UNIQUEMENT preview-only ; ne jamais l'exposer en distribution publique",
+    "copie : ne jamais promettre la suppression du compte ou des données serveur"
+  ],
+  "out_of_scope": [
+    "suppression de compte serveur (bascule 3)",
+    "action « Restaurer les données du compte » (future, séparée, explicite)",
+    "onboarding→faits canoniques (chantier séparé)"
+  ],
+  "beats": [
+    {
+      "id": "r1_inventaires",
+      "story": "Le service expose les inventaires constants purged/preserved ; toute clé sensible nouvelle doit être classée (guard anti-dérive).",
+      "code": "apps/mobile/lib/services/",
+      "tests_planned": [
+        "the reset service exposes constant purged and preserved inventories",
+        "every seeded purged key is absent after reset and every preserved key is unchanged",
+        "the five canonical values are purged while the five initialized markers survive",
+        "no global keychain deleteAll is ever invoked"
+      ]
+    },
+    {
+      "id": "r2_ui_preview_only",
+      "story": "Section « Préversion » du centre de confidentialité, visible uniquement via la politique ; copie bornée ; confirmation forte par saisie.",
+      "code": "apps/mobile/lib/screens/profile/",
+      "tests_planned": [
+        "the reset entry renders only under the preview policy",
+        "the copy never promises account or server deletion",
+        "the strong confirmation gates the destructive action"
+      ]
+    },
+    {
+      "id": "r3_transaction",
+      "story": "reset_pending durable, purges ordonnées, vérification zéro résidu, levée du marqueur ; échec partiel = rouge honnête + retry au boot ; idempotent.",
+      "code": "apps/mobile/lib/services/",
+      "tests_planned": [
+        "a partial failure keeps reset_pending and retries at boot",
+        "running the reset twice is idempotent",
+        "a residue detected turns the reset red, never silent"
+      ]
+    },
+    {
+      "id": "r4_quarantaine",
+      "story": "Compte connecté : local_profile_reset_epoch_<userId> bloque toute hydratation serveur automatique — rien ne ressuscite en silence.",
+      "code": "apps/mobile/lib/services/",
+      "tests_planned": [
+        "after reset no automatic server hydration repopulates the profile while the quarantine marker exists"
+      ]
+    },
+    {
+      "id": "r5_off_strict",
+      "story": "Hors préversion : l'action n'existe pas et rien ne change.",
+      "code": "apps/mobile/lib/",
+      "tests_planned": [
+        "without the preview policy the reset action never renders and behavior is unchanged"
+      ]
+    }
+  ],
+  "gate_requirements": {
+    "outcomes_runtime": [
+      "état chargé (faits + quota consommé) → reset → coque vierge immédiate",
+      "relance à froid : toujours vierge (durabilité)",
+      "session/consentements/langue/disclosure préservés (assertions positives)",
+      "aucune réhydratation serveur implicite (quarantaine active)",
+      "quota anonyme de nouveau testable (preview-only)",
+      "second reset : idempotence",
+      "zéro transmission SORTANTE (REQBODY)"
+    ],
+    "preuves": "inventaires constants testés exhaustivement (seed→reset→assertions) · guard anti-dérive · review Codex P1=0 · gate 5/5 · AUCUN tests_planned résiduel · reçu lié au SHA"
+  }
+}
