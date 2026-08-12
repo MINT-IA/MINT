@@ -26,32 +26,41 @@
       "id": "attested_constants",
       "story": "Le jeu réglementaire 2026 existe, complet et attesté : plafond avec LPP, plafond sans LPP, taux 20 %, source OFAS/OPP3, période d'effet, hash de snapshot. Une année non couverte ou un jeu incomplet ne produit JAMAIS un chiffre.",
       "code": "apps/mobile/lib/services/financial_core/",
-      "tests_planned": [
+      "tests": [
         "the 2026 regulatory set is complete, hashed and allowlisted",
         "an incomplete set or unknown hash yields regulatory_constants_unattested",
         "a year outside the registry yields unsupported_tax_year, never a fallback value"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
       ]
     },
     {
       "id": "pure_calculator",
       "story": "Un calculateur pur et déterministe (L1 mobile) : mêmes entrées → même sortie, exact en centimes. Branche affilié LPP = plafond légal fixe ; branche non-affilié = 20 % du revenu annualisé canonique, borné au grand plafond. marge_cents = plafond − total versé, SIGNÉE.",
       "code": "apps/mobile/lib/services/financial_core/",
-      "tests_planned": [
+      "tests": [
         "lpp affiliated branch uses the fixed attested plafond",
         "non affiliated branch is floor(20 percent of canonical annualized income) capped at the grand plafond",
         "marge is signed: an overshoot stays negative, never clamped to zero",
         "same inputs yield bit identical results in cents"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
       ]
     },
     {
       "id": "fail_closed_states",
       "story": "Chaque information manquante a un état nommé : affiliation LPP inconnue, revenu manquant (branche non-LPP seulement), versements manquants, année non attestée, entrées périmées. Jamais un zéro qui ment, jamais un chiffre par défaut.",
       "code": "apps/mobile/lib/services/financial_core/",
-      "tests_planned": [
+      "tests": [
         "unknown lpp affiliation yields lpp_affiliation_unknown",
         "missing income blocks only the non affiliated branch",
         "missing contributions yield contributions_missing",
         "each of the six states is distinct and named, never a default number"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
       ]
     },
     {
@@ -77,9 +86,12 @@
       "id": "invalidation",
       "story": "Le résultat transporte les révisions de ses entrées : si un versement, le revenu ou l'affiliation change, le résultat affiché se ré-dérive — une marge périmée ne survit jamais à la correction d'un fait.",
       "code": "apps/mobile/lib/services/financial_core/",
-      "tests_planned": [
+      "tests": [
         "the result carries the input revisions and any strict inequality is stale",
         "a corrected versement re-derives the displayed marge"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
       ]
     }
   ],
