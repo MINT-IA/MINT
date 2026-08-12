@@ -73,8 +73,11 @@
       "id": "r4_quarantaine",
       "story": "Compte connecté : local_profile_reset_epoch_<userId> bloque toute hydratation serveur automatique — rien ne ressuscite en silence.",
       "code": "apps/mobile/lib/services/",
-      "tests_planned": [
+      "tests": [
         "after reset no automatic server hydration repopulates the profile while the quarantine marker exists"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/local_preview_reset_service_test.dart"
       ]
     },
     {
@@ -89,8 +92,11 @@
       "id": "r6_boot_wiring",
       "story": "Le retry reset_pending est câblé au démarrage AVANT toute hydratation de provider — ordre prouvé mécaniquement.",
       "code": "apps/mobile/lib/main.dart",
-      "tests_planned": [
+      "tests": [
         "the boot retry of reset_pending runs before any provider hydration or mutation"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/local_preview_reset_service_test.dart"
       ]
     }
   ],

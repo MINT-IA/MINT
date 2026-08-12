@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:mint_mobile/services/local_preview_reset_service.dart';
 import 'package:mint_mobile/app.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/coach/coach_orchestrator.dart';
@@ -34,6 +35,11 @@ Future<void> main() async {
   // startup service writes SharedPreferences, otherwise cache writes can mask a
   // true reinstall and preserve stale auth/anonymous quota keys.
   await InstallLifecycleService.prepareForAuthRestore();
+
+  // Bascule 2 — un reset local dû (reset_pending) se rejoue AVANT toute
+  // hydratation/mutation de provider : l'utilisateur ne voit jamais un
+  // demi-état présenté comme sain.
+  await LocalPreviewResetService.retryPendingAtBoot();
 
   // Phase 02 D-MOB side-finding fix — replace hardcoded ApiService._appVersion='1.0.0'
   // with real pubspec.yaml version (X-App-Version header + mobile L1 audit trail).

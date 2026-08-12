@@ -190,6 +190,34 @@ void main() {
     expect(await LocalPreviewResetService.isQuarantined('other'), isFalse);
   });
 
+  test('after reset no automatic server hydration repopulates the profile '
+      'while the quarantine marker exists', () async {
+    await seedFacts();
+    await LocalPreviewResetService.reset(signedInUserId: 'user-42');
+    // Utilisateur connecté simulé : jeton + id présents dans le storage.
+    const storage = FlutterSecureStorage();
+    await storage.write(key: 'jwt_token', value: 'tok');
+    await storage.write(key: 'user_id', value: 'user-42');
+    final provider = CoachProfileProvider();
+    CoachProfileProvider.debugLastSyncSkippedByQuarantine = false;
+    await provider.syncFromBackend();
+    expect(CoachProfileProvider.debugLastSyncSkippedByQuarantine, isTrue,
+        reason: "l'hydratation serveur est REFUSÉE tant que la quarantaine "
+            'existe — rien ne ressuscite en silence');
+    expect(provider.profile, isNull);
+  });
+
+  test('the boot retry of reset_pending runs before any provider hydration '
+      'or mutation', () {
+    final mainSource = File('lib/main.dart').readAsStringSync();
+    final retryIdx = mainSource.indexOf('retryPendingAtBoot');
+    final runAppIdx = mainSource.indexOf('runApp(');
+    expect(retryIdx, greaterThan(-1));
+    expect(retryIdx, lessThan(runAppIdx),
+        reason: 'le retry précède le montage de l\'app — aucune hydratation '
+            'de provider ne peut le devancer');
+  });
+
   test('calling reset outside the preview policy throws and purges nothing',
       () async {
     await seedFacts();
