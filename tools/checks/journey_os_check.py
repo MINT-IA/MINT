@@ -70,6 +70,8 @@ ALLOW = {
     "apps/mobile/lib/services/local_preview_reset_service.dart",
     "apps/mobile/lib/main.dart",
     "apps/mobile/test/services/local_preview_reset_service_test.dart",
+    "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+    "apps/mobile/test/screens/profile/preview_reset_privacy_center_test.dart",
     "apps/mobile/lib/services/preview_shell_policy.dart",
     "apps/mobile/test/services/preview_shell_policy_test.dart",
     "apps/mobile/lib/widgets/mint_shell.dart",

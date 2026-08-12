@@ -6,8 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/services/auth_service.dart';
+import 'package:mint_mobile/services/local_preview_reset_service.dart';
+import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -178,12 +182,94 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                   const Divider(color: MintColors.lightBorder),
                   _DeleteAccountRow(onTap: _confirmDeleteAccount),
                 ],
+                // Bascule 2 — « repartir à zéro » local, préversion uniquement.
+                if (PreviewShellPolicy.instance.isPreviewShell) ...[
+                  const SizedBox(height: 24),
+                  const Divider(color: MintColors.lightBorder),
+                  _SectionHeader(title: l.previewResetSection),
+                  Semantics(
+                    identifier: 'action:preview_reset.open',
+                    button: true,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l.previewResetTitle,
+                          style: MintTextStyles.bodyLarge(
+                              color: MintColors.textPrimary)),
+                      subtitle: Text(l.previewResetBody,
+                          style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary)),
+                      trailing:
+                          const Icon(Icons.restart_alt, color: MintColors.error),
+                      onTap: _confirmPreviewReset,
+                    ),
+                  ),
+                ],
               ],
             ),
           );
         },
       ),
     );
+  }
+}
+
+extension _PreviewResetFlow on _PrivacyCenterScreenState {
+  Future<void> _confirmPreviewReset() async {
+    final l = S.of(context)!;
+    final controller = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l.previewResetTitle),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l.previewResetBody),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('preview_reset_confirm_field'),
+              controller: controller,
+              decoration:
+                  InputDecoration(hintText: l.previewResetConfirmHint),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l.commonCancel),
+          ),
+          TextButton(
+            // lint-ignore: prefer_mint_cta
+            onPressed: () => Navigator.of(dialogContext)
+                .pop(controller.text.trim() == l.previewResetConfirmWord),
+            child: Text(
+              l.previewResetCta,
+              style: const TextStyle(color: MintColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      final userId = await AuthService.getUserId();
+      await LocalPreviewResetService.reset(signedInUserId: userId);
+      if (!mounted) return;
+      // Rechargement honnête : storage purgé ⇒ profil mémoire remis à null,
+      // rien ne survit en RAM jusqu'à la prochaine relance.
+      await context.read<CoachProfileProvider>().loadFromWizard();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.previewResetDone)));
+      context.go('/home');
+    } on StateError {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.previewResetFailed)));
+    }
   }
 }
 

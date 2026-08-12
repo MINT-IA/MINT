@@ -49,10 +49,13 @@
       "id": "r2_ui_preview_only",
       "story": "Section « Préversion » du centre de confidentialité, visible uniquement via la politique ; copie bornée ; confirmation forte par saisie.",
       "code": "apps/mobile/lib/screens/profile/",
-      "tests_planned": [
+      "tests": [
         "the reset entry renders only under the preview policy",
         "the copy never promises account or server deletion",
         "the strong confirmation gates the destructive action"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/profile/preview_reset_privacy_center_test.dart"
       ]
     },
     {
@@ -84,8 +87,11 @@
       "id": "r5_off_strict",
       "story": "Hors préversion : l'action n'existe pas et rien ne change.",
       "code": "apps/mobile/lib/",
-      "tests_planned": [
+      "tests": [
         "without the preview policy the reset action never renders and behavior is unchanged"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/profile/preview_reset_privacy_center_test.dart"
       ]
     },
     {
