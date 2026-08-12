@@ -184,11 +184,11 @@ set -e
 ((MAESTRO_EXIT == 0)) || exit "$MAESTRO_EXIT"
 
 for image in \
-  01-created-visible.png \
-  02-cold-relaunch-visible.png \
-  03-edited-visible.png \
-  04-deleted-absent.png \
-  05-delete-survives-relaunch.png; do
+  01-affiliated-marge-positive.png \
+  02-overshoot-signed.png \
+  03-non-affiliated-20pct.png \
+  04-non-affiliated-capped.png \
+  05-contributions-missing-after-delete.png; do
   [[ -s "$OUT/$image" ]] || {
     echo "missing runtime screenshot: $image" >&2; exit 1;
   }
