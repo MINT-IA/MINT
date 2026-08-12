@@ -205,6 +205,8 @@ void main() {
     expect(find.byType(CapDuJourBanner), findsNothing);
     expect(find.byType(TensionCardWidget), findsNothing);
     expect(find.byType(CleoLoopIndicator), findsNothing);
+    expect(find.text('Ton histoire'), findsNothing,
+        reason: 'le séparateur legacy suit ses cartes');
   });
 
   testWidgets('preview ma situation shows only canonical fact surfaces',
@@ -297,6 +299,8 @@ void main() {
         reason: 'référence OFF figée : la surface legacy reste montée');
     expect(find.byType(TensionCardWidget), findsNWidgets(3));
     expect(find.byType(CleoLoopIndicator), findsOneWidget);
+    expect(find.text('Ton histoire'), findsOneWidget,
+        reason: 'référence OFF : le séparateur legacy reste monté');
 
     final provider = CoachProfileProvider();
     await provider.loadFromWizard();
