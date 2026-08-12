@@ -113,6 +113,25 @@ class LocalPreviewResetService {
   @visibleForTesting
   static Future<void> Function()? debugPurgeFailureForTest;
 
+  /// Clés prefs dont l'écriture est forcée en échec (retour false) par les
+  /// tests — simule une panne plateforme du stockage.
+  @visibleForTesting
+  static Set<String> debugFailingPrefWritesForTest = {};
+
+  /// Écriture prefs OBLIGATOIREMENT réussie : SharedPreferences retourne
+  /// false en cas d'échec plateforme — l'ignorer permettrait une purge
+  /// « terminée » sans quarantaine durable ou un pending fantôme.
+  static Future<void> _requireWrite(
+      String key, Future<bool> Function() op) async {
+    final ok =
+        debugFailingPrefWritesForTest.contains(key) ? false : await op();
+    if (!ok) {
+      throw StateError(
+          'prefs write failed for $key — reset remains due, retried at '
+          'next boot');
+    }
+  }
+
   /// Purge locale complète — transactionnelle et idempotente.
   ///
   /// [signedInUserId] : pose la quarantaine de sync pour ce compte.
@@ -135,9 +154,11 @@ class LocalPreviewResetService {
     // L'ordre inverse laisserait un pending sans identité — purge au boot
     // puis levée SANS quarantaine : mensonge de réhydratation.
     if (effectiveUserId != null && effectiveUserId.isNotEmpty) {
-      await prefs.setString(resetPendingUserKey, effectiveUserId);
+      await _requireWrite(resetPendingUserKey,
+          () => prefs.setString(resetPendingUserKey, effectiveUserId));
     }
-    await prefs.setBool(resetPendingKey, true);
+    await _requireWrite(
+        resetPendingKey, () => prefs.setBool(resetPendingKey, true));
     // Panne injectable (même précédent que debugEarlyLocalPurgeFailure
     // d'AuthProvider) : prouve que pending + identité survivent à un échec
     // survenu APRÈS leur pose et AVANT toute purge.
@@ -167,11 +188,17 @@ class LocalPreviewResetService {
     // Quarantaine posée APRÈS purge vérifiée (ordre du contrat) : aucune
     // hydratation serveur automatique ne repeuplera ce compte.
     if (effectiveUserId != null && effectiveUserId.isNotEmpty) {
-      await prefs.setString(quarantineKeyFor(effectiveUserId),
-          DateTime.now().toUtc().toIso8601String());
+      final quarantineKey = quarantineKeyFor(effectiveUserId);
+      await _requireWrite(
+          quarantineKey,
+          () => prefs.setString(
+              quarantineKey, DateTime.now().toUtc().toIso8601String()));
     }
-    await prefs.remove(resetPendingUserKey);
-    await prefs.remove(resetPendingKey);
+    // Les levées aussi : un remove retournant false laisserait un pending
+    // fantôme — mieux vaut le dire (retry au boot) que prétendre au propre.
+    await _requireWrite(
+        resetPendingUserKey, () => prefs.remove(resetPendingUserKey));
+    await _requireWrite(resetPendingKey, () => prefs.remove(resetPendingKey));
   }
 
   /// Vérification zéro résidu — publique pour que le chemin ROUGE soit
@@ -209,18 +236,20 @@ class LocalPreviewResetService {
   /// Retry d'un reset dû — appelé au boot AVANT toute hydratation de
   /// provider (l'ordre est prouvé par test sur main.dart).
   static Future<void> retryPendingAtBoot() async {
-    if (!PreviewShellPolicy.instance.isPreviewShell) return;
-    final prefs = await SharedPreferences.getInstance();
-    if (prefs.getBool(resetPendingKey) != true) return;
+    // Le try englobe TOUTE la séquence — acquisition et lecture des prefs
+    // comprises : aucune erreur de stockage ne doit empêcher le démarrage.
     try {
+      if (!PreviewShellPolicy.instance.isPreviewShell) return;
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool(resetPendingKey) != true) return;
       // L'identité persistée avec le pending garantit que la quarantaine
       // du BON compte est posée même quand le succès n'arrive qu'au retry.
       await reset(signedInUserId: prefs.getString(resetPendingUserKey));
     } catch (_) {
-      // TOUTE erreur de purge (StateError, PlatformException, I/O…) est
-      // absorbée : reset_pending reste posé, l'app démarre quand même
-      // (l'état affiché reste celui d'un reset en cours, pas un demi-état
-      // présenté comme sain).
+      // TOUTE erreur (acquisition prefs, lecture, StateError,
+      // PlatformException, I/O…) est absorbée : reset_pending reste posé si
+      // déjà écrit, l'app démarre quand même (l'état affiché reste celui
+      // d'un reset en cours, pas un demi-état présenté comme sain).
     }
   }
 

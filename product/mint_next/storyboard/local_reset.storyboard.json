@@ -47,6 +47,9 @@
         "a crash between the identity write and the pending write is a harmless no-op at boot",
         "a reset retriggered while signed out still quarantines the account recorded with the due reset",
         "the boot retry absorbs any purge error and keeps the reset due",
+        "a quarantine write reported failed by the platform never lifts the pending",
+        "an identity write reported failed by the platform aborts before any pending or purge",
+        "the boot retry encloses prefs acquisition and reads in its error barrier (static scan)",
         "every secure-storage consumer file is classified purge-covered or preserved (closed file registry)"
       ],
       "test_files": [

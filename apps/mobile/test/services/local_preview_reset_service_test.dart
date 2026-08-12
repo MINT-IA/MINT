@@ -26,6 +26,7 @@ void main() {
   tearDown(() {
     PreviewShellPolicy.debugOverride = null;
     LocalPreviewResetService.debugPurgeFailureForTest = null;
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {};
     SecureWizardStore.resetSealFallbackForTest();
   });
 
@@ -215,6 +216,58 @@ void main() {
     expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull);
     expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
         isNull);
+  });
+
+  test('a quarantine write reported failed by the platform never lifts the '
+      'pending', () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    // Panne plateforme injectée : l'écriture de quarantaine retourne false.
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {
+      LocalPreviewResetService.quarantineKeyFor('user-42'),
+    };
+    await expectLater(
+        LocalPreviewResetService.reset(signedInUserId: 'user-42'),
+        throwsA(isA<StateError>()));
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isTrue,
+        reason: 'quarantaine non durable = reset JAMAIS annoncé terminé');
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        'user-42');
+
+    // La plateforme se rétablit : le retry aboutit ET quarantine.
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {};
+    await LocalPreviewResetService.retryPendingAtBoot();
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isTrue);
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull);
+  });
+
+  test('an identity write reported failed by the platform aborts before any '
+      'pending or purge', () async {
+    await seedFacts();
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {
+      LocalPreviewResetService.resetPendingUserKey,
+    };
+    await expectLater(
+        LocalPreviewResetService.reset(signedInUserId: 'user-42'),
+        throwsA(isA<StateError>()));
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull,
+        reason: 'identité non écrite = pending jamais posé, rien ne démarre');
+    expect((await ReportPersistenceService.loadAnswers()), isNotEmpty,
+        reason: 'rien purgé — aucun demi-état');
+  });
+
+  test('the boot retry encloses prefs acquisition and reads in its '
+      'error barrier (static scan)', () {
+    final source = File('lib/services/local_preview_reset_service.dart')
+        .readAsStringSync();
+    final body = source.substring(source.indexOf('retryPendingAtBoot()'));
+    final tryIdx = body.indexOf('try {');
+    expect(tryIdx, greaterThan(-1));
+    expect(tryIdx, lessThan(body.indexOf('SharedPreferences.getInstance')),
+        reason: "l'acquisition des prefs est DANS la barrière d'erreur");
+    expect(tryIdx, lessThan(body.indexOf('getBool(resetPendingKey)')),
+        reason: 'la lecture du pending est DANS la barrière d\'erreur');
   });
 
   test('the boot retry absorbs any purge error and keeps the reset due',
