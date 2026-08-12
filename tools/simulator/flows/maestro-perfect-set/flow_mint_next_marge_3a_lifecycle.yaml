@@ -291,10 +291,19 @@ tags:
 - waitForAnimationToEnd:
     timeout: 5000
 - openLink: "mintapp:///mon-argent"
-- extendedWaitUntil:
-    visible:
+- waitForAnimationToEnd:
+    timeout: 5000
+# Avec les faits revenu + LPP présents, la surface versements vit sous la
+# ligne de flottaison — scroller jusqu'à elle au lieu d'attendre.
+- scrollUntilVisible:
+    element:
       id: "mon_argent_versements_3a_fact"
+    direction: DOWN
     timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: "action:mon_argent.versements_3a.delete"
+    direction: DOWN
 - tapOn:
     id: "action:mon_argent.versements_3a.delete"
 - extendedWaitUntil:
