@@ -26179,6 +26179,46 @@ class SPt extends S {
       'A MINT vai esquecer toda a lista. Os teus outros dados não mudam.';
 
   @override
+  String mintNextMarge3aVerseRow(String year) {
+    return 'Pago em $year';
+  }
+
+  @override
+  String mintNextMarge3aPlafondRow(String year) {
+    return 'Teto $year';
+  }
+
+  @override
+  String get mintNextMarge3aMargeRow => 'Margem restante';
+
+  @override
+  String mintNextMarge3aDepasse(String amount) {
+    return 'Teto excedido em $amount';
+  }
+
+  @override
+  String mintNextMarge3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · teto $year · conjunto $version';
+  }
+
+  @override
+  String get mintNextMarge3aStateLppUnknown =>
+      'Indica se estás filiado·a a uma caixa de pensões para veres o teu teto 3a.';
+
+  @override
+  String get mintNextMarge3aStateIncomeMissing =>
+      'Indica o teu rendimento para calcular o teu teto 3a sem caixa de pensões.';
+
+  @override
+  String get mintNextMarge3aStateContributionsMissing =>
+      'Regista os teus pagamentos para veres a tua margem 3a.';
+
+  @override
+  String mintNextMarge3aStateUnattested(String year) {
+    return 'O teto $year ainda não está atestado no MINT.';
+  }
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }

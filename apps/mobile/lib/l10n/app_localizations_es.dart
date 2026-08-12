@@ -26167,6 +26167,46 @@ class SEs extends S {
       'MINT olvidará toda la lista. Tus demás datos no cambian.';
 
   @override
+  String mintNextMarge3aVerseRow(String year) {
+    return 'Aportado en $year';
+  }
+
+  @override
+  String mintNextMarge3aPlafondRow(String year) {
+    return 'Tope $year';
+  }
+
+  @override
+  String get mintNextMarge3aMargeRow => 'Margen restante';
+
+  @override
+  String mintNextMarge3aDepasse(String amount) {
+    return 'Tope superado en $amount';
+  }
+
+  @override
+  String mintNextMarge3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · tope $year · juego $version';
+  }
+
+  @override
+  String get mintNextMarge3aStateLppUnknown =>
+      'Indica si estás afiliado·a a una caja de pensiones para ver tu tope 3a.';
+
+  @override
+  String get mintNextMarge3aStateIncomeMissing =>
+      'Indica tus ingresos para calcular tu tope 3a sin caja de pensiones.';
+
+  @override
+  String get mintNextMarge3aStateContributionsMissing =>
+      'Registra tus aportaciones para ver tu margen 3a.';
+
+  @override
+  String mintNextMarge3aStateUnattested(String year) {
+    return 'El tope $year aún no está atestado en MINT.';
+  }
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

@@ -45569,6 +45569,60 @@ abstract class S {
   /// **'MINT oubliera toute la liste. Tes autres informations ne changent pas.'**
   String get mintNextVersements3aDeleteAllBody;
 
+  /// No description provided for @mintNextMarge3aVerseRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versé en {year}'**
+  String mintNextMarge3aVerseRow(String year);
+
+  /// No description provided for @mintNextMarge3aPlafondRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond {year}'**
+  String mintNextMarge3aPlafondRow(String year);
+
+  /// No description provided for @mintNextMarge3aMargeRow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marge restante'**
+  String get mintNextMarge3aMargeRow;
+
+  /// No description provided for @mintNextMarge3aDepasse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plafond dépassé de {amount}'**
+  String mintNextMarge3aDepasse(String amount);
+
+  /// No description provided for @mintNextMarge3aProvenance.
+  ///
+  /// In fr, this message translates to:
+  /// **'OPP3 art. 7 · plafond {year} · jeu {version}'**
+  String mintNextMarge3aProvenance(String year, String version);
+
+  /// No description provided for @mintNextMarge3aStateLppUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique si tu es affilié·e à une caisse de pension pour voir ton plafond 3a.'**
+  String get mintNextMarge3aStateLppUnknown;
+
+  /// No description provided for @mintNextMarge3aStateIncomeMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indique ton revenu pour calculer ton plafond 3a sans caisse de pension.'**
+  String get mintNextMarge3aStateIncomeMissing;
+
+  /// No description provided for @mintNextMarge3aStateContributionsMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistre tes versements pour voir ta marge 3a.'**
+  String get mintNextMarge3aStateContributionsMissing;
+
+  /// No description provided for @mintNextMarge3aStateUnattested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le plafond {year} n\'est pas encore attesté dans MINT.'**
+  String mintNextMarge3aStateUnattested(String year);
+
   /// No description provided for @mintNext3aDomicileKnown.
   ///
   /// In fr, this message translates to:

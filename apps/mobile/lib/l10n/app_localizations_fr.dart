@@ -26166,6 +26166,46 @@ class SFr extends S {
       'MINT oubliera toute la liste. Tes autres informations ne changent pas.';
 
   @override
+  String mintNextMarge3aVerseRow(String year) {
+    return 'Versé en $year';
+  }
+
+  @override
+  String mintNextMarge3aPlafondRow(String year) {
+    return 'Plafond $year';
+  }
+
+  @override
+  String get mintNextMarge3aMargeRow => 'Marge restante';
+
+  @override
+  String mintNextMarge3aDepasse(String amount) {
+    return 'Plafond dépassé de $amount';
+  }
+
+  @override
+  String mintNextMarge3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · plafond $year · jeu $version';
+  }
+
+  @override
+  String get mintNextMarge3aStateLppUnknown =>
+      'Indique si tu es affilié·e à une caisse de pension pour voir ton plafond 3a.';
+
+  @override
+  String get mintNextMarge3aStateIncomeMissing =>
+      'Indique ton revenu pour calculer ton plafond 3a sans caisse de pension.';
+
+  @override
+  String get mintNextMarge3aStateContributionsMissing =>
+      'Enregistre tes versements pour voir ta marge 3a.';
+
+  @override
+  String mintNextMarge3aStateUnattested(String year) {
+    return 'Le plafond $year n\'est pas encore attesté dans MINT.';
+  }
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicile : $commune ($canton)';
   }

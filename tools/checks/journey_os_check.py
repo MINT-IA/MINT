@@ -66,6 +66,7 @@ ALLOW = {
     "product/mint_next/storyboard/marge_3a_attestee.storyboard.json",
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
+    "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
     "apps/mobile/lib/services/observability/mint_http_client.dart",
     "apps/mobile/test/services/observability/mint_http_client_test.dart",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/01-created-visible.png",

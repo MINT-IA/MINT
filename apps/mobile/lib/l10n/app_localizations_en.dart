@@ -26030,6 +26030,46 @@ class SEn extends S {
       'MINT will forget the whole list. Your other information does not change.';
 
   @override
+  String mintNextMarge3aVerseRow(String year) {
+    return 'Paid in $year';
+  }
+
+  @override
+  String mintNextMarge3aPlafondRow(String year) {
+    return '$year ceiling';
+  }
+
+  @override
+  String get mintNextMarge3aMargeRow => 'Remaining room';
+
+  @override
+  String mintNextMarge3aDepasse(String amount) {
+    return 'Ceiling exceeded by $amount';
+  }
+
+  @override
+  String mintNextMarge3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · $year ceiling · set $version';
+  }
+
+  @override
+  String get mintNextMarge3aStateLppUnknown =>
+      'Tell MINT whether you are affiliated with a pension fund to see your 3a ceiling.';
+
+  @override
+  String get mintNextMarge3aStateIncomeMissing =>
+      'Add your income to compute your 3a ceiling without a pension fund.';
+
+  @override
+  String get mintNextMarge3aStateContributionsMissing =>
+      'Record your payments to see your 3a room.';
+
+  @override
+  String mintNextMarge3aStateUnattested(String year) {
+    return 'The $year ceiling is not yet attested in MINT.';
+  }
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

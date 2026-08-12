@@ -68,19 +68,25 @@
       "id": "surface_vertical",
       "story": "Le vertical 3a montre, au-dessus de la liste annuelle : « Versé en 2026 », « Plafond 2026 », « Marge restante » ou « Plafond dépassé de X CHF ». Les états incomplets s'affichent comme des invitations factuelles à compléter le fait manquant, jamais comme des erreurs.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "the vertical shows versé, plafond and signed marge above the annual list",
         "an overshoot reads plafond dépassé de X CHF, never zero",
         "each fail-closed state renders as a factual invitation, never an error"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart"
       ]
     },
     {
       "id": "provenance_visible",
       "story": "La provenance du plafond est accessible depuis la surface (source, année, version du jeu réglementaire) — sans surcharger l'écran. Ma situation reste la source des FAITS ; elle ne porte aucune seconde implémentation du calcul.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "the plafond provenance (source, year, set version) is reachable from the surface",
         "mon argent never imports the calculator nor re-implements the formula"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart"
       ]
     },
     {
