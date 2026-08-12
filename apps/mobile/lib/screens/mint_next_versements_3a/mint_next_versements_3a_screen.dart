@@ -3,8 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
 import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
+import 'package:mint_mobile/services/financial_core/mint_next_marge_3a_calculator.dart';
 import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart'
     show MintNextRevenuScreen, mintNextRevenuChf;
 import 'package:mint_mobile/theme/colors.dart';
@@ -315,6 +318,16 @@ class _MintNextVersements3aScreenState
                     color: MintColors.textPrimary)),
           ),
           const SizedBox(height: MintSpacing.md),
+          ValueListenableBuilder<bool>(
+            valueListenable: FeatureFlags.mintNextMarge3aListenable,
+            builder: (context, enabled, _) => enabled
+                ? _Marge3aSummary(
+                    fact: fact,
+                    taxYear: _now().year,
+                    effectiveAt: _now().toUtc(),
+                    l10n: l10n)
+                : const SizedBox.shrink(),
+          ),
           for (final year in years) ...[
             Text(
               l10n.mintNextVersements3aYearTotal('$year',
@@ -395,6 +408,22 @@ class _MintNextVersements3aScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Sans aucun versement, l'état contributions_missing doit être
+            // VISIBLE ici — la liste vide bascule vers collect et sinon le
+            // bloc marge n'aurait aucune surface (REJET Codex T2).
+            if (_editingId == null &&
+                (context.watch<CoachProfileProvider>().versements3aFact?.entries.isEmpty ??
+                    true))
+              ValueListenableBuilder<bool>(
+                valueListenable: FeatureFlags.mintNextMarge3aListenable,
+                builder: (context, enabled, _) => enabled
+                    ? _Marge3aSummary(
+                        fact: null,
+                        taxYear: _now().year,
+                        effectiveAt: _now().toUtc(),
+                        l10n: l10n)
+                    : const SizedBox.shrink(),
+              ),
             Semantics(
               header: true,
               child: Text(l10n.mintNextVersements3aQuestion,
@@ -578,5 +607,150 @@ class _MintNextVersements3aScreenState
         ],
       ),
     );
+  }
+}
+
+/// Lego 6 — la marge 3a attestée, au-dessus de la liste annuelle.
+///
+/// Unique surface du calcul (guard commit-gate : « Ma situation » ne peut
+/// pas référencer le calculateur). Recalculé à chaque build depuis les faits
+/// canoniques — une marge périmée ne survit pas à une correction.
+class _Marge3aSummary extends StatelessWidget {
+  const _Marge3aSummary({
+    required this.fact,
+    required this.taxYear,
+    required this.effectiveAt,
+    required this.l10n,
+  });
+
+  final MintNextVersements3aFact? fact;
+  final int taxYear;
+  final DateTime effectiveAt;
+  final S l10n;
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<CoachProfileProvider>();
+    final revenu = MintNext3aRevenuContext.fromConfirmedFact(provider.revenuFact);
+    final lpp = MintNext3aLppAffiliationContext.fromConfirmedFact(
+        provider.lppAffiliationFact);
+    final versements =
+        MintNext3aVersementsContext.fromConfirmedFact(fact, taxYear);
+    final fiscal = MintNext3aFiscalContext(
+      taxYear: taxYear,
+      effectiveAt: effectiveAt,
+      domicile: null,
+      civilStatus: null,
+      revenu: revenu,
+      lppAffiliation: lpp,
+      versements: versements,
+    );
+    final result = MintNextMarge3aCalculator.compute(
+      taxYear: taxYear,
+      plafondDetermination: fiscal.plafond3aDetermination,
+      annualNetCents: revenu?.annualNetCents,
+      revenuRevision: revenu?.revision,
+      totalVerseCents: versements?.totalVerseAnnualCents,
+      versementsBucketRevision: versements?.bucketRevision,
+      lppRevision: lpp?.revision,
+    );
+
+    final invitation =
+        mintNextMarge3aInvitationText(l10n, result.status, taxYear);
+    final Widget body;
+    switch (result.status) {
+      case MintNextMarge3aStatus.available:
+        final marge = result.margeCents!;
+        body = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            _row(l10n.mintNextMarge3aVerseRow('$taxYear'),
+                mintNextRevenuChf(result.totalVerseCents!)),
+            _row(l10n.mintNextMarge3aPlafondRow('$taxYear'),
+                mintNextRevenuChf(result.plafondCents!)),
+            marge >= 0
+                ? _row(l10n.mintNextMarge3aMargeRow, mintNextRevenuChf(marge),
+                    emphasized: true)
+                : _row(
+                    l10n.mintNextMarge3aDepasse(mintNextRevenuChf(-marge)), '',
+                    emphasized: true),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.mintNextMarge3aProvenance('${result.taxYear}',
+                  result.constantsVersionHash!.substring(0, 8)),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+          ],
+        );
+      case MintNextMarge3aStatus.lppAffiliationUnknown:
+      case MintNextMarge3aStatus.incomeMissing:
+      case MintNextMarge3aStatus.contributionsMissing:
+      case MintNextMarge3aStatus.unsupportedTaxYear:
+      case MintNextMarge3aStatus.regulatoryConstantsUnattested:
+      case MintNextMarge3aStatus.staleInputs:
+        body = _state(invitation!);
+    }
+
+    return Semantics(
+      identifier: result.status == MintNextMarge3aStatus.available
+          ? 'mint_next_marge_3a_marge_${result.margeCents}'
+          : 'mint_next_marge_3a_state_${result.status.name}',
+      container: true,
+      // Les labels enfants restent des nœuds distincts — sans quoi ils
+      // fusionnent dans le conteneur (invisibles pour VoiceOver et Maestro).
+      explicitChildNodes: true,
+      child: Container(
+        padding: const EdgeInsets.all(MintSpacing.md),
+        margin: const EdgeInsets.only(bottom: MintSpacing.md),
+        decoration: BoxDecoration(
+          color: MintColors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: MintColors.border),
+        ),
+        child: body,
+      ),
+    );
+  }
+
+  Widget _row(String label, String value, {bool emphasized = false}) {
+    final style = emphasized
+        ? MintTextStyles.titleLarge(color: MintColors.textPrimary)
+        : MintTextStyles.bodyLarge(color: MintColors.textPrimary);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: MintSpacing.xs),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: Text(label, style: style)),
+          if (value.isNotEmpty) Text(value, style: style),
+        ],
+      ),
+    );
+  }
+
+  Widget _state(String invitation) => Text(
+        invitation,
+        style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+      );
+}
+
+/// Mapping état fail-closed → invitation factuelle — public pour que CHAQUE
+/// état revendiqué au contrat soit testable, y compris ceux qu'aucun parcours
+/// UI ne peut atteindre sans altérer le registre (unattested, stale).
+String? mintNextMarge3aInvitationText(
+    S l10n, MintNextMarge3aStatus status, int taxYear) {
+  switch (status) {
+    case MintNextMarge3aStatus.available:
+      return null;
+    case MintNextMarge3aStatus.lppAffiliationUnknown:
+      return l10n.mintNextMarge3aStateLppUnknown;
+    case MintNextMarge3aStatus.incomeMissing:
+      return l10n.mintNextMarge3aStateIncomeMissing;
+    case MintNextMarge3aStatus.contributionsMissing:
+      return l10n.mintNextMarge3aStateContributionsMissing;
+    case MintNextMarge3aStatus.unsupportedTaxYear:
+    case MintNextMarge3aStatus.regulatoryConstantsUnattested:
+    case MintNextMarge3aStatus.staleInputs:
+      return l10n.mintNextMarge3aStateUnattested('$taxYear');
   }
 }

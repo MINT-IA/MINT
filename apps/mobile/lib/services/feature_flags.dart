@@ -188,6 +188,15 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextVersements3aListenable =>
       _mintNextVersements3a;
 
+  static final ValueNotifier<bool> _mintNextMarge3a = ValueNotifier<bool>(false);
+
+  static bool get enableMintNextMarge3a => _mintNextMarge3a.value;
+  static set enableMintNextMarge3a(bool value) =>
+      _mintNextMarge3a.value = value;
+
+  static ValueListenable<bool> get mintNextMarge3aListenable =>
+      _mintNextMarge3a;
+
   static bool get enableMintNextHousing => _mintNextHousing.value;
   static set enableMintNextHousing(bool value) =>
       _mintNextHousing.value = value;
@@ -289,6 +298,9 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mintNextVersements3a) {
       enableMintNextVersements3a = true;
     }
+    if (E2eRuntimeFlags.mintNextMarge3a) {
+      enableMintNextMarge3a = true;
+    }
   }
 
   /// Apply flags from a backend response map.
@@ -353,6 +365,9 @@ class FeatureFlags {
       enableMintNextVersements3a =
           data['enableMintNextVersements3a'] == true;
     }
+    if (data.containsKey('enableMintNextMarge3a')) {
+      enableMintNextMarge3a = data['enableMintNextMarge3a'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -391,6 +406,7 @@ class FeatureFlags {
     enableMintNextRevenu = false;
     enableMintNextLppAffiliation = false;
     enableMintNextVersements3a = false;
+    enableMintNextMarge3a = false;
     final decisionClock = Stopwatch()..start();
     try {
       // Debug seams are ignored by compiled release builds. Production always

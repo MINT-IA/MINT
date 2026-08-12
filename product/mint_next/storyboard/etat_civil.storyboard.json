@@ -21,6 +21,10 @@
       "tests": [
         "collect shows six civil status cards none preselected and nothing persists before confirm",
         "safe exit before confirmation writes nothing"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_etat_civil/mint_next_etat_civil_screen_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
       ]
     },
     {
@@ -28,8 +32,14 @@
       "story": "Je vois ce que MINT va retenir et je confirme. Le fait part par la transaction coordonnée scellée : fait + métadonnées commis atomiquement, jamais un état à moitié écrit.",
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveCivilStatusFact",
       "tests": [
-        "confirm persists the sealed bundle atomically and a partial failure leaves no half-written fact",
-        "saved fact carries assertedAt source schemaVersion and clears needsConfirmation"
+        "confirm persists the sealed bundle atomically",
+        "a failed canonical write leaves no half-written fact",
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
       ]
     },
     {
@@ -37,7 +47,10 @@
       "story": "Je relance l'app : ma situation civile est toujours là, restaurée depuis le scellement.",
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#civilStatusFact",
       "tests": [
-        "civil status fact rehydrates from sealed storage after provider reload"
+        "civil status fact rehydrates from sealed storage after reload"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart"
       ]
     },
     {
@@ -45,8 +58,13 @@
       "story": "Dans « Ma situation », je retrouve ma situation civile, sa provenance, et je peux la modifier ou la supprimer.",
       "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
       "tests": [
-        "mon argent shows the saved civil status with provenance and delete works",
-        "delete removes owned keys and preserves unrelated answers"
+        "mon argent shows the saved civil status with provenance",
+        "mon argent delete removes the civil status after confirmation",
+        "delete tombstones the fact and preserves unrelated answers"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart",
+        "apps/mobile/test/screens/mon_argent_etat_civil_fact_test.dart"
       ]
     },
     {
@@ -56,6 +74,9 @@
       "tests": [
         "fiscal context reports civil status known with joint taxation for marie and partenariat_enregistre",
         "fiscal context reports separate taxation for concubinage and missing without a confirmed fact"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_3a_fiscal_context_domicile_test.dart"
       ]
     },
     {
@@ -63,7 +84,10 @@
       "story": "Si ma situation change (mariage, divorce), les dérivés fiscaux liés à l'ancienne révision se périment — rien d'autre (ni logement, ni budget, ni patrimoine).",
       "code": "révision = assertedAt UTC ; aucun résultat fiscal persistant (NoAttestedEngine) — preuve par lecture vivante",
       "tests": [
-        "a corrected civil status changes the revision and the fiscal context reflects it immediately"
+        "a corrected status changes the revision"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart"
       ]
     }
   ],

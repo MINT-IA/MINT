@@ -63,6 +63,18 @@ ALLOW = {
     "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
     "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart",
     "product/mint_next/storyboard/versements_3a.storyboard.json",
+    "product/mint_next/storyboard/marge_3a_attestee.storyboard.json",
+    "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
+    "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
+    "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
+    "tools/runtime/mint_next_marge_3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_marge_3a_lifecycle.yaml",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/01-affiliated-marge-positive.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/02-overshoot-signed.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/03-non-affiliated-20pct.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/04-non-affiliated-capped.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/05-contributions-missing-after-delete.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/marge-3a-lifecycle/runtime.json",
     "apps/mobile/lib/services/observability/mint_http_client.dart",
     "apps/mobile/test/services/observability/mint_http_client_test.dart",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/01-created-visible.png",
@@ -2260,6 +2272,10 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
         for beat in data.get("beats", []) if isinstance(data.get("beats"), list) else []:
             test_files = beat.get("test_files")
             if not isinstance(test_files, list) or not test_files:
+                if beat.get("tests"):
+                    errors.append(
+                        f"{sb_path.relative_to(root)} beat {beat.get('id')}: tests declared without test_files — fictive traceability (use tests_planned before implementation)"
+                    )
                 continue
             corpus = ""
             for rel in test_files:
@@ -2278,6 +2294,17 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
     # fixtures synthétiques des tests de guard n'embarquent pas l'app.
     if not (root / STORYBOARD_DIR / "versements_3a.storyboard.json").is_file():
         return errors
+    # Lego 6 — unicité structurelle du calcul de marge : Ma situation ne
+    # porte JAMAIS le calculateur ni la formule (le vertical 3a est l'unique
+    # point d'entrée UI). Interdit avant même que le calculateur existe.
+    mon_argent = root / "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart"
+    if mon_argent.is_file():
+        body = mon_argent.read_text(encoding="utf-8")
+        for marker in ("MintNextMarge3aCalculator", "mint_next_marge_3a_calculator", "pillar3a_room_calculator"):
+            if marker in body:
+                errors.append(
+                    f"single-calculator guard: mon_argent_screen.dart references {marker} — la marge 3a n'a qu'une implémentation, affichée par le vertical"
+                )
     for rel in STORYBOARD_NO_NETWORK_FILES:
         f = root / rel
         if not f.is_file():

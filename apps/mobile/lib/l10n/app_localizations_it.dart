@@ -26235,6 +26235,46 @@ class SIt extends S {
       'MINT dimenticherà l\'intero elenco. Gli altri tuoi dati non cambiano.';
 
   @override
+  String mintNextMarge3aVerseRow(String year) {
+    return 'Versato nel $year';
+  }
+
+  @override
+  String mintNextMarge3aPlafondRow(String year) {
+    return 'Tetto $year';
+  }
+
+  @override
+  String get mintNextMarge3aMargeRow => 'Margine rimanente';
+
+  @override
+  String mintNextMarge3aDepasse(String amount) {
+    return 'Tetto superato di $amount';
+  }
+
+  @override
+  String mintNextMarge3aProvenance(String year, String version) {
+    return 'OPP3 art. 7 · tetto $year · set $version';
+  }
+
+  @override
+  String get mintNextMarge3aStateLppUnknown =>
+      'Indica se sei affiliato·a a una cassa pensione per vedere il tuo tetto 3a.';
+
+  @override
+  String get mintNextMarge3aStateIncomeMissing =>
+      'Indica il tuo reddito per calcolare il tuo tetto 3a senza cassa pensione.';
+
+  @override
+  String get mintNextMarge3aStateContributionsMissing =>
+      'Registra i tuoi versamenti per vedere il tuo margine 3a.';
+
+  @override
+  String mintNextMarge3aStateUnattested(String year) {
+    return 'Il tetto $year non è ancora attestato in MINT.';
+  }
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

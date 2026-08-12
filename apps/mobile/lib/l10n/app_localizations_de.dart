@@ -26223,6 +26223,46 @@ class SDe extends S {
       'MINT vergisst die ganze Liste. Deine anderen Angaben ändern sich nicht.';
 
   @override
+  String mintNextMarge3aVerseRow(String year) {
+    return 'Einbezahlt $year';
+  }
+
+  @override
+  String mintNextMarge3aPlafondRow(String year) {
+    return 'Höchstbetrag $year';
+  }
+
+  @override
+  String get mintNextMarge3aMargeRow => 'Verbleibender Spielraum';
+
+  @override
+  String mintNextMarge3aDepasse(String amount) {
+    return 'Höchstbetrag um $amount überschritten';
+  }
+
+  @override
+  String mintNextMarge3aProvenance(String year, String version) {
+    return 'BVV3 Art. 7 · Höchstbetrag $year · Satz $version';
+  }
+
+  @override
+  String get mintNextMarge3aStateLppUnknown =>
+      'Gib an, ob du einer Pensionskasse angeschlossen bist, um deinen 3a-Höchstbetrag zu sehen.';
+
+  @override
+  String get mintNextMarge3aStateIncomeMissing =>
+      'Gib dein Einkommen an, um deinen 3a-Höchstbetrag ohne Pensionskasse zu berechnen.';
+
+  @override
+  String get mintNextMarge3aStateContributionsMissing =>
+      'Erfasse deine Einzahlungen, um deinen 3a-Spielraum zu sehen.';
+
+  @override
+  String mintNextMarge3aStateUnattested(String year) {
+    return 'Der Höchstbetrag $year ist in MINT noch nicht attestiert.';
+  }
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Wohnsitz: $commune ($canton)';
   }

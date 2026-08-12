@@ -20,6 +20,10 @@
       "tests": [
         "collect shows canton choices and commune entry as one decision and nothing persists before confirm",
         "safe exit before confirmation writes nothing"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_domicile/mint_next_domicile_screen_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
       ]
     },
     {
@@ -27,8 +31,12 @@
       "story": "Je vois ce que MINT va retenir (canton, commune, source, date) et je confirme. Le fait part par l'unique chemin canonique, sans transmission distante.",
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveDomicileFact",
       "tests": [
-        "confirm persists the domicile bundle atomically through mergeAnswers without backend sync",
-        "saved fact carries assertedAt source schemaVersion and clears needsConfirmation"
+        "confirm persists the domicile bundle atomically through mergeAnswers",
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart"
       ]
     },
     {
@@ -37,6 +45,9 @@
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#domicileFact",
       "tests": [
         "domicile fact rehydrates from persisted answers after provider reload"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart"
       ]
     },
     {
@@ -44,8 +55,13 @@
       "story": "Dans « Ma situation », je retrouve mon domicile, sa provenance, et je peux le modifier ou le supprimer.",
       "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
       "tests": [
-        "mon argent shows the saved domicile with provenance and delete works",
+        "mon argent shows the saved domicile with provenance",
+        "mon argent delete removes the domicile after confirmation",
         "delete removes owned domicile keys and preserves unrelated answers including legacy q_canton"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart",
+        "apps/mobile/test/screens/mon_argent_domicile_fact_test.dart"
       ]
     },
     {
@@ -53,8 +69,11 @@
       "story": "La préparation 3a lit mon domicile sans me le redemander : connu quand il existe, manquant sinon. Aucun chiffre — le moteur reste non attesté.",
       "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aFiscalContext.domicile",
       "tests": [
-        "fiscal context reports domicile known with canton and commune when the fact exists",
+        "fiscal context reports domicile known with canton and commune",
         "fiscal context reports domicile missing when no confirmed fact exists"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_3a_fiscal_context_domicile_test.dart"
       ]
     },
     {
@@ -62,7 +81,10 @@
       "story": "Si je corrige mon domicile, tout ce qui en dérivait fiscalement se périme : la préparation 3a reflète immédiatement le nouveau lieu, jamais l'ancien.",
       "code": "assertedAt = révision du fait ; aucun résultat fiscal persistant n'existe (NoAttestedEngine) — la preuve est la lecture vivante",
       "tests": [
-        "fiscal context reflects the corrected domicile revision immediately after edit"
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart"
       ]
     }
   ],
