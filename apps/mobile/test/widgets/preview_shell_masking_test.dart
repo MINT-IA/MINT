@@ -293,6 +293,11 @@ void main() {
       'without the define the legacy shell keeps its reference surfaces '
       '(positive assertions on the inventoried widgets)', (tester) async {
     _setPreview(false);
+    // Surface haute : les slivers du CustomScrollView sont lazy — sans ça
+    // le séparateur « Ton histoire » n'est jamais construit (piège documenté).
+    tester.view.physicalSize = const Size(1170, 4000);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     await tester.pumpWidget(_aujourdhui());
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.byType(CapDuJourBanner), findsWidgets,
