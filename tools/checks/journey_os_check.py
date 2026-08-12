@@ -76,6 +76,7 @@ ALLOW = {
     "tools/runtime/mint_next_vertical_3a_lifecycle.sh",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_vertical_3a_lifecycle.yaml",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/01-lpp-unknown-cta.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/02-income-missing-cta.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/02-positive-375800.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/03-zero-exact.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/vertical-3a-lifecycle/04-negative-signed.png",
