@@ -215,9 +215,12 @@ if (( UNOBSERVED_REQ_LINES > 0 )); then
   grep "REQBODY.*unobserved" "$CONSOLE_LOG" | head -5 >&2
   exit 1
 fi
-if grep -i "ch\.mint\.http" "$CONSOLE_LOG" | grep -Eiq "versements|q_versements_3a|marge|plafond"; then
-  echo "zero-transmission check FAILED: versements data crossed the HTTP boundary" >&2
-  grep -i "ch\.mint\.http" "$CONSOLE_LOG" | grep -Ei "versements|q_versements_3a|marge|plafond" | head -5 >&2
+# SORTANT uniquement : REQBODY (payloads émis) + chemins de REQ. Les BODY de
+# réponse sont ENTRANTS — le registre réglementaire sert légitimement des
+# descriptions contenant « plafond ».
+if grep -E "\[ch\.mint\.http\] (REQBODY|REQ )" "$CONSOLE_LOG" | grep -Eiq "versements|q_versements_3a|marge|plafond|vertical_3a"; then
+  echo "zero-transmission check FAILED: sensitive data in an OUTBOUND request" >&2
+  grep -E "\[ch\.mint\.http\] (REQBODY|REQ )" "$CONSOLE_LOG" | grep -Ei "versements|q_versements_3a|marge|plafond|vertical_3a" | head -5 >&2
   exit 1
 fi
 ZERO_TX_PATTERN='(q_versements_3a|marge_3a|vertical_3a|preview|plafond).*(https?://|railway)|(https?://|railway).*q_versements_3a'
