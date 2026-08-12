@@ -49,6 +49,7 @@ void main() {
     expect(LocalPreviewResetService.preservedCanonicalMarkers, hasLength(5));
     expect(LocalPreviewResetService.purgedAnonymousKeys, hasLength(2));
     expect(LocalPreviewResetService.purgeDelegations, isNotEmpty);
+    expect(LocalPreviewResetService.purgedPrefsKeys, hasLength(5));
     expect(LocalPreviewResetService.preservedDomains, isNotEmpty);
   });
 
@@ -150,6 +151,20 @@ void main() {
     expect((await ReportPersistenceService.loadAnswers()), isEmpty);
   });
 
+  test('a sealed-layer delete failure is never reported green', () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    // Panne injectée : le pending de la couche scellée reste posé — la
+    // vérification doit REFUSER de conclure au vert et garder reset_pending.
+    await prefs.setBool(LocalPreviewResetService.resetPendingKey, true);
+    await prefs.setBool(LocalPreviewResetService.sealedLayerPendingKey, true);
+    await expectLater(LocalPreviewResetService.verifyNoResidue(),
+        throwsA(isA<StateError>()));
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isTrue,
+        reason: 'échec scellé ⇒ reset toujours dû, jamais annoncé réussi');
+    await prefs.remove(LocalPreviewResetService.sealedLayerPendingKey);
+  });
+
   test('a residue detected turns the reset red, never silent', () async {
     const storage = FlutterSecureStorage();
     await storage.write(
@@ -167,8 +182,8 @@ void main() {
         reason: 'la purge du retry retire le résidu re-seedé — vert');
   });
 
-  test('after reset no automatic server hydration repopulates the profile '
-      'while the quarantine marker exists', () async {
+  test('the quarantine marker is set per signed-in user after a verified '
+      'purge', () async {
     await seedFacts();
     await LocalPreviewResetService.reset(signedInUserId: 'user-42');
     expect(await LocalPreviewResetService.isQuarantined('user-42'), isTrue);

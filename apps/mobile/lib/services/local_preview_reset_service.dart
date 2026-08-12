@@ -1,7 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mint_mobile/services/anonymous_session_service.dart';
 import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
@@ -54,13 +53,25 @@ class LocalPreviewResetService {
     'anonymous_message_count',
   ];
 
-  /// Le gros des SharedPreferences métier est purgé par délégation aux
-  /// primitives canoniques existantes (pas de double implémentation).
+  /// Le gros du métier est purgé par délégation à la purge complète
+  /// existante (pas de double implémentation) : diagnostic + historique
+  /// coach + conversations + session anonyme + budget + lettres.
   static const List<String> purgeDelegations = [
-    'ReportPersistenceService.clearDiagnostic',
-    'SecureWizardStore.deleteAllDuringCoordinatedReset (via clearDiagnostic)',
-    'AnonymousSessionService.clearSession',
+    'ReportPersistenceService.clear (clearDiagnostic + clearCoachHistory + conversations + AnonymousSessionService.clearSession + BudgetLocalStore.clear + lettres)',
   ];
+
+  /// Clés prefs métier vérifiées absentes après purge (résidu = ROUGE).
+  static const List<String> purgedPrefsKeys = [
+    'wizard_answers_v2',
+    'wizard_completed',
+    'anonymous_wizard_answers_held_v1',
+    'anonymous_wizard_completed_held_v1',
+    'anonymous_mini_onboarding_completed_held_v1',
+  ];
+
+  /// Pending de la couche scellée — s'il reste posé après la purge, la
+  /// suppression sécurisée a ÉCHOUÉ : jamais un reset annoncé vert.
+  static const String sealedLayerPendingKey = 'secure_delete_pending_v1';
 
   /// Domaines PRÉSERVÉS — jamais touchés par ce service.
   static const List<String> preservedDomains = [
@@ -82,23 +93,35 @@ class LocalPreviewResetService {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(resetPendingKey, true);
+
+    // Purge complète par délégation (diagnostic + coach + conversations +
+    // session anonyme + budget + lettres).
+    await ReportPersistenceService.clear(conversationUserId: signedInUserId);
+
+    // Vérification zéro résidu — un résidu ou un échec de la couche scellée
+    // laisse reset_pending posé (retry au boot) et remonte ROUGE.
+    await verifyNoResidue();
+
+    // Quarantaine posée APRÈS purge vérifiée (ordre du contrat) : aucune
+    // hydratation serveur automatique ne repeuplera ce compte.
     if (signedInUserId != null && signedInUserId.isNotEmpty) {
       await prefs.setString(quarantineKeyFor(signedInUserId),
           DateTime.now().toUtc().toIso8601String());
     }
-
-    await ReportPersistenceService.clearDiagnostic();
-    await AnonymousSessionService.clearSession();
-
-    // Vérification zéro résidu — un résidu laisse reset_pending posé
-    // (retry au boot) et remonte ROUGE, jamais silencieux.
-    await verifyNoResidue();
     await prefs.remove(resetPendingKey);
   }
 
   /// Vérification zéro résidu — publique pour que le chemin ROUGE soit
   /// testable déterministiquement (un résidu ⇒ StateError, pending intact).
   static Future<void> verifyNoResidue() async {
+    final prefs = await SharedPreferences.getInstance();
+    // Échec de la couche scellée jamais vert : son pending propre trahit
+    // une suppression sécurisée incomplète même si les mocks lisent null.
+    if (prefs.getBool(sealedLayerPendingKey) == true) {
+      throw StateError(
+          'sealed-layer delete failed (pending flag set) — reset_pending '
+          'kept, retried at next boot');
+    }
     const storage = FlutterSecureStorage();
     for (final key in [...purgedCanonicalValues, ...purgedAnonymousKeys]) {
       final residue = await storage.read(key: key);
@@ -106,6 +129,12 @@ class LocalPreviewResetService {
         throw StateError(
             'reset residue detected: $key — reset_pending kept, retried at '
             'next boot');
+      }
+    }
+    for (final key in purgedPrefsKeys) {
+      if (prefs.get(key) != null) {
+        throw StateError(
+            'reset residue detected in prefs: $key — reset_pending kept');
       }
     }
   }
