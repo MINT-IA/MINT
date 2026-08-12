@@ -288,6 +288,9 @@ tags:
 - waitForAnimationToEnd:
     timeout: 5000
 - openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
 - extendedWaitUntil:
     visible:
       id: "mon_argent_versements_3a_fact"
