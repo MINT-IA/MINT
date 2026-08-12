@@ -2261,6 +2261,10 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
         for beat in data.get("beats", []) if isinstance(data.get("beats"), list) else []:
             test_files = beat.get("test_files")
             if not isinstance(test_files, list) or not test_files:
+                if beat.get("tests"):
+                    errors.append(
+                        f"{sb_path.relative_to(root)} beat {beat.get('id')}: tests declared without test_files — fictive traceability (use tests_planned before implementation)"
+                    )
                 continue
             corpus = ""
             for rel in test_files:
@@ -2279,6 +2283,17 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
     # fixtures synthétiques des tests de guard n'embarquent pas l'app.
     if not (root / STORYBOARD_DIR / "versements_3a.storyboard.json").is_file():
         return errors
+    # Lego 6 — unicité structurelle du calcul de marge : Ma situation ne
+    # porte JAMAIS le calculateur ni la formule (le vertical 3a est l'unique
+    # point d'entrée UI). Interdit avant même que le calculateur existe.
+    mon_argent = root / "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart"
+    if mon_argent.is_file():
+        body = mon_argent.read_text(encoding="utf-8")
+        for marker in ("MintNextMarge3aCalculator", "mint_next_marge_3a_calculator", "pillar3a_room_calculator"):
+            if marker in body:
+                errors.append(
+                    f"single-calculator guard: mon_argent_screen.dart references {marker} — la marge 3a n'a qu'une implémentation, affichée par le vertical"
+                )
     for rel in STORYBOARD_NO_NETWORK_FILES:
         f = root / rel
         if not f.is_file():

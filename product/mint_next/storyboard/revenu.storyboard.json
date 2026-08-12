@@ -29,6 +29,10 @@
         "collect shows amount entry and two period cards none preselected and nothing persists before confirm",
         "safe exit before confirmation writes nothing",
         "missing amount or period blocks with a visible error"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_revenu/mint_next_revenu_screen_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
       ]
     },
     {
@@ -36,9 +40,15 @@
       "story": "Je vois ce que MINT va retenir — montant et période, tels que je les ai dits — et je confirme. Le fait part par la transaction coordonnée scellée : bundle commis atomiquement, projection legacy écrite dans le même commit, jamais un état à moitié écrit.",
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveRevenuFact",
       "tests": [
-        "confirm persists the sealed bundle atomically and a partial failure leaves no half-written fact",
-        "commit projects q_net_income_period_chf and q_pay_frequency for legacy consumers",
-        "saved fact carries assertedAt source schemaVersion and clears needsConfirmation"
+        "confirm persists the sealed bundle atomically with legacy projection",
+        "a failed canonical write leaves no half-written fact",
+        "legacy projection carries CHF per period and normalized frequency",
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+        "apps/mobile/test/models/mint_next_revenu_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
       ]
     },
     {
@@ -46,8 +56,11 @@
       "story": "Je relance l'app : mon revenu est toujours là, restauré depuis le scellement — et la projection legacy est reconstruite depuis le canonique, jamais l'inverse. Un writer legacy qui a écrit entre-temps ne remplace pas silencieusement mon fait confirmé.",
       "code": "apps/mobile/lib/services/secure_wizard_store.dart#canonicalizeRevenuAnswers",
       "tests": [
-        "revenu fact rehydrates from sealed storage after provider reload",
-        "a bare legacy write to shared income keys never outlives the canonical fact on reload"
+        "revenu fact rehydrates from sealed storage after reload",
+        "a bare legacy write never outlives the canonical fact"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
       ]
     },
     {
@@ -56,7 +69,11 @@
       "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
       "tests": [
         "mon argent shows the saved revenu with provenance and period",
-        "delete tombstones owned keys and legacy projection and preserves unrelated answers"
+        "delete tombstones the bundle AND the projection, preserves the rest"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart",
+        "apps/mobile/test/screens/mon_argent_revenu_fact_test.dart"
       ]
     },
     {
@@ -64,9 +81,12 @@
       "story": "La préparation 3a lit mon revenu sans me le redemander : revenu annuel normalisé une seule fois + révision. Le plafond petite/grande cotisation exige EN PLUS l'affiliation LPP confirmée — inconnue, le contexte dit « plafond non déterminé », jamais une déduction depuis le statut d'emploi. Aucun chiffre montré, moteur non attesté.",
       "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aRevenuContext",
       "tests": [
-        "fiscal context v4 reports annual normalized income with revision for monthly and yearly facts",
-        "fiscal context reports plafond undetermined when LPP affiliation is not confirmed",
-        "fiscal context reports missing without a confirmed revenu fact"
+        "annualization applies the factor twelve exactly once and only for monthly",
+        "plafond determination stays fail-closed with a known revenu — the LPP affiliation is a distinct fact, never derived from employment status"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_revenu_fact_test.dart",
+        "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart"
       ]
     },
     {
@@ -74,8 +94,11 @@
       "story": "Je corrige mon revenu — y compris en changeant seulement la période (mensuel↔annuel) : la révision change, les dérivés fiscaux liés à l'ancienne révision se périment, et le montant n'a jamais subi deux fois un facteur 12. Rien d'autre ne bouge (ni domicile, ni état civil, ni versements 3a).",
       "code": "révision = assertedAt UTC ; normalisation annuelle à la frontière du consommateur uniquement",
       "tests": [
-        "a corrected revenu changes the revision and the fiscal context reflects it immediately",
+        "a corrected revenu changes the revision",
         "switching period monthly to yearly and back never applies the factor twelve twice"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
       ]
     }
   ],

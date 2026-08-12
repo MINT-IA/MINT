@@ -29,6 +29,10 @@
         "collect shows the single question with two cards none preselected and nothing persists before confirm",
         "safe exit before confirmation writes nothing",
         "missing choice blocks with a visible error"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
       ]
     },
     {
@@ -36,8 +40,14 @@
       "story": "Je vois ce que MINT va retenir et je confirme. Le fait part par la transaction coordonnée scellée : bundle commis atomiquement, jamais un état à moitié écrit.",
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveLppAffiliationFact",
       "tests": [
-        "confirm persists the sealed bundle atomically and a partial failure leaves no half-written fact",
-        "saved fact carries assertedAt source schemaVersion and clears needsConfirmation"
+        "confirm persists the sealed bundle atomically",
+        "a failed canonical write leaves no half-written fact",
+        "revision fingerprint is the UTC assertion instant"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_civil_status_fact_test.dart",
+        "apps/mobile/test/providers/coach_profile_provider_revenu_fact_test.dart"
       ]
     },
     {
@@ -45,7 +55,10 @@
       "story": "Je relance l'app : ma réponse est toujours là, restaurée depuis le scellement.",
       "code": "apps/mobile/lib/services/secure_wizard_store.dart#canonicalizeLppAffiliationAnswers",
       "tests": [
-        "lpp affiliation fact rehydrates from sealed storage after provider reload"
+        "lpp affiliation fact rehydrates from sealed storage after reload"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_lpp_affiliation_fact_test.dart"
       ]
     },
     {
@@ -53,8 +66,12 @@
       "story": "Dans « Ma situation », je retrouve ma réponse, sa provenance, et je peux la modifier ou la supprimer. La suppression rend l'affiliation INCONNUE — jamais « non ».",
       "code": "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
       "tests": [
-        "mon argent shows the saved affiliation with provenance",
-        "delete tombstones the fact and the fiscal context returns to unknown never to confirmed_no"
+        "mon argent shows the saved lpp affiliation with provenance",
+        "delete tombstones the fact and the reading returns to unknown never to confirmed_no"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_lpp_affiliation_fact_test.dart",
+        "apps/mobile/test/screens/mon_argent_lpp_affiliation_fact_test.dart"
       ]
     },
     {
@@ -62,9 +79,12 @@
       "story": "La préparation 3a lit mon affiliation sans me la redemander : le plafond devient déterminable — grande cotisation si affilié, petite (20 % du revenu confirmé, plafonnée) sinon, indéterminé si inconnu. Tokens symboliques + année fiscale, aucun CHF (moteur non attesté). La marge attend le Lego 5.",
       "code": "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart#MintNext3aLppAffiliationContext",
       "tests": [
-        "fiscal context v5 reports plafond determination lpp_affiliated_max when affiliated",
-        "fiscal context v5 reports non_affiliated_20pct_capped only with a confirmed revenu, undetermined otherwise",
-        "fiscal context reports unknown affiliation as undetermined never as not affiliated"
+        "plafond determination v5 covers the four fail-closed branches",
+        "business reading is tri-state — absence NEVER reads as not affiliated"
+      ],
+      "test_files": [
+        "apps/mobile/test/models/mint_next_lpp_affiliation_fact_test.dart",
+        "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart"
       ]
     },
     {
@@ -72,7 +92,10 @@
       "story": "Je corrige ou supprime mon affiliation : la révision change, les dérivés fiscaux liés se périment. Le revenu et les futurs versements restent intacts — faits indépendants, seulement réagrégés.",
       "code": "révision = assertedAt UTC ; aucun résultat fiscal persistant (NoAttestedEngine)",
       "tests": [
-        "a corrected affiliation changes the revision and the fiscal context reflects it immediately"
+        "a corrected affiliation changes the revision"
+      ],
+      "test_files": [
+        "apps/mobile/test/providers/coach_profile_provider_lpp_affiliation_fact_test.dart"
       ]
     }
   ],

@@ -11,8 +11,8 @@
     "adr": ".planning/decisions/2026-08-08-lifelong-financial-twin-and-plans.md",
     "cadrage": "verdict Codex PRIORITÉ: A (cadrage post-Lego 5, 2026-08-12) — année 2026 uniquement, deux branches (affilié LPP = plafond légal fixe ; non-affilié = 20 % du revenu annuel canonique borné au grand plafond), marge signée sans clamp, rachats rétroactifs hors scope, calculateur L1 mobile PUR (ne pas câbler pillar3a_room_calculator legacy qui clampe et consomme des contributions planifiées), domicile/état civil NON bloquants pour ce plafond fédéral"
   },
-  "semantic_contract": "Le résultat est un CALCUL DÉRIVÉ SCELLÉ, jamais un fait : il n'est ni stocké comme vérité ni transmis. Entrées explicites : tax_year (2026 seul supporté), branche plafond_3a_determination v5 (fiscal boundary), revenu annualisé canonique (branche non-LPP seulement), total versé + révisions de bucket (fiscal v6). Sorties : soit available {plafond_cents, total_verse_cents, marge_cents SIGNÉE, provenance}, soit un état fail-closed nommé : lpp_affiliation_unknown | income_missing (branche non-LPP) | contributions_missing | unsupported_or_unattested_tax_year | stale_inputs. Le résultat transporte tax_year, constants_version_hash, clés de paramètres et révisions des faits d'entrée — un consommateur peut détecter la péremption. Aucune recommandation : la marge est un écart factuel entre deux nombres attestés (LSFin : constat, pas conseil).",
-  "classification_decision": "Aucune clé de fait nouvelle : le calcul ne persiste RIEN dans le jumeau. Le jeu réglementaire 2026 (plafond avec LPP, plafond sans LPP, taux 20 %, source OFAS/OPP3, période d'effet, date de revue, hash de snapshot) vit dans un registre attesté versionné côté financial_core — année bloquante : jeu incomplet, année non couverte ou hash non reconnu ⇒ résultat indisponible, jamais une valeur « courante » reprise en silence.",
+  "semantic_contract": "Le résultat est un CALCUL DÉRIVÉ SCELLÉ, jamais un fait : il n'est ni stocké comme vérité ni transmis. Entrées explicites : tax_year (2026 seul supporté), branche plafond_3a_determination v5 (fiscal boundary), revenu annualisé canonique (branche non-LPP seulement), total versé + révisions de bucket (fiscal v6). Sorties : soit available {plafond_cents, total_verse_cents, marge_cents SIGNÉE, provenance}, soit UN des SIX états fail-closed nommés : lpp_affiliation_unknown | income_missing (branche non-LPP) | contributions_missing | unsupported_tax_year (année hors registre) | regulatory_constants_unattested (jeu incomplet ou hash hors allowlist — DISTINCT de l'année non supportée) | stale_inputs. ARRONDI NORMATIF branche non-LPP : plafond_cents = floor(revenu_annualise_cents × 20 / 100), arrondi au centime INFÉRIEUR — jamais surestimer un plafond ; deux implémentations conformes sont bit-à-bit identiques. Le résultat transporte tax_year, constants_version_hash, clés de paramètres et révisions des faits d'entrée — un consommateur détecte la péremption par égalité STRICTE des révisions (toute inégalité = stale, jamais de comparaison d'ordre). Aucune recommandation : la marge est un écart factuel entre deux nombres attestés (LSFin : constat, pas conseil).",
+  "classification_decision": "Aucune clé de fait nouvelle : le calcul ne persiste RIEN dans le jumeau. Le jeu réglementaire 2026 (plafond avec LPP, plafond sans LPP, taux 20 %, source OFAS/OPP3, période d'effet, date de revue, hash de snapshot) vit dans un registre attesté versionné côté financial_core — année bloquante : jeu incomplet, année non couverte ou hash hors ALLOWLIST embarquée ⇒ regulatory_constants_unattested, jamais une valeur « courante » reprise en silence. UNICITÉ STRUCTURELLE : le calcul n'existe que par le symbole canonique MintNextMarge3aCalculator (financial_core) ; le guard commit-gate interdit tout import du calculateur et toute formule 20 %/plafond dans mon_argent_screen.dart — le vertical 3a est l'unique point d'entrée UI.",
   "known_risks_from_cadrage": [
     "clamp de la marge : masquer un dépassement par 0 détruit un fait utile — marge signée obligatoire, état « plafond dépassé de X CHF » distinct",
     "année fiscale bloquante : toute reprise silencieuse d'une constante sans année (ou 2025) est un défaut — le calcul refuse, il n'improvise pas",
@@ -25,32 +25,62 @@
     {
       "id": "attested_constants",
       "story": "Le jeu réglementaire 2026 existe, complet et attesté : plafond avec LPP, plafond sans LPP, taux 20 %, source OFAS/OPP3, période d'effet, hash de snapshot. Une année non couverte ou un jeu incomplet ne produit JAMAIS un chiffre.",
-      "code": "apps/mobile/lib/services/financial_core/"
+      "code": "apps/mobile/lib/services/financial_core/",
+      "tests_planned": [
+        "the 2026 regulatory set is complete, hashed and allowlisted",
+        "an incomplete set or unknown hash yields regulatory_constants_unattested",
+        "a year outside the registry yields unsupported_tax_year, never a fallback value"
+      ]
     },
     {
       "id": "pure_calculator",
       "story": "Un calculateur pur et déterministe (L1 mobile) : mêmes entrées → même sortie, exact en centimes. Branche affilié LPP = plafond légal fixe ; branche non-affilié = 20 % du revenu annualisé canonique, borné au grand plafond. marge_cents = plafond − total versé, SIGNÉE.",
-      "code": "apps/mobile/lib/services/financial_core/"
+      "code": "apps/mobile/lib/services/financial_core/",
+      "tests_planned": [
+        "lpp affiliated branch uses the fixed attested plafond",
+        "non affiliated branch is floor(20 percent of canonical annualized income) capped at the grand plafond",
+        "marge is signed: an overshoot stays negative, never clamped to zero",
+        "same inputs yield bit identical results in cents"
+      ]
     },
     {
       "id": "fail_closed_states",
       "story": "Chaque information manquante a un état nommé : affiliation LPP inconnue, revenu manquant (branche non-LPP seulement), versements manquants, année non attestée, entrées périmées. Jamais un zéro qui ment, jamais un chiffre par défaut.",
-      "code": "apps/mobile/lib/services/financial_core/"
+      "code": "apps/mobile/lib/services/financial_core/",
+      "tests_planned": [
+        "unknown lpp affiliation yields lpp_affiliation_unknown",
+        "missing income blocks only the non affiliated branch",
+        "missing contributions yield contributions_missing",
+        "each of the six states is distinct and named, never a default number"
+      ]
     },
     {
       "id": "surface_vertical",
       "story": "Le vertical 3a montre, au-dessus de la liste annuelle : « Versé en 2026 », « Plafond 2026 », « Marge restante » ou « Plafond dépassé de X CHF ». Les états incomplets s'affichent comme des invitations factuelles à compléter le fait manquant, jamais comme des erreurs.",
-      "code": "apps/mobile/lib/screens/"
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "the vertical shows versé, plafond and signed marge above the annual list",
+        "an overshoot reads plafond dépassé de X CHF, never zero",
+        "each fail-closed state renders as a factual invitation, never an error"
+      ]
     },
     {
       "id": "provenance_visible",
       "story": "La provenance du plafond est accessible depuis la surface (source, année, version du jeu réglementaire) — sans surcharger l'écran. Ma situation reste la source des FAITS ; elle ne porte aucune seconde implémentation du calcul.",
-      "code": "apps/mobile/lib/screens/"
+      "code": "apps/mobile/lib/screens/",
+      "tests_planned": [
+        "the plafond provenance (source, year, set version) is reachable from the surface",
+        "mon argent never imports the calculator nor re-implements the formula"
+      ]
     },
     {
       "id": "invalidation",
       "story": "Le résultat transporte les révisions de ses entrées : si un versement, le revenu ou l'affiliation change, le résultat affiché se ré-dérive — une marge périmée ne survit jamais à la correction d'un fait.",
-      "code": "apps/mobile/lib/services/financial_core/"
+      "code": "apps/mobile/lib/services/financial_core/",
+      "tests_planned": [
+        "the result carries the input revisions and any strict inequality is stale",
+        "a corrected versement re-derives the displayed marge"
+      ]
     }
   ],
   "gate_requirements": {
@@ -63,6 +93,13 @@
       "LPP/revenu/versements manquants ⇒ état fail-closed nommé visible",
       "année non attestée ou révision stale ⇒ invalidation, jamais un chiffre périmé"
     ],
-    "preuves": "tests financial_core exacts en cents · traçabilité storyboard↔tests mécanique (guard) · runtime sur le vrai vertical 3a (harnais amorti Lego 5) · REQBODY observé : aucune donnée du calcul dans un payload sortant · flag + kill-switch OFF par défaut"
-  }
+    "preuves": "tests financial_core exacts en cents · traçabilité storyboard↔tests mécanique (guard) · runtime sur le vrai vertical 3a (harnais amorti Lego 5) · REQBODY observé : aucune donnée du calcul dans un payload sortant · flag + kill-switch OFF par défaut · AUCUN tests_planned résiduel au moment de la PR : chaque beat promu porte tests + test_files vérifiés verbatim par le guard"
+  },
+  "out_of_scope": [
+    "rachats rétroactifs : aucun calcul de droits de rachat — un versement pinné sur une année antérieure entre dans le total de SON année, rien de plus",
+    "années ≠ 2026 : refusées (unsupported_tax_year), aucune extrapolation",
+    "impact fiscal cantonal de la marge (nécessitera domicile + état civil — futur Lego)",
+    "toute écriture dans le jumeau ou transmission réseau du résultat",
+    "pillar3a_room_calculator legacy : jamais câblé, jamais refactoré dans ce Lego"
+  ]
 }
