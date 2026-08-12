@@ -12,6 +12,7 @@ import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/services/api_service.dart';
@@ -94,6 +95,71 @@ class CoachProfileProvider extends ChangeNotifier {
 
   MintNextLppAffiliationFact? get lppAffiliationFact =>
       MintNextLppAffiliationFact.fromWizardAnswers(_lastAnswers);
+
+  MintNextVersements3aFact? get versements3aFact =>
+      MintNextVersements3aFact.fromWizardAnswers(_lastAnswers);
+
+  /// Persiste la LISTE complète des versements 3a par la transaction
+  /// coordonnée scellée — l'ajout/correction/suppression d'UNE entrée passe
+  /// par les mutations pures du fait puis ce commit unique. Local uniquement
+  /// (ADR 2026-08-08).
+  Future<void> saveVersements3aFact(MintNextVersements3aFact fact) =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalVersements3a(fact)) {
+            throw StateError('Canonical versements 3a persistence failed');
+          }
+          final merged = Map<String, dynamic>.from(snapshot)
+            ..addAll(fact.toWizardAnswers());
+          final cacheSaved = await ReportPersistenceService.saveAnswers(merged);
+          if (!cacheSaved) {
+            debugPrint(
+                'Versements 3a cache save failed; canonical remains authority');
+          }
+          _lastAnswers = merged;
+          _profile = CoachProfile.fromWizardAnswers(merged);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
+
+  /// Supprime la liste entière par tombstone canonique ; les réponses non
+  /// liées survivent.
+  Future<void> deleteVersements3aFact() =>
+      _enqueueProfilePersistence(() async {
+        await _runHousingCoordinated(() async {
+          if (!await ReportPersistenceService
+              .drainPendingSecureDeleteBeforeCanonicalWrite()) {
+            throw StateError('Pending secure purge failed');
+          }
+          final snapshot = await ReportPersistenceService.loadAnswers(
+              retryPendingSecureDelete: false);
+          if (!await SecureWizardStore.writeCanonicalVersements3aDeleted()) {
+            throw StateError('Canonical versements 3a deletion failed');
+          }
+          final cleaned = Map<String, dynamic>.from(snapshot)
+            ..removeWhere((key, _) =>
+                MintNextVersements3aFact.wizardKeys.contains(key));
+          final cacheSaved =
+              await ReportPersistenceService.saveAnswers(cleaned);
+          if (!cacheSaved) {
+            debugPrint(
+                'Versements 3a cache clean failed; tombstone remains authority');
+          }
+          _lastAnswers = cleaned;
+          _profile = CoachProfile.fromWizardAnswers(cleaned);
+          _isLoaded = true;
+          _profileUpdatedSinceBudget = true;
+          notifyListeners();
+        });
+      });
 
   /// Persiste le fait affiliation LPP par la transaction coordonnée scellée.
   /// Aucune projection legacy. Local uniquement (ADR 2026-08-08).

@@ -25917,6 +25917,119 @@ class SEn extends S {
       'Saving did not complete. Your data has not changed. Try again.';
 
   @override
+  String get mintNextVersements3aTitle => 'Your 3a payments';
+
+  @override
+  String get mintNextVersements3aListTitle => 'Your recorded payments';
+
+  @override
+  String mintNextVersements3aYearTotal(String year, String total) {
+    return '$year · total $total';
+  }
+
+  @override
+  String get mintNextVersements3aQuestion => 'Record this payment';
+
+  @override
+  String get mintNextVersements3aHint =>
+      'The amount and credit date, as they appear on your 3a account.';
+
+  @override
+  String get mintNextVersements3aAmountLabel => 'Amount (CHF)';
+
+  @override
+  String get mintNextVersements3aAmountHint => 'For example 3\'500';
+
+  @override
+  String get mintNextVersements3aDateLabel => 'Credit date';
+
+  @override
+  String get mintNextVersements3aDateHint => 'dd.mm.yyyy';
+
+  @override
+  String get mintNextVersements3aTaxYearLabel => 'Tax year';
+
+  @override
+  String get mintNextVersements3aTaxYearHelper =>
+      'Defaults to the credit date\'s year — adjustable for a buy-back.';
+
+  @override
+  String get mintNextVersements3aContinue => 'Continue';
+
+  @override
+  String get mintNextVersements3aBack => 'Back';
+
+  @override
+  String get mintNextVersements3aBackToList => 'Back to the list';
+
+  @override
+  String get mintNextVersements3aReviewTitle => 'MINT will remember';
+
+  @override
+  String mintNextVersements3aReviewTaxYear(String year) {
+    return 'Counted for tax year $year';
+  }
+
+  @override
+  String mintNextVersements3aEntryCredited(String date) {
+    return 'Credited on $date';
+  }
+
+  @override
+  String get mintNextVersements3aConfirm => 'Save';
+
+  @override
+  String get mintNextVersements3aAdd => 'Add a payment';
+
+  @override
+  String get mintNextVersements3aEdit => 'Edit';
+
+  @override
+  String get mintNextVersements3aDelete => 'Delete';
+
+  @override
+  String get mintNextVersements3aDeleteEntryTitle => 'Delete this payment?';
+
+  @override
+  String get mintNextVersements3aDeleteEntryBody =>
+      'MINT will forget this payment. The others do not change.';
+
+  @override
+  String get mintNextVersements3aDeleteCancel => 'Keep';
+
+  @override
+  String get mintNextVersements3aDeleteConfirm => 'Delete';
+
+  @override
+  String get mintNextVersements3aSafeExit => 'Leave without saving';
+
+  @override
+  String get mintNextVersements3aErrorMissing =>
+      'Enter the amount and the credit date to continue.';
+
+  @override
+  String get mintNextVersements3aSaveFailed =>
+      'Saving did not complete. Your data has not changed. Try again.';
+
+  @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Declared by you on $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Manage my payments';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Delete all';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle => 'Delete all your payments?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT will forget the whole list. Your other information does not change.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Residence: $commune ($canton)';
   }

@@ -88,6 +88,8 @@ class ReportPersistenceService {
     answers = await SecureWizardStore.canonicalizeRevenuAnswers(answers);
     answers =
         await SecureWizardStore.canonicalizeLppAffiliationAnswers(answers);
+    answers =
+        await SecureWizardStore.canonicalizeVersements3aAnswers(answers);
     final sealed = await SecureWizardStore.sealSensitiveKeys(answers);
     if (!sealed.allSensitiveSealed) {
       await _scrubLegacyPlainSensitiveAnswers(prefs);
@@ -136,19 +138,23 @@ class ReportPersistenceService {
     final jsonString = prefs.getString(_wizardKey);
 
     if (jsonString == null) {
-      return SecureWizardStore.canonicalizeLppAffiliationAnswers(
-          await SecureWizardStore.canonicalizeRevenuAnswers(
-              await SecureWizardStore.canonicalizeCivilStatusAnswers(
-                  await SecureWizardStore.canonicalizeHousingAnswers({}))));
+      return SecureWizardStore.canonicalizeVersements3aAnswers(
+          await SecureWizardStore.canonicalizeLppAffiliationAnswers(
+              await SecureWizardStore.canonicalizeRevenuAnswers(
+                  await SecureWizardStore.canonicalizeCivilStatusAnswers(
+                      await SecureWizardStore.canonicalizeHousingAnswers(
+                          {})))));
     }
 
     try {
       final rawAnswers =
-          await SecureWizardStore.canonicalizeLppAffiliationAnswers(
-        await SecureWizardStore.canonicalizeRevenuAnswers(
-          await SecureWizardStore.canonicalizeCivilStatusAnswers(
-            await SecureWizardStore.canonicalizeHousingAnswers(
-              Map<String, dynamic>.from(json.decode(jsonString)),
+          await SecureWizardStore.canonicalizeVersements3aAnswers(
+        await SecureWizardStore.canonicalizeLppAffiliationAnswers(
+          await SecureWizardStore.canonicalizeRevenuAnswers(
+            await SecureWizardStore.canonicalizeCivilStatusAnswers(
+              await SecureWizardStore.canonicalizeHousingAnswers(
+                Map<String, dynamic>.from(json.decode(jsonString)),
+              ),
             ),
           ),
         ),

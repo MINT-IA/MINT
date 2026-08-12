@@ -26052,6 +26052,121 @@ class SEs extends S {
       'No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.';
 
   @override
+  String get mintNextVersements3aTitle => 'Tus aportaciones 3a';
+
+  @override
+  String get mintNextVersements3aListTitle => 'Tus aportaciones registradas';
+
+  @override
+  String mintNextVersements3aYearTotal(String year, String total) {
+    return '$year · total $total';
+  }
+
+  @override
+  String get mintNextVersements3aQuestion => 'Registrar esta aportación';
+
+  @override
+  String get mintNextVersements3aHint =>
+      'El importe y la fecha de abono, tal como aparecen en tu cuenta 3a.';
+
+  @override
+  String get mintNextVersements3aAmountLabel => 'Importe (CHF)';
+
+  @override
+  String get mintNextVersements3aAmountHint => 'Por ejemplo 3\'500';
+
+  @override
+  String get mintNextVersements3aDateLabel => 'Fecha de abono';
+
+  @override
+  String get mintNextVersements3aDateHint => 'dd.mm.aaaa';
+
+  @override
+  String get mintNextVersements3aTaxYearLabel => 'Año fiscal';
+
+  @override
+  String get mintNextVersements3aTaxYearHelper =>
+      'Por defecto el del año de la fecha de abono — ajustable para un rescate.';
+
+  @override
+  String get mintNextVersements3aContinue => 'Continuar';
+
+  @override
+  String get mintNextVersements3aBack => 'Atrás';
+
+  @override
+  String get mintNextVersements3aBackToList => 'Volver a la lista';
+
+  @override
+  String get mintNextVersements3aReviewTitle => 'MINT va a recordar';
+
+  @override
+  String mintNextVersements3aReviewTaxYear(String year) {
+    return 'Contado para el año fiscal $year';
+  }
+
+  @override
+  String mintNextVersements3aEntryCredited(String date) {
+    return 'Abonado el $date';
+  }
+
+  @override
+  String get mintNextVersements3aConfirm => 'Guardar';
+
+  @override
+  String get mintNextVersements3aAdd => 'Añadir una aportación';
+
+  @override
+  String get mintNextVersements3aEdit => 'Modificar';
+
+  @override
+  String get mintNextVersements3aDelete => 'Eliminar';
+
+  @override
+  String get mintNextVersements3aDeleteEntryTitle =>
+      '¿Eliminar esta aportación?';
+
+  @override
+  String get mintNextVersements3aDeleteEntryBody =>
+      'MINT olvidará esta aportación. Las demás no cambian.';
+
+  @override
+  String get mintNextVersements3aDeleteCancel => 'Conservar';
+
+  @override
+  String get mintNextVersements3aDeleteConfirm => 'Eliminar';
+
+  @override
+  String get mintNextVersements3aSafeExit => 'Salir sin guardar';
+
+  @override
+  String get mintNextVersements3aErrorMissing =>
+      'Indica el importe y la fecha de abono para continuar.';
+
+  @override
+  String get mintNextVersements3aSaveFailed =>
+      'No se pudo guardar. Tus datos no han cambiado. Inténtalo de nuevo.';
+
+  @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Declarado por ti el $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gestionar mis aportaciones';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Eliminar todo';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      '¿Eliminar todas tus aportaciones?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT olvidará toda la lista. Tus demás datos no cambian.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicilio: $commune ($canton)';
   }

@@ -154,6 +154,7 @@ import 'package:mint_mobile/screens/mint_next_domicile/mint_next_domicile_screen
 import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart';
 import 'package:mint_mobile/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart';
 import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart';
+import 'package:mint_mobile/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart';
 import 'package:mint_mobile/screens/mint_next_housing/mint_next_housing_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -823,6 +824,14 @@ final _router = GoRouter(
       redirect: (_, __) =>
           FeatureFlags.enableMintNextLppAffiliation ? null : '/home',
       builder: (context, state) => const MintNextLppAffiliationScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/versements-3a',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) =>
+          FeatureFlags.enableMintNextVersements3a ? null : '/home',
+      builder: (context, state) => const MintNextVersements3aScreen(),
     ),
     ScopedGoRoute(
       path: '/explore/famille',

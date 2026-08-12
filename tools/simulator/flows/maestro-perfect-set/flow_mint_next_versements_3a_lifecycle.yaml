@@ -1,0 +1,244 @@
+appId: ch.mint.app
+tags:
+  - mint-next-versements-3a
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mint-next/versements-3a"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mint-next/versements-3a"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 15000
+# Premier versement : 3'500 crédité le 15.03.2026.
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "3500"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "15.03.2026"
+- hideKeyboard:
+    optional: true
+# Le tap hors champ (titre) ferme le clavier datetime — dismiss déterministe.
+# hideKeyboard peut appuyer sur « OK » et soumettre le champ (done) —
+# l'app avance alors d'elle-même à review. Tolérer les deux chemins.
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+# Deuxième versement : 2'000 crédité le 01.06.2026 — la liste re-dérive.
+- tapOn:
+    id: "action:versements_3a.add"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "2000"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "01.06.2026"
+- hideKeyboard:
+    optional: true
+# hideKeyboard peut appuyer sur « OK » et soumettre le champ (done) —
+# l'app avance alors d'elle-même à review. Tolérer les deux chemins.
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 20000
+# Vue dérivée : 3'500 + 2'000 agrégés pour 2026 — l'id porte la valeur.
+- assertVisible:
+    id: "mon_argent_versements_3a_total_2026_550000"
+- takeScreenshot: "${OUTPUT_DIR}/01-created-visible"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 20000
+- takeScreenshot: "${OUTPUT_DIR}/02-cold-relaunch-visible"
+# Correction ciblée : la première entrée passe à 4'000 — total re-dérivé.
+- tapOn:
+    id: "action:mon_argent.versements_3a.manage"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 8000
+- tapOn:
+    id: "action:versements_3a.entry_edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 5000
+- tapOn:
+    id: "input:versements_3a.amount"
+- eraseText
+- inputText: "4000"
+- hideKeyboard:
+    optional: true
+# hideKeyboard peut appuyer sur « OK » et soumettre le champ (done) —
+# l'app avance alors d'elle-même à review. Tolérer les deux chemins.
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    visible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 12000
+# Invalidation des dépendants : la vue dérivée re-dérive après correction.
+- assertVisible:
+    id: "mon_argent_versements_3a_total_2026_600000"
+- takeScreenshot: "${OUTPUT_DIR}/03-edited-visible"
+# Suppression totale depuis Ma situation.
+- tapOn:
+    id: "action:mon_argent.versements_3a.delete"
+- extendedWaitUntil:
+    visible: "Supprimer tous tes versements ?"
+    timeout: 5000
+- tapOn:
+    text: "^Supprimer$"
+- extendedWaitUntil:
+    notVisible: "Supprimer tous tes versements ?"
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/04-deleted-absent"
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- extendedWaitUntil:
+    notVisible:
+      id: "mon_argent_versements_3a_fact"
+    timeout: 12000
+- takeScreenshot: "${OUTPUT_DIR}/05-delete-survives-relaunch"

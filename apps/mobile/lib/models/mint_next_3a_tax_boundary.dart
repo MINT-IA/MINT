@@ -151,15 +151,55 @@ abstract interface class ConfirmedLppAffiliationSource {
   MintNext3aLppAffiliationContext? toConfirmedLppAffiliationContext();
 }
 
+/// Versements 3a de l'année fiscale du contexte, vus par la préparation.
+///
+/// [totalVerseAnnualCents] est une AGRÉGATION de faits (permise hors moteur
+/// attesté) ; la soustraction plafond − total (marge CHF) est une sortie du
+/// moteur attesté et n'existe nulle part ici. Null = fait manquant.
+class MintNext3aVersementsContext {
+  const MintNext3aVersementsContext({
+    required this.taxYear,
+    required this.totalVerseAnnualCents,
+    required this.bucketRevision,
+  });
+
+  final int taxYear;
+  final int totalVerseAnnualCents;
+
+  /// Révision du bucket annuel — tout dérivé fiscal lié à cette année
+  /// devient périmé quand elle change ; une correction d'une autre année ne
+  /// la touche pas.
+  final String bucketRevision;
+
+  Map<String, Object?> toJson() => {
+        'tax_year': taxYear,
+        'total_verse_annual_cents': totalVerseAnnualCents,
+        'bucket_revision': bucketRevision,
+      };
+
+  /// Un fait en attente de confirmation n'est PAS un total connu.
+  static MintNext3aVersementsContext? fromConfirmedFact(
+      Object? fact, int taxYear) {
+    if (fact is! ConfirmedVersements3aSource) return null;
+    return fact.toConfirmedVersementsContext(taxYear);
+  }
+}
+
+/// Implémenté par le fait versements 3a canonique.
+abstract interface class ConfirmedVersements3aSource {
+  MintNext3aVersementsContext? toConfirmedVersementsContext(int taxYear);
+}
+
 class MintNext3aFiscalContext {
   const MintNext3aFiscalContext({
-    this.contextVersion = 5,
+    this.contextVersion = 6,
     required this.taxYear,
     required this.effectiveAt,
     this.domicile,
     this.civilStatus,
     this.revenu,
     this.lppAffiliation,
+    this.versements,
   });
 
   final int contextVersion;
@@ -178,12 +218,17 @@ class MintNext3aFiscalContext {
   /// Null tant que l'affiliation LPP est INCONNUE (fait absent ou en
   /// attente) — jamais un « non » implicite.
   final MintNext3aLppAffiliationContext? lppAffiliation;
+
+  /// Null while no confirmed versements fact exists. Le total est un agrégat
+  /// de faits ; AUCUNE marge n'est jamais matérialisée ici.
+  final MintNext3aVersementsContext? versements;
   static const capability = 'no_attested_engine';
 
   bool get domicileKnown => domicile != null;
   bool get civilStatusKnown => civilStatus != null;
   bool get revenuKnown => revenu != null;
   bool get lppAffiliationKnown => lppAffiliation != null;
+  bool get versementsKnown => versements != null;
 
   /// Détermination du plafond 3a (v5) — FAIL-CLOSED, tokens symboliques
   /// seulement (aucun CHF : NoAttestedEngine ; les montants légaux
@@ -215,6 +260,8 @@ class MintNext3aFiscalContext {
             lppAffiliationKnown ? 'known' : 'unknown',
         if (lppAffiliation != null)
           'lpp_affiliation': lppAffiliation!.toJson(),
+        'versements_status': versementsKnown ? 'known' : 'missing',
+        if (versements != null) 'versements': versements!.toJson(),
         'plafond_3a_determination': plafond3aDetermination,
       };
 }

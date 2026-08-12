@@ -26065,6 +26065,120 @@ class SPt extends S {
       'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
 
   @override
+  String get mintNextVersements3aTitle => 'Os teus depósitos 3a';
+
+  @override
+  String get mintNextVersements3aListTitle => 'Os teus depósitos registados';
+
+  @override
+  String mintNextVersements3aYearTotal(String year, String total) {
+    return '$year · total $total';
+  }
+
+  @override
+  String get mintNextVersements3aQuestion => 'Registar este depósito';
+
+  @override
+  String get mintNextVersements3aHint =>
+      'O montante e a data de crédito, tal como aparecem na tua conta 3a.';
+
+  @override
+  String get mintNextVersements3aAmountLabel => 'Montante (CHF)';
+
+  @override
+  String get mintNextVersements3aAmountHint => 'Por exemplo 3\'500';
+
+  @override
+  String get mintNextVersements3aDateLabel => 'Data de crédito';
+
+  @override
+  String get mintNextVersements3aDateHint => 'dd.mm.aaaa';
+
+  @override
+  String get mintNextVersements3aTaxYearLabel => 'Ano fiscal';
+
+  @override
+  String get mintNextVersements3aTaxYearHelper =>
+      'Por defeito o do ano da data de crédito — ajustável para um resgate.';
+
+  @override
+  String get mintNextVersements3aContinue => 'Continuar';
+
+  @override
+  String get mintNextVersements3aBack => 'Voltar';
+
+  @override
+  String get mintNextVersements3aBackToList => 'Voltar à lista';
+
+  @override
+  String get mintNextVersements3aReviewTitle => 'A MINT vai lembrar-se';
+
+  @override
+  String mintNextVersements3aReviewTaxYear(String year) {
+    return 'Contado para o ano fiscal $year';
+  }
+
+  @override
+  String mintNextVersements3aEntryCredited(String date) {
+    return 'Creditado a $date';
+  }
+
+  @override
+  String get mintNextVersements3aConfirm => 'Guardar';
+
+  @override
+  String get mintNextVersements3aAdd => 'Adicionar um depósito';
+
+  @override
+  String get mintNextVersements3aEdit => 'Alterar';
+
+  @override
+  String get mintNextVersements3aDelete => 'Apagar';
+
+  @override
+  String get mintNextVersements3aDeleteEntryTitle => 'Apagar este depósito?';
+
+  @override
+  String get mintNextVersements3aDeleteEntryBody =>
+      'A MINT vai esquecer este depósito. Os outros não mudam.';
+
+  @override
+  String get mintNextVersements3aDeleteCancel => 'Manter';
+
+  @override
+  String get mintNextVersements3aDeleteConfirm => 'Apagar';
+
+  @override
+  String get mintNextVersements3aSafeExit => 'Sair sem guardar';
+
+  @override
+  String get mintNextVersements3aErrorMissing =>
+      'Indica o montante e a data de crédito para continuar.';
+
+  @override
+  String get mintNextVersements3aSaveFailed =>
+      'Não foi possível guardar. Os teus dados não mudaram. Tenta de novo.';
+
+  @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Declarado por ti a $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gerir os meus depósitos';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Apagar tudo';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      'Apagar todos os teus depósitos?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'A MINT vai esquecer toda a lista. Os teus outros dados não mudam.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicílio: $commune ($canton)';
   }

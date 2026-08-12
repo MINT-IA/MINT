@@ -54,6 +54,23 @@ ALLOW = {
     "tools/simulator/flows/maestro-perfect-set/flow_mint2_lpp_dossier_account_claim.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_drawer_navigation_smoke.yaml",
     "apps/mobile/test/app_router_observers_test.dart",
+    "tools/runtime/mint_next_versements_3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_versements_3a_lifecycle.yaml",
+    "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart",
+    "apps/mobile/test/screens/mon_argent_versements_3a_fact_test.dart",
+    "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
+    "apps/mobile/test/providers/coach_profile_provider_versements_3a_fact_test.dart",
+    "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart",
+    "product/mint_next/storyboard/versements_3a.storyboard.json",
+    "apps/mobile/lib/services/observability/mint_http_client.dart",
+    "apps/mobile/test/services/observability/mint_http_client_test.dart",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/01-created-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/02-cold-relaunch-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/03-edited-visible.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/04-deleted-absent.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/05-delete-survives-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/versements-3a-lifecycle/runtime.json",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/01-created-visible.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/02-cold-relaunch-visible.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/lpp-affiliation-lifecycle/03-edited-visible.png",
@@ -2220,6 +2237,58 @@ def _runtime_replay_coverage_errors(records: list[tuple[Path, dict[str, Any]]], 
         return [f"top Journey OS issue {top_issue.get('id')} must be replayable through runtime_replay.sets top"]
     return []
 
+
+STORYBOARD_DIR = "product/mint_next/storyboard"
+STORYBOARD_NO_NETWORK_FILES = (
+    "apps/mobile/lib/models/mint_next_versements_3a_fact.dart",
+    "apps/mobile/lib/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart",
+)
+
+def _storyboard_traceability_errors(root: Path) -> list[str]:
+    """Every test name a storyboard declares must exist verbatim in its
+    test_files (Dart adjacent string literals joined), and the versements
+    fact modules must stay free of HTTP client imports (zero-transmission
+    static guard)."""
+    import re as _re
+    errors: list[str] = []
+    for sb_path in sorted((root / STORYBOARD_DIR).glob("*.storyboard.json")):
+        try:
+            data = json.loads(sb_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            errors.append(f"{sb_path.relative_to(root)} unreadable storyboard: {exc}")
+            continue
+        for beat in data.get("beats", []) if isinstance(data.get("beats"), list) else []:
+            test_files = beat.get("test_files")
+            if not isinstance(test_files, list) or not test_files:
+                continue
+            corpus = ""
+            for rel in test_files:
+                f = root / rel
+                if not f.is_file():
+                    errors.append(f"{sb_path.relative_to(root)} beat {beat.get('id')}: missing test file {rel}")
+                    continue
+                corpus += f.read_text(encoding="utf-8")
+            joined = _re.sub(r"'\s*\n\s*'", "", corpus).replace("\\'", "'")
+            for name in beat.get("tests", []) if isinstance(beat.get("tests"), list) else []:
+                if isinstance(name, str) and name not in joined:
+                    errors.append(
+                        f"{sb_path.relative_to(root)} beat {beat.get('id')}: declared test not found verbatim in test_files: {name}"
+                    )
+    # Ne s'applique qu'aux racines portant le storyboard versements — les
+    # fixtures synthétiques des tests de guard n'embarquent pas l'app.
+    if not (root / STORYBOARD_DIR / "versements_3a.storyboard.json").is_file():
+        return errors
+    for rel in STORYBOARD_NO_NETWORK_FILES:
+        f = root / rel
+        if not f.is_file():
+            errors.append(f"zero-transmission static guard: missing {rel}")
+            continue
+        body = f.read_text(encoding="utf-8")
+        for marker in ("package:http", "package:dio", "HttpClient("):
+            if marker in body:
+                errors.append(f"zero-transmission static guard: {rel} imports/uses {marker}")
+    return errors
+
 def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "origin/dev") -> list[str]:
     root = root.resolve()
     changed, errors = (changed_files, []) if changed_files else _changed(root, base_ref)
@@ -2261,6 +2330,7 @@ def check(root: Path, changed_files: list[str] | None = None, base_ref: str = "o
                 errors.append(f"{rel} missing Journey OS issue: {issue}")
     errors += _runtime_replay_coverage_errors(records, issues)
     errors += _generated_errors(root)
+    errors += _storyboard_traceability_errors(root)
     return errors
 
 def main(argv: list[str] | None = None) -> int:

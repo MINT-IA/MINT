@@ -178,6 +178,16 @@ class FeatureFlags {
   static ValueListenable<bool> get mintNextLppAffiliationListenable =>
       _mintNextLppAffiliation;
 
+  static final ValueNotifier<bool> _mintNextVersements3a =
+      ValueNotifier<bool>(false);
+
+  static bool get enableMintNextVersements3a => _mintNextVersements3a.value;
+  static set enableMintNextVersements3a(bool value) =>
+      _mintNextVersements3a.value = value;
+
+  static ValueListenable<bool> get mintNextVersements3aListenable =>
+      _mintNextVersements3a;
+
   static bool get enableMintNextHousing => _mintNextHousing.value;
   static set enableMintNextHousing(bool value) =>
       _mintNextHousing.value = value;
@@ -276,6 +286,9 @@ class FeatureFlags {
     if (E2eRuntimeFlags.mintNextLppAffiliation) {
       enableMintNextLppAffiliation = true;
     }
+    if (E2eRuntimeFlags.mintNextVersements3a) {
+      enableMintNextVersements3a = true;
+    }
   }
 
   /// Apply flags from a backend response map.
@@ -336,6 +349,10 @@ class FeatureFlags {
       enableMintNextLppAffiliation =
           data['enableMintNextLppAffiliation'] == true;
     }
+    if (data.containsKey('enableMintNextVersements3a')) {
+      enableMintNextVersements3a =
+          data['enableMintNextVersements3a'] == true;
+    }
     // Phase 96 D-01 — chat tab visibility server override.
     if (data.containsKey('chatTabVisible')) {
       chatTabVisible = data['chatTabVisible'] == true;
@@ -373,6 +390,7 @@ class FeatureFlags {
     enableMintNextEtatCivil = false;
     enableMintNextRevenu = false;
     enableMintNextLppAffiliation = false;
+    enableMintNextVersements3a = false;
     final decisionClock = Stopwatch()..start();
     try {
       // Debug seams are ignored by compiled release builds. Production always
@@ -408,6 +426,7 @@ class FeatureFlags {
         enableMintNextEtatCivil = false;
         enableMintNextRevenu = false;
         enableMintNextLppAffiliation = false;
+        enableMintNextVersements3a = false;
       }
       MintBreadcrumbs.featureFlagsRefresh(
         success: false,
@@ -421,6 +440,7 @@ class FeatureFlags {
         enableMintNextEtatCivil = false;
         enableMintNextRevenu = false;
         enableMintNextLppAffiliation = false;
+        enableMintNextVersements3a = false;
       }
       // OBS-05 — feature_flags breadcrumb on failure branch (D-03 4-level
       // literal `failure`, NOT `error`). Error code enum only — no raw

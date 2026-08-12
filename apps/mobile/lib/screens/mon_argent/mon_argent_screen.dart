@@ -12,6 +12,7 @@ import 'package:mint_mobile/models/data_spine_snapshot.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_screen.dart'
@@ -136,6 +137,8 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final revenuFact = _watchCoachProfileProviderIfAvailable()?.revenuFact;
     final lppAffiliationFact =
         _watchCoachProfileProviderIfAvailable()?.lppAffiliationFact;
+    final versements3aFact =
+        _watchCoachProfileProviderIfAvailable()?.versements3aFact;
     final mintState = context.watch<MintStateProvider>().state;
     final dataSpine = mintState?.dataSpineSnapshot;
     final budgetSnapshot = dataSpine?.budget ?? mintState?.budgetSnapshot;
@@ -231,6 +234,7 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                         civilStatusFact: civilStatusFact,
                         revenuFact: revenuFact,
                         lppAffiliationFact: lppAffiliationFact,
+                        versements3aFact: versements3aFact,
                         budgetProvider: budgetProvider,
                         budgetLoading: _budgetLoading,
                         budgetError: _budgetError,
@@ -272,6 +276,12 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                           }
                         },
                         onLppAffiliationDelete: _deleteLppAffiliationFact,
+                        onVersements3aManage: () {
+                          if (FeatureFlags.enableMintNextVersements3a) {
+                            context.push('/mint-next/versements-3a');
+                          }
+                        },
+                        onVersements3aDelete: _deleteVersements3aFact,
                       ),
 
                       // Coach whisper (deterministic, may be null = silence)
@@ -366,6 +376,40 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l10n.mintNextEtatCivilSaveFailed)),
+      );
+    }
+  }
+
+  Future<void> _deleteVersements3aFact() async {
+    final l10n = S.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.mintNextVersements3aDeleteAllTitle),
+        content: Text(l10n.mintNextVersements3aDeleteAllBody),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: Text(l10n.mintNextVersements3aDeleteCancel),
+          ),
+          Semantics(
+            identifier: 'action:mon_argent.versements_3a.delete_confirm',
+            button: true,
+            child: TextButton(
+              onPressed: () => Navigator.pop(dialogContext, true),
+              child: Text(l10n.mintNextVersements3aDeleteConfirm),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+    try {
+      await context.read<CoachProfileProvider>().deleteVersements3aFact();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.mintNextVersements3aSaveFailed)),
       );
     }
   }
@@ -650,6 +694,7 @@ class _MonArgentSectionBody extends StatelessWidget {
   final MintNextCivilStatusFact? civilStatusFact;
   final MintNextRevenuFact? revenuFact;
   final MintNextLppAffiliationFact? lppAffiliationFact;
+  final MintNextVersements3aFact? versements3aFact;
   final BudgetProvider budgetProvider;
   final bool budgetLoading;
   final bool budgetError;
@@ -670,6 +715,8 @@ class _MonArgentSectionBody extends StatelessWidget {
   final Future<void> Function() onRevenuDelete;
   final VoidCallback onLppAffiliationEdit;
   final Future<void> Function() onLppAffiliationDelete;
+  final VoidCallback onVersements3aManage;
+  final Future<void> Function() onVersements3aDelete;
 
   const _MonArgentSectionBody({
     required this.section,
@@ -682,6 +729,7 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.civilStatusFact,
     required this.revenuFact,
     required this.lppAffiliationFact,
+    required this.versements3aFact,
     required this.budgetProvider,
     required this.budgetLoading,
     required this.budgetError,
@@ -702,6 +750,8 @@ class _MonArgentSectionBody extends StatelessWidget {
     required this.onRevenuDelete,
     required this.onLppAffiliationEdit,
     required this.onLppAffiliationDelete,
+    required this.onVersements3aManage,
+    required this.onVersements3aDelete,
   });
 
   @override
@@ -724,6 +774,7 @@ class _MonArgentSectionBody extends StatelessWidget {
             civilStatusFact: civilStatusFact,
             revenuFact: revenuFact,
             lppAffiliationFact: lppAffiliationFact,
+            versements3aFact: versements3aFact,
             l10n: l10n,
             onHousingEdit: onHousingEdit,
             onHousingDelete: onHousingDelete,
@@ -735,6 +786,8 @@ class _MonArgentSectionBody extends StatelessWidget {
             onRevenuDelete: onRevenuDelete,
             onLppAffiliationEdit: onLppAffiliationEdit,
             onLppAffiliationDelete: onLppAffiliationDelete,
+            onVersements3aManage: onVersements3aManage,
+            onVersements3aDelete: onVersements3aDelete,
           ),
         _MonArgentSection.month => BudgetSummaryCard(
             snapshot: budgetSnapshot,
@@ -778,6 +831,7 @@ class _TodaySection extends StatelessWidget {
   final MintNextCivilStatusFact? civilStatusFact;
   final MintNextRevenuFact? revenuFact;
   final MintNextLppAffiliationFact? lppAffiliationFact;
+  final MintNextVersements3aFact? versements3aFact;
   final S l10n;
   final VoidCallback onHousingEdit;
   final Future<void> Function() onHousingDelete;
@@ -789,6 +843,8 @@ class _TodaySection extends StatelessWidget {
   final Future<void> Function() onRevenuDelete;
   final VoidCallback onLppAffiliationEdit;
   final Future<void> Function() onLppAffiliationDelete;
+  final VoidCallback onVersements3aManage;
+  final Future<void> Function() onVersements3aDelete;
 
   const _TodaySection({
     required this.dataSpine,
@@ -802,6 +858,7 @@ class _TodaySection extends StatelessWidget {
     required this.civilStatusFact,
     required this.revenuFact,
     required this.lppAffiliationFact,
+    required this.versements3aFact,
     required this.l10n,
     required this.onHousingEdit,
     required this.onHousingDelete,
@@ -813,6 +870,8 @@ class _TodaySection extends StatelessWidget {
     required this.onRevenuDelete,
     required this.onLppAffiliationEdit,
     required this.onLppAffiliationDelete,
+    required this.onVersements3aManage,
+    required this.onVersements3aDelete,
   });
 
   @override
@@ -823,7 +882,8 @@ class _TodaySection extends StatelessWidget {
         domicileFact == null &&
         civilStatusFact == null &&
         revenuFact == null &&
-        lppAffiliationFact == null) {
+        lppAffiliationFact == null &&
+        (versements3aFact == null || versements3aFact!.entries.isEmpty)) {
       return _MissingDataSurface(l10n: l10n);
     }
     return Column(
@@ -880,6 +940,16 @@ class _TodaySection extends StatelessWidget {
             onDelete: onLppAffiliationDelete,
           ),
         ],
+        if (versements3aFact != null &&
+            versements3aFact!.entries.isNotEmpty) ...[
+          const SizedBox(height: MintSpacing.md),
+          _Versements3aFactSurface(
+            fact: versements3aFact!,
+            l10n: l10n,
+            onManage: onVersements3aManage,
+            onDelete: onVersements3aDelete,
+          ),
+        ],
         if (dataSpine != null) ...[
           const SizedBox(height: MintSpacing.md),
           _MonArgentDetailsExpansion(
@@ -913,6 +983,86 @@ class _TodaySection extends StatelessWidget {
             stopRuleTriggered: false,
             emergencyFundMonths: 0,
           ),
+    );
+  }
+}
+
+class _Versements3aFactSurface extends StatelessWidget {
+  const _Versements3aFactSurface({
+    required this.fact,
+    required this.l10n,
+    required this.onManage,
+    required this.onDelete,
+  });
+
+  final MintNextVersements3aFact fact;
+  final S l10n;
+  final VoidCallback onManage;
+  final Future<void> Function() onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    final years = fact.taxYears.toList()..sort((a, b) => b.compareTo(a));
+    final assertedDate = MaterialLocalizations.of(context)
+        .formatShortDate(fact.assertedAt.toLocal());
+    return Semantics(
+      key: const Key('mon_argent_versements_3a_fact'),
+      identifier: 'mon_argent_versements_3a_fact',
+      container: true,
+      explicitChildNodes: true,
+      child: MintSurface(
+        tone: MintSurfaceTone.porcelaine,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.mintNextVersements3aListTitle,
+                style:
+                    MintTextStyles.titleLarge(color: MintColors.textPrimary)),
+            const SizedBox(height: MintSpacing.sm),
+            for (final year in years)
+              // L'identifiant porte année + total en centimes : la preuve
+              // runtime asserte la VALEUR re-dérivée, pas juste la présence.
+              Semantics(
+                identifier:
+                    'mon_argent_versements_3a_total_${year}_${fact.totalForYearCents(year)}',
+                child: Text(
+                  l10n.mintNextVersements3aYearTotal('$year',
+                      mintNextRevenuChf(fact.totalForYearCents(year))),
+                  style:
+                      MintTextStyles.bodyLarge(color: MintColors.textPrimary),
+                ),
+              ),
+            const SizedBox(height: MintSpacing.xs),
+            Text(
+              l10n.mintNextVersements3aReviewSource(assertedDate),
+              key: const Key('mon_argent_versements_3a_fact_provenance'),
+              style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            ValueListenableBuilder<bool>(
+              valueListenable: FeatureFlags.mintNextVersements3aListenable,
+              builder: (context, enabled, _) => enabled
+                  ? Semantics(
+                      identifier: 'action:mon_argent.versements_3a.manage',
+                      button: true,
+                      child: TextButton(
+                        onPressed: onManage,
+                        child: Text(l10n.mintNextVersements3aManage),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            Semantics(
+              identifier: 'action:mon_argent.versements_3a.delete',
+              button: true,
+              child: TextButton(
+                onPressed: onDelete,
+                child: Text(l10n.mintNextVersements3aDeleteAll),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

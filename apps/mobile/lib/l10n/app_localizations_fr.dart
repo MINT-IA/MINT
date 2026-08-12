@@ -26052,6 +26052,120 @@ class SFr extends S {
       'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
 
   @override
+  String get mintNextVersements3aTitle => 'Tes versements 3a';
+
+  @override
+  String get mintNextVersements3aListTitle => 'Tes versements enregistrés';
+
+  @override
+  String mintNextVersements3aYearTotal(String year, String total) {
+    return '$year · total $total';
+  }
+
+  @override
+  String get mintNextVersements3aQuestion => 'Enregistrer ce versement';
+
+  @override
+  String get mintNextVersements3aHint =>
+      'Le montant et la date de crédit, tels qu\'ils apparaissent sur ton compte 3a.';
+
+  @override
+  String get mintNextVersements3aAmountLabel => 'Montant (CHF)';
+
+  @override
+  String get mintNextVersements3aAmountHint => 'Par exemple 3\'500';
+
+  @override
+  String get mintNextVersements3aDateLabel => 'Date de crédit';
+
+  @override
+  String get mintNextVersements3aDateHint => 'jj.mm.aaaa';
+
+  @override
+  String get mintNextVersements3aTaxYearLabel => 'Année fiscale';
+
+  @override
+  String get mintNextVersements3aTaxYearHelper =>
+      'Par défaut celle de la date de crédit — modifiable pour un rachat.';
+
+  @override
+  String get mintNextVersements3aContinue => 'Continuer';
+
+  @override
+  String get mintNextVersements3aBack => 'Retour';
+
+  @override
+  String get mintNextVersements3aBackToList => 'Retour à la liste';
+
+  @override
+  String get mintNextVersements3aReviewTitle => 'MINT va retenir';
+
+  @override
+  String mintNextVersements3aReviewTaxYear(String year) {
+    return 'Compté pour l\'année fiscale $year';
+  }
+
+  @override
+  String mintNextVersements3aEntryCredited(String date) {
+    return 'Crédité le $date';
+  }
+
+  @override
+  String get mintNextVersements3aConfirm => 'Enregistrer';
+
+  @override
+  String get mintNextVersements3aAdd => 'Ajouter un versement';
+
+  @override
+  String get mintNextVersements3aEdit => 'Modifier';
+
+  @override
+  String get mintNextVersements3aDelete => 'Supprimer';
+
+  @override
+  String get mintNextVersements3aDeleteEntryTitle => 'Supprimer ce versement ?';
+
+  @override
+  String get mintNextVersements3aDeleteEntryBody =>
+      'MINT oubliera ce versement. Les autres ne changent pas.';
+
+  @override
+  String get mintNextVersements3aDeleteCancel => 'Garder';
+
+  @override
+  String get mintNextVersements3aDeleteConfirm => 'Supprimer';
+
+  @override
+  String get mintNextVersements3aSafeExit => 'Quitter sans enregistrer';
+
+  @override
+  String get mintNextVersements3aErrorMissing =>
+      'Indique le montant et la date de crédit pour continuer.';
+
+  @override
+  String get mintNextVersements3aSaveFailed =>
+      'L\'enregistrement n\'a pas abouti. Tes données n\'ont pas changé. Réessaie.';
+
+  @override
+  String mintNextVersements3aReviewSource(String date) {
+    return 'Déclaré par toi, le $date';
+  }
+
+  @override
+  String get mintNextVersements3aManage => 'Gérer mes versements';
+
+  @override
+  String get mintNextVersements3aDeleteAll => 'Tout supprimer';
+
+  @override
+  String get mintNextVersements3aDeleteAllTitle =>
+      'Supprimer tous tes versements ?';
+
+  @override
+  String get mintNextVersements3aDeleteAllBody =>
+      'MINT oubliera toute la liste. Tes autres informations ne changent pas.';
+
+  @override
   String mintNext3aDomicileKnown(String commune, String canton) {
     return 'Domicile : $commune ($canton)';
   }

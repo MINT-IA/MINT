@@ -503,6 +503,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableMintNextLppAffiliation',
     description: 'Canonical LPP affiliation fact lifecycle (Lego 4)',
   ),
+  '/mint-next/versements-3a': RouteMeta(
+    path: '/mint-next/versements-3a',
+    category: RouteCategory.flow,
+    owner: RouteOwner.system,
+    requiresAuth: false,
+    killFlag: 'enableMintNextVersements3a',
+    description: 'Canonical 3a payments list lifecycle (Lego 5)',
+  ),
   '/mint-next/housing': RouteMeta(
     path: '/mint-next/housing',
     category: RouteCategory.flow,
