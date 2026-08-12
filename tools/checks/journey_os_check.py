@@ -65,6 +65,7 @@ ALLOW = {
     "product/mint_next/storyboard/versements_3a.storyboard.json",
     "product/mint_next/storyboard/marge_3a_attestee.storyboard.json",
     "product/mint_next/storyboard/vertical_3a.storyboard.json",
+    "product/mint_next/storyboard/preview_shell.storyboard.json",
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
