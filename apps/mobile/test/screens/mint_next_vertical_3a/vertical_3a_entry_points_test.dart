@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/tension_card.dart';
 import 'package:mint_mobile/models/timeline_node.dart';
 import 'package:mint_mobile/providers/budget/budget_provider.dart';
@@ -147,6 +149,65 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(_entry(), findsOneWidget);
     expect(find.text('Ton 3a'), findsOneWidget);
+  });
+
+  testWidgets(
+      'the entry stays visible on populated paths and its tap opens the '
+      'vertical route', (tester) async {
+    FeatureFlags.enableMintNextVertical3a = true;
+
+    // Ma situation avec un fait présent (chemin peuplé, pas le early-return).
+    final withFact = CoachProfileProvider();
+    await withFact.loadFromWizard();
+    await withFact.saveLppAffiliationFact(MintNextLppAffiliationFact(
+      affiliated: true,
+      assertedAt: DateTime.utc(2026, 8, 12),
+      source: 'user_declaration',
+      schemaVersion: 1,
+      needsConfirmation: false,
+    ));
+    final router = GoRouter(
+      initialLocation: '/ma-situation',
+      routes: [
+        GoRoute(
+          path: '/ma-situation',
+          builder: (_, __) => const MonArgentScreen(initialSection: 'today'),
+        ),
+        GoRoute(
+          path: '/mint-next/vertical-3a',
+          builder: (_, __) => const Scaffold(
+              body: SizedBox(key: ValueKey('vertical_stub'))),
+        ),
+      ],
+    );
+    await tester.pumpWidget(MultiProvider(
+      providers: [
+        ChangeNotifierProvider<BudgetProvider>(create: (_) => BudgetProvider()),
+        ChangeNotifierProvider<CoachProfileProvider>.value(value: withFact),
+        ChangeNotifierProvider<MintStateProvider>(
+            create: (_) => MintStateProvider()),
+      ],
+      child: MaterialApp.router(
+        locale: const Locale('fr'),
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [Locale('fr')],
+        routerConfig: router,
+      ),
+    ));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(_entry(), findsOneWidget,
+        reason: 'le chemin peuplé garde son entrée');
+
+    await tester.ensureVisible(find.text('Ton 3a'));
+    await tester.tap(find.text('Ton 3a'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey('vertical_stub')), findsOneWidget,
+        reason: 'le tap ouvre la route du vertical');
   });
 
   testWidgets('the entry point never renders when the flag is off',

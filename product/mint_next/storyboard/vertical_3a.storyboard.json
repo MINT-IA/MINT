@@ -34,7 +34,8 @@
       "code": "apps/mobile/lib/screens/",
       "tests": [
         "the vertical entry point is visible from aujourd'hui and ma situation when the flag is on",
-        "the entry point never renders when the flag is off"
+        "the entry point never renders when the flag is off",
+        "the entry stays visible on populated paths and its tap opens the vertical route"
       ],
       "test_files": [
         "apps/mobile/test/screens/mint_next_vertical_3a/vertical_3a_entry_points_test.dart"
