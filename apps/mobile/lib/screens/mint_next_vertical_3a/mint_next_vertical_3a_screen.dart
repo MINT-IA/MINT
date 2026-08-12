@@ -189,7 +189,7 @@ class _AvailableView extends StatelessWidget {
                     MintTextStyles.editorialLarge(color: MintColors.textPrimary)),
             const SizedBox(height: MintSpacing.lg),
             ClipRRect(
-              borderRadius: BorderRadius.circular(3),
+              borderRadius: BorderRadius.circular(4),
               child: LinearProgressIndicator(
                 value: ratio,
                 minHeight: 6,
