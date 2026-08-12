@@ -2274,6 +2274,10 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
                     errors.append(
                         f"{sb_path.relative_to(root)} beat {beat.get('id')}: declared test not found verbatim in test_files: {name}"
                     )
+    # Ne s'applique qu'aux racines portant le storyboard versements — les
+    # fixtures synthétiques des tests de guard n'embarquent pas l'app.
+    if not (root / STORYBOARD_DIR / "versements_3a.storyboard.json").is_file():
+        return errors
     for rel in STORYBOARD_NO_NETWORK_FILES:
         f = root / rel
         if not f.is_file():
