@@ -145,6 +145,15 @@ class MintNextMarge3aCalculator {
       throw ArgumentError.value(totalVerseCents, 'totalVerseCents',
           'a canonical total is never negative');
     }
+    // Invariant d'appelant AVANT tout retour métier — y compris quand
+    // plusieurs entrées sont simultanément invalides : un revenu fourni sur
+    // la branche non-LPP exige sa révision, même si les versements manquent.
+    if (plafondDetermination == 'non_affiliated_20pct_capped' &&
+        annualNetCents != null &&
+        revenuRevision == null) {
+      throw ArgumentError.value(revenuRevision, 'revenuRevision',
+          'the non affiliated branch requires the revenu fact revision');
+    }
 
     final registry = registryOverride ?? MintNextMarge3aRegistry.sets;
     final allowlist =

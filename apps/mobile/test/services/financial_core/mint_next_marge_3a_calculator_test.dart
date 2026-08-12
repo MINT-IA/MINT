@@ -190,6 +190,16 @@ void main() {
             revenuRevision: null),
         throwsArgumentError,
         reason: 'la branche non-LPP consomme le revenu — révision exigée');
+    expect(
+        () => compute(
+            branch: 'non_affiliated_20pct_capped',
+            annualNetCents: 7654321,
+            revenuRevision: null,
+            totalVerseCents: null,
+            versementsBucketRevision: null),
+        throwsArgumentError,
+        reason: 'l\'invariant précède TOUT retour métier — jamais masqué '
+            'par contributions_missing quand les entrées sont multiples');
     final sealed = compute(
         branch: 'non_affiliated_20pct_capped',
         annualNetCents: 7654321,
