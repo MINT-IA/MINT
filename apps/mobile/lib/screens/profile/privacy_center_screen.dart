@@ -140,7 +140,47 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
         ),
         iconTheme: const IconThemeData(color: MintColors.textPrimary),
       ),
-      body: FutureBuilderSafe<List<ConsentReceipt>>(
+      // La section Préversion (reset LOCAL) rend INDÉPENDAMMENT du fetch
+      // serveur des consentements : une action purement locale ne dépend
+      // jamais du réseau — en anonyme le fetch échoue et masquerait le
+      // reset (trouvé au harnais runtime, run 1).
+      body: Column(
+        children: [
+          if (PreviewShellPolicy.instance.isPreviewShell)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _SectionHeader(title: l.previewResetSection),
+                  Semantics(
+                    identifier: 'action:preview_reset.open',
+                    button: true,
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(l.previewResetTitle,
+                          style: MintTextStyles.bodyLarge(
+                              color: MintColors.textPrimary)),
+                      subtitle: Text(l.previewResetBody,
+                          style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondary)),
+                      trailing: const Icon(Icons.restart_alt,
+                          color: MintColors.error),
+                      onTap: _confirmPreviewReset,
+                    ),
+                  ),
+                  const Divider(color: MintColors.lightBorder),
+                ],
+              ),
+            ),
+          Expanded(child: _buildConsentsBody(l, isLoggedIn)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConsentsBody(S l, bool isLoggedIn) {
+    return FutureBuilderSafe<List<ConsentReceipt>>(
         future: _future,
         onRetry: _refresh,
         builder: (ctx, consents) {
@@ -182,34 +222,10 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                   const Divider(color: MintColors.lightBorder),
                   _DeleteAccountRow(onTap: _confirmDeleteAccount),
                 ],
-                // Bascule 2 — « repartir à zéro » local, préversion uniquement.
-                if (PreviewShellPolicy.instance.isPreviewShell) ...[
-                  const SizedBox(height: 24),
-                  const Divider(color: MintColors.lightBorder),
-                  _SectionHeader(title: l.previewResetSection),
-                  Semantics(
-                    identifier: 'action:preview_reset.open',
-                    button: true,
-                    child: ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(l.previewResetTitle,
-                          style: MintTextStyles.bodyLarge(
-                              color: MintColors.textPrimary)),
-                      subtitle: Text(l.previewResetBody,
-                          style: MintTextStyles.bodySmall(
-                              color: MintColors.textSecondary)),
-                      trailing:
-                          const Icon(Icons.restart_alt, color: MintColors.error),
-                      onTap: _confirmPreviewReset,
-                    ),
-                  ),
-                ],
               ],
             ),
           );
-        },
-      ),
-    );
+        });
   }
 }
 

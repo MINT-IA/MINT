@@ -66,6 +66,7 @@
       "code": "apps/mobile/lib/screens/profile/",
       "tests": [
         "the reset entry renders only under the preview policy",
+        "the reset entry renders even when the consents fetch fails — a local action never depends on the network",
         "the copy never promises account or server deletion",
         "the strong confirmation gates the destructive action",
         "a failed purge shows the honest retry message and never claims success"

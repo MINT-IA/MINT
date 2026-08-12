@@ -108,6 +108,24 @@ void main() {
     expect(find.text('Repartir à zéro sur cet appareil ?'), findsOneWidget);
   });
 
+  testWidgets(
+      'the reset entry renders even when the consents fetch fails — a local '
+      'action never depends on the network', (tester) async {
+    // Bug runtime run 1 : en anonyme le fetch consents échoue et l'état
+    // d'erreur du centre masquait toute la section Préversion.
+    ApiService.setHttpClientForTesting(
+      MintHttpClient(
+        MockClient((request) async =>
+            http.Response('{"detail":"boom"}', 500)),
+      ),
+    );
+    await tester.pumpWidget(_buildApp());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Repartir à zéro sur cet appareil ?'), findsOneWidget,
+        reason: 'le reset LOCAL rend indépendamment du réseau');
+  });
+
   testWidgets('the copy never promises account or server deletion',
       (tester) async {
     await tester.pumpWidget(_buildApp());
