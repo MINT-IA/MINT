@@ -41,45 +41,61 @@
       "id": "read_facts",
       "story": "Le vertical lit les faits canoniques (LPP, revenu, versements) et appelle l'unique calculateur — jamais de formule locale, jamais design_lab.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "the vertical consumes the canonical calculator only and holds no local formula",
         "loading, read failure and missing data render as three distinct states"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart"
       ]
     },
     {
       "id": "result_or_state",
       "story": "Je vois marge positive, nulle ou négative (signée, « Plafond dépassé de X CHF ») avec année, fraîcheur et provenance — ou l'état nommé qui explique ce qui manque.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "a positive, zero and negative marge each render with year, freshness and provenance",
         "every fail-closed state of the engine has a reachable public rendering"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart"
       ]
     },
     {
       "id": "fix_navigation",
       "story": "Trois classes d'états, jamais confondues : LPP/revenu/versements bloquants → l'écran canonique du fait ; stale → relecture/recalcul déterministe au retour ; année non couverte ou constantes non attestées → état factuel NON éditable, sans faux CTA.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "lpp, income and contributions blocking states each navigate to the canonical edit screen of their fact",
         "unsupported year and unattested constants render as non editable factual states without any CTA",
         "no parallel writer nor bare key exists in the vertical"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart"
       ]
     },
     {
       "id": "return_recalc",
       "story": "Au retour de la correction, la marge se re-dérive — un résultat périmé ne survit jamais, sans double écriture.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "returning from a correction re-derives the displayed marge without any write",
-        "a stale result never survives a fact revision change"
+        "the result carries the input revisions and any strict inequality is stale"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart",
+        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
       ]
     },
     {
       "id": "cold_relaunch",
       "story": "Après une relance à froid, le vertical retrouve la même vérité depuis les faits scellés.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "the vertical shows the same attested result after a cold relaunch"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen_test.dart"
       ]
     }
   ],

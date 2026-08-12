@@ -33,6 +33,18 @@ class MintNextVertical3aScreen extends StatelessWidget {
     final provider = context.watch<CoachProfileProvider>();
     final taxYear = _now().year;
 
+    // Chargement ≠ fait manquant (contrat) : tant que le provider n'a pas
+    // rechargé les faits scellés, aucun état métier n'est affirmé.
+    if (!provider.isLoaded) {
+      return Scaffold(
+        backgroundColor: MintColors.warmWhite,
+        body: Semantics(
+          identifier: 'node:vertical_3a.loading',
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
     final revenu =
         MintNext3aRevenuContext.fromConfirmedFact(provider.revenuFact);
     final lpp = MintNext3aLppAffiliationContext.fromConfirmedFact(
