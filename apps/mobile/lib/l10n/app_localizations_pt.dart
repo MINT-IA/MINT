@@ -26222,6 +26222,13 @@ class SPt extends S {
   String get mintNextVertical3aTitle => 'O teu 3a';
 
   @override
+  String get mintNextVertical3aEntryTitle => 'O teu 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Pago, teto e margem do ano — atestados.';
+
+  @override
   String get mintNextVertical3aReadFailure =>
       'O MINT não conseguiu reler os teus dados. Fecha e reabre a app para tentar de novo.';
 

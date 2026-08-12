@@ -45629,6 +45629,18 @@ abstract class S {
   /// **'Ton 3a'**
   String get mintNextVertical3aTitle;
 
+  /// No description provided for @mintNextVertical3aEntryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton 3a'**
+  String get mintNextVertical3aEntryTitle;
+
+  /// No description provided for @mintNextVertical3aEntrySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Versé, plafond et marge de l’année — attestés.'**
+  String get mintNextVertical3aEntrySubtitle;
+
   /// No description provided for @mintNextVertical3aReadFailure.
   ///
   /// In fr, this message translates to:

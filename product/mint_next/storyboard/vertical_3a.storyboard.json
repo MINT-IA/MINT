@@ -32,9 +32,12 @@
       "id": "entry_points",
       "story": "J'entre dans le vertical depuis Aujourd'hui ou Ma situation — un point d'entrée visible, flag-gated, qui ne promet rien qu'il ne peut montrer.",
       "code": "apps/mobile/lib/screens/",
-      "tests_planned": [
+      "tests": [
         "the vertical entry point is visible from aujourd'hui and ma situation when the flag is on",
         "the entry point never renders when the flag is off"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/vertical_3a_entry_points_test.dart"
       ]
     },
     {

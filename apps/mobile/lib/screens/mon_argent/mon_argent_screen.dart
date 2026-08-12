@@ -30,6 +30,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
+import 'package:mint_mobile/widgets/mint_next_vertical_3a_entry_card.dart';
 import 'package:mint_mobile/widgets/mint_shell.dart';
 import 'package:mint_mobile/widgets/mon_argent/budget_summary_card.dart';
 import 'package:mint_mobile/widgets/mon_argent/patrimoine_summary_card.dart';
@@ -884,7 +885,20 @@ class _TodaySection extends StatelessWidget {
         revenuFact == null &&
         lppAffiliationFact == null &&
         (versements3aFact == null || versements3aFact!.entries.isEmpty)) {
-      return _MissingDataSurface(l10n: l10n);
+      // Le point d'entrée du vertical 3a reste visible SANS aucun fait —
+      // c'est précisément l'invitation à commencer (préversion 2026-08-12 :
+      // zéro fait → zéro entrée → jumeau invisible).
+      return Column(
+        children: [
+          _MissingDataSurface(l10n: l10n),
+          Padding(
+            padding: const EdgeInsets.only(top: MintSpacing.md),
+            child: MintNextVertical3aEntryCard(
+              onTap: () => context.push('/mint-next/vertical-3a'),
+            ),
+          ),
+        ],
+      );
     }
     return Column(
       children: [
@@ -940,6 +954,12 @@ class _TodaySection extends StatelessWidget {
             onDelete: onLppAffiliationDelete,
           ),
         ],
+        Padding(
+          padding: const EdgeInsets.only(top: MintSpacing.md),
+          child: MintNextVertical3aEntryCard(
+            onTap: () => context.push('/mint-next/vertical-3a'),
+          ),
+        ),
         if (versements3aFact != null &&
             versements3aFact!.entries.isNotEmpty) ...[
           const SizedBox(height: MintSpacing.md),

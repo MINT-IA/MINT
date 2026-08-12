@@ -12232,6 +12232,8 @@
   "mintNextMarge3aStateUnattested": "Il tetto {year} non è ancora attestato in MINT.",
   "@mintNextMarge3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
   "mintNextVertical3aTitle": "Il tuo 3a",
+  "mintNextVertical3aEntryTitle": "Il tuo 3a",
+  "mintNextVertical3aEntrySubtitle": "Versato, tetto e margine dell’anno — attestati.",
   "mintNextVertical3aReadFailure": "MINT non ha potuto rileggere i tuoi dati. Chiudi e riapri l’app per riprovare.",
   "mintNextVertical3aFreshness": "Fatti al {date}",
   "@mintNextVertical3aFreshness": {"placeholders": {"date": {"type": "String"}}},

@@ -26210,6 +26210,13 @@ class SEs extends S {
   String get mintNextVertical3aTitle => 'Tu 3a';
 
   @override
+  String get mintNextVertical3aEntryTitle => 'Tu 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Aportado, tope y margen del año — atestados.';
+
+  @override
   String get mintNextVertical3aReadFailure =>
       'MINT no pudo releer tus datos. Cierra y vuelve a abrir la app para reintentar.';
 

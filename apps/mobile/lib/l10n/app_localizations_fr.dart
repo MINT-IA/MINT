@@ -26209,6 +26209,13 @@ class SFr extends S {
   String get mintNextVertical3aTitle => 'Ton 3a';
 
   @override
+  String get mintNextVertical3aEntryTitle => 'Ton 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Versé, plafond et marge de l’année — attestés.';
+
+  @override
   String get mintNextVertical3aReadFailure =>
       'MINT n\'a pas pu relire tes données. Ferme et rouvre l\'app pour réessayer.';
 

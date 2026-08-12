@@ -26073,6 +26073,13 @@ class SEn extends S {
   String get mintNextVertical3aTitle => 'Your 3a';
 
   @override
+  String get mintNextVertical3aEntryTitle => 'Your 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Paid, ceiling and room for the year — attested.';
+
+  @override
   String get mintNextVertical3aReadFailure =>
       'MINT could not re-read your data. Close and reopen the app to retry.';
 

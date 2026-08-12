@@ -26266,6 +26266,13 @@ class SDe extends S {
   String get mintNextVertical3aTitle => 'Deine 3a';
 
   @override
+  String get mintNextVertical3aEntryTitle => 'Deine 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Einbezahlt, Höchstbetrag und Spielraum des Jahres — attestiert.';
+
+  @override
   String get mintNextVertical3aReadFailure =>
       'MINT konnte deine Daten nicht erneut lesen. Schliesse die App und öffne sie erneut.';
 

@@ -12249,6 +12249,8 @@
   "mintNextMarge3aStateUnattested": "The {year} ceiling is not yet attested in MINT.",
   "@mintNextMarge3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
   "mintNextVertical3aTitle": "Your 3a",
+  "mintNextVertical3aEntryTitle": "Your 3a",
+  "mintNextVertical3aEntrySubtitle": "Paid, ceiling and room for the year — attested.",
   "mintNextVertical3aReadFailure": "MINT could not re-read your data. Close and reopen the app to retry.",
   "mintNextVertical3aFreshness": "Facts as of {date}",
   "@mintNextVertical3aFreshness": {"placeholders": {"date": {"type": "String"}}},

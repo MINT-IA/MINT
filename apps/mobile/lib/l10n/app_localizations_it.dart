@@ -26278,6 +26278,13 @@ class SIt extends S {
   String get mintNextVertical3aTitle => 'Il tuo 3a';
 
   @override
+  String get mintNextVertical3aEntryTitle => 'Il tuo 3a';
+
+  @override
+  String get mintNextVertical3aEntrySubtitle =>
+      'Versato, tetto e margine dell’anno — attestati.';
+
+  @override
   String get mintNextVertical3aReadFailure =>
       'MINT non ha potuto rileggere i tuoi dati. Chiudi e riapri l’app per riprovare.';
 

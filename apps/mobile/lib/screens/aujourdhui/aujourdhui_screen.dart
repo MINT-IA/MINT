@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/widgets/mint_next_vertical_3a_entry_card.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/financial_plan.dart' show computeProfileHash;
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
@@ -225,6 +226,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             slivers: [
               const SliverToBoxAdapter(child: CapDuJourBanner()),
               const SliverToBoxAdapter(child: MintNext3aHandoffCard()),
+              const SliverToBoxAdapter(child: _Vertical3aEntrySliver()),
               const SliverToBoxAdapter(child: MintNextHousingCard()),
               // Walker 2026-05-08: even on an empty timeline, surface the
               // persistent plan if one exists (user can have a plan via
@@ -327,6 +329,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             const SliverToBoxAdapter(
               child: MintNextHousingCard(),
             ),
+            const SliverToBoxAdapter(child: _Vertical3aEntrySliver()),
 
             // ── Persistent plan + confidence (Walker 2026-05-08) ──
             // Surfaces FinancialPlan + EnhancedConfidence widgets that
@@ -500,4 +503,19 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       ),
     );
   }
+}
+
+/// Lego 7 — entrée du vertical 3a attesté, montée sur les deux chemins
+/// (timeline vide et peuplée), auto-gatée par le flag dans la carte.
+class _Vertical3aEntrySliver extends StatelessWidget {
+  const _Vertical3aEntrySliver();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.fromLTRB(
+            MintSpacing.md, 0, MintSpacing.md, MintSpacing.sm),
+        child: MintNextVertical3aEntryCard(
+          onTap: () => context.push('/mint-next/vertical-3a'),
+        ),
+      );
 }
