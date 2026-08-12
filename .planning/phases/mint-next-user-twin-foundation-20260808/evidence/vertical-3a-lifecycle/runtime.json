@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "runtime_commit": "b7cd98cb6268bca7c04c8c359e8e05c063c53156",
+  "runtime_commit": "0d302879024803e88ca236505ad7d621f16ae789",
   "git_dirty": false,
   "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_vertical_3a_lifecycle.yaml",
   "flow_sha256": "090c8f05fc2d5c849ae5d5e145b19a05273c843c0fef785b8b1000d6d2f55d24",
-  "app_sha256": "2ddc479d3e670cfb5333e347e65889bb13aca9a966f57e4e58bbb8d3ef6f494b",
+  "app_sha256": "3efc5f36b32755f1983bffde4f549efc1416d973330afd118b6b429fa8503c38",
   "app_signature": "adhoc",
-  "app_cdhash": "105266bcfdade134d02d2e38aae6099d070529d8",
-  "device_udid": "7FF4E03D-F874-4DBF-A7EE-8BB5BCDF7CBE",
-  "device_name": "Mint Vertical Proof-b7cd98cb6-2549",
+  "app_cdhash": "0de2eaced8abed76f878e0692b1219c33fc50ca5",
+  "device_udid": "2981A266-4DF7-413E-A677-C394AA8533D6",
+  "device_name": "Mint Vertical Proof-0d3028790-33991",
   "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
   "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "runtime_version": "26.2",
@@ -17,8 +17,8 @@
   "maestro_version": "2.5.1",
   "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
   "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
-  "command": "bash tools/runtime/mint_next_vertical_3a_lifecycle.sh --runtime-commit b7cd98cb6268bca7c04c8c359e8e05c063c53156 --capture-evidence",
-  "captured_at": "2026-08-12T15:46:47Z",
+  "command": "bash tools/runtime/mint_next_vertical_3a_lifecycle.sh --runtime-commit 0d302879024803e88ca236505ad7d621f16ae789 --capture-evidence",
+  "captured_at": "2026-08-12T16:17:57Z",
   "ordered_outcomes": [
     "round trip from the visible entry on aujourd'hui (tap -> vertical)",
     "lppAffiliationUnknown rendered with CTA navigating to the canonical LPP screen",
@@ -50,29 +50,29 @@
   },
   "screenshots": {
     "01-lpp-unknown-cta.png": {
-      "sha256": "2b5a2ada39d1a33f302e5e9ff18faf973b4660d0392086fee09168599f94a7a1",
-      "bytes": 130946
+      "sha256": "1de28f27b7d49a29a4ea62f45c15791b860961ec5575609e6b9c01032a46bd22",
+      "bytes": 131471
     },
     "02-income-missing-cta.png": {
-      "sha256": "d7133a6bcc0165eb67de1f853f5b1dfa0162ea847fe1ab242c3d3fc65e5ed27e",
-      "bytes": 125311
+      "sha256": "51cbc9cdc1d812b82b47fdf4d7c42706eba57bbbb3e20760a8c12f4d9dd26e41",
+      "bytes": 125645
     },
     "02-positive-375800.png": {
-      "sha256": "c7481d285bc7c245ac6cb044490ff7142e2aab8abc225dd8d0f2a6ae50df0681",
-      "bytes": 132031
+      "sha256": "8fe5c0393f133ad7053fc3a5562935bf3591de70105e2e8a49d4003949abc0b1",
+      "bytes": 131949
     },
     "03-zero-exact.png": {
-      "sha256": "9931c968ce0481dc398b9f9cb5202dd48b88554381613c886dcfb998804fce3b",
-      "bytes": 129113
+      "sha256": "a5b86a84a9bbbc4ae83ff9eb5f19a24d3558d58031ca724f3b61e1a8b6fb5519",
+      "bytes": 128769
     },
     "04-negative-signed.png": {
-      "sha256": "92ecc3b619bd4cfef3330b93fbdb5311039293f5becac5842ac745720b6a3ebf",
-      "bytes": 132902
+      "sha256": "9b38ca2732becfe55965a12ba1ada429513a47f45ae1ccd7415b8f392bbd2061",
+      "bytes": 132575
     },
     "05-cold-relaunch.png": {
-      "sha256": "c5f22710607ec2abd3a5099bf818c3197934666d35f1b788f8938e9caf31c11c",
-      "bytes": 133139
+      "sha256": "9b38ca2732becfe55965a12ba1ada429513a47f45ae1ccd7415b8f392bbd2061",
+      "bytes": 132575
     }
   },
-  "maestro_log_sha256": "f7a20d5206667bb541fe901b06458e761ab2ecb0870e7dd97ccdbfd432d484cd"
+  "maestro_log_sha256": "7508f96941a8a21205fbd7ab2c4385e6f803fcebe6bb01897045634a5776267f"
 }
