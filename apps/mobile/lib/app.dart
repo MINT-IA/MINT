@@ -466,12 +466,9 @@ final _router = GoRouter(
     if (previewPolicy.blocksRoute(path)) {
       return previewPolicy.forbiddenRouteRedirect;
     }
-    if (previewPolicy.isPreviewShell) {
-      final screenParam = state.uri.queryParameters['screen'];
-      if (screenParam == 'coach' || screenParam == 'explore') {
-        return previewPolicy.forbiddenRouteRedirect;
-      }
-    }
+    final paramRedirect =
+        previewPolicy.redirectForShellParams(state.uri.queryParameters);
+    if (paramRedirect != null) return paramRedirect;
 
     // ── Parse /home?tab=N&intent=X&screen=S query params ────
     // Notifications emit /home?screen=coach&intent=monthlyCheckIn etc. The

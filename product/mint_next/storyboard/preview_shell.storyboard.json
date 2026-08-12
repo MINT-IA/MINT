@@ -46,46 +46,61 @@
       "id": "b2_shell",
       "story": "Navigation limitée à Aujourd'hui et Ma situation ; confidentialité/paramètres accessibles ; Coach et Explorer absents de la barre.",
       "code": "apps/mobile/lib/",
-      "tests_planned": [
+      "tests": [
         "preview shell shows exactly the allowed destinations and hides coach and explorer",
         "privacy and settings stay reachable in preview"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
       ]
     },
     {
       "id": "b3_aujourdhui_pur",
       "story": "Aujourd'hui en préversion : entrée vertical 3a + cartes MINT Next + faits — aucun hero budget, insight legacy, bloc « Et ensuite ? » ni module Simuler, même avec zéro fait.",
       "code": "apps/mobile/lib/screens/aujourdhui/",
-      "tests_planned": [
+      "tests": [
         "preview aujourd'hui mounts mint next entries even with zero facts",
         "no inventoried legacy widget is mounted in preview aujourd'hui (by name, not by label)"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
       ]
     },
     {
       "id": "b6_ma_situation_pure",
       "story": "Ma situation en préversion : les faits canoniques seuls, corrigeables et supprimables — aucune synthèse dérivée ni projection legacy.",
       "code": "apps/mobile/lib/screens/mon_argent/",
-      "tests_planned": [
+      "tests": [
         "preview ma situation shows only canonical fact surfaces",
         "no inventoried legacy widget nor coach whisper is mounted in preview ma situation"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
       ]
     },
     {
       "id": "b8_routes_interdites",
       "story": "Un deeplink coach ou explorer en préversion redirige de façon déterministe vers Aujourd'hui — jamais la surface legacy.",
       "code": "apps/mobile/lib/app.dart",
-      "tests_planned": [
+      "tests": [
         "every route owned by coach or explore redirects fail-closed in preview (registry-driven at the resolved destination)",
         "system-owned aliases inherit the fail-closed through their guarded target (the five known aliases asserted)",
         "shell tab params for forbidden destinations are neutralized in preview"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
       ]
     },
     {
       "id": "b10_non_regression",
       "story": "Sans le define, la coque actuelle est STRICTEMENT inchangée — les onglets, surfaces et insights existants restent identiques.",
       "code": "apps/mobile/lib/",
-      "tests_planned": [
+      "tests": [
         "without the define the legacy shell keeps its reference surfaces (positive assertions on the inventoried widgets)",
         "without the define the reference deeplinks keep their legacy destinations"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
       ]
     }
   ],

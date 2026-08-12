@@ -57,4 +57,15 @@ class PreviewShellPolicy {
 
   /// Redirection déterministe des destinations interdites.
   String get forbiddenRouteRedirect => '/home';
+
+  /// Params de coque (/home?screen=coach|explore) neutralisés au même
+  /// point de destination — testable isolément.
+  String? redirectForShellParams(Map<String, String> queryParameters) {
+    if (!isPreviewShell) return null;
+    final screen = queryParameters['screen'];
+    if (screen == 'coach' || screen == 'explore') {
+      return forbiddenRouteRedirect;
+    }
+    return null;
+  }
 }

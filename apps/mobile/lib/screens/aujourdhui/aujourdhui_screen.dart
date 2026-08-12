@@ -360,6 +360,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             ),
 
             // ── Cleo loop indicator ────────────────────────────
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 24),
@@ -370,6 +371,7 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
             ),
 
             // ── Divider: "Ton histoire" ────────────────────────
+            if (PreviewShellPolicy.instance.showLegacyTodayCards)
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.only(top: 24, bottom: 12),
