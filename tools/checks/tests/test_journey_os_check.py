@@ -1831,3 +1831,23 @@ def test_vertical_3a_guard_bites_and_passes(tmp_path: Path) -> None:
         "final r = MintNextMarge3aCalculator.compute;\n")
     errors = journey_os_check.check(root, ["apps/mobile/lib/screens/x.dart"])
     assert not any("vertical-3a guard" in e for e in errors)
+
+
+def test_preview_guard_bites_and_passes(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    lib = root / "apps/mobile/lib"
+    (lib / "services").mkdir(parents=True, exist_ok=True)
+    policy = lib / "services/preview_shell_policy.dart"
+    policy.write_text("const b = bool.fromEnvironment('MINT_NEXT_PREVIEW');\n")
+
+    # Pass : seule la politique lit le define.
+    errors = journey_os_check.check(root, ["apps/mobile/lib/x.dart"])
+    assert not any("preview-shell guard" in e for e in errors)
+
+    # Fail : une lecture dispersée est attrapée.
+    (lib / "rogue.dart").write_text(
+        "const c = bool.fromEnvironment('MINT_NEXT_PREVIEW');\n")
+    errors = journey_os_check.check(root, ["apps/mobile/lib/x.dart"])
+    assert any("preview-shell guard" in e for e in errors)
