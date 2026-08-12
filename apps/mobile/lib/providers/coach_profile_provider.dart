@@ -1014,6 +1014,9 @@ class CoachProfileProvider extends ChangeNotifier {
   /// la completion du wizard.
   Future<void> loadFromWizard() async {
     _isLoading = true;
+    // Un nouveau rechargement repart neutre — un échec précédent ne colle
+    // jamais à une relecture réussie.
+    _loadFailed = false;
     notifyListeners();
 
     try {

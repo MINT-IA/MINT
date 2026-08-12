@@ -92,6 +92,7 @@ void main() {
     int? versedCents = 550000,
     bool? affiliated = true,
     int? revenuCents,
+    DateTime? lppAssertedAt,
   }) async {
     resetStores();
     final provider = CoachProfileProvider();
@@ -99,7 +100,7 @@ void main() {
     if (affiliated != null) {
       await provider.saveLppAffiliationFact(MintNextLppAffiliationFact(
         affiliated: affiliated,
-        assertedAt: now,
+        assertedAt: lppAssertedAt ?? now,
         source: 'user_declaration',
         schemaVersion: 1,
         needsConfirmation: false,
@@ -135,6 +136,24 @@ void main() {
     expect(find.byKey(const Key('vertical_3a_freshness')), findsOneWidget,
         reason: 'la fraîcheur des faits est affichée, pas seulement promise');
     expect(find.textContaining('Faits au'), findsOneWidget);
+
+    // max(assertedAt) prouvé : trois dates distinctes, la plus récente gagne.
+    final staggered = await providerWith(
+        lppAssertedAt: DateTime.utc(2026, 8, 10),
+        revenuCents: 7800000); // revenu asserté à `now` (2026-08-12)
+    await staggered.saveVersements3aFact(MintNextVersements3aFact.empty(
+            at: DateTime.utc(2026, 8, 11))
+        .withEntryAdded(entry(550000), DateTime.utc(2026, 8, 11)));
+    await tester.pumpWidget(wrap(staggered));
+    await tester.pumpAndSettle();
+    final freshness = tester
+        .widget<Text>(find.byKey(const Key('vertical_3a_freshness')))
+        .data!;
+    expect(freshness, contains('12'),
+        reason: 'la date affichée est celle du fait le plus récent '
+            '(revenu 12.08), pas celle du LPP (10.08) ni des versements '
+            '(11.08)');
+    expect(freshness, isNot(contains('10.08')));
     expect(find.bySemanticsIdentifier('mint_next_vertical_3a_marge_175800'),
         findsOneWidget);
 
@@ -247,6 +266,19 @@ void main() {
             'mint_next_vertical_3a_state_lppAffiliationUnknown'),
         findsNothing,
         reason: 'une lecture en échec ne se déguise jamais en fait manquant');
+
+    // Échec → succès : le drapeau ne colle pas, l'état métier revient.
+    CoachProfileProvider.debugForceLoadFailureForTest = false;
+    await failed.loadFromWizard();
+    await tester.pumpAndSettle();
+    expect(find.bySemanticsIdentifier('node:vertical_3a.read_failure'),
+        findsNothing,
+        reason: 'un retry réussi restaure la surface — jamais un échec '
+            'permanent');
+    expect(
+        find.bySemanticsIdentifier(
+            'mint_next_vertical_3a_state_lppAffiliationUnknown'),
+        findsOneWidget);
   });
 
   testWidgets(
