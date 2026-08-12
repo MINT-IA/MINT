@@ -123,10 +123,21 @@ class LocalPreviewResetService {
           'the preview shell is forbidden, nothing was purged'); // lint-ignore — message développeur
     }
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(resetPendingKey, true);
-    if (signedInUserId != null && signedInUserId.isNotEmpty) {
-      await prefs.setString(resetPendingUserKey, signedInUserId);
+    // Une identité déjà enregistrée avec un reset dû SURVIT jusqu'à purge
+    // vérifiée : même redéclenché déconnecté, le compte visé sera bien
+    // quarantiné.
+    final effectiveUserId =
+        (signedInUserId != null && signedInUserId.isNotEmpty)
+            ? signedInUserId
+            : prefs.getString(resetPendingUserKey);
+    // Identité AVANT pending : une panne entre les deux laisse une identité
+    // orpheline SANS pending (no-op au boot, rien de purgé, rien de menti).
+    // L'ordre inverse laisserait un pending sans identité — purge au boot
+    // puis levée SANS quarantaine : mensonge de réhydratation.
+    if (effectiveUserId != null && effectiveUserId.isNotEmpty) {
+      await prefs.setString(resetPendingUserKey, effectiveUserId);
     }
+    await prefs.setBool(resetPendingKey, true);
     // Panne injectable (même précédent que debugEarlyLocalPurgeFailure
     // d'AuthProvider) : prouve que pending + identité survivent à un échec
     // survenu APRÈS leur pose et AVANT toute purge.
@@ -134,7 +145,7 @@ class LocalPreviewResetService {
 
     // Purge complète par délégation (diagnostic + coach + conversations +
     // session anonyme + budget + lettres).
-    await ReportPersistenceService.clear(conversationUserId: signedInUserId);
+    await ReportPersistenceService.clear(conversationUserId: effectiveUserId);
     // Mémoires dérivées et stores scellés annexes — mêmes primitives que la
     // purge V6-4 du logout, session et consentements exclus.
     await CoachMemoryService.clear(prefs: prefs);
@@ -155,8 +166,8 @@ class LocalPreviewResetService {
 
     // Quarantaine posée APRÈS purge vérifiée (ordre du contrat) : aucune
     // hydratation serveur automatique ne repeuplera ce compte.
-    if (signedInUserId != null && signedInUserId.isNotEmpty) {
-      await prefs.setString(quarantineKeyFor(signedInUserId),
+    if (effectiveUserId != null && effectiveUserId.isNotEmpty) {
+      await prefs.setString(quarantineKeyFor(effectiveUserId),
           DateTime.now().toUtc().toIso8601String());
     }
     await prefs.remove(resetPendingUserKey);
@@ -205,8 +216,9 @@ class LocalPreviewResetService {
       // L'identité persistée avec le pending garantit que la quarantaine
       // du BON compte est posée même quand le succès n'arrive qu'au retry.
       await reset(signedInUserId: prefs.getString(resetPendingUserKey));
-    } on StateError {
-      // Toujours dû — reset_pending reste posé, l'app démarre quand même
+    } catch (_) {
+      // TOUTE erreur de purge (StateError, PlatformException, I/O…) est
+      // absorbée : reset_pending reste posé, l'app démarre quand même
       // (l'état affiché reste celui d'un reset en cours, pas un demi-état
       // présenté comme sain).
     }

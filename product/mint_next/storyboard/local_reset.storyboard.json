@@ -44,6 +44,9 @@
         "the prefs key universe declared by the persistence service is fully purged by reset",
         "the signed-in session keys are never part of any purged universe and survive reset",
         "a failed reset retried at boot still quarantines the signed-in user",
+        "a crash between the identity write and the pending write is a harmless no-op at boot",
+        "a reset retriggered while signed out still quarantines the account recorded with the due reset",
+        "the boot retry absorbs any purge error and keeps the reset due",
         "every secure-storage consumer file is classified purge-covered or preserved (closed file registry)"
       ],
       "test_files": [

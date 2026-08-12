@@ -172,6 +172,66 @@ void main() {
         reason: 'le retry réussi pose la quarantaine du compte visé');
   });
 
+  test('a crash between the identity write and the pending write is a '
+      'harmless no-op at boot', () async {
+    // L'ordre identité→pending garantit que la frontière défaillante laisse
+    // une identité orpheline SANS pending : le boot ne purge rien, ne lève
+    // rien, ne quarantine rien — aucun demi-état menteur.
+    final source =
+        File('lib/services/local_preview_reset_service.dart')
+            .readAsStringSync();
+    expect(source.indexOf('setString(resetPendingUserKey'),
+        lessThan(source.indexOf('setBool(resetPendingKey')),
+        reason: "l'identité s'écrit AVANT le pending — l'ordre inverse "
+            'permettrait une purge au boot levée sans quarantaine');
+
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        LocalPreviewResetService.resetPendingUserKey, 'user-42');
+    await LocalPreviewResetService.retryPendingAtBoot();
+    expect((await ReportPersistenceService.loadAnswers()), isNotEmpty,
+        reason: 'identité orpheline sans pending = RIEN ne se purge');
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isFalse);
+  });
+
+  test('a reset retriggered while signed out still quarantines the account '
+      'recorded with the due reset', () async {
+    await seedFacts();
+    LocalPreviewResetService.debugPurgeFailureForTest =
+        () async => throw StateError('injected purge failure');
+    await expectLater(
+        LocalPreviewResetService.reset(signedInUserId: 'user-42'),
+        throwsA(isA<StateError>()));
+    LocalPreviewResetService.debugPurgeFailureForTest = null;
+
+    // Redéclenché DÉCONNECTÉ : l'identité enregistrée avec le reset dû
+    // survit et le compte visé est bien quarantiné à l'aboutissement.
+    await LocalPreviewResetService.reset();
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isTrue,
+        reason: "l'identité d'un reset dû n'est jamais déchirée par un "
+            'redéclenchement anonyme');
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull);
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        isNull);
+  });
+
+  test('the boot retry absorbs any purge error and keeps the reset due',
+      () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(LocalPreviewResetService.resetPendingKey, true);
+    // Erreur NON-StateError (I/O, PlatformException…) : le boot doit
+    // l'absorber — l'app démarre, le reset reste dû.
+    LocalPreviewResetService.debugPurgeFailureForTest =
+        () async => throw Exception('injected io failure');
+    await LocalPreviewResetService.retryPendingAtBoot();
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isTrue,
+        reason: 'toute erreur absorbée, reset toujours dû — jamais un '
+            'démarrage bloqué');
+  });
+
   test('every secure-storage consumer file is classified purge-covered or '
       'preserved (closed file registry)', () {
     // Registre FERMÉ au niveau fichiers : tout nouveau consommateur de
