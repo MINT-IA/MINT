@@ -69,6 +69,7 @@
         "the reset entry renders even when the consents fetch fails — a local action never depends on the network",
         "the copy never promises account or server deletion",
         "the strong confirmation gates the destructive action",
+        "the confirmation tolerates missing diacritics but still requires the full phrase",
         "a failed purge shows the honest retry message and never claims success"
       ],
       "test_files": [

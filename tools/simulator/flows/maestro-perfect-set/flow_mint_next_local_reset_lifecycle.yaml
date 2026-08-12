@@ -166,7 +166,7 @@ tags:
     visible: "Écris REPARTIR À ZÉRO pour confirmer"
     timeout: 5000
 - tapOn: "Écris REPARTIR À ZÉRO pour confirmer"
-- inputText: "REPARTIR À ZÉRO"
+- inputText: "REPARTIR A ZERO"
 - takeScreenshot: "${OUTPUT_DIR}/03-confirmation-forte"
 - tapOn: "Effacer l'état local"
 - extendedWaitUntil:
@@ -235,7 +235,7 @@ tags:
     visible: "Écris REPARTIR À ZÉRO pour confirmer"
     timeout: 5000
 - tapOn: "Écris REPARTIR À ZÉRO pour confirmer"
-- inputText: "REPARTIR À ZÉRO"
+- inputText: "REPARTIR A ZERO"
 - tapOn: "Effacer l'état local"
 - extendedWaitUntil:
     visible: "État local effacé."

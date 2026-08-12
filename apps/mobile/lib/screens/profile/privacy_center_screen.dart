@@ -230,6 +230,23 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
 }
 
 extension _PreviewResetFlow on _PrivacyCenterScreenState {
+  /// Comparaison de la confirmation forte, insensible aux diacritiques :
+  /// taper la phrase entière reste exigé, mais « REPARTIR A ZERO » vaut
+  /// « REPARTIR À ZÉRO » — les majuscules accentuées sont pénibles sur
+  /// clavier iOS et le driver de saisie E2E les perd aussi.
+  static String _normalizedConfirmation(String raw) {
+    const diacritics = 'ÀÂÄÁÃÉÈÊËÍÎÏÓÔÖÕÚÙÛÜÇ'; // lint-ignore — table de normalisation, jamais rendue
+    const plain = 'AAAAAEEEEIIIOOOOUUUUC';
+    final upper = raw.trim().toUpperCase();
+    final out = StringBuffer();
+    for (final rune in upper.runes) {
+      final ch = String.fromCharCode(rune);
+      final idx = diacritics.indexOf(ch);
+      out.write(idx >= 0 ? plain[idx] : ch);
+    }
+    return out.toString().replaceAll(RegExp(r'\s+'), ' ');
+  }
+
   Future<void> _confirmPreviewReset() async {
     final l = S.of(context)!;
     final controller = TextEditingController();
@@ -246,6 +263,8 @@ extension _PreviewResetFlow on _PrivacyCenterScreenState {
             TextField(
               key: const Key('preview_reset_confirm_field'),
               controller: controller,
+              autocorrect: false,
+              enableSuggestions: false,
               decoration:
                   InputDecoration(hintText: l.previewResetConfirmHint),
             ),
@@ -259,8 +278,9 @@ extension _PreviewResetFlow on _PrivacyCenterScreenState {
           ),
           TextButton(
             // lint-ignore: prefer_mint_cta
-            onPressed: () => Navigator.of(dialogContext)
-                .pop(controller.text.trim() == l.previewResetConfirmWord),
+            onPressed: () => Navigator.of(dialogContext).pop(
+                _normalizedConfirmation(controller.text) ==
+                    _normalizedConfirmation(l.previewResetConfirmWord)),
             child: Text(
               l.previewResetCta,
               style: const TextStyle(color: MintColors.error),

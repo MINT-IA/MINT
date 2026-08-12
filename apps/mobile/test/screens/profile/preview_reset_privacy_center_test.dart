@@ -188,6 +188,28 @@ void main() {
   });
 
   testWidgets(
+      'the confirmation tolerates missing diacritics but still requires the '
+      'full phrase', (tester) async {
+    const storage = FlutterSecureStorage();
+    await storage.write(key: '_mint_canonical_revenu_v1', value: 'seeded');
+
+    await tester.pumpWidget(_buildApp());
+    await tester.pumpAndSettle();
+    // Saisie sans accents (clavier iOS réel / driver E2E) : acceptée —
+    // le geste fort reste la phrase ENTIÈRE, pas la précision des
+    // diacritiques.
+    await tester.tap(find.text('Repartir à zéro sur cet appareil ?'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('preview_reset_confirm_field')),
+        'repartir a zero');
+    await tester.tap(find.text("Effacer l'état local"));
+    await tester.pumpAndSettle();
+    expect(await storage.read(key: '_mint_canonical_revenu_v1'), isNull,
+        reason: 'phrase entière sans accents = même geste intentionnel');
+  });
+
+  testWidgets(
       'a failed purge shows the honest retry message and never claims '
       'success', (tester) async {
     // Panne injectée dans l'orchestrateur — l'UI doit montrer le message de
