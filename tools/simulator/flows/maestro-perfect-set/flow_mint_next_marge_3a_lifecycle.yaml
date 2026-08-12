@@ -71,13 +71,17 @@ tags:
 - tapOn:
     id: "input:versements_3a.credit_date"
 - inputText: "15.03.2026"
-- hideKeyboard:
-    optional: true
+# Pas de hideKeyboard ici : sa strat de dismiss peut taper le dropdown
+# d'année et ouvrir son menu modal. Le tap-titre défocalise (GestureDetector).
 - runFlow:
     when:
       notVisible:
         id: "node:versements_3a.review"
     commands:
+      - scrollUntilVisible:
+          element:
+            text: "Enregistrer ce versement"
+          direction: UP
       - tapOn: "Enregistrer ce versement"
       - waitForAnimationToEnd:
           timeout: 3000
@@ -118,13 +122,17 @@ tags:
 - tapOn:
     id: "input:versements_3a.credit_date"
 - inputText: "01.06.2026"
-- hideKeyboard:
-    optional: true
+# Pas de hideKeyboard ici : sa strat de dismiss peut taper le dropdown
+# d'année et ouvrir son menu modal. Le tap-titre défocalise (GestureDetector).
 - runFlow:
     when:
       notVisible:
         id: "node:versements_3a.review"
     commands:
+      - scrollUntilVisible:
+          element:
+            text: "Enregistrer ce versement"
+          direction: UP
       - tapOn: "Enregistrer ce versement"
       - waitForAnimationToEnd:
           timeout: 3000
