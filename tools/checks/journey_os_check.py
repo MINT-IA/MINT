@@ -65,6 +65,20 @@ ALLOW = {
     "product/mint_next/storyboard/versements_3a.storyboard.json",
     "product/mint_next/storyboard/marge_3a_attestee.storyboard.json",
     "product/mint_next/storyboard/vertical_3a.storyboard.json",
+    "product/mint_next/storyboard/preview_shell.storyboard.json",
+    "apps/mobile/lib/services/preview_shell_policy.dart",
+    "apps/mobile/test/services/preview_shell_policy_test.dart",
+    "apps/mobile/lib/widgets/mint_shell.dart",
+    "apps/mobile/test/widgets/preview_shell_masking_test.dart",
+    "tools/runtime/mint_next_preview_shell_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_preview_shell_lifecycle.yaml",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/01-aujourdhui-pur.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/02-parcours-fait-vertical.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/03-ma-situation-pure.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/04-deeplinks-fail-closed.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/05-cold-relaunch.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/runtime.json",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/maestro.log",
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
@@ -2305,6 +2319,20 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
                     errors.append(
                         f"{sb_path.relative_to(root)} beat {beat.get('id')}: declared test not found verbatim in test_files: {name}"
                     )
+    # Bascule 1 — anti-dispersion : le define MINT_NEXT_PREVIEW n'est lu
+    # QUE par la politique centrale ; toute décision de visibilité recodée
+    # ailleurs est un défaut structurel.
+    lib_dir = root / "apps/mobile/lib"
+    if lib_dir.is_dir():
+        policy_rel = "apps/mobile/lib/services/preview_shell_policy.dart"
+        for f in sorted(lib_dir.rglob("*.dart")):
+            rel = str(f.relative_to(root))
+            if rel == policy_rel:
+                continue
+            if "MINT_NEXT_PREVIEW" in f.read_text(encoding="utf-8"):
+                errors.append(
+                    f"preview-shell guard: {rel} lit MINT_NEXT_PREVIEW hors de PreviewShellPolicy — unique point de vérité exigé"
+                )
     # Lego 7 — la surface du vertical consomme le calculateur canonique,
     # jamais une formule locale, un writer ou design_lab. Règle POSITIVE :
     # si la surface existe, elle doit référencer MintNextMarge3aCalculator.

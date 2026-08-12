@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_plan.dart';
 import 'package:mint_mobile/domain/budget/present_budget_builder.dart';
@@ -177,7 +178,9 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
     final patrimoine = dataSpine != null
         ? PatrimoineAggregator.computeFromDataSpine(dataSpine)
         : PatrimoineAggregator.compute(coachProfile);
-    final whisper = CoachWhisperService.evaluate(
+    final whisper = !PreviewShellPolicy.instance.showLegacyCoachWhisper
+        ? null
+        : CoachWhisperService.evaluate(
       budgetSnapshot: budgetSnapshotForBudgetCard,
       budgetInputs: budgetProvider.inputs,
       budgetPlan: budgetProvider.plan,
@@ -218,12 +221,15 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _MonArgentSectionSelector(
-                        selected: _section,
-                        l10n: l10n,
-                        onChanged: (next) => setState(() => _section = next),
-                      ),
-                      const SizedBox(height: MintSpacing.lg),
+                      if (PreviewShellPolicy
+                          .instance.showLegacySectionSelector) ...[
+                        _MonArgentSectionSelector(
+                          selected: _section,
+                          l10n: l10n,
+                          onChanged: (next) => setState(() => _section = next),
+                        ),
+                        const SizedBox(height: MintSpacing.lg),
+                      ],
                       _MonArgentSectionBody(
                         section: _section,
                         dataSpine: dataSpine,
@@ -903,6 +909,7 @@ class _TodaySection extends StatelessWidget {
     return Column(
       children: [
         if (presentBudget != null)
+          if (PreviewShellPolicy.instance.showLegacyBudgetHero)
           _MonArgentDataSpineSummary(
             present: presentBudget,
             confidenceScore: budgetConfidenceScore,
@@ -972,6 +979,7 @@ class _TodaySection extends StatelessWidget {
         ],
         if (dataSpine != null) ...[
           const SizedBox(height: MintSpacing.md),
+          if (PreviewShellPolicy.instance.showLegacySituationMaps)
           _MonArgentDetailsExpansion(
             title: l10n.dataBlockSituationTitle,
             child: _MonArgentSituationMap(
