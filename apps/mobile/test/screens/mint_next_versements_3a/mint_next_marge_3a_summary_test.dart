@@ -167,6 +167,112 @@ void main() {
       findsOneWidget,
       reason: 'invitation factuelle — jamais un écran d\'erreur',
     );
+
+    // Sans aucun versement, la liste bascule vers collect : l'état
+    // contributions_missing doit y être VISIBLE (REJET Codex T2).
+    // Reset des mocks — les sous-cas précédents ont persisté des versements.
+    SharedPreferences.setMockInitialValues({});
+    FlutterSecureStorage.setMockInitialValues({});
+    ReportPersistenceService.debugResetTransactionQueueForTest();
+    SecureWizardStore.debugResetCanonicalQueueForTest();
+    final noContributions = await providerWith(versedCents: null);
+    await tester.pumpWidget(wrap(noContributions));
+    await tester.pumpAndSettle();
+    expect(find.text('Enregistrer ce versement'), findsOneWidget,
+        reason: 'sans versements, la liste bascule vers collect');
+    expect(
+      find.text('Enregistre tes versements pour voir ta marge 3a.'),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsIdentifier(
+          'mint_next_marge_3a_state_contributionsMissing'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'a year outside the attested registry renders the unattested invitation',
+      (tester) async {
+    final provider = await providerWith();
+    final router = GoRouter(
+      initialLocation: '/versements',
+      routes: [
+        GoRoute(
+          path: '/versements',
+          builder: (_, __) => MintNextVersements3aScreen(
+              now: () => DateTime.utc(2027, 2, 1)),
+        ),
+      ],
+    );
+    await tester.pumpWidget(
+      ChangeNotifierProvider<CoachProfileProvider>.value(
+        value: provider,
+        child: MaterialApp.router(
+          locale: const Locale('fr'),
+          localizationsDelegates: const [
+            S.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: S.supportedLocales,
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      find.text("Le plafond 2027 n'est pas encore attesté dans MINT."),
+      findsOneWidget,
+      reason: 'année hors registre = état honnête, jamais une reprise 2026',
+    );
+    expect(
+      find.bySemanticsIdentifier('mint_next_marge_3a_state_unsupportedTaxYear'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'every fail-closed state maps to a distinct factual invitation',
+      (tester) async {
+    late S l10n;
+    await tester.pumpWidget(MaterialApp(
+      locale: const Locale('fr'),
+      localizationsDelegates: const [
+        S.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: S.supportedLocales,
+      home: Builder(builder: (context) {
+        l10n = S.of(context)!;
+        return const SizedBox.shrink();
+      }),
+    ));
+
+    expect(
+        mintNextMarge3aInvitationText(
+            l10n, MintNextMarge3aStatus.available, 2026),
+        isNull);
+    final invitations = {
+      for (final status in MintNextMarge3aStatus.values)
+        if (status != MintNextMarge3aStatus.available)
+          status: mintNextMarge3aInvitationText(l10n, status, 2026)!
+    };
+    expect(invitations, hasLength(6),
+        reason: 'chaque état revendiqué au contrat a une invitation — '
+            'y compris unattested et stale, inatteignables sans altérer '
+            'le registre');
+    for (final text in invitations.values) {
+      expect(text, isNotEmpty);
+      expect(text.toLowerCase(), isNot(contains('erreur')),
+          reason: 'invitation factuelle, jamais un vocabulaire d\'erreur');
+    }
+    expect(invitations[MintNextMarge3aStatus.unsupportedTaxYear],
+        invitations[MintNextMarge3aStatus.regulatoryConstantsUnattested],
+        reason: 'les états techniques partagent la même invitation honnête');
   });
 
   testWidgets(

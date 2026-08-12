@@ -408,6 +408,22 @@ class _MintNextVersements3aScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Sans aucun versement, l'état contributions_missing doit être
+            // VISIBLE ici — la liste vide bascule vers collect et sinon le
+            // bloc marge n'aurait aucune surface (REJET Codex T2).
+            if (_editingId == null &&
+                (context.watch<CoachProfileProvider>().versements3aFact?.entries.isEmpty ??
+                    true))
+              ValueListenableBuilder<bool>(
+                valueListenable: FeatureFlags.mintNextMarge3aListenable,
+                builder: (context, enabled, _) => enabled
+                    ? _Marge3aSummary(
+                        fact: null,
+                        taxYear: _now().year,
+                        effectiveAt: _now().toUtc(),
+                        l10n: l10n)
+                    : const SizedBox.shrink(),
+              ),
             Semantics(
               header: true,
               child: Text(l10n.mintNextVersements3aQuestion,
@@ -607,7 +623,7 @@ class _Marge3aSummary extends StatelessWidget {
     required this.l10n,
   });
 
-  final MintNextVersements3aFact fact;
+  final MintNextVersements3aFact? fact;
   final int taxYear;
   final DateTime effectiveAt;
   final S l10n;
@@ -639,6 +655,8 @@ class _Marge3aSummary extends StatelessWidget {
       lppRevision: lpp?.revision,
     );
 
+    final invitation =
+        mintNextMarge3aInvitationText(l10n, result.status, taxYear);
     final Widget body;
     switch (result.status) {
       case MintNextMarge3aStatus.available:
@@ -665,15 +683,12 @@ class _Marge3aSummary extends StatelessWidget {
           ],
         );
       case MintNextMarge3aStatus.lppAffiliationUnknown:
-        body = _state(l10n.mintNextMarge3aStateLppUnknown);
       case MintNextMarge3aStatus.incomeMissing:
-        body = _state(l10n.mintNextMarge3aStateIncomeMissing);
       case MintNextMarge3aStatus.contributionsMissing:
-        body = _state(l10n.mintNextMarge3aStateContributionsMissing);
       case MintNextMarge3aStatus.unsupportedTaxYear:
       case MintNextMarge3aStatus.regulatoryConstantsUnattested:
       case MintNextMarge3aStatus.staleInputs:
-        body = _state(l10n.mintNextMarge3aStateUnattested('$taxYear'));
+        body = _state(invitation!);
     }
 
     return Semantics(
@@ -714,4 +729,25 @@ class _Marge3aSummary extends StatelessWidget {
         invitation,
         style: MintTextStyles.bodyLarge(color: MintColors.textPrimary),
       );
+}
+
+/// Mapping état fail-closed → invitation factuelle — public pour que CHAQUE
+/// état revendiqué au contrat soit testable, y compris ceux qu'aucun parcours
+/// UI ne peut atteindre sans altérer le registre (unattested, stale).
+String? mintNextMarge3aInvitationText(
+    S l10n, MintNextMarge3aStatus status, int taxYear) {
+  switch (status) {
+    case MintNextMarge3aStatus.available:
+      return null;
+    case MintNextMarge3aStatus.lppAffiliationUnknown:
+      return l10n.mintNextMarge3aStateLppUnknown;
+    case MintNextMarge3aStatus.incomeMissing:
+      return l10n.mintNextMarge3aStateIncomeMissing;
+    case MintNextMarge3aStatus.contributionsMissing:
+      return l10n.mintNextMarge3aStateContributionsMissing;
+    case MintNextMarge3aStatus.unsupportedTaxYear:
+    case MintNextMarge3aStatus.regulatoryConstantsUnattested:
+    case MintNextMarge3aStatus.staleInputs:
+      return l10n.mintNextMarge3aStateUnattested('$taxYear');
+  }
 }

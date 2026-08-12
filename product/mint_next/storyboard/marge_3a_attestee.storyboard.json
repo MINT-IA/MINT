@@ -58,10 +58,12 @@
         "unknown lpp affiliation yields lpp_affiliation_unknown",
         "missing income blocks only the non affiliated branch",
         "missing contributions yield contributions_missing",
-        "each of the six states is distinct and named, never a default number"
+        "each of the six states is distinct and named, never a default number",
+        "every fail-closed state maps to a distinct factual invitation"
       ],
       "test_files": [
-        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart"
+        "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart"
       ]
     },
     {
@@ -71,7 +73,8 @@
       "tests": [
         "the vertical shows versé, plafond and signed marge above the annual list",
         "an overshoot reads plafond dépassé de X CHF, never zero",
-        "each fail-closed state renders as a factual invitation, never an error"
+        "each fail-closed state renders as a factual invitation, never an error",
+        "a year outside the attested registry renders the unattested invitation"
       ],
       "test_files": [
         "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart"
