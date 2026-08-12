@@ -2,6 +2,7 @@ import 'dart:async' show unawaited;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/widgets/auth/migration_notice_listener.dart';
 import 'package:mint_mobile/widgets/auth/account_handoff_choice_panel.dart';
@@ -455,6 +456,22 @@ final _router = GoRouter(
     // and bounces to /auth/register — then checkAuth completes, fires
     // refreshListenable, and the user sees a flash of the auth screen.
     if (auth.isLoading) return null;
+
+    // ── Coque préversion (bascule 1) : enforcement AU POINT DE
+    // DESTINATION — toute route possédée par le coach ou l'explorer est
+    // fail-closed ; les alias owner:system qui y redirigent héritent du
+    // blocage via cette garde. Les params de coque interdits
+    // (/home?screen=coach|explore) sont neutralisés au même point.
+    final previewPolicy = PreviewShellPolicy.instance;
+    if (previewPolicy.blocksRoute(path)) {
+      return previewPolicy.forbiddenRouteRedirect;
+    }
+    if (previewPolicy.isPreviewShell) {
+      final screenParam = state.uri.queryParameters['screen'];
+      if (screenParam == 'coach' || screenParam == 'explore') {
+        return previewPolicy.forbiddenRouteRedirect;
+      }
+    }
 
     // ── Parse /home?tab=N&intent=X&screen=S query params ────
     // Notifications emit /home?screen=coach&intent=monthlyCheckIn etc. The

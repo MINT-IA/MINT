@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -45,8 +46,15 @@ class MintShell extends StatelessWidget {
   /// When `FeatureFlags.chatTabVisible` is `true`, identity.
   /// When `false`, the Coach branch is hidden — visible slot 2
   /// (Explorer) maps to branch 3.
+  /// Coque préversion : le coach est masqué par la politique en plus du
+  /// flag runtime ; l'explorer (dernière branche) est masqué sans décaler
+  /// les index précédents.
+  static bool get _showCoachTab =>
+      FeatureFlags.chatTabVisible &&
+      PreviewShellPolicy.instance.showCoachTab;
+
   static int visibleToBranchIndex(int visibleIndex) {
-    if (FeatureFlags.chatTabVisible) return visibleIndex;
+    if (_showCoachTab) return visibleIndex;
     return visibleIndex >= _coachBranchIndex
         ? visibleIndex + 1
         : visibleIndex;
@@ -61,7 +69,7 @@ class MintShell extends StatelessWidget {
   /// the active branch (e.g. when MintChatOverlay routes to Coach
   /// while the Coach tab is hidden).
   static int branchToVisibleIndex(int branchIndex) {
-    if (FeatureFlags.chatTabVisible) return branchIndex;
+    if (_showCoachTab) return branchIndex;
     if (branchIndex == _coachBranchIndex) return _coachBranchIndex - 1;
     return branchIndex > _coachBranchIndex ? branchIndex - 1 : branchIndex;
   }
@@ -85,7 +93,7 @@ class MintShell extends StatelessWidget {
       bottomNavigationBar: Builder(
         builder: (ctx) {
           final l = S.of(ctx)!;
-          final showChatTab = FeatureFlags.chatTabVisible;
+          final showChatTab = _showCoachTab;
           final destinations = <NavigationDestination>[
             NavigationDestination(
               icon: _tabIcon(
@@ -124,6 +132,7 @@ class MintShell extends StatelessWidget {
                 ),
                 label: l.tabCoach,
               ),
+            if (PreviewShellPolicy.instance.showExplorerTab)
             NavigationDestination(
               icon: _tabIcon(
                 identifier: 'nav_tab_explorer',

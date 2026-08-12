@@ -68,6 +68,8 @@ ALLOW = {
     "product/mint_next/storyboard/preview_shell.storyboard.json",
     "apps/mobile/lib/services/preview_shell_policy.dart",
     "apps/mobile/test/services/preview_shell_policy_test.dart",
+    "apps/mobile/lib/widgets/mint_shell.dart",
+    "apps/mobile/test/widgets/preview_shell_masking_test.dart",
     "apps/mobile/lib/services/financial_core/mint_next_marge_3a_calculator.dart",
     "apps/mobile/test/services/financial_core/mint_next_marge_3a_calculator_test.dart",
     "apps/mobile/test/screens/mint_next_versements_3a/mint_next_marge_3a_summary_test.dart",
