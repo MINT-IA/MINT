@@ -264,8 +264,9 @@ void main() {
     final source = File('lib/services/local_preview_reset_service.dart')
         .readAsStringSync();
     expect(source.indexOf("'remove:\$resetPendingKey'"),
-        lessThan(source.indexOf("'remove:\$resetPendingUserKey'")),
-        reason: 'lever le pending AVANT de supprimer l\'identité');
+        lessThan(source.lastIndexOf("'remove:\$resetPendingUserKey'")),
+        reason: 'lever le pending AVANT la levée FINALE de l\'identité '
+            '(la 1re occurrence est la purge d\'orpheline en tête)');
 
     await seedFacts();
     final prefs = await SharedPreferences.getInstance();
@@ -302,6 +303,27 @@ void main() {
             'fallback est gaté sur le pending');
     expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
         isNull, reason: "l'orpheline inerte est purgée au passage");
+  });
+
+  test('an unremovable stale identity aborts an anonymous reset before any '
+      'pending — the wrong account is never quarantined', () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+        LocalPreviewResetService.resetPendingUserKey, 'user-99');
+    // Panne plateforme : l'orpheline ne peut pas être supprimée.
+    LocalPreviewResetService.debugFailingPrefWritesForTest = {
+      'remove:${LocalPreviewResetService.resetPendingUserKey}',
+    };
+    await expectLater(
+        LocalPreviewResetService.reset(), throwsA(isA<StateError>()));
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull,
+        reason: 'AUCUN pending posé tant qu\'une identité étrangère traîne');
+    expect((await ReportPersistenceService.loadAnswers()), isNotEmpty,
+        reason: 'rien purgé — abort franc');
+    await LocalPreviewResetService.retryPendingAtBoot();
+    expect(await LocalPreviewResetService.isQuarantined('user-99'), isFalse,
+        reason: 'le mauvais compte n\'est JAMAIS quarantiné');
   });
 
   test('an identity lift failure after the pending lift never turns a '

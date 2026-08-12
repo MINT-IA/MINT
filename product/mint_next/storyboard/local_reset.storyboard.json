@@ -50,6 +50,7 @@
         "a quarantine write reported failed by the platform never lifts the pending",
         "a pending lift reported failed by the platform keeps the identity so the retry still quarantines the right account",
         "a stale identity with no pending never influences a later reset",
+        "an unremovable stale identity aborts an anonymous reset before any pending — the wrong account is never quarantined",
         "an identity lift failure after the pending lift never turns a complete reset into a false failure",
         "an identity write reported failed by the platform aborts before any pending or purge",
         "the boot retry encloses prefs acquisition and reads in its error barrier (static scan)",

@@ -162,8 +162,11 @@ class LocalPreviewResetService {
       await _requireWrite(resetPendingUserKey,
           () => prefs.setString(resetPendingUserKey, effectiveUserId));
     } else {
-      // Orpheline inerte d'une tentative passée : purge au mieux.
-      await prefs.remove(resetPendingUserKey);
+      // Orpheline d'une tentative passée : sa suppression DOIT réussir
+      // AVANT de poser un pending anonyme — sinon une panne de purge plus
+      // loin ferait quarantiner le mauvais compte par le retry au boot.
+      await _requireWrite('remove:$resetPendingUserKey',
+          () => prefs.remove(resetPendingUserKey));
     }
     await _requireWrite(
         resetPendingKey, () => prefs.setBool(resetPendingKey, true));
