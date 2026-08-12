@@ -39,7 +39,10 @@
         "the purged and preserved partition is closed: every known sensitive key is classified and the sets are disjoint",
         "no prefix-based purge nor deleteAll exists in the reset service (static scan)",
         "calling reset outside the preview policy throws and purges nothing",
-        "the quarantine marker is set per signed-in user after a verified purge"
+        "the quarantine marker is set per signed-in user after a verified purge",
+        "the sealed PII universe (sensitive keys and manifest entries) is fully purged by reset",
+        "the prefs key universe declared by the persistence service is fully purged by reset",
+        "the signed-in session keys are never part of any purged universe and survive reset"
       ],
       "test_files": [
         "apps/mobile/test/services/local_preview_reset_service_test.dart"

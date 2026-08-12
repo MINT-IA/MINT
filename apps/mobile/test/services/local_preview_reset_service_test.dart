@@ -218,6 +218,112 @@ void main() {
             'de provider ne peut le devancer');
   });
 
+  test('the sealed PII universe (sensitive keys and manifest entries) is '
+      'fully purged by reset', () async {
+    // Univers mécanique : tous les littéraux PII (q_* / _coach_*) déclarés
+    // dans la source du store scellé — toute clé ajoutée est couverte
+    // d'office, aucune liste à maintenir à la main.
+    final storeSource =
+        File('lib/services/secure_wizard_store.dart').readAsStringSync();
+    // Les littéraux finissant par `_` sont des PRÉFIXES de routage
+    // (startsWith), pas des clés — les clés dynamiques ainsi routées passent
+    // par le manifeste, couvert plus bas.
+    final candidates = RegExp(r"'((?:q_|_coach_)[a-z_0-9]*[a-z0-9])'")
+        .allMatches(storeSource)
+        .map((m) => m.group(1)!)
+        .toSet();
+    // Toute clé extraite DOIT être classée par le store (anti-dérive) ; les
+    // scellées forment l'univers purgé ici, les non-scellées vivent dans le
+    // JSON wizard_answers_v2 (purgé côté prefs, cf. purgedPrefsKeys).
+    for (final key in candidates) {
+      expect(SecureWizardStore.classificationForKey(key),
+          isNot(WizardStorageClassification.unknown),
+          reason: '$key extraite mais non classée par le store = dérive');
+    }
+    final universe =
+        candidates.where(SecureWizardStore.isSensitive).toSet();
+    expect(universe.length, greaterThan(80),
+        reason: 'extraction vide = test théâtre');
+    const storage = FlutterSecureStorage();
+    for (final key in universe) {
+      await storage.write(key: key, value: 'pii');
+    }
+    // Clé scellée DYNAMIQUE enregistrée au manifeste : purgée aussi.
+    await storage.write(
+        key: '_mint_wizard_secure_keys_v1',
+        value: '["dynamic_pii_key_x"]');
+    await storage.write(key: 'dynamic_pii_key_x', value: 'pii');
+
+    await LocalPreviewResetService.reset();
+
+    for (final key in universe) {
+      expect(await storage.read(key: key), isNull,
+          reason: '$key (PII scellée) doit être purgée');
+    }
+    expect(await storage.read(key: 'dynamic_pii_key_x'), isNull,
+        reason: 'les clés du manifeste dynamique sont purgées aussi');
+  });
+
+  test('the prefs key universe declared by the persistence service is fully '
+      'purged by reset', () async {
+    // Univers mécanique : tous les littéraux `static const String *Key`
+    // de report_persistence_service — une clé métier ajoutée sans purge
+    // dans clear() fait échouer ce test (guard anti-dérive exécutable).
+    final source = File('lib/services/report_persistence_service.dart')
+        .readAsStringSync();
+    final universe =
+        RegExp(r"static const String _\w*[Kk]ey\w*\s*=\s*'([^']+)'")
+            .allMatches(source)
+            .map((m) => m.group(1)!)
+            .toSet();
+    expect(universe.length, greaterThan(15),
+        reason: 'extraction vide = test théâtre');
+    final prefs = await SharedPreferences.getInstance();
+    const boolKeys = {
+      'secure_delete_pending_v1',
+      'wizard_completed',
+      'mini_onboarding_completed',
+      'anonymous_wizard_completed_held_v1',
+      'anonymous_mini_onboarding_completed_held_v1',
+    };
+    for (final key in universe) {
+      if (boolKeys.contains(key)) {
+        await prefs.setBool(key, true);
+      } else {
+        await prefs.setString(key, 'seeded');
+      }
+    }
+    await seedFacts();
+
+    await LocalPreviewResetService.reset();
+
+    for (final key in universe) {
+      expect(prefs.get(key), isNull,
+          reason: '$key doit être purgée — clé du service de persistance '
+              'non couverte par le reset = dérive');
+    }
+  });
+
+  test('the signed-in session keys are never part of any purged universe '
+      'and survive reset', () async {
+    final storeSource =
+        File('lib/services/secure_wizard_store.dart').readAsStringSync();
+    for (final sessionKey in ['jwt_token', 'user_id']) {
+      expect(storeSource.contains("'$sessionKey'"), isFalse,
+          reason: '$sessionKey ne doit JAMAIS entrer dans un univers purgé');
+    }
+    const storage = FlutterSecureStorage();
+    await storage.write(key: 'jwt_token', value: 'tok');
+    await storage.write(key: 'user_id', value: 'user-42');
+    await seedFacts();
+
+    await LocalPreviewResetService.reset(signedInUserId: 'user-42');
+
+    expect(await storage.read(key: 'jwt_token'), 'tok',
+        reason: 'le reset ne déconnecte JAMAIS — session préservée');
+    expect(await storage.read(key: 'user_id'), 'user-42');
+  });
+
   test('calling reset outside the preview policy throws and purges nothing',
       () async {
     await seedFacts();
