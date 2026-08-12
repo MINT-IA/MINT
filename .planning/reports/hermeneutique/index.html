@@ -62,7 +62,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </style>
 <main>
 <header class="hero">
-  <div class="stamp">Herméneutique · v8 · 12 août 2026 · Legos 1-6 promus — le jumeau produit son premier chiffre CHF attesté</div>
+  <div class="stamp">Herméneutique · v9 · 12 août 2026 · Legos 1-7 promus — le calcul attesté a son parcours réel</div>
   <h1>Le code raconte-t-il la même histoire que le storyboard&nbsp;?</h1>
   <p class="sub">Chaque thème en trois volets — l'histoire promise, le code qui la porte, la preuve. Quatre états, jamais confondus&nbsp;: <span class="tag proof">PROUVÉ</span> <span class="tag partial">PARTIEL</span> <span class="tag pending">NON PROUVÉ</span> <span class="tag oos">HORS PÉRIMÈTRE</span></p>
   <p class="legend">Types de preuve, du plus fort au plus faible&nbsp;: <strong>runtime</strong> (parcours réel sim/appareil, captures hash-bound) &gt; <strong>test déterministe</strong> (exit code) &gt; <strong>review indépendante</strong> (verdict P1=0) &gt; <strong>déclaration documentaire</strong> (aucune preuve).</p>
@@ -75,6 +75,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <a href="#lpp">Affiliation LPP</a>
     <a href="#versements">Versements 3a</a>
     <a href="#marge">Marge 3a</a>
+    <a href="#vertical">Vertical 3a</a>
     <a href="#troisA">3a</a>
     <a href="#fiscalite">Fiscalité</a>
     <a href="#coach">Coach</a>
@@ -245,6 +246,26 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <div class="honest"><strong>Honnêteté&nbsp;:</strong> même portée de preuve (UI/cache/stash). L'année hors registre (2027) est prouvée par test widget cité au reçu — le runtime ne peut pas changer l'année du simulateur. Le résultat n'est JAMAIS persisté dans le jumeau&nbsp;: recalcul à chaque build, une marge périmée ne survit pas à une correction.</div>
 </section>
 
+<section id="vertical">
+  <h2>Vertical 3a réel — Lego 7 <span class="tag proof">PROMU 5/5</span></h2>
+  <p class="axiom">Le calcul attesté devient un parcours&nbsp;: je vois où j'en est, je comprends ce qui manque, je corrige, je revois. Chargement ≠ échec de lecture ≠ fait manquant — trois états, jamais confondus.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Entrées visibles depuis Aujourd'hui et Ma situation — y compris SANS AUCUN fait (leçon préversion&nbsp;: un jumeau sans point d'entrée n'existe pas). Écran éditorial du handoff (eyebrow, Fraunces, barre versé/plafond, fraîcheur «&nbsp;Faits au…&nbsp;», provenance). Trois classes d'états&nbsp;: fait éditable → écran canonique&nbsp;; stale → recalcul au build&nbsp;; année/constantes → état factuel sans faux CTA.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li><code>screens/mint_next_vertical_3a/</code> — lecture PURE&nbsp;: consommation exclusive du calculateur (guard positif commit-gate&nbsp;: empreintes de formule, writers et laboratoire visuel interdits, référence au calculateur EXIGÉE)</li>
+      <li><code>widgets/mint_next_vertical_3a_entry_card.dart</code> auto-gatée · route 161 · provider <code>loadFailed</code> (une lecture en échec ne se déguise plus en fait manquant)</li>
+      <li>17 clés ARB ×6 · flag <code>enableMintNextVertical3a</code> OFF</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">TESTS</span> 12 écran + 3 entrées + guards 81/81 · analyze 0</li>
+      <li><span class="tag proof">REVIEW</span> contrat ACCEPT (2 REJET) · écran ACCEPT (2 REJET) · entrées ACCEPT · PROMOTION GO (1 NO-GO incomeMissing adressé)</li>
+      <li><span class="tag proof">RUNTIME</span> reçu passed @ <code>0d3028790</code> (SHA mergé) — 9 outcomes EN UN RUN&nbsp;: landing gardé franchi, entrée tapée, lppUnknown/incomeMissing/contributionsMissing rendus ET navigables vers les écrans canoniques, marge 3'758 → correction → NULLE exacte → dépassement signé −4'000, relance à froid, zéro-transmission (61 lignes frontière, 0 body sortant)</li>
+      <li><span class="tag off">FLAG OFF</span></li>
+    </ul></div>
+  </div>
+  <div class="honest"><strong>Honnêteté&nbsp;:</strong> même portée (UI/cache/stash). Année hors registre et constantes non attestées = tests widget cités au reçu (non altérables au runtime). staleInputs est structurellement impossible à l'écran (recalcul à chaque build) — l'écran le traite en invariant qui THROW, jamais une copie. Un run de clôture a flaké (step passant 40 min avant) — relancé une fois, vert&nbsp;; le flake sim reste un risque résiduel documenté.</div>
+</section>
+
 <section id="troisA">
   <h2>3a — Vertical Golden</h2>
   <p class="axiom">Aujourd'hui → occasion → faits connus/manquants → confirmation minimale → scénario déterministe → widget pédagogique → choix libre → mini-plan → Aujourd'hui.</p>
@@ -339,6 +360,8 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td class="n">#1226</td><td>Lego 3 — revenu, gate 5/5 (reçu runtime, anti-double-×12)</td><td>LOOP: GO (Q0-Q5) · 3× REJET→ACCEPT · PROMOTION ACCEPT P1=0</td><td class="n">11.08 13:37</td></tr>
     <tr><td class="n">#1227</td><td>Clôture Lego 3 — herméneutique v5 + journal BRIEF</td><td>—</td><td class="n">11.08 13:43</td></tr>
     <tr><td class="n">#1228</td><td>Lego 4 — affiliation LPP, gate 5/5 (runtime 1er run)</td><td>LOOP: GO AFFILIATION LPP · REJET→ACCEPT (masquage corrupt) · PROMOTION ACCEPT P1=0</td><td class="n">11.08 19:46</td></tr>
+    <tr><td class="n">#1237</td><td>Lego 7 — vrai vertical 3a (gate 5/5, PROMOTION GO)</td><td>PRIORITÉ: B · contrat 2×REJET→ACCEPT · écran 2×REJET→ACCEPT · entrées ACCEPT · NO-GO incomeMissing→GO</td><td class="n">12.08 16:10</td></tr>
+    <tr><td class="n">#1236</td><td>fix coach — gate anonyme honnête (401 ≠ panne réseau)</td><td>—</td><td class="n">12.08 12:30</td></tr>
     <tr><td class="n">#1232</td><td>Lego 6 — marge 3a attestée, premier calcul CHF (gate 5/5, PROMOTION GO)</td><td>contrat ACCEPT (1 REJET) · T1 (2 REJET) · T2 (1 REJET) · GO</td><td class="n">12.08 08:10</td></tr>
     <tr><td class="n">#1230</td><td>Lego 5 — versements 3a, gate 5/5 (fait pluriel, reçu 7 outcomes)</td><td>LOOP: GO · 2 REJET→ACCEPT (invariants, dropdown année) · PROMOTION : 3 NO-GO → GO (4e passage)</td><td class="n">12.08 06:20</td></tr>
   </table></div>
@@ -346,6 +369,6 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </section>
 
 <footer>
-  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu. v7&nbsp;: Lego 5 versements 3a promu — premier fait pluriel, reçu à 7 outcomes, zéro-transmission observée à la frontière HTTP, traçabilité storyboard↔tests en guard. La file initiale du jumeau est complète&nbsp;: six faits canoniques runtime. v8&nbsp;: Lego 6 marge 3a attestée — premier chiffre CHF du jumeau, marge signée, registre hashé, 6 états fail-closed. Ce qui n'est pas cité n'est pas prouvé.
+  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu. v7&nbsp;: Lego 5 versements 3a promu — premier fait pluriel, reçu à 7 outcomes, zéro-transmission observée à la frontière HTTP, traçabilité storyboard↔tests en guard. La file initiale du jumeau est complète&nbsp;: six faits canoniques runtime. v8&nbsp;: Lego 6 marge 3a attestée — premier chiffre CHF du jumeau, marge signée, registre hashé, 6 états fail-closed. v9&nbsp;: Lego 7 vertical 3a promu — le calcul attesté a son parcours réel (entrées visibles, 3 classes d'états, 9 outcomes runtime). Ce qui n'est pas cité n'est pas prouvé.
 </footer>
 </main>
