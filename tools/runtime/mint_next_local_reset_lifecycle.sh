@@ -285,9 +285,9 @@ receipt = {
         "etat charge : fait LPP + versement 3500 -> marge attestee 375800",
         "centre de confidentialite : section Preversion visible, promesse bornee",
         "confirmation forte : saisie exacte REPARTIR A ZERO requise avant le CTA",
-        "reset -> snackbar 'Etat local efface.' -> retour coque -> vertical revenu a lppAffiliationUnknown, marge ABSENTE",
+        "reset -> snackbar 'Etat local efface.' -> retour entree onboarding (etat zero legitime, /home re-route /onb) -> vertical (route publique) a lppAffiliationUnknown, marge ABSENTE",
         "relance a froid : toujours vierge ET disclosure TestFlight PRESERVEE (jamais re-montree)",
-        "idempotence : second reset depuis l'etat vierge, meme succes honnete",
+        "idempotence testeur : re-seed fixture publique puis SECOND reset, meme succes honnete — la boucle repartir-a-zero/re-tester",
         "zero transmission (frontiere HTTP observee, REQBODY)",
     ],
     "non_runtime_proofs": (

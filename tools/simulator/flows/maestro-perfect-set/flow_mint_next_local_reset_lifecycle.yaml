@@ -172,11 +172,16 @@ tags:
 - extendedWaitUntil:
     visible: "État local effacé."
     timeout: 10000
-# ─── Coque vierge immédiate : marge disparue, état de collecte revenu ───
+# ─── Coque vierge immédiate : retour à l'entrée d'onboarding (état zéro
+# légitime — le wizard purgé fait re-router /home vers /onb), et le
+# vertical (route publique) ne montre plus AUCUN fait ni marge ───
 - extendedWaitUntil:
-    visible:
-      id: "nav_tab_aujourdhui"
+    visible: "Un premier aperçu suisse."
     timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/04-coque-vierge"
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
 - openLink: "mintapp:///mint-next/vertical-3a"
 - waitForAnimationToEnd:
     timeout: 4000
@@ -188,7 +193,6 @@ tags:
     notVisible:
       id: "mint_next_vertical_3a_marge_375800"
     timeout: 3000
-- takeScreenshot: "${OUTPUT_DIR}/04-coque-vierge"
 # ─── Relance à froid : toujours vierge, disclosure PRÉSERVÉE (jamais re-montrée) ───
 - stopApp
 - launchApp:
@@ -198,13 +202,6 @@ tags:
 - extendedWaitUntil:
     notVisible: "Je comprends, on y va"
     timeout: 3000
-- runFlow:
-    when:
-      visible: "Continuer sans compte"
-    commands:
-      - tapOn: "Continuer sans compte"
-      - waitForAnimationToEnd:
-          timeout: 8000
 - openLink: "mintapp:///mint-next/vertical-3a"
 - waitForAnimationToEnd:
     timeout: 4000
@@ -220,7 +217,33 @@ tags:
       id: "mint_next_vertical_3a_marge_375800"
     timeout: 3000
 - takeScreenshot: "${OUTPUT_DIR}/05-relance-vierge"
-# ─── Idempotence : second reset depuis l'état vierge, même succès honnête ───
+# ─── Idempotence testeur : re-seed (fixture publique) puis SECOND reset —
+# la vraie boucle « repartir à zéro, re-tester » ───
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
 - openLink: "mintapp:///profile/privacy"
 - waitForAnimationToEnd:
     timeout: 5000
@@ -241,7 +264,6 @@ tags:
     visible: "État local effacé."
     timeout: 10000
 - extendedWaitUntil:
-    visible:
-      id: "nav_tab_aujourdhui"
+    visible: "Un premier aperçu suisse."
     timeout: 15000
 - takeScreenshot: "${OUTPUT_DIR}/06-idempotence"
