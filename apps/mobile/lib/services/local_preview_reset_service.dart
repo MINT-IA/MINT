@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,6 +11,7 @@ import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
 import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/services/secure_wizard_store.dart';
 
 /// Bascule 2 — « repartir à zéro sur cet appareil », honnêtement.
 ///
@@ -183,7 +185,15 @@ class LocalPreviewResetService {
     await CoachMemoryService.clear(prefs: prefs);
     await CapMemoryStore.clear();
     await PrecomputedInsightsService.clear(prefs);
-    await PartnerEstimateService.clear();
+    // Delete brut du store partenaire : sur un build sim CLI sans
+    // entitlements Keychain (-34018, chemin e2e), TOUT le Keychain est
+    // inaccessible — rien ne peut y résider, la tolérance est bornée à ce
+    // cas précis (isTolerableE2eKeychainAbsence), jamais un échec réel.
+    try {
+      await PartnerEstimateService.clear();
+    } on PlatformException catch (e) {
+      if (!SecureWizardStore.isTolerableE2eKeychainAbsence(e)) rethrow;
+    }
     final taskPurged = await MintNext3aTaskStore.purgeOwnedTask();
     if (!taskPurged) {
       throw StateError(
@@ -239,7 +249,15 @@ class LocalPreviewResetService {
       ...purgedAnonymousKeys,
       ...purgedSecureStoreKeys,
     ]) {
-      final residue = await storage.read(key: key);
+      String? residue;
+      try {
+        residue = await storage.read(key: key);
+      } on PlatformException catch (e) {
+        // Keychain entier inaccessible (build sim e2e, -34018) : rien ne
+        // peut y résider — la couche scellée réelle est le fallback e2e,
+        // déjà couverte par sealedLayerPendingKey ci-dessus.
+        if (!SecureWizardStore.isTolerableE2eKeychainAbsence(e)) rethrow;
+      }
       if (residue != null) {
         throw StateError(
             'reset residue detected: $key — reset_pending kept, retried at '
