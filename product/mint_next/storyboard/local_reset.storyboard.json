@@ -11,7 +11,7 @@
     "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
     "cadrage": "verdict Codex GO bascule 2 (2026-08-12) — strictement locale, visible uniquement sous MINT_NEXT_PREVIEW (via PreviewShellPolicy), orchestrateur canonique unique LocalPreviewResetService.reset(), jamais FlutterSecureStorage.deleteAll(), quota anonyme purgé UNIQUEMENT parce que preview-only (jamais un contournement anti-abus public)"
   },
-  "semantic_contract": "Deux INVENTAIRES CONSTANTS exposés par le service : purged (SharedPreferences métier — wizard/onboarding/handoff/faits/projections/budget/scores/check-ins/historique coach/conversations/brouillons/caches ; les 5 valeurs canoniques _mint_canonical_{housing,civil_status,revenu,lpp_affiliation,versements_3a}_v1 ; journaux de suppression ; held stores anonymes ; fallbacks E2E ; anonymous_session_id + anonymous_message_count ; état mémoire des providers) et preserved (session/auth, consentements applicables, langue/accessibilité/préférences, disclosure TestFlight, marqueurs d'installation/retry, les 5 marqueurs _mint_canonical_*_initialized_v1 anti-remigration). JAMAIS de purge aveugle par préfixe _mint_ (valeurs et marqueurs ont des contrats opposés). Ordre transactionnel : reset_pending durable → blocage mutations/hydratations → purges → reset providers → quarantaine de sync locale (local_profile_reset_epoch_<userId> : aucune hydratation serveur automatique tant que présent) → vérification zéro résidu → levée du marqueur → racine vide de la coque. Résidu ou échec partiel ⇒ reset ROUGE, reset_pending conservé, retry au boot. Guard anti-dérive : toute nouvelle clé MINT sensible doit être classée purge OU preserve explicitement.",
+  "semantic_contract": "Deux INVENTAIRES CONSTANTS exposés par le service : purged (SharedPreferences métier — wizard/onboarding/handoff/faits/projections/budget/scores/check-ins/historique coach/conversations/brouillons/caches ; les 5 valeurs canoniques _mint_canonical_{housing,civil_status,revenu,lpp_affiliation,versements_3a}_v1 ; journaux de suppression ; held stores anonymes ; fallbacks E2E ; anonymous_session_id + anonymous_message_count ; état mémoire des providers) et preserved (session/auth, consentements applicables, langue/accessibilité/préférences, disclosure TestFlight, marqueurs d'installation/retry, les 5 marqueurs _mint_canonical_*_initialized_v1 anti-remigration). JAMAIS de purge aveugle par préfixe _mint_ (valeurs et marqueurs ont des contrats opposés). Ordre transactionnel : reset_pending durable → blocage mutations/hydratations → purges → reset providers → quarantaine de sync locale (local_profile_reset_epoch_<userId> : aucune hydratation serveur automatique tant que présent) → vérification zéro résidu → levée du marqueur → racine vide de la coque. Résidu ou échec partiel ⇒ reset ROUGE, reset_pending conservé, retry au boot. Guard anti-dérive : toute nouvelle clé MINT sensible doit être classée purge OU preserve explicitement. DÉFENSE EN PROFONDEUR : LocalPreviewResetService.reset() THROW (StateError) si !PreviewShellPolicy.instance.isPreviewShell — la garde n'est pas qu'UI, l'appel direct hors préversion est un invariant violé. PARTITION FERMÉE mécaniquement : un test énumère les clés MINT sensibles connues (registre du service) et exige purged ∪ preserved = univers, purged ∩ preserved = ∅ — toute clé non classée FAIT ÉCHOUER le test (guard anti-dérive exécutable, pas déclaratif) ; un test statique interdit tout appel deleteAll et toute itération de purge par préfixe _mint_ dans le service. ORDRE AU BOOT : le retry reset_pending s'exécute AVANT toute hydratation/mutation de provider (hook d'amorçage prouvé par test d'ordre).",
   "classification_decision": "Aucune clé de fait nouvelle côté jumeau ; le service possède reset_pending et local_profile_reset_epoch_<userId>. UI : centre de confidentialité, section « Préversion » gatée par PreviewShellPolicy (jamais un flag dispersé). Copie bornée LSFin : « MINT effacera ta situation financière et ton historique enregistrés sur cet appareil. Ton compte, ta connexion et tes consentements restent inchangés. Les données déjà enregistrées sur nos serveurs ne seront pas supprimées. » — jamais « toutes tes données ». Confirmation forte par saisie REPARTIR À ZÉRO.",
   "known_risks_from_cadrage": [
     "deleteAll Keychain brut = interdit (marqueurs anti-remigration et session détruits)",
@@ -35,7 +35,9 @@
         "the reset service exposes constant purged and preserved inventories",
         "every seeded purged key is absent after reset and every preserved key is unchanged",
         "the five canonical values are purged while the five initialized markers survive",
-        "no global keychain deleteAll is ever invoked"
+        "no global keychain deleteAll is ever invoked",
+        "the purged and preserved partition is closed: every known sensitive key is classified and the sets are disjoint",
+        "no prefix-based purge nor deleteAll exists in the reset service (static scan)"
       ]
     },
     {
@@ -55,7 +57,8 @@
       "tests_planned": [
         "a partial failure keeps reset_pending and retries at boot",
         "running the reset twice is idempotent",
-        "a residue detected turns the reset red, never silent"
+        "a residue detected turns the reset red, never silent",
+        "the boot retry of reset_pending runs before any provider hydration or mutation"
       ]
     },
     {
@@ -71,7 +74,8 @@
       "story": "Hors préversion : l'action n'existe pas et rien ne change.",
       "code": "apps/mobile/lib/",
       "tests_planned": [
-        "without the preview policy the reset action never renders and behavior is unchanged"
+        "without the preview policy the reset action never renders and behavior is unchanged",
+        "calling reset outside the preview policy throws and purges nothing"
       ]
     }
   ],
