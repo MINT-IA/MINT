@@ -2306,20 +2306,40 @@ def _storyboard_traceability_errors(root: Path) -> list[str]:
                 errors.append(
                     f"single-calculator guard: mon_argent_screen.dart references {marker} — la marge 3a n'a qu'une implémentation, affichée par le vertical"
                 )
-    # Lego 7 — la surface du vertical consomme le calculateur, jamais une
-    # formule locale, un writer ou design_lab.
+    # Lego 7 — la surface du vertical consomme le calculateur canonique,
+    # jamais une formule locale, un writer ou design_lab. Règle POSITIVE :
+    # si la surface existe, elle doit référencer MintNextMarge3aCalculator.
+    import re as _re2
     vertical_dir = root / "apps/mobile/lib/screens/mint_next_vertical_3a"
     if vertical_dir.is_dir():
-        for f in sorted(vertical_dir.rglob("*.dart")):
+        dart_files = sorted(vertical_dir.rglob("*.dart"))
+        formula_fingerprints = (
+            _re2.compile(r"\b7258\b"), _re2.compile(r"\b36288\b"),
+            _re2.compile(r"\b725800\b"), _re2.compile(r"\b3628800\b"),
+            _re2.compile(r"\*\s*20\b"), _re2.compile(r"\b20\s*\*"),
+            _re2.compile(r"~/\s*100\b"),
+        )
+        uses_calculator = False
+        for f in dart_files:
             body = f.read_text(encoding="utf-8")
-            for marker in ("725800", "3628800", "design_lab",
-                           "pillar3a_room_calculator", "mergeAnswers(",
-                           "saveVersements3aFact", "saveRevenuFact",
-                           "saveLppAffiliationFact"):
+            if "MintNextMarge3aCalculator" in body:
+                uses_calculator = True
+            for marker in ("design_lab", "pillar3a_room_calculator",
+                           "mergeAnswers(", "saveVersements3aFact",
+                           "saveRevenuFact", "saveLppAffiliationFact"):
                 if marker in body:
                     errors.append(
                         f"vertical-3a guard: {f.relative_to(root)} references {marker} — le vertical consomme le calculateur canonique, jamais une formule locale, un writer ou design_lab"
                     )
+            for pat in formula_fingerprints:
+                if pat.search(body):
+                    errors.append(
+                        f"vertical-3a guard: {f.relative_to(root)} matches formula fingerprint {pat.pattern} — toute réimplémentation du plafond/marge est interdite"
+                    )
+        if dart_files and not uses_calculator:
+            errors.append(
+                "vertical-3a guard: la surface du vertical existe sans référencer MintNextMarge3aCalculator — le calculateur canonique est l'UNIQUE voie"
+            )
     for rel in STORYBOARD_NO_NETWORK_FILES:
         f = root / rel
         if not f.is_file():

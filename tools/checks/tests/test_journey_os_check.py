@@ -1806,3 +1806,28 @@ def test_latest_evidence_timestamp_beats_append_order(tmp_path: Path) -> None:
 
     assert "green / runtime / 2026-06-27T00:00:00Z / aaaaaaaa" in board
     assert not any("latest evidence" in error for error in _errors(root))
+
+
+def test_vertical_3a_guard_bites_and_passes(tmp_path: Path) -> None:
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    vd = root / "apps/mobile/lib/screens/mint_next_vertical_3a"
+    vd.mkdir(parents=True)
+
+    # Formule locale équivalente : empreinte attrapée.
+    (vd / "bad.dart").write_text("const plafond = 7258 * 100;\n")
+    errors = journey_os_check.check(root, ["apps/mobile/lib/screens/x.dart"])
+    assert any("formula fingerprint" in e for e in errors)
+
+    # Règle positive : surface sans calculateur canonique = erreur.
+    (vd / "bad.dart").write_text("class V {}\n")
+    errors = journey_os_check.check(root, ["apps/mobile/lib/screens/x.dart"])
+    assert any("UNIQUE voie" in e for e in errors)
+
+    # Conforme : consomme le calculateur, aucune empreinte.
+    (vd / "bad.dart").write_text(
+        "import 'mint_next_marge_3a_calculator.dart';\n"
+        "final r = MintNextMarge3aCalculator.compute;\n")
+    errors = journey_os_check.check(root, ["apps/mobile/lib/screens/x.dart"])
+    assert not any("vertical-3a guard" in e for e in errors)
