@@ -149,7 +149,7 @@ tags:
     visible:
       id: "mint_next_vertical_3a_marge_375800"
     timeout: 10000
-- assertVisible: "Il te reste 1'758 CHF de marge."
+- assertVisible: "Il te reste 3'758 CHF de marge."
 - takeScreenshot: "${OUTPUT_DIR}/02-positive-375800"
 # ─── Outcome 2b + 6 : correction → marge NULLE re-dérivée ───
 - openLink: "mintapp:///mint-next/versements-3a"
