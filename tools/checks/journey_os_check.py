@@ -67,6 +67,8 @@ ALLOW = {
     "product/mint_next/storyboard/vertical_3a.storyboard.json",
     "product/mint_next/storyboard/preview_shell.storyboard.json",
     "product/mint_next/storyboard/local_reset.storyboard.json",
+    "apps/mobile/lib/services/local_preview_reset_service.dart",
+    "apps/mobile/test/services/local_preview_reset_service_test.dart",
     "apps/mobile/lib/services/preview_shell_policy.dart",
     "apps/mobile/test/services/preview_shell_policy_test.dart",
     "apps/mobile/lib/widgets/mint_shell.dart",
