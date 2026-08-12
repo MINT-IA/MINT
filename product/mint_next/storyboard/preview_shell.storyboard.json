@@ -32,10 +32,14 @@
       "id": "b0_build_policy",
       "story": "MINT_NEXT_PREVIEW=true active la coque pure ; absent/false conserve l'existant. La politique est le SEUL point de vérité.",
       "code": "apps/mobile/lib/services/",
-      "tests_planned": [
+      "tests": [
         "the policy derives every semantic property from the single compile-time define",
         "no screen reads the preview define outside the policy",
-        "the anti dispersion guard fails on any preview read or visibility decision outside the policy (pass and fail fixtures)"
+        "test_preview_guard_bites_and_passes"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/preview_shell_policy_test.dart",
+        "tools/checks/tests/test_journey_os_check.py"
       ]
     },
     {
