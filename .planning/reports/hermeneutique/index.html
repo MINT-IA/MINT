@@ -62,7 +62,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </style>
 <main>
 <header class="hero">
-  <div class="stamp">Herméneutique · v7 · 12 août 2026 · Legos 1-5 promus 5/5 — la file initiale du jumeau est complète</div>
+  <div class="stamp">Herméneutique · v8 · 12 août 2026 · Legos 1-6 promus — le jumeau produit son premier chiffre CHF attesté</div>
   <h1>Le code raconte-t-il la même histoire que le storyboard&nbsp;?</h1>
   <p class="sub">Chaque thème en trois volets — l'histoire promise, le code qui la porte, la preuve. Quatre états, jamais confondus&nbsp;: <span class="tag proof">PROUVÉ</span> <span class="tag partial">PARTIEL</span> <span class="tag pending">NON PROUVÉ</span> <span class="tag oos">HORS PÉRIMÈTRE</span></p>
   <p class="legend">Types de preuve, du plus fort au plus faible&nbsp;: <strong>runtime</strong> (parcours réel sim/appareil, captures hash-bound) &gt; <strong>test déterministe</strong> (exit code) &gt; <strong>review indépendante</strong> (verdict P1=0) &gt; <strong>déclaration documentaire</strong> (aucune preuve).</p>
@@ -74,6 +74,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <a href="#revenu">Revenu</a>
     <a href="#lpp">Affiliation LPP</a>
     <a href="#versements">Versements 3a</a>
+    <a href="#marge">Marge 3a</a>
     <a href="#troisA">3a</a>
     <a href="#fiscalite">Fiscalité</a>
     <a href="#coach">Coach</a>
@@ -224,6 +225,26 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <div class="honest"><strong>Honnêteté&nbsp;:</strong> même portée de preuve (proof_scope&nbsp;: UI/cache/stash, keychain réel non exercé). La preuve zéro-transmission a été durcie par 3 verdicts Codex successifs&nbsp;: elle observe désormais la frontière HTTP réelle — <code>MintHttpClient</code> journalise chaque requête sortante <em>y compris son body</em> (REQBODY), un type illisible fait échouer le run. Run 7&nbsp;: 26 requêtes, toutes GET, zéro payload sortant. Limitation résiduelle documentée dans le reçu (SDKs tiers hors client unifié).</div>
 </section>
 
+<section id="marge">
+  <h2>Marge 3a attestée — Lego 6 <span class="tag proof">PROMU 5/5</span></h2>
+  <p class="axiom">marge = plafond attesté de l'année − total versé canonique. SIGNÉE&nbsp;: un dépassement s'affiche «&nbsp;Plafond dépassé de X CHF&nbsp;», jamais masqué par un zéro. Le chiffre n'existe que si TOUT est attesté — sinon un état nommé, jamais un chiffre inventé.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Premier calcul CHF du jumeau. Année 2026 bloquante, registre réglementaire hashé/allowlisté (OPP3 art. 7), deux branches (affilié LPP&nbsp;: plafond fixe&nbsp;; non-affilié&nbsp;: floor de 20&nbsp;% du revenu canonique borné au grand plafond), 6 états fail-closed. Domicile/état civil NON bloquants pour ce plafond fédéral.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li><code>financial_core/mint_next_marge_3a_calculator.dart</code> — L1 pur, révisions de faits consommés OBLIGATOIRES, invariants avant états</li>
+      <li>Surface&nbsp;: bloc au-dessus de la liste annuelle des versements — UNIQUE point d'entrée UI (guard commit-gate&nbsp;: Ma situation ne peut pas référencer le calculateur)</li>
+      <li>Provenance visible (source + année + version du jeu) · invitations factuelles par état · flags fail-closed OFF</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">TESTS</span> 16 calculateur + 8 surface · analyze 0</li>
+      <li><span class="tag proof">REVIEW</span> contrat ACCEPT (1 REJET durcissant&nbsp;: cliquet traçabilité + retrofit 24 beats Legos 1-4) · T1 ACCEPT (2 REJET) · T2 ACCEPT (1 REJET) · PROMOTION GO</li>
+      <li><span class="tag proof">RUNTIME</span> reçu passed @ <code>3809b0d4c</code> — 7 outcomes, 4 valeurs de marge assertées par id porteur de valeur DANS UN MÊME RUN&nbsp;: 375800 (affilié) → −24200 (dépassement signé) → 810000 (20&nbsp;%) → 2878800 (plafonné)&nbsp;; fail-closed visible après suppression&nbsp;; zéro-transmission frontière observée</li>
+      <li><span class="tag off">FLAG OFF</span> <code>enableMintNextMarge3a</code></li>
+    </ul></div>
+  </div>
+  <div class="honest"><strong>Honnêteté&nbsp;:</strong> même portée de preuve (UI/cache/stash). L'année hors registre (2027) est prouvée par test widget cité au reçu — le runtime ne peut pas changer l'année du simulateur. Le résultat n'est JAMAIS persisté dans le jumeau&nbsp;: recalcul à chaque build, une marge périmée ne survit pas à une correction.</div>
+</section>
+
 <section id="troisA">
   <h2>3a — Vertical Golden</h2>
   <p class="axiom">Aujourd'hui → occasion → faits connus/manquants → confirmation minimale → scénario déterministe → widget pédagogique → choix libre → mini-plan → Aujourd'hui.</p>
@@ -318,12 +339,13 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td class="n">#1226</td><td>Lego 3 — revenu, gate 5/5 (reçu runtime, anti-double-×12)</td><td>LOOP: GO (Q0-Q5) · 3× REJET→ACCEPT · PROMOTION ACCEPT P1=0</td><td class="n">11.08 13:37</td></tr>
     <tr><td class="n">#1227</td><td>Clôture Lego 3 — herméneutique v5 + journal BRIEF</td><td>—</td><td class="n">11.08 13:43</td></tr>
     <tr><td class="n">#1228</td><td>Lego 4 — affiliation LPP, gate 5/5 (runtime 1er run)</td><td>LOOP: GO AFFILIATION LPP · REJET→ACCEPT (masquage corrupt) · PROMOTION ACCEPT P1=0</td><td class="n">11.08 19:46</td></tr>
+    <tr><td class="n">#1232</td><td>Lego 6 — marge 3a attestée, premier calcul CHF (gate 5/5, PROMOTION GO)</td><td>contrat ACCEPT (1 REJET) · T1 (2 REJET) · T2 (1 REJET) · GO</td><td class="n">12.08 08:10</td></tr>
     <tr><td class="n">#1230</td><td>Lego 5 — versements 3a, gate 5/5 (fait pluriel, reçu 7 outcomes)</td><td>LOOP: GO · 2 REJET→ACCEPT (invariants, dropdown année) · PROMOTION : 3 NO-GO → GO (4e passage)</td><td class="n">12.08 06:20</td></tr>
   </table></div>
   <p style="font-size:.9rem;color:var(--ink-soft)">Accès total Codex acté (11.08)&nbsp;: repo, mémoire persistante Claude, Engram, CLAUDE.md, BRIEF. Ce rapport est versionné sous <code>.planning/reports/hermeneutique/</code> et republié comme artifact à chaque Lego — un artifact seul n'est pas auditable.</p>
 </section>
 
 <footer>
-  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu. v7&nbsp;: Lego 5 versements 3a promu — premier fait pluriel, reçu à 7 outcomes, zéro-transmission observée à la frontière HTTP, traçabilité storyboard↔tests en guard. La file initiale du jumeau est complète&nbsp;: six faits canoniques runtime. Ce qui n'est pas cité n'est pas prouvé.
+  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu. v7&nbsp;: Lego 5 versements 3a promu — premier fait pluriel, reçu à 7 outcomes, zéro-transmission observée à la frontière HTTP, traçabilité storyboard↔tests en guard. La file initiale du jumeau est complète&nbsp;: six faits canoniques runtime. v8&nbsp;: Lego 6 marge 3a attestée — premier chiffre CHF du jumeau, marge signée, registre hashé, 6 états fail-closed. Ce qui n'est pas cité n'est pas prouvé.
 </footer>
 </main>
