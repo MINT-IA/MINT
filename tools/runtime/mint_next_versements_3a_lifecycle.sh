@@ -203,6 +203,13 @@ git -C "$ROOT" status --porcelain --untracked-files=all | assert_status_is_evide
 [[ -s "$CONSOLE_LOG" ]] || { echo "console capture empty — cannot prove zero transmission" >&2; exit 1; }
 grep -q "flutter" "$CONSOLE_LOG" || { echo "console capture has no flutter lines — capture channel dead" >&2; exit 1; }
 HTTP_BOUNDARY_LINES=$(grep -c "ch\.mint\.http" "$CONSOLE_LOG" || true)
+REQBODY_LINES=$(grep -c "REQBODY" "$CONSOLE_LOG" || true)
+UNOBSERVED_REQ_LINES=$(grep -c "REQBODY.*unobserved" "$CONSOLE_LOG" || true)
+if (( UNOBSERVED_REQ_LINES > 0 )); then
+  echo "zero-transmission check FAILED: $UNOBSERVED_REQ_LINES outbound request(s) with unobservable body" >&2
+  grep "REQBODY.*unobserved" "$CONSOLE_LOG" | head -5 >&2
+  exit 1
+fi
 if grep -i "ch\.mint\.http" "$CONSOLE_LOG" | grep -Eiq "versements|q_versements_3a"; then
   echo "zero-transmission check FAILED: versements data crossed the HTTP boundary" >&2
   grep -i "ch\.mint\.http" "$CONSOLE_LOG" | grep -Ei "versements|q_versements_3a" | head -5 >&2
@@ -214,7 +221,7 @@ if grep -Eiq "$ZERO_TX_PATTERN" "$CONSOLE_LOG"; then
   grep -Ei "$ZERO_TX_PATTERN" "$CONSOLE_LOG" | head -5 >&2
   exit 1
 fi
-export ZERO_TX_PATTERN HTTP_BOUNDARY_LINES
+export ZERO_TX_PATTERN HTTP_BOUNDARY_LINES REQBODY_LINES UNOBSERVED_REQ_LINES
 
 FLOW_SHA="$(shasum -a 256 "$FLOW" | awk '{print $1}')"
 APP_SHA="$(shasum -a 256 "$EXECUTABLE" | awk '{print $1}')"
@@ -282,10 +289,13 @@ receipt = {
     "zero_transmission_check": {
         "boundary": (
             "MintHttpClient.shared — client HTTP unifié process-wide ; chaque "
-            "requête sortante est journalisée vers OSLog ch.mint.http (body "
-            "inclus en debug) et capturée dans la console du run"
+            "requête sortante est journalisée vers OSLog ch.mint.http, BODY DE "
+            "REQUÊTE inclus en debug (REQBODY) ; un type de requête au body "
+            "illisible est marqué unobserved et fait échouer le run"
         ),
         "http_boundary_lines_observed": int(os.environ["HTTP_BOUNDARY_LINES"]),
+        "request_body_lines_observed": int(os.environ["REQBODY_LINES"]),
+        "unobserved_request_bodies": int(os.environ["UNOBSERVED_REQ_LINES"]),
         "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
         "console_pattern": os.environ["ZERO_TX_PATTERN"],
         "static_guard": (
