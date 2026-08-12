@@ -69,6 +69,56 @@ tags:
       id: "node:lpp_affiliation.collect"
     timeout: 10000
 - tapOn:
+    id: "input:lpp_affiliation.no"
+- scrollUntilVisible:
+    element:
+      id: "action:lpp_affiliation.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:lpp_affiliation.review"
+    commands:
+      - tapOn:
+          id: "action:lpp_affiliation.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.review"
+    timeout: 5000
+- tapOn:
+    id: "action:lpp_affiliation.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 10000
+# ─── Outcome 4 : incomeMissing rendu + navigable (LPP=non, sans revenu) ───
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_incomeMissing"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/02-income-missing-cta"
+- tapOn:
+    id: "action:vertical_3a.fix_fact"
+- extendedWaitUntil:
+    visible:
+      id: "node:revenu.collect"
+    timeout: 10000
+# Bascule LPP → OUI pour la suite du cycle (plafond fixe).
+- openLink: "mintapp:///mint-next/lpp-affiliation"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 10000
+- tapOn:
+    id: "action:lpp_affiliation.edit"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.collect"
+    timeout: 5000
+- tapOn:
     id: "input:lpp_affiliation.yes"
 - scrollUntilVisible:
     element:

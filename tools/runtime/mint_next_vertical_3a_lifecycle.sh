@@ -186,6 +186,7 @@ set -e
 
 for image in \
   01-lpp-unknown-cta.png \
+  02-income-missing-cta.png \
   02-positive-375800.png \
   03-zero-exact.png \
   04-negative-signed.png \
@@ -279,6 +280,7 @@ receipt = {
     "ordered_outcomes": [
         "round trip from the visible entry on aujourd'hui (tap -> vertical)",
         "lppAffiliationUnknown rendered with CTA navigating to the canonical LPP screen",
+        "incomeMissing rendered with CTA navigating to the canonical revenu screen (LPP=no, no income)",
         "contributionsMissing rendered with CTA navigating to the canonical versements screen",
         "positive marge in the real vertical (id mint_next_vertical_3a_marge_375800, texte marge restante)",
         "zero marge exact after targeted correction (id marge_0) — re-derivation without any write",
@@ -287,10 +289,9 @@ receipt = {
         "zero transmission: no vertical/marge/versements data in any network-context console line (REQBODY observed)",
     ],
     "non_runtime_proofs": (
-        "unsupportedTaxYear + regulatoryConstantsUnattested + incomeMissing : "
-        "tests widget cites au contrat (l'annee du sim et le registre embarque "
-        "ne sont pas alterables au runtime ; incomeMissing exige un profil "
-        "non-affilie sans revenu, couvert par test)"
+        "unsupportedTaxYear + regulatoryConstantsUnattested : tests widget "
+        "cites au contrat (l'annee du sim et le registre embarque ne sont "
+        "pas alterables au runtime)"
     ),
     "unsupported_tax_year_proof": (
         "annee hors registre prouvee par test widget cite : 'a year outside "
