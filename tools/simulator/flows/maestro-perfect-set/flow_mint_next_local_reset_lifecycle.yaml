@@ -1,0 +1,247 @@
+appId: ch.mint.app
+tags:
+  - mint-next-local-reset
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "nav_tab_aujourdhui"
+    timeout: 15000
+# ─── État chargé : fait LPP + versement → marge attestée ───
+- scrollUntilVisible:
+    element:
+      id: "action:vertical_3a.entry"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "action:vertical_3a.entry"
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_lppAffiliationUnknown"
+    timeout: 10000
+- tapOn:
+    id: "action:vertical_3a.fix_fact"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.collect"
+    timeout: 10000
+- tapOn:
+    id: "input:lpp_affiliation.yes"
+- scrollUntilVisible:
+    element:
+      id: "action:lpp_affiliation.continue"
+    direction: DOWN
+- runFlow:
+    when:
+      notVisible:
+        id: "node:lpp_affiliation.review"
+    commands:
+      - tapOn:
+          id: "action:lpp_affiliation.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.review"
+    timeout: 5000
+- tapOn:
+    id: "action:lpp_affiliation.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:lpp_affiliation.saved"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_contributionsMissing"
+    timeout: 10000
+- tapOn:
+    id: "action:vertical_3a.fix_fact"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.collect"
+    timeout: 10000
+- tapOn:
+    id: "input:versements_3a.amount"
+- inputText: "3500"
+- hideKeyboard:
+    optional: true
+- tapOn:
+    id: "input:versements_3a.credit_date"
+- inputText: "15.03.2026"
+- runFlow:
+    when:
+      notVisible:
+        id: "node:versements_3a.review"
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "Enregistrer ce versement"
+          direction: UP
+      - tapOn: "Enregistrer ce versement"
+      - waitForAnimationToEnd:
+          timeout: 3000
+      - scrollUntilVisible:
+          element:
+            id: "action:versements_3a.continue"
+          direction: DOWN
+      - tapOn:
+          id: "action:versements_3a.continue"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.review"
+    timeout: 5000
+- tapOn:
+    id: "action:versements_3a.confirm"
+- extendedWaitUntil:
+    visible:
+      id: "node:versements_3a.list"
+    timeout: 10000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_marge_375800"
+    timeout: 10000
+- takeScreenshot: "${OUTPUT_DIR}/01-etat-charge"
+# ─── Centre de confidentialité : section Préversion + promesse bornée ───
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "action:preview_reset.open"
+    direction: DOWN
+    timeout: 20000
+- assertVisible: "Préversion"
+- takeScreenshot: "${OUTPUT_DIR}/02-preversion-section"
+# ─── Confirmation forte : saisie exacte requise ───
+- tapOn:
+    id: "action:preview_reset.open"
+- extendedWaitUntil:
+    visible: "Écris REPARTIR À ZÉRO pour confirmer"
+    timeout: 5000
+- tapOn: "Écris REPARTIR À ZÉRO pour confirmer"
+- inputText: "REPARTIR À ZÉRO"
+- takeScreenshot: "${OUTPUT_DIR}/03-confirmation-forte"
+- tapOn: "Effacer l'état local"
+- extendedWaitUntil:
+    visible: "État local effacé."
+    timeout: 10000
+# ─── Coque vierge immédiate : marge disparue, état de collecte revenu ───
+- extendedWaitUntil:
+    visible:
+      id: "nav_tab_aujourdhui"
+    timeout: 15000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_lppAffiliationUnknown"
+    timeout: 15000
+- extendedWaitUntil:
+    notVisible:
+      id: "mint_next_vertical_3a_marge_375800"
+    timeout: 3000
+- takeScreenshot: "${OUTPUT_DIR}/04-coque-vierge"
+# ─── Relance à froid : toujours vierge, disclosure PRÉSERVÉE (jamais re-montrée) ───
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- extendedWaitUntil:
+    notVisible: "Je comprends, on y va"
+    timeout: 3000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- openLink: "mintapp:///mint-next/vertical-3a"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible:
+      id: "mint_next_vertical_3a_state_lppAffiliationUnknown"
+    timeout: 15000
+- extendedWaitUntil:
+    notVisible:
+      id: "mint_next_vertical_3a_marge_375800"
+    timeout: 3000
+- takeScreenshot: "${OUTPUT_DIR}/05-relance-vierge"
+# ─── Idempotence : second reset depuis l'état vierge, même succès honnête ───
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- scrollUntilVisible:
+    element:
+      id: "action:preview_reset.open"
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: "action:preview_reset.open"
+- extendedWaitUntil:
+    visible: "Écris REPARTIR À ZÉRO pour confirmer"
+    timeout: 5000
+- tapOn: "Écris REPARTIR À ZÉRO pour confirmer"
+- inputText: "REPARTIR À ZÉRO"
+- tapOn: "Effacer l'état local"
+- extendedWaitUntil:
+    visible: "État local effacé."
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: "nav_tab_aujourdhui"
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/06-idempotence"

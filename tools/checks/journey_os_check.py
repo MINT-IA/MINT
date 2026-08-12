@@ -77,6 +77,8 @@ ALLOW = {
     "apps/mobile/lib/widgets/mint_shell.dart",
     "apps/mobile/test/widgets/preview_shell_masking_test.dart",
     "tools/runtime/mint_next_preview_shell_lifecycle.sh",
+    "tools/runtime/mint_next_local_reset_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_local_reset_lifecycle.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_preview_shell_lifecycle.yaml",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/01-aujourdhui-pur.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/preview-shell-lifecycle/02-parcours-fait-vertical.png",
