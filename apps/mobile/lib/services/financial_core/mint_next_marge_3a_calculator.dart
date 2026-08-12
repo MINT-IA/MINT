@@ -125,6 +125,27 @@ class MintNextMarge3aCalculator {
     Map<int, MintNextMarge3aRegulatorySet>? registryOverride,
     Set<String>? allowlistOverride,
   }) {
+    // Invariants de l'appelant AVANT tout état métier : une branche
+    // inconnue ou un domaine numérique impossible est un bug, pas un état.
+    const knownBranches = {
+      'undetermined_lpp_affiliation_unknown',
+      'undetermined_revenu_missing',
+      'lpp_affiliated_max',
+      'non_affiliated_20pct_capped',
+    };
+    if (!knownBranches.contains(plafondDetermination)) {
+      throw ArgumentError.value(plafondDetermination, 'plafondDetermination',
+          'unknown fiscal boundary branch');
+    }
+    if (annualNetCents != null && annualNetCents <= 0) {
+      throw ArgumentError.value(annualNetCents, 'annualNetCents',
+          'a canonical annualized income is strictly positive');
+    }
+    if (totalVerseCents != null && totalVerseCents < 0) {
+      throw ArgumentError.value(totalVerseCents, 'totalVerseCents',
+          'a canonical total is never negative');
+    }
+
     final registry = registryOverride ?? MintNextMarge3aRegistry.sets;
     final allowlist =
         allowlistOverride ?? MintNextMarge3aRegistry.allowedSnapshotHashes;
@@ -157,9 +178,14 @@ class MintNextMarge3aCalculator {
       case 'lpp_affiliated_max':
       case 'non_affiliated_20pct_capped':
         break;
-      default:
-        throw ArgumentError.value(plafondDetermination,
-            'plafondDetermination', 'unknown fiscal boundary branch');
+    }
+
+    // Les branches déterminées prouvent que le fait LPP existe : sa révision
+    // est OBLIGATOIRE pour sceller — une révision omise serait un trou de
+    // péremption (un fait corrigé passerait inaperçu à la revalidation).
+    if (lppRevision == null) {
+      throw ArgumentError.value(lppRevision, 'lppRevision',
+          'a determined branch requires the LPP fact revision to seal');
     }
 
     if (totalVerseCents == null || versementsBucketRevision == null) {
@@ -173,7 +199,7 @@ class MintNextMarge3aCalculator {
     final parameterKeys = <String>[];
     final inputRevisions = <String, String>{
       'versements_bucket': versementsBucketRevision,
-      if (lppRevision != null) 'lpp_affiliation': lppRevision,
+      'lpp_affiliation': lppRevision,
     };
     if (plafondDetermination == 'lpp_affiliated_max') {
       plafondCents = set.plafondLppAffiliatedCents;
@@ -185,6 +211,11 @@ class MintNextMarge3aCalculator {
           taxYear: taxYear,
         );
       }
+      // La branche non-LPP consomme le fait revenu : révision OBLIGATOIRE.
+      if (revenuRevision == null) {
+        throw ArgumentError.value(revenuRevision, 'revenuRevision',
+            'the non affiliated branch requires the revenu fact revision');
+      }
       // Arrondi normatif du contrat : floor au centime INFÉRIEUR — jamais
       // surestimer un plafond ; borné au grand plafond.
       final derived = annualNetCents * set.nonAffiliatedRatePercent ~/ 100;
@@ -193,9 +224,7 @@ class MintNextMarge3aCalculator {
       parameterKeys
         ..add('non_affiliated_rate_percent')
         ..add('grand_plafond_cents');
-      if (revenuRevision != null) {
-        inputRevisions['revenu'] = revenuRevision;
-      }
+      inputRevisions['revenu'] = revenuRevision;
     }
 
     return MintNextMarge3aResult(

@@ -133,8 +133,10 @@ void main() {
     final blocked = compute(branch: 'undetermined_revenu_missing');
     expect(blocked.status, MintNextMarge3aStatus.incomeMissing);
 
-    final alsoBlocked =
-        compute(branch: 'non_affiliated_20pct_capped', annualNetCents: null);
+    final alsoBlocked = compute(
+        branch: 'non_affiliated_20pct_capped',
+        annualNetCents: null,
+        revenuRevision: 'rev-r#1');
     expect(alsoBlocked.status, MintNextMarge3aStatus.incomeMissing);
 
     final affiliatedWithoutIncome =
@@ -167,6 +169,55 @@ void main() {
     expect(states.contains(MintNextMarge3aStatus.available), isFalse);
     expect(() => compute(branch: 'garbage_branch'), throwsArgumentError,
         reason: 'une branche inconnue est un invariant violé, pas un état');
+    expect(() => compute(branch: 'garbage_branch', taxYear: 2031),
+        throwsArgumentError,
+        reason: 'la validation de branche précède TOUT état métier — '
+            'jamais convertie en unsupported_tax_year');
+    expect(
+        () => compute(branch: 'garbage_branch', allowlistOverride: {'x'}),
+        throwsArgumentError,
+        reason: 'jamais convertie en regulatory_constants_unattested');
+  });
+
+  test('sealing requires every consumed fact revision — an omitted revision '
+      'is an invariant violation, never a silent hole', () {
+    expect(() => compute(lppRevision: null), throwsArgumentError,
+        reason: 'branche déterminée = fait LPP existant = révision exigée');
+    expect(
+        () => compute(
+            branch: 'non_affiliated_20pct_capped',
+            annualNetCents: 7654321,
+            revenuRevision: null),
+        throwsArgumentError,
+        reason: 'la branche non-LPP consomme le revenu — révision exigée');
+    final sealed = compute(
+        branch: 'non_affiliated_20pct_capped',
+        annualNetCents: 7654321,
+        revenuRevision: 'rev-r#1');
+    expect(sealed.inputRevisions.keys.toSet(),
+        {'versements_bucket', 'lpp_affiliation', 'revenu'},
+        reason: 'toutes les révisions consommées sont scellées');
+    expect(
+        MintNextMarge3aCalculator.revalidate(sealed, {
+          'versements_bucket': 'rev-v#3',
+          'lpp_affiliation': 'rev-lpp#1',
+          'revenu': 'rev-r#2',
+        }).status,
+        MintNextMarge3aStatus.staleInputs,
+        reason: 'un revenu corrigé périme la marge non-LPP');
+  });
+
+  test('impossible numeric domains are invariant violations, never plafonds',
+      () {
+    expect(
+        () => compute(
+            branch: 'non_affiliated_20pct_capped',
+            annualNetCents: -7654321,
+            revenuRevision: 'rev-r#1'),
+        throwsArgumentError,
+        reason: 'un revenu canonique est strictement positif — la troncature '
+            'vers zéro de ~/ ne doit jamais fabriquer un plafond');
+    expect(() => compute(totalVerseCents: -1), throwsArgumentError);
   });
 
   test('the result carries the input revisions and any strict inequality is '
