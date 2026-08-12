@@ -42,7 +42,9 @@
         "the quarantine marker is set per signed-in user after a verified purge",
         "the sealed PII universe (sensitive keys and manifest entries) is fully purged by reset",
         "the prefs key universe declared by the persistence service is fully purged by reset",
-        "the signed-in session keys are never part of any purged universe and survive reset"
+        "the signed-in session keys are never part of any purged universe and survive reset",
+        "a failed reset retried at boot still quarantines the signed-in user",
+        "every secure-storage consumer file is classified purge-covered or preserved (closed file registry)"
       ],
       "test_files": [
         "apps/mobile/test/services/local_preview_reset_service_test.dart"
@@ -55,7 +57,8 @@
       "tests": [
         "the reset entry renders only under the preview policy",
         "the copy never promises account or server deletion",
-        "the strong confirmation gates the destructive action"
+        "the strong confirmation gates the destructive action",
+        "a failed purge shows the honest retry message and never claims success"
       ],
       "test_files": [
         "apps/mobile/test/screens/profile/preview_reset_privacy_center_test.dart"

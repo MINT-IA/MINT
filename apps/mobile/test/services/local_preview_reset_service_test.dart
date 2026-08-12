@@ -25,6 +25,7 @@ void main() {
 
   tearDown(() {
     PreviewShellPolicy.debugOverride = null;
+    LocalPreviewResetService.debugPurgeFailureForTest = null;
     SecureWizardStore.resetSealFallbackForTest();
   });
 
@@ -48,7 +49,8 @@ void main() {
     expect(LocalPreviewResetService.purgedCanonicalValues, hasLength(5));
     expect(LocalPreviewResetService.preservedCanonicalMarkers, hasLength(5));
     expect(LocalPreviewResetService.purgedAnonymousKeys, hasLength(2));
-    expect(LocalPreviewResetService.purgeDelegations, isNotEmpty);
+    expect(LocalPreviewResetService.purgeDelegations, hasLength(7));
+    expect(LocalPreviewResetService.purgedSecureStoreKeys, hasLength(3));
     expect(LocalPreviewResetService.purgedPrefsKeys, hasLength(5));
     expect(LocalPreviewResetService.preservedDomains, isNotEmpty);
   });
@@ -142,6 +144,74 @@ void main() {
         reason: 'le retry a réellement purgé');
   });
 
+  test('a failed reset retried at boot still quarantines the signed-in user',
+      () async {
+    await seedFacts();
+    final prefs = await SharedPreferences.getInstance();
+    // Panne injectée APRÈS la pose du pending, AVANT toute purge.
+    LocalPreviewResetService.debugPurgeFailureForTest =
+        () async => throw StateError('injected purge failure');
+    await expectLater(
+        LocalPreviewResetService.reset(signedInUserId: 'user-42'),
+        throwsA(isA<StateError>()));
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isTrue);
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        'user-42',
+        reason: "l'identité visée survit à l'échec avec le pending");
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isFalse,
+        reason: 'pas de quarantaine tant que la purge n\'est pas vérifiée');
+
+    // La panne disparaît ; le retry au boot doit poser la quarantaine du
+    // BON compte — sinon la réhydratation serveur mentirait.
+    LocalPreviewResetService.debugPurgeFailureForTest = null;
+    await LocalPreviewResetService.retryPendingAtBoot();
+    expect(prefs.getBool(LocalPreviewResetService.resetPendingKey), isNull);
+    expect(prefs.getString(LocalPreviewResetService.resetPendingUserKey),
+        isNull);
+    expect(await LocalPreviewResetService.isQuarantined('user-42'), isTrue,
+        reason: 'le retry réussi pose la quarantaine du compte visé');
+  });
+
+  test('every secure-storage consumer file is classified purge-covered or '
+      'preserved (closed file registry)', () {
+    // Registre FERMÉ au niveau fichiers : tout nouveau consommateur de
+    // storage scellé doit être classé ici AVANT merge — purge-covered
+    // (ses clés tombent sous une délégation du reset) ou preserved (hors
+    // périmètre du reset, avec raison). Fichier non classé = FAIL.
+    const purgeCovered = {
+      'lib/services/secure_wizard_store.dart', // valeurs canoniques + PII
+      'lib/services/anonymous_session_service.dart', // quota anonyme
+      'lib/services/partner_estimate_service.dart', // estimation partenaire
+      'lib/services/mint_next_3a_task_store.dart', // tâche 3a du jumeau
+      'lib/services/biography/biography_repository.dart', // crypto-shred clé
+    };
+    const preserved = {
+      'lib/services/auth_service.dart', // session — jamais déconnecté
+      'lib/services/consent/consent_service.dart', // consentements
+      'lib/services/install_lifecycle_service.dart', // marqueurs install
+      'lib/providers/byok_provider.dart', // credential utilisateur
+      'lib/screens/byok_settings_screen.dart', // credential utilisateur
+      'lib/services/audit/audit_buffer_db.dart', // intégrité d\'audit
+      'lib/services/local_preview_reset_service.dart', // orchestrateur
+    };
+    final consumers = Directory('lib')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .where((f) =>
+            f.readAsStringSync().contains('flutter_secure_storage'))
+        .map((f) => f.path)
+        .toSet();
+    expect(consumers.length, greaterThan(8),
+        reason: 'balayage vide = test théâtre');
+    expect(purgeCovered.intersection(preserved), isEmpty);
+    for (final path in consumers) {
+      expect(purgeCovered.contains(path) || preserved.contains(path), isTrue,
+          reason: '$path consomme le storage scellé sans être classé '
+              'purge-covered OU preserved = dérive');
+    }
+  });
+
   test('running the reset twice is idempotent', () async {
     await seedFacts();
     await LocalPreviewResetService.reset();
@@ -228,7 +298,7 @@ void main() {
     // Les littéraux finissant par `_` sont des PRÉFIXES de routage
     // (startsWith), pas des clés — les clés dynamiques ainsi routées passent
     // par le manifeste, couvert plus bas.
-    final candidates = RegExp(r"'((?:q_|_coach_)[a-z_0-9]*[a-z0-9])'")
+    final candidates = RegExp(r"""['"]((?:q_|_coach_)[a-z_0-9]*[a-z0-9])['"]""")
         .allMatches(storeSource)
         .map((m) => m.group(1)!)
         .toSet();
@@ -272,7 +342,7 @@ void main() {
     final source = File('lib/services/report_persistence_service.dart')
         .readAsStringSync();
     final universe =
-        RegExp(r"static const String _\w*[Kk]ey\w*\s*=\s*'([^']+)'")
+        RegExp(r"""static const String _\w*[Kk]ey\w*\s*=\s*['"]([^'"]+)['"]""")
             .allMatches(source)
             .map((m) => m.group(1)!)
             .toSet();

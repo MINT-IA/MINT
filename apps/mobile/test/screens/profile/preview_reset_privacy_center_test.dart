@@ -15,6 +15,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
+import 'package:mint_mobile/services/local_preview_reset_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/observability/mint_http_client.dart';
@@ -166,6 +167,39 @@ void main() {
         reason: 'la saisie exacte déclenche la purge vérifiée');
     expect(find.text('home'), findsOneWidget,
         reason: 'retour à la racine de la coque après reset');
+  });
+
+  testWidgets(
+      'a failed purge shows the honest retry message and never claims '
+      'success', (tester) async {
+    // Panne injectée dans l'orchestrateur — l'UI doit montrer le message de
+    // retry, jamais le succès, et rester sur le centre de confidentialité.
+    LocalPreviewResetService.debugPurgeFailureForTest =
+        () async => throw StateError('injected purge failure');
+    addTearDown(
+        () => LocalPreviewResetService.debugPurgeFailureForTest = null);
+
+    await tester.pumpWidget(_buildApp());
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+        find.text('Repartir à zéro sur cet appareil ?'), 200);
+    await tester.tap(find.text('Repartir à zéro sur cet appareil ?'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+        find.byKey(const Key('preview_reset_confirm_field')),
+        'REPARTIR À ZÉRO');
+    await tester.tap(find.text("Effacer l'état local"));
+    await tester.pumpAndSettle();
+
+    expect(
+        find.text("L'effacement n'a pas abouti. Il sera retenté au prochain "
+            'démarrage.'),
+        findsOneWidget,
+        reason: 'échec partiel = rouge honnête, jamais silencieux');
+    expect(find.text('État local effacé.'), findsNothing,
+        reason: 'jamais un succès annoncé sur une purge non vérifiée');
+    expect(find.text('home'), findsNothing,
+        reason: 'pas de retour racine sur un reset non abouti');
   });
 
   testWidgets(

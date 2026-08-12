@@ -265,7 +265,10 @@ extension _PreviewResetFlow on _PrivacyCenterScreenState {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l.previewResetDone)));
       context.go('/home');
-    } on StateError {
+    } catch (_) {
+      // StateError (résidu/échec scellé) comme toute autre exception des
+      // couches de purge : reset_pending est posé, le retry au boot le
+      // reprendra — le rouge honnête couvre TOUS les échecs partiels.
       if (!mounted) return;
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l.previewResetFailed)));

@@ -1,6 +1,13 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:mint_mobile/services/biography/biography_repository.dart';
+import 'package:mint_mobile/services/cap_memory_store.dart';
+import 'package:mint_mobile/services/coach/precomputed_insights_service.dart';
+import 'package:mint_mobile/services/memory/coach_memory_service.dart';
+import 'package:mint_mobile/services/mint_next_3a_task_store.dart';
+import 'package:mint_mobile/services/partner_estimate_service.dart';
 import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 
@@ -18,6 +25,12 @@ class LocalPreviewResetService {
   /// Marqueur durable : un reset entamé qui échoue reste dû — retry au boot
   /// AVANT toute hydratation.
   static const String resetPendingKey = 'mint_preview_reset_pending_v1';
+
+  /// Identité du compte visé par un reset dû : persistée avec le pending
+  /// pour que le retry au boot pose la quarantaine du BON utilisateur —
+  /// sinon un échec puis un retry réussi laisserait la porte ouverte à la
+  /// réhydratation serveur.
+  static const String resetPendingUserKey = 'mint_preview_reset_pending_user_v1';
 
   /// Quarantaine de synchronisation : tant que présent pour l'utilisateur
   /// connecté, aucune hydratation serveur automatique ne repeuple le profil
@@ -53,11 +66,25 @@ class LocalPreviewResetService {
     'anonymous_message_count',
   ];
 
-  /// Le gros du métier est purgé par délégation à la purge complète
-  /// existante (pas de double implémentation) : diagnostic + historique
-  /// coach + conversations + session anonyme + budget + lettres.
+  /// Le gros du métier est purgé par délégation aux primitives existantes
+  /// (pas de double implémentation) — mêmes briques que la séquence de
+  /// purge V6-4 du logout, SANS toucher session/consentements.
   static const List<String> purgeDelegations = [
     'ReportPersistenceService.clear (clearDiagnostic + clearCoachHistory + conversations + AnonymousSessionService.clearSession + BudgetLocalStore.clear + lettres)',
+    'CoachMemoryService.clear (insights coach, namespaces compte + anonyme)',
+    'CapMemoryStore.clear (mémoire CapEngine)', // lint-ignore — inventaire interne, jamais rendu
+    'PrecomputedInsightsService.clear (insights précalculés)', // lint-ignore — inventaire interne, jamais rendu
+    'PartnerEstimateService.clear (estimation partenaire scellée)', // lint-ignore — inventaire interne, jamais rendu
+    'MintNext3aTaskStore.purgeOwnedTask (tâche 3a du jumeau)', // lint-ignore — inventaire interne, jamais rendu
+    'BiographyRepository.clearEncryptionKey (crypto-shred de la biographie)', // lint-ignore — inventaire interne, jamais rendu
+  ];
+
+  /// Clés scellées possédées par les stores délégués : vérifiées absentes
+  /// après purge (résidu = ROUGE).
+  static const List<String> purgedSecureStoreKeys = [
+    'mint_partner_estimate',
+    'mint_next_3a_task_v1',
+    'mint_biography_key',
   ];
 
   /// Clés prefs métier vérifiées absentes après purge (résidu = ROUGE).
@@ -82,6 +109,10 @@ class LocalPreviewResetService {
     "marqueurs d'installation/retry",
   ];
 
+  /// Panne injectée par les tests entre la pose du pending et la purge.
+  @visibleForTesting
+  static Future<void> Function()? debugPurgeFailureForTest;
+
   /// Purge locale complète — transactionnelle et idempotente.
   ///
   /// [signedInUserId] : pose la quarantaine de sync pour ce compte.
@@ -93,10 +124,30 @@ class LocalPreviewResetService {
     }
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(resetPendingKey, true);
+    if (signedInUserId != null && signedInUserId.isNotEmpty) {
+      await prefs.setString(resetPendingUserKey, signedInUserId);
+    }
+    // Panne injectable (même précédent que debugEarlyLocalPurgeFailure
+    // d'AuthProvider) : prouve que pending + identité survivent à un échec
+    // survenu APRÈS leur pose et AVANT toute purge.
+    await debugPurgeFailureForTest?.call();
 
     // Purge complète par délégation (diagnostic + coach + conversations +
     // session anonyme + budget + lettres).
     await ReportPersistenceService.clear(conversationUserId: signedInUserId);
+    // Mémoires dérivées et stores scellés annexes — mêmes primitives que la
+    // purge V6-4 du logout, session et consentements exclus.
+    await CoachMemoryService.clear(prefs: prefs);
+    await CapMemoryStore.clear();
+    await PrecomputedInsightsService.clear(prefs);
+    await PartnerEstimateService.clear();
+    final taskPurged = await MintNext3aTaskStore.purgeOwnedTask();
+    if (!taskPurged) {
+      throw StateError(
+          '3a task store purge failed — reset_pending kept, retried at '
+          'next boot');
+    }
+    await BiographyRepository.clearEncryptionKey();
 
     // Vérification zéro résidu — un résidu ou un échec de la couche scellée
     // laisse reset_pending posé (retry au boot) et remonte ROUGE.
@@ -108,6 +159,7 @@ class LocalPreviewResetService {
       await prefs.setString(quarantineKeyFor(signedInUserId),
           DateTime.now().toUtc().toIso8601String());
     }
+    await prefs.remove(resetPendingUserKey);
     await prefs.remove(resetPendingKey);
   }
 
@@ -123,7 +175,11 @@ class LocalPreviewResetService {
           'kept, retried at next boot');
     }
     const storage = FlutterSecureStorage();
-    for (final key in [...purgedCanonicalValues, ...purgedAnonymousKeys]) {
+    for (final key in [
+      ...purgedCanonicalValues,
+      ...purgedAnonymousKeys,
+      ...purgedSecureStoreKeys,
+    ]) {
       final residue = await storage.read(key: key);
       if (residue != null) {
         throw StateError(
@@ -146,7 +202,9 @@ class LocalPreviewResetService {
     final prefs = await SharedPreferences.getInstance();
     if (prefs.getBool(resetPendingKey) != true) return;
     try {
-      await reset();
+      // L'identité persistée avec le pending garantit que la quarantaine
+      // du BON compte est posée même quand le succès n'arrive qu'au retry.
+      await reset(signedInUserId: prefs.getString(resetPendingUserKey));
     } on StateError {
       // Toujours dû — reset_pending reste posé, l'app démarre quand même
       // (l'état affiché reste celui d'un reset en cours, pas un demi-état
