@@ -204,6 +204,28 @@ def _extract_redirect(window: str) -> list[str]:
 _WIDGET_SYMBOL = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
 
 
+def _named_callback(window: str, key: str) -> str | None:
+    """Nom du callback quand il est passé par référence (`redirect: helper`).
+
+    Une fonction nommée définie dans app.dart pouvait atteindre un chemin
+    legacy ou le shell sans entrer dans la fermeture (P1 review #6).
+    """
+    match = re.search(
+        rf"{key}:\s*([a-z_][A-Za-z0-9_]*)\s*[,)]", _mask_strings(window)
+    )
+    return match.group(1) if match else None
+
+
+def _callback_body(source: str, name: str) -> str:
+    """Corps de la fonction nommée `name` déclarée au niveau du fichier."""
+    masked = _mask_strings(source)
+    match = re.search(rf"\b{re.escape(name)}\s*\([^)]*\)\s*(?:async\s*)?\{{", masked)
+    if match is None:
+        return ""
+    start = masked.index("{", match.end() - 1)
+    return source[start : _balanced_extent(source, start)]
+
+
 def _extract_builders(window: str) -> set[str]:
     """Tous les symboles de widget cités par le builder, flèche ou bloc."""
     masked = _mask_strings(window)
@@ -249,11 +271,28 @@ def parse_router(source: str) -> list[RouteNode]:
         window = clean[offset:end]
         builders = _extract_builders(window)
         redirect = _extract_redirect(window)
+        # Callback passé par RÉFÉRENCE : on résout la fonction nommée et
+        # on analyse son corps comme s'il était inline.
+        for key, sink in (("redirect", "r"), ("builder", "b")):
+            name = _named_callback(window, key)
+            if name is None:
+                continue
+            body = _callback_body(clean, name)
+            if not body:
+                continue
+            if sink == "r":
+                redirect.extend(
+                    literal
+                    for expression in re.findall(r"return\s+([^;]*);", body)
+                    for literal in _PATH_LITERAL.findall(expression)
+                )
+            else:
+                builders |= set(_WIDGET_SYMBOL.findall(body))
         nodes.append(
             RouteNode(
                 path=path,
                 builders=builders,
-                redirect_targets=redirect,
+                redirect_targets=list(dict.fromkeys(redirect)),
             )
         )
     return nodes
@@ -589,6 +628,20 @@ def self_test() -> int:
     bb = build_closure(block_builder, registry)
     assert any("/sneaky" in e for e in bb.errors), (
         "a block-bodied builder returning the shell must FAIL", bb.errors)
+
+    named_callback = """
+    String? _legacyShim(BuildContext c, GoRouterState s) {
+      return '/legit';
+    }
+
+    GoRoute(
+      path: '/sneaky',
+      redirect: _legacyShim,
+    ),
+""" + good_router
+    nc = build_closure(named_callback, registry)
+    assert any("/sneaky" in e for e in nc.errors), (
+        "a named redirect callback reaching the shell must FAIL", nc.errors)
 
     cyclic = """
     GoRoute(path: '/a', redirect: (_, __) => '/b'),
