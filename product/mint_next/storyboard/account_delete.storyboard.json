@@ -160,11 +160,11 @@
     "b3a_outcomes_runtime": [
       "coque préversion anonyme → centre de confidentialité : section « Compte » avec « Aucun compte connecté » visible, « Supprimer mon compte » ABSENT",
       "variante préversion du message pointant vers « Effacer l'état local » (renvoi B2 sur la même page)",
-      "câblage drawer → centre : action:profile.open_drawer puis « Supprimer mon compte » atterrit sur le centre SANS confirmation locale",
+      "drawer ANONYME honnête : « Se connecter » visible, « Supprimer mon compte » structurellement ABSENT (l'entrée n'existe qu'avec un compte canonique)",
       "renvoi B2 EXÉCUTÉ depuis l'état anonyme : reset complet → état zéro",
       "zéro transmission SORTANTE (REQBODY)"
     ],
-    "b3a_non_runtime": "flag isLoggedIn périmé (a2) et chemin connecté intact (a5) = tests widget cités au reçu — le runtime anonyme n'a pas de compte et un flag périmé ne s'injecte pas au runtime",
+    "b3a_non_runtime": "flag isLoggedIn périmé (a2), chemin connecté intact (a5) et TAP drawer→centre avec compte (a4) = tests widget cités au reçu — le runtime anonyme n'a pas de compte : l'entrée drawer y est structurellement absente (prouvé au screenshot 03), et un flag périmé ne s'injecte pas au runtime",
     "b3b_gate": "DELETE réel sur STAGING, conditions ARRÊTÉES ICI : compte jetable dédié créé pour le run (jamais production, jamais le compte de Julien, zéro donnée réelle) ; endpoint staging vérifié avant confirmation ; identifiant de compte + clé d'opération consignés au reçu, secrets expurgés ; preuve serveur AVANT/APRÈS (compte présent puis absent) ; SECOND DELETE avec la même clé = succès idempotent prouvé ; scénario serveur-OK/local-KO injecté puis relance jusqu'à convergence ; contrôle final d'absence des données et objets attendus côté serveur ET local",
     "preuves": "review Codex contrat P1=0 · tests promus par tranche (AUCUN tests_planned résiduel — suites nommées : apps/mobile/test/screens/profile/*account*_test.dart + apps/mobile/test/services/account_delete_service_test.dart + services/backend/tests/test_auth_delete_*.py, commandes : flutter test <suites> ; cd services/backend && python3 -m pytest tests/test_auth_delete_*.py -q) · reçu runtime lié au SHA"
   }

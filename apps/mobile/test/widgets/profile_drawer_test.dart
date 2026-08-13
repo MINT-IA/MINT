@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/profile_drawer.dart';
@@ -9,6 +10,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeAuthProvider extends ChangeNotifier implements AuthProvider {
+  @override
+  AuthLifecycleState get authLifecycle =>
+      AuthLifecycleState.cloudSyncOnAccount(userId: 'test-user');
+
   @override
   bool isLoggedIn = true;
 

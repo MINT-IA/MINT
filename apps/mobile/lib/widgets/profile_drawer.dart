@@ -137,7 +137,9 @@ class ProfileDrawer extends StatelessWidget {
             Builder(
               builder: (context) {
                 final auth = context.watch<AuthProvider>();
-                if (auth.isLoggedIn) {
+                // B3a — autorité canonique : un isLoggedIn périmé ne doit
+                // jamais exposer l'entrée de suppression ici non plus.
+                if (auth.authLifecycle.hasAccountSession) {
                   return Column(
                     children: [
                       _buildSection(
