@@ -1,0 +1,155 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "account_delete_bascule3",
+    "title": "Bascule 3 — suppression de compte honnête (B3a état anonyme, B3b transaction connectée)",
+    "promise": "Plus jamais « Suppression impossible pour le moment » menti à un état sans compte : sans identité canoniquement confirmée, l'action de suppression n'existe pas — l'état anonyme est explicite et, en préversion, renvoie au reset local (B2). Pour un compte confirmé, la suppression devient transactionnelle : DELETE serveur idempotent, reçu durable, purge locale account-scoped vérifiée, quota device anti-abus PRÉSERVÉ, chaque échec dit la vérité (serveur-OK/local-KO n'est jamais « échec de suppression »)."
+  },
+  "generated_at": "2026-08-13",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
+    "cadrage": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule3-account-delete-cadrage-codex.md (GO Codex, deux tranches ordonnées B3a puis B3b, constats sur pièces : retry-401 contourné api_service.dart:785, purge absorbée auth_provider.dart:1220, résidu backend money_truth_receipts auth.py:1265)"
+  },
+  "semantic_contract": "AUTORITÉ D'IDENTITÉ : le rendu de l'action « Supprimer mon compte » est piloté par l'état auth CANONIQUE (AuthProvider.authLifecycle), jamais par un booléen isLoggedIn potentiellement périmé face aux jetons réels. ENTRYPOINT UNIQUE : le centre de confidentialité porte l'unique confirmation ; le drawer NAVIGUE (sa seconde confirmation divergente disparaît). ÉTATS UI (5) : anonyme+preview → état « aucun compte » + renvoi au reset local B2 ; anonyme hors preview → aucun reset, aucune suppression, comportement inchangé ; connecté confirmé → flux de suppression ; session périmée → reconnexion demandée (B3b) ; serveur-OK/local-incomplet → « terminer le nettoyage » (B3b). COPIE BORNÉE (B3b, résidu backend existant) : jamais « toutes tes données » tant que l'inventaire serveur n'est pas fermé (money_truth_receipts). QUOTA DEVICE : anonymous_session_id + anonymous_message_count sont un anti-abus DEVICE-scoped — une suppression de compte PUBLIQUE les PRÉSERVE (correction de la purge V6-4 qui les efface aujourd'hui, tranche B3b) ; leur purge n'existe QUE via le reset B2 preview-only (acté au cadrage B2, boucle testeur unique). RÉSOLUTION DE LA TENSION beat-8 : l'invariant « le quota demeure » vaut pour le chemin PUBLIC (aucun reset n'y existe) et pour le chemin suppression-de-compte (B3b) ; le chemin B2 préversion conserve sa purge actée — les deux contrats coexistent sans contradiction car ils vivent sur des surfaces disjointes.",
+  "known_risks_from_cadrage": [
+    "isLoggedIn périmé peut exposer une suppression à un état sans compte — l'autorité est l'état lifecycle canonique",
+    "deux entrypoints divergents (centre + drawer) = deux confirmations, deux copies — un seul flux canonique",
+    "purge V6-4 efface le quota anonyme device : contournement anti-abus par suppression de compte — à corriger en B3b",
+    "serveur-OK/local-KO affiché « échec de suppression » = mensonge inverse — pending + reçu durable + reprise au boot (B3b)",
+    "toute promesse « toutes tes données » est fausse tant que le résidu backend demeure (money_truth_receipts)"
+  ],
+  "out_of_scope": [
+    "destruction des writers legacy (chantier C)",
+    "restauration de compte / undo (jamais promis)"
+  ],
+  "beats": [
+    {
+      "id": "a1_etat_anonyme_honnete",
+      "tranche": "B3a",
+      "story": "Sans identité canoniquement confirmée, le centre de confidentialité montre un état « aucun compte connecté » explicite — jamais l'action de suppression, jamais une promesse serveur.",
+      "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+      "tests_planned": [
+        "without a canonically signed-in identity the delete account action never renders",
+        "the anonymous state shows an explicit no-account message instead of a server deletion promise"
+      ]
+    },
+    {
+      "id": "a2_autorite_canonique",
+      "tranche": "B3a",
+      "story": "Le rendu est piloté par authLifecycle — un flag isLoggedIn périmé sans identité canonique n'expose JAMAIS la suppression.",
+      "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+      "tests_planned": [
+        "a stale logged-in flag without canonical identity never exposes account deletion"
+      ]
+    },
+    {
+      "id": "a3_renvoi_b2_preview",
+      "tranche": "B3a",
+      "story": "En préversion, l'état anonyme renvoie au reset local et le PARCOURS COMPLET est prouvé : renvoi → confirmation explicitement LOCALE (copie bornée B2) → exécution effective de B2 → coque anonyme propre → quota constaté PURGÉ (contrat B2 preview-only). Hors préversion : ni reset ni suppression, comportement public inchangé.",
+      "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+      "tests_planned": [
+        "in preview the anonymous state points to the local reset and outside preview it never does",
+        "following the anonymous pointer runs the full B2 reset and lands on a clean anonymous shell"
+      ]
+    },
+    {
+      "id": "a4_entrypoint_unique",
+      "tranche": "B3a",
+      "story": "Le drawer navigue vers le centre de confidentialité — sa confirmation divergente disparaît, une seule implémentation du flux.",
+      "code": "apps/mobile/lib/widgets/profile_drawer.dart",
+      "tests_planned": [
+        "the drawer account deletion entry navigates to the privacy center and owns no confirmation of its own"
+      ]
+    },
+    {
+      "id": "a5_connecte_intact",
+      "tranche": "B3a",
+      "story": "Un compte canoniquement confirmé garde le flux de suppression existant — référence positive, B3a ne change rien au chemin connecté.",
+      "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+      "tests_planned": [
+        "a canonically signed-in user still gets the existing delete account flow"
+      ]
+    },
+    {
+      "id": "b1_intention_durable",
+      "tranche": "B3b",
+      "story": "Identité vérifiée via l'état canonique, intention account_delete_pending durable liée au userId AVANT tout appel serveur.",
+      "code": "apps/mobile/lib/services/account_delete_service.dart (nouveau, orchestrateur unique)",
+      "tests_planned": [
+        "the delete intention is durably recorded for the canonical user before any server call",
+        "a crash after the intention write leaves a replayable pending and nothing purged",
+        "a double tap never issues two distinct operations — the same durable operation key is reused"
+      ]
+    },
+    {
+      "id": "b2_delete_idempotent",
+      "tranche": "B3b",
+      "story": "DELETE serveur idempotent (refresh + clé d'opération stable). Un timeout/5xx post-envoi est une issue AMBIGUË — il ne prouve jamais que le compte a survécu : le local reste intact, la MÊME clé d'opération est rejouée, et seul le reçu/état durable résout l'existence du compte avant toute affirmation à l'utilisateur. Compte déjà absent = succès.",
+      "code": "services/backend/app/api/v1/endpoints/auth.py (DELETE idempotent par clé d'opération)",
+      "tests_planned": [
+        "replaying the delete operation key on an already absent account returns success",
+        "a lost response is safely replayed with the same operation key",
+        "a single refresh is attempted on 401 and an expired refresh surfaces a reconnect state, never a purge",
+        "an ambiguous timeout or 5xx keeps local data intact and resolves the account state only by replaying the operation key — never by assuming the account survived"
+      ]
+    },
+    {
+      "id": "b3_matrice_serveur_local",
+      "tranche": "B3b",
+      "story": "Transaction durable ordonnée intention → DELETE → reçu → purge → providers → finalisation, avec MATRICE DE CRASH : une interruption à CHAQUE frontière conserve pending + userId + reçu cohérents et reprend au boot jusqu'à convergence. Serveur-OK/local-KO n'est JAMAIS « échec de suppression » ; serveur-KO ne purge rien ; aucun marqueur account-scoped ne peut réhydrater le compte supprimé ; double boot et retries concurrents convergent sans double effet.",
+      "code": "apps/mobile/lib/services/account_delete_service.dart",
+      "tests_planned": [
+        "a confirmed server deletion with a failed local purge resumes cleanup at boot and never reports a deletion failure",
+        "a failed server deletion keeps local data intact and offers an honest retry",
+        "a crash at every durable boundary of the transaction resumes to convergence with pending, user and receipt coherent",
+        "no account-scoped marker can rehydrate the deleted account after any partial state",
+        "concurrent retries and a double boot converge without double effects"
+      ]
+    },
+    {
+      "id": "b4_purge_account_scoped",
+      "tranche": "B3b",
+      "story": "Purge locale account-scoped à écritures VÉRIFIÉES sur un INVENTAIRE FERMÉ : deux registres constants account-scoped (purgés : credentials, session, marqueurs et préférences DU COMPTE, caches et mémoires dérivées, tâches) vs device-scoped (préservés : quota anonyme anti-abus — fix V6-4 —, préférences APPAREIL uniquement, disclosure, marqueurs d'installation). Providers réinitialisés, échec d'écriture injecté = jamais un succès, clé non classée = FAIL.",
+      "code": "apps/mobile/lib/services/account_delete_service.dart",
+      "tests_planned": [
+        "the closed account-scoped inventory is fully purged with verified writes while every device-scoped key survives",
+        "an unclassified sensitive key fails the partition (anti-drift guard)",
+        "an injected write failure never lets the purge report success",
+        "providers are reset and no surface can navigate to deleted account data"
+      ]
+    },
+    {
+      "id": "b5_erreurs_honnetes",
+      "tranche": "B3b",
+      "story": "401 périmé → refresh unique puis reconnexion demandée ; 5xx/offline → « non confirmée par le serveur », local intact ; jamais un succès affiché sans reçu serveur + purge vérifiée.",
+      "code": "apps/mobile/lib/screens/profile/",
+      "tests_planned": [
+        "an expired session asks to reconnect and never converts into a local purge",
+        "a server error keeps local data and never claims success",
+        "the success state requires BOTH a durable server receipt and a verified local purge"
+      ]
+    },
+    {
+      "id": "b6_inventaire_backend",
+      "tranche": "B3b",
+      "story": "Inventaire backend exhaustif des tables/objets account-scoped, money_truth_receipts traité (crypto-destruction ou classement justifié) — PRÉALABLE à toute copie plus ferme que la promesse bornée.",
+      "code": "services/backend/app/api/v1/endpoints/auth.py + services/backend/tests/",
+      "tests_planned": [
+        "the backend deletion inventory is closed: every account-scoped table and object is enumerated and handled",
+        "money_truth_receipts is crypto-destroyed or its retention is explicitly classified and surfaced in the copy"
+      ]
+    }
+  ],
+  "gate_requirements": {
+    "b3a_outcomes_runtime": [
+      "coque préversion anonyme → centre de confidentialité : état « aucun compte connecté » visible, action de suppression ABSENTE",
+      "parcours COMPLET du renvoi : pointeur → confirmation locale B2 → exécution → coque anonyme propre (quota purgé, contrat B2 preview)",
+      "drawer → entrée compte → atterrit sur le centre (aucune confirmation locale au drawer)",
+      "zéro transmission SORTANTE (REQBODY)"
+    ],
+    "b3a_non_runtime": "le chemin connecté (a5) et le flag périmé (a2) sont des tests widget — le runtime anonyme de la coque n'a pas de compte ; cités au reçu",
+    "b3b_gate": "DELETE réel sur STAGING, conditions ARRÊTÉES ICI : compte jetable dédié créé pour le run (jamais production, jamais le compte de Julien, zéro donnée réelle) ; endpoint staging vérifié avant confirmation ; identifiant de compte + clé d'opération consignés au reçu, secrets expurgés ; preuve serveur AVANT/APRÈS (compte présent puis absent) ; SECOND DELETE avec la même clé = succès idempotent prouvé ; scénario serveur-OK/local-KO injecté puis relance jusqu'à convergence ; contrôle final d'absence des données et objets attendus côté serveur ET local",
+    "preuves": "review Codex contrat P1=0 · tests promus par tranche (AUCUN tests_planned résiduel — suites nommées : apps/mobile/test/screens/profile/*account*_test.dart + apps/mobile/test/services/account_delete_service_test.dart + services/backend/tests/test_auth_delete_*.py, commandes : flutter test <suites> ; cd services/backend && python3 -m pytest tests/test_auth_delete_*.py -q) · reçu runtime lié au SHA"
+  }
+}
