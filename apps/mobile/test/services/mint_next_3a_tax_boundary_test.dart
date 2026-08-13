@@ -9,13 +9,21 @@ void main() {
       effectiveAt: DateTime.utc(2026, 1, 1),
     );
     expect(context.toJson(), {
-      // v6 (Lego 5) : domicile + situation civile + revenu + affiliation
-      // LPP + versements 3a canoniques. Sans faits confirmés, rien de
-      // personnel n'apparaît, et le plafond 3a est non déterminé.
-      'context_version': 6,
+      // v7 : le LOGEMENT rejoint domicile, situation civile, revenu,
+      // affiliation LPP et versements 3a. Les intérêts hypothécaires étaient
+      // enregistrés et n'atteignaient aucun calcul — la donnée n'était pas
+      // perdue, elle était inerte.
+      //
+      // La version passe de 6 à 7 parce que la charge utile change : un
+      // consommateur qui lit « v6 » ne doit pas recevoir en silence un champ
+      // que v6 ne décrivait pas.
+      //
+      // Sans faits confirmés, rien de personnel n'apparaît.
+      'context_version': 7,
       'tax_year': 2026,
       'effective_at': '2026-01-01T00:00:00.000Z',
       'capability': 'no_attested_engine',
+      'housing_status': 'missing',
       'domicile_status': 'missing',
       'civil_status_status': 'missing',
       'revenu_status': 'missing',

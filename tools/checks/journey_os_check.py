@@ -671,6 +671,7 @@ ALLOW = {
     "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart",
     "apps/mobile/lib/models/mint_next_housing_fact.dart",
     "apps/mobile/test/models/mint_next_housing_fiscal_context_test.dart",
+    "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",

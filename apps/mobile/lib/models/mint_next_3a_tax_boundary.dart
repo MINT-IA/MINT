@@ -268,7 +268,7 @@ abstract interface class ConfirmedVersements3aSource {
 
 class MintNext3aFiscalContext {
   const MintNext3aFiscalContext({
-    this.contextVersion = 6,
+    this.contextVersion = 7,
     required this.taxYear,
     required this.effectiveAt,
     this.domicile,
