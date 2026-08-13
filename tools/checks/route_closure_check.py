@@ -99,7 +99,7 @@ def parse_registry(source: str) -> dict[str, str]:
     """path → owner, depuis kRouteRegistry."""
     owners: dict[str, str] = {}
     for match in re.finditer(
-        r"'([^']+)':\s*RouteMeta\((.*?)\n  \),", source, re.S
+        r"""['"]([^'"]+)['"]:\s*RouteMeta\((.*?)\n  \),""", source, re.S
     ):
         path, body = match.group(1), match.group(2)
         owner = re.search(r"owner:\s*RouteOwner\.(\w+)", body)
@@ -108,14 +108,33 @@ def parse_registry(source: str) -> dict[str, str]:
     return owners
 
 
+_STRING_LITERAL = re.compile(r"""'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*\"""")
+
+
+def _mask_strings(source: str) -> str:
+    """Remplace le CONTENU des chaînes par des points, longueur préservée.
+
+    Sans cela, un `debugPrint('}')` faisait croire à une fin de bloc et
+    tronquait l'analyse avant le `return` réel (P1 review #4). Les
+    positions restent valides : on peut découper la source d'origine
+    avec les index calculés sur la version masquée.
+    """
+    def blank(match: "re.Match[str]") -> str:
+        raw = match.group()
+        return raw[0] + "." * (len(raw) - 2) + raw[-1]
+
+    return _STRING_LITERAL.sub(blank, source)
+
+
 def _balanced_extent(source: str, open_at: int) -> int:
     """Fin de l'expression ouverte à `open_at` — accolades/parenthèses
     équilibrées. Une regex non-gourmande tronquait un bloc à sa première
     `}`, ratant les returns situés après un `if { ... }` (P1 review #3)."""
+    masked = _mask_strings(source)
     depth = 0
     index = open_at
-    while index < len(source):
-        char = source[index]
+    while index < len(masked):
+        char = masked[index]
         if char in "{(":
             depth += 1
         elif char in "})":
@@ -140,11 +159,12 @@ def _extract_redirect(window: str) -> list[str]:
     ici — une cible en trop rend la fermeture plus conservatrice, jamais
     plus permissive.
     """
-    match = re.search(r"redirect:\s*\([^)]*\)\s*(=>|\{)", window)
+    masked_window = _mask_strings(window)
+    match = re.search(r"redirect:\s*\([^)]*\)\s*(=>|\{)", masked_window)
     if match is None:
         return []
     if match.group(1) == "{":
-        body_start = window.index("{", match.end() - 1)
+        body_start = masked_window.index("{", match.end() - 1)
         body = window[body_start : _balanced_extent(window, body_start)]
         # Seules les valeurs RETOURNÉES sont des cibles : un littéral de
         # condition (`if (state.uri.path == '/profile')`) n'en est pas une
@@ -159,9 +179,10 @@ def _extract_redirect(window: str) -> list[str]:
         # Expression fléchée : jusqu'à la virgule de fin d'argument au
         # niveau 0 (les parenthèses internes sont équilibrées).
         rest = window[match.end() :]
+        masked_rest = _mask_strings(rest)
         depth = 0
         cut = len(rest)
-        for index, char in enumerate(rest):
+        for index, char in enumerate(masked_rest):
             if char in "({[":
                 depth += 1
             elif char in ")}]":
@@ -183,7 +204,10 @@ def parse_router(source: str) -> list[RouteNode]:
     # Chaque déclaration de route commence par `path: '...'` ; on lit la
     # fenêtre qui suit jusqu'au prochain `path:` pour y trouver builder et
     # redirect (les GoRoute imbriquées restent capturées par leur path).
-    starts = [(m.start(), m.group(1)) for m in re.finditer(r"path:\s*'([^']+)'", clean)]
+    starts = [
+        (m.start(), m.group(1))
+        for m in re.finditer(r"""path:\s*['"]([^'"]+)['"]""", clean)
+    ]
     for index, (offset, path) in enumerate(starts):
         end = starts[index + 1][0] if index + 1 < len(starts) else len(clean)
         window = clean[offset:end]
@@ -493,6 +517,29 @@ def self_test() -> int:
     nb = build_closure(nested_block, registry)
     assert any("/onboarding/nested-block" in e for e in nb.errors), (
         "a return AFTER a nested if-block must be seen", nb.errors)
+
+    brace_in_string = """
+    GoRoute(
+      path: '/onboarding/brace-in-string',
+      redirect: (_, state) {
+        debugPrint('}');
+        return '/legit';
+      },
+    ),
+""" + good_router
+    bis = build_closure(brace_in_string, registry)
+    assert any("/onboarding/brace-in-string" in e for e in bis.errors), (
+        "a brace inside a string must not truncate the block", bis.errors)
+
+    double_quoted_path = '''
+    GoRoute(
+      path: "/onboarding/double-path",
+      redirect: (_, __) => '/legit',
+    ),
+''' + good_router
+    dqp = build_closure(double_quoted_path, registry)
+    assert any("/onboarding/double-path" in e for e in dqp.errors), (
+        "a double-quoted route path must be parsed", dqp.errors)
 
     cyclic = """
     GoRoute(path: '/a', redirect: (_, __) => '/b'),
