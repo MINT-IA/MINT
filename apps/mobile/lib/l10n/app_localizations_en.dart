@@ -24143,6 +24143,17 @@ class SEn extends S {
       'The erase did not complete. It will be retried at next launch.';
 
   @override
+  String get accountDeleteNoAccountTitle => 'Account';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'No account is signed in on this device — there is no account to delete.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'No account is signed in on this device — there is no account to delete. To start over, use “Erase local state” in the Preview section above.';
+
+  @override
   String get privacyCenterEmpty => 'No active consent yet.';
 
   @override

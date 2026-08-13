@@ -40,6 +40,11 @@ Widget _buildDrawerApp({
   final router = GoRouter(
     routes: [
       GoRoute(
+        path: '/profile/privacy',
+        builder: (_, __) =>
+            const Scaffold(body: Text('privacy-center-stub')),
+      ),
+      GoRoute(
         path: '/',
         builder: (context, state) {
           return Scaffold(
@@ -102,8 +107,9 @@ void main() {
     expect(find.text('Supprimer mon compte'), findsOneWidget);
   });
 
-  testWidgets('account deletion confirmation calls auth provider',
-      (tester) async {
+  testWidgets(
+      'the drawer account deletion entry navigates to the privacy center '
+      'and owns no confirmation of its own', (tester) async {
     tester.view.physicalSize = const Size(1170, 2532);
     tester.view.devicePixelRatio = 3;
 
@@ -117,12 +123,13 @@ void main() {
     await tester.tap(find.text('Supprimer mon compte'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Supprimer le compte ?'), findsOneWidget);
-    expect(find.text('Supprimer'), findsOneWidget);
-
-    await tester.tap(find.text('Supprimer'));
-    await tester.pumpAndSettle();
-
-    expect(authProvider.deleteAccountCalled, isTrue);
+    // B3a — entrypoint UNIQUE : aucune confirmation au drawer, navigation
+    // vers le centre de confidentialité qui porte l'unique flux.
+    expect(find.text('Supprimer le compte ?'), findsNothing,
+        reason: 'la confirmation divergente du drawer a disparu');
+    expect(authProvider.deleteAccountCalled, isFalse,
+        reason: 'le drawer ne supprime JAMAIS lui-même');
+    expect(find.text('privacy-center-stub'), findsOneWidget,
+        reason: 'navigation vers /profile/privacy');
   });
 }

@@ -42382,6 +42382,24 @@ abstract class S {
   /// **'L\'effacement n\'a pas abouti. Il sera retenté au prochain démarrage.'**
   String get previewResetFailed;
 
+  /// No description provided for @accountDeleteNoAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte'**
+  String get accountDeleteNoAccountTitle;
+
+  /// No description provided for @accountDeleteNoAccountBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte connecté sur cet appareil — il n\'y a pas de compte à supprimer.'**
+  String get accountDeleteNoAccountBody;
+
+  /// No description provided for @accountDeleteNoAccountBodyPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte connecté sur cet appareil — il n\'y a pas de compte à supprimer. Pour repartir à zéro, utilise « Effacer l\'état local » dans la section Préversion ci-dessus.'**
+  String get accountDeleteNoAccountBodyPreview;
+
   /// No description provided for @privacyCenterEmpty.
   ///
   /// In fr, this message translates to:

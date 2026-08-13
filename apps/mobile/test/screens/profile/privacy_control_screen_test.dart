@@ -6,6 +6,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/providers/biography_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
 import 'package:mint_mobile/screens/profile/privacy_control_screen.dart';
@@ -211,6 +212,10 @@ Future<BiographyProvider> _createProvider(
 class _FakeAuth extends ChangeNotifier implements AuthProvider {
   @override
   bool isLoggedIn = false;
+
+  @override
+  AuthLifecycleState get authLifecycle =>
+      AuthLifecycleState.guestEmpty(installId: 'test-install');
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);

@@ -29,9 +29,12 @@
       "tranche": "B3a",
       "story": "Sans identité canoniquement confirmée, le centre de confidentialité montre un état « aucun compte connecté » explicite — jamais l'action de suppression, jamais une promesse serveur.",
       "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
-      "tests_planned": [
+      "tests": [
         "without a canonically signed-in identity the delete account action never renders",
         "the anonymous state shows an explicit no-account message instead of a server deletion promise"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/profile/account_delete_b3a_test.dart"
       ]
     },
     {
@@ -39,8 +42,11 @@
       "tranche": "B3a",
       "story": "Le rendu est piloté par authLifecycle — un flag isLoggedIn périmé sans identité canonique n'expose JAMAIS la suppression.",
       "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
-      "tests_planned": [
+      "tests": [
         "a stale logged-in flag without canonical identity never exposes account deletion"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/profile/account_delete_b3a_test.dart"
       ]
     },
     {
@@ -48,9 +54,12 @@
       "tranche": "B3a",
       "story": "En préversion, l'état anonyme renvoie au reset local et le PARCOURS COMPLET est prouvé : renvoi → confirmation explicitement LOCALE (copie bornée B2) → exécution effective de B2 → coque anonyme propre → quota constaté PURGÉ (contrat B2 preview-only). Hors préversion : ni reset ni suppression, comportement public inchangé.",
       "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
-      "tests_planned": [
+      "tests": [
         "in preview the anonymous state points to the local reset and outside preview it never does",
         "following the anonymous pointer runs the full B2 reset and lands on a clean anonymous shell"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/profile/account_delete_b3a_test.dart"
       ]
     },
     {
@@ -58,8 +67,11 @@
       "tranche": "B3a",
       "story": "Le drawer navigue vers le centre de confidentialité — sa confirmation divergente disparaît, une seule implémentation du flux.",
       "code": "apps/mobile/lib/widgets/profile_drawer.dart",
-      "tests_planned": [
+      "tests": [
         "the drawer account deletion entry navigates to the privacy center and owns no confirmation of its own"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/profile_drawer_test.dart"
       ]
     },
     {
@@ -67,8 +79,11 @@
       "tranche": "B3a",
       "story": "Un compte canoniquement confirmé garde le flux de suppression existant — référence positive, B3a ne change rien au chemin connecté.",
       "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
-      "tests_planned": [
+      "tests": [
         "a canonically signed-in user still gets the existing delete account flow"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/profile/account_delete_b3a_test.dart"
       ]
     },
     {

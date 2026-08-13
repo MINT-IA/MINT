@@ -24269,6 +24269,17 @@ class SFr extends S {
       'L\'effacement n\'a pas abouti. Il sera retenté au prochain démarrage.';
 
   @override
+  String get accountDeleteNoAccountTitle => 'Compte';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'Aucun compte connecté sur cet appareil — il n\'y a pas de compte à supprimer.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'Aucun compte connecté sur cet appareil — il n\'y a pas de compte à supprimer. Pour repartir à zéro, utilise « Effacer l\'état local » dans la section Préversion ci-dessus.';
+
+  @override
   String get privacyCenterEmpty => 'Aucun consentement actif pour le moment.';
 
   @override

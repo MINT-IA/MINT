@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
@@ -28,6 +29,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   @override
   bool isLoggedIn = true;
+
+  // B3a : l'autorité du rendu est le lifecycle CANONIQUE — anonyme ici.
+  @override
+  AuthLifecycleState get authLifecycle =>
+      AuthLifecycleState.guestEmpty(installId: 'test-install');
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -119,6 +125,10 @@ void main() {
             http.Response('{"detail":"boom"}', 500)),
       ),
     );
+    // Portrait téléphone : le viewport test par défaut (800x600 paysage)
+    // fait déborder la carte d'erreur sous les sections locales.
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
     await tester.pumpWidget(_buildApp());
     await tester.pumpAndSettle();
 
@@ -253,7 +263,12 @@ void main() {
     expect(find.text('Préversion'), findsNothing);
     expect(find.text('Repartir à zéro sur cet appareil ?'), findsNothing);
     expect(find.text("Effacer l'état local"), findsNothing);
-    // Référence OFF positive : le reste du centre est inchangé.
-    expect(find.text('Supprimer mon compte'), findsOneWidget);
+    // Référence OFF positive : l'état compte anonyme HONNÊTE rend (B3a) —
+    // version publique SANS pointeur préversion.
+    expect(find.text('Supprimer mon compte'), findsNothing);
+    expect(
+        find.text("Aucun compte connecté sur cet appareil — il n'y a pas "
+            'de compte à supprimer.'),
+        findsOneWidget);
   });
 }
