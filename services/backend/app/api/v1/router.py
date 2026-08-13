@@ -39,6 +39,7 @@ from app.api.v1.endpoints import (
     arbitrage,
     snapshots,
     coach_chat,
+    coach_twin_read,
     commitment,
     fresh_start,
     notifications,
@@ -172,7 +173,9 @@ api_router.include_router(
 # one concept. Schemas coach.py + service coach_narrative_service.py removed
 # in this commit.
 api_router.include_router(
-    coach_chat.router, prefix="/coach", tags=["Coach Chat S56"]
+    coach_chat.router, prefix="/coach", tags=["Coach Chat S56"])
+api_router.include_router(
+    coach_twin_read.router, prefix="/coach", tags=["Coach Twin-Read C1"]
 )
 api_router.include_router(
     notifications.router, prefix="/notifications", tags=["Notifications S36"]
