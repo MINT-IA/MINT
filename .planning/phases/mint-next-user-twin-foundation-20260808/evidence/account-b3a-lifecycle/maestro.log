@@ -1,0 +1,35 @@
+Running on Mint B3a Proof-b4fbc67d2-82671 - iOS 26.2 - 2B7BCEAA-97D5-40A9-8945-E39243FEB0FC
+ > Flow flow_mint_next_account_b3a_lifecycle
+Launch app "ch.mint.app" with clear state... COMPLETED
+Run flow when "Je comprends, on y va" is visible...
+  Tap on "Je comprends, on y va"... COMPLETED
+  Wait for animation to end... COMPLETED
+Run flow when "Je comprends, on y va" is visible... COMPLETED
+Open mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready... COMPLETED
+Run flow when "Ouvrir" is visible...
+  Tap on "Ouvrir"... COMPLETED
+Run flow when "Ouvrir" is visible... COMPLETED
+Assert that id: e2e_profile_fixture_applied is visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run flow when "Continuer sans compte" is visible...
+Run flow when "Continuer sans compte" is visible... SKIPPED
+Open mintapp:///home... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///home... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Run flow when "Continuer sans compte" is visible...
+Run flow when "Continuer sans compte" is visible... SKIPPED
+Assert that id: nav_tab_aujourdhui is visible... COMPLETED
+Open mintapp:///profile/privacy... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///profile/privacy... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Assert that "Compte" is visible... COMPLETED
+Assert that "Aucun compte connecté sur cet appareil.*" is visible... COMPLETED
+Assert that "Supprimer mon compte" is not visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/01-compte-anonyme-honnete... COMPLETED
+Assert that ".*Effacer l'état local.*" is visible... COMPLETED
+Assert that "Préversion" is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/02-pointeur-preversion... COMPLETED
