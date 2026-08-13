@@ -11,6 +11,7 @@ clé déjà servie retourne la réponse stockée SANS re-consommer.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import logging
 
@@ -39,6 +40,17 @@ router = APIRouter()
 MAX_ANONYMOUS_MESSAGES = 3
 
 
+def expected_operation_key(payload: TwinRead3aMarginRequest) -> str:
+    """La clé d'opération est DÉRIVÉE de l'attestation — recalculée ici :
+    une clé qui ne colle pas à l'attestation soumise est un mensonge."""
+    material = (
+        payload.attestation.inputs_hash
+        + payload.attestation.registry_hash
+        + str(payload.attestation.tax_year)
+    )
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()
+
+
 @router.post("/twin-read/3a-margin", response_model=TwinRead3aMarginResponse)
 @limiter.limit("10/minute")
 async def twin_read_3a_margin(
@@ -46,9 +58,20 @@ async def twin_read_3a_margin(
     payload: TwinRead3aMarginRequest,
     db: Session = Depends(get_db),
 ) -> TwinRead3aMarginResponse:
+    # ── La clé d'opération doit être la dérivation EXACTE de
+    # l'attestation soumise — sinon rejeu incohérent ou clé volée. ──
+    if payload.operation_key != expected_operation_key(payload):
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "operation_key_mismatch"},
+        )
+
     # ── Rejeu idempotent : une clé déjà servie ressert la MÊME réponse
-    # validée, sans re-consommer (résolution des timeouts post-envoi). ──
+    # validée, sans re-consommer — mais UNIQUEMENT à la session qui l'a
+    # créée (jamais de fuite inter-session). ──
     existing = db.get(TwinReadOperation, payload.operation_key)
+    if existing is not None and existing.session_id != payload.session_id:
+        raise HTTPException(status_code=404, detail="operation not found")
     if existing is not None:
         session = db.get(AnonymousSession, payload.session_id)
         remaining = MAX_ANONYMOUS_MESSAGES - (

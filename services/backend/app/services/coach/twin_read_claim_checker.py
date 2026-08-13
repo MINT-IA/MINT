@@ -27,8 +27,32 @@ _RECOMMENDATION_PATTERNS = [
         r"\bverse\s+maintenant\b",
         r"\binvestis\b",
         r"\bplace\s+ton\s+argent\b",
+        r"\bje\s+recommande\b",
+        r"\brecommand[ée]e?s?\b",
+        r"\bil\s+faudrait\s+verser\b",
+        r"\bpense\s+à\s+verser\b",
     ]
 ]
+
+# Nombres en LETTRES : le vocabulaire fermé n'en contient aucun — un
+# montant écrit en toutes lettres est une invention par construction.
+# (« un/une » exclus : articles.)
+_SPELLED_NUMBER_RE = re.compile(
+    r"\b(deux|trois|quatre|cinq|six|sept|huit|neuf|dix|onze|douze|treize|"
+    r"quatorze|quinze|seize|vingt|trente|quarante|cinquante|soixante|"
+    r"cents?|mille|millions?|milliards?)\b",
+    re.IGNORECASE,
+)
+
+# Le coach n'a aucune autorité de fraîcheur au-delà de computedAt : tout
+# jugement de péremption est une invention.
+_STALENESS_RE = re.compile(
+    r"\bpérimé|\bobsolète|\bplus\s+à\s+jour\b", re.IGNORECASE
+)
+
+# Dates complètes (ISO ou suisse) : autorisées comme TOUT, jamais en
+# composantes isolées — « 08 CHF » ne doit pas hériter du « 08 » de la date.
+_FULL_DATE_RE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b|\b\d{2}\.\d{2}\.\d{4}\b")
 
 # Termes bannis LSFin (sous-ensemble canonique — CLAUDE.md TOP #1).
 _BANNED_TERMS = [
@@ -106,20 +130,34 @@ def check_answer(
         # construction, tout % est une invention.
         reasons.append("percent-outside-tool-output")
 
+    if _SPELLED_NUMBER_RE.search(answer):
+        reasons.append("spelled-number-outside-vocabulary")
+    if _STALENESS_RE.search(answer):
+        reasons.append("staleness-claim-outside-authority")
+    if attestation.state == "positive" and re.search(
+        r"\bmarge[^.]{0,40}\b(nulle?|zéro)\b", answer, re.IGNORECASE
+    ):
+        reasons.append("state-contradiction:positive-said-zero")
+
     allowed_numbers = {
         _normalize_number(claim.value)
         for claim in build_allowed_claims(attestation)
         if claim.value.isdigit() or _NUMBER_RE.fullmatch(claim.value)
     }
-    # La fraîcheur (date ISO) autorise ses composantes numériques.
-    date_part = attestation.computed_at[:10]
-    for piece in re.split(r"[^0-9]", date_part):
-        if piece:
-            allowed_numbers.add(piece)
 
     # Tokens de domaine : « 3a » / « pilier 3 » sont du vocabulaire
-    # produit, pas des chiffres inventés.
+    # produit ; les dates COMPLÈTES conformes à computedAt sont retirées
+    # en bloc AVANT le scan — leurs composantes isolées restent interdites.
     scannable = re.sub(r"\b3a\b|\bpilier\s*3\b", " ", answer)
+    date_iso = attestation.computed_at[:10]
+    date_ch = (
+        f"{date_iso[8:10]}.{date_iso[5:7]}.{date_iso[0:4]}"
+        if len(date_iso) == 10
+        else ""
+    )
+    def _drop_matching_date(m: "re.Match[str]") -> str:
+        return " " if m.group() in (date_iso, date_ch) else m.group()
+    scannable = _FULL_DATE_RE.sub(_drop_matching_date, scannable)
     for match in _NUMBER_RE.finditer(scannable):
         normalized = _normalize_number(match.group())
         if normalized not in allowed_numbers:

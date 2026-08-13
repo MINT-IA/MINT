@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
 from app.schemas.coach_twin_read import Attested3aMargin, TwinReadClaim
 from app.services.coach.twin_read_claim_checker import (
@@ -23,6 +24,21 @@ from app.services.llm.router import LLMRequest, get_router
 logger = logging.getLogger(__name__)
 
 READ_TOOL_NAME = "read_attested_3a_margin"
+
+# Défense en profondeur — mêmes motifs que le chat anonyme
+# (anonymous_chat._PII_PATTERNS) : la question ne transporte JAMAIS
+# d'IBAN, d'AVS ni de salaire brut vers le LLM.
+_PII_PATTERNS = [
+    re.compile(r"CH\d{2}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{4}\s?\d{1}"),
+    re.compile(r"\b756[.\s]?\d{4}[.\s]?\d{4}[.\s]?\d{2}\b"),
+    re.compile(r"\b\d{4,7}\s*(?:CHF|francs?)\b", re.IGNORECASE),
+]
+
+
+def scrub_pii(text: str) -> str:
+    for pattern in _PII_PATTERNS:
+        text = pattern.sub("[***]", text)
+    return text
 
 # L'unique outil du chemin C1 — lecture seule par construction : il n'a
 # aucun paramètre d'écriture et son résultat est fabriqué CÔTÉ SERVEUR
@@ -76,6 +92,7 @@ async def generate_eclairage(
 ) -> tuple[str, list[TwinReadClaim]]:
     """Deux passes : tool_use forcé → tool_result serveur → texte validé."""
     router = get_router()
+    question = scrub_pii(question)
 
     first = await router.invoke(
         LLMRequest(
@@ -136,6 +153,13 @@ async def generate_eclairage(
             purpose="coach_twin_read_3a",
         )
     )
+    if any(
+        getattr(block, "type", None) == "tool_use"
+        for block in second.content
+    ):
+        # Un tool_use inattendu en 2e passe = réponse non textuelle
+        # silencieuse — rejet, jamais un rendu partiel.
+        raise TwinReadRejectedError(["unexpected-second-pass-tool-use"])
     answer = "".join(
         getattr(block, "text", "")
         for block in second.content

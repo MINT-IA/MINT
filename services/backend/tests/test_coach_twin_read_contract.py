@@ -1,5 +1,6 @@
 """Lego C1 — contrat fermé + claim-checker + idempotence (beats c4/c6/c8/c9)."""
 
+import hashlib
 import json
 from unittest.mock import AsyncMock, patch
 
@@ -14,6 +15,24 @@ from app.services.coach.twin_read_claim_checker import (
     build_allowed_claims,
     check_answer,
 )
+
+@pytest.fixture(autouse=True)
+def _clean_twin_read_tables():
+    """Le clean_database global ne connaît pas ces tables — quota et
+    opérations doivent repartir à zéro entre tests."""
+    from app.models.anonymous_session import AnonymousSession
+    from app.models.twin_read_operation import TwinReadOperation
+    from tests.conftest import TestingSessionLocal
+
+    db = TestingSessionLocal()
+    try:
+        db.query(TwinReadOperation).delete()
+        db.query(AnonymousSession).delete()
+        db.commit()
+    finally:
+        db.close()
+    yield
+
 
 VALID_ATTESTATION = {
     "amountCents": 375800,
@@ -34,15 +53,25 @@ VALID_CONSENT = {
 }
 
 
+def derived_key(attestation: dict) -> str:
+    material = (
+        attestation["inputsHash"]
+        + attestation["registryHash"]
+        + str(attestation["taxYear"])
+    )
+    return hashlib.sha256(material.encode()).hexdigest()
+
+
 def valid_payload(**overrides):
+    attestation = dict(overrides.pop("attestation", VALID_ATTESTATION))
     payload = {
         "contractVersion": 1,
         "purpose": "explain_attested_3a_margin",
         "question": "Que veut dire cette marge pour mes impôts ?",
         "sessionId": "0" * 8 + "-0000-0000-0000-000000000000",
-        "operationKey": "c" * 64,
+        "operationKey": derived_key(attestation),
         "consentReceipt": dict(VALID_CONSENT),
-        "attestation": dict(VALID_ATTESTATION),
+        "attestation": attestation,
     }
     payload.update(overrides)
     return payload
@@ -213,7 +242,7 @@ class TestForcedToolAndIdempotence:
             router.return_value.invoke = AsyncMock(return_value=first)
             response = client.post(
                 "/api/v1/coach/twin-read/3a-margin",
-                json=valid_payload(operationKey="d" * 64),
+                json=valid_payload(attestation={**VALID_ATTESTATION, "inputsHash": "d" * 64}),
             )
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "tool_not_invoked"
@@ -228,25 +257,25 @@ class TestForcedToolAndIdempotence:
             router.return_value.invoke = mock
             response = client.post(
                 "/api/v1/coach/twin-read/3a-margin",
-                json=valid_payload(operationKey="e" * 64),
+                json=valid_payload(attestation={**VALID_ATTESTATION, "inputsHash": "e" * 64}),
             )
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "claim_check_rejected"
 
     def test_replaying_the_same_operation_key_never_double_counts(self, client):
         mock = self._mock_llm(self.VALID_ANSWER)
-        key = "f" * 64
+        attestation = {**VALID_ATTESTATION, "inputsHash": "f" * 64}
         with patch(
             "app.services.coach.twin_read_service.get_router"
         ) as router:
             router.return_value.invoke = mock
             one = client.post(
                 "/api/v1/coach/twin-read/3a-margin",
-                json=valid_payload(operationKey=key),
+                json=valid_payload(attestation=attestation),
             )
             two = client.post(
                 "/api/v1/coach/twin-read/3a-margin",
-                json=valid_payload(operationKey=key),
+                json=valid_payload(attestation=attestation),
             )
         assert one.status_code == 200 and two.status_code == 200
         assert one.json()["quotaConsumed"] is True
@@ -269,3 +298,130 @@ class TestForcedToolAndIdempotence:
         ) or True  # garde documentaire ; l'outil unique est prouvé ci-dessus
         first_req_tools = source.count('"input_schema": {"type": "object", "properties": {}}')
         assert first_req_tools == 1
+
+
+class TestReviewHardenings:
+    """Durcissements REJET Codex T1-backend : clé liée, PII, vocabulaire."""
+
+    def test_a_forged_operation_key_is_rejected(self, client):
+        response = client.post(
+            "/api/v1/coach/twin-read/3a-margin",
+            json=valid_payload(operationKey="9" * 64),
+        )
+        assert response.status_code == 422
+        assert response.json()["detail"]["code"] == "operation_key_mismatch"
+
+    def test_a_replay_from_another_session_never_leaks(self, client):
+        from tests.test_coach_twin_read_contract import VALID_ANSWER_HELPER
+        mock = VALID_ANSWER_HELPER()
+        attestation = {**VALID_ATTESTATION, "inputsHash": "9" * 63 + "a"}
+        with patch(
+            "app.services.coach.twin_read_service.get_router"
+        ) as router:
+            router.return_value.invoke = mock
+            one = client.post(
+                "/api/v1/coach/twin-read/3a-margin",
+                json=valid_payload(attestation=attestation),
+            )
+            other = client.post(
+                "/api/v1/coach/twin-read/3a-margin",
+                json=valid_payload(
+                    attestation=attestation,
+                    sessionId="1" * 8 + "-1111-1111-1111-111111111111",
+                ),
+            )
+        assert one.status_code == 200
+        assert other.status_code == 404
+
+    def test_spelled_numbers_and_soft_recommendations_are_rejected(self):
+        attested = Attested3aMargin.model_validate(VALID_ATTESTATION)
+        verdict = check_answer(
+            "Je recommande de verser trois mille francs cette année.",
+            attested,
+        )
+        assert not verdict.accepted
+        assert "spelled-number-outside-vocabulary" in verdict.reasons
+        assert any(
+            r.startswith("recommendation:") for r in verdict.reasons
+        )
+
+    def test_state_contradiction_and_staleness_claims_are_rejected(self):
+        attested = Attested3aMargin.model_validate(VALID_ATTESTATION)
+        verdict = check_answer(
+            "Ta marge est nulle et les données sont périmées.", attested
+        )
+        assert not verdict.accepted
+        assert "state-contradiction:positive-said-zero" in verdict.reasons
+        assert "staleness-claim-outside-authority" in verdict.reasons
+
+    def test_isolated_date_components_are_not_allowed_numbers(self):
+        attested = Attested3aMargin.model_validate(VALID_ATTESTATION)
+        verdict = check_answer("Ta marge vaut 08 CHF.", attested)
+        assert not verdict.accepted
+        ok = check_answer(
+            "Ta marge 3a attestée pour 2026 est de 3'758 CHF "
+            "(calcul du 2026-08-13). Limite : seule la marge attestée "
+            "compte — corrige ta situation dans Ma situation.",
+            attested,
+        )
+        assert ok.accepted, ok.reasons
+
+    def test_the_question_is_pii_scrubbed_before_the_llm(self, client):
+        from tests.test_coach_twin_read_contract import VALID_ANSWER_HELPER
+        mock = VALID_ANSWER_HELPER()
+        attestation = {**VALID_ATTESTATION, "inputsHash": "9" * 62 + "bb"}
+        with patch(
+            "app.services.coach.twin_read_service.get_router"
+        ) as router:
+            router.return_value.invoke = mock
+            response = client.post(
+                "/api/v1/coach/twin-read/3a-margin",
+                json=valid_payload(
+                    attestation=attestation,
+                    question=(
+                        "Mon IBAN CH93 0076 2011 6238 5295 7 et mon "
+                        "salaire 120000 CHF changent quoi ?"
+                    ),
+                ),
+            )
+        assert response.status_code == 200, response.text
+        sent_question = mock.call_args_list[0].args[0].messages[0]["content"]
+        assert "CH93" not in sent_question
+        assert "120000" not in sent_question
+        assert "[***]" in sent_question
+
+
+def VALID_ANSWER_HELPER():
+    class _Block:
+        def __init__(self, **kw):
+            self.__dict__.update(kw)
+
+    first = type(
+        "R",
+        (),
+        {
+            "content": [
+                _Block(type="tool_use", name="read_attested_3a_margin", id="t1")
+            ]
+        },
+    )()
+    second = type(
+        "R",
+        (),
+        {
+            "content": [
+                _Block(
+                    type="text",
+                    text=(
+                        "Selon les données de ta situation, ta marge 3a "
+                        "attestée pour 2026 est de 3'758 CHF (calcul du "
+                        "2026-08-13). Cet éclairage repose uniquement sur "
+                        "la marge attestée — pour corriger ou compléter, "
+                        "passe par l'écran Ma situation."
+                    ),
+                )
+            ]
+        },
+    )()
+    return AsyncMock(side_effect=[first, second])
+
