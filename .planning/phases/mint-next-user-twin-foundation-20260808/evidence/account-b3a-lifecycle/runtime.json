@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "runtime_commit": "b4fbc67d257e8102e5cf1b6d7ce286e2e9e40606",
+  "runtime_commit": "184ecb100e17f7f4d978b17e805e7211cca73933",
   "git_dirty": false,
   "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_account_b3a_lifecycle.yaml",
-  "flow_sha256": "d82873f531aaab0f71c4bd06c3ef244fe27cc21a83b33ca85cc4b0abf835b03c",
-  "app_sha256": "99010c0dfd1415ef1014449fee8dfe422c4aac54ffeb49e91578337c0551981b",
+  "flow_sha256": "8cc826a005cee487fc43b5bbfd3f108538b966771819e031a9e64d67422283ea",
+  "app_sha256": "e953fe2c41b5ce6c1ab361b4a9c2852188bad8c3d8ddba419552315cf7ed031d",
   "app_signature": "adhoc",
-  "app_cdhash": "a2fb202ffd0bf9ead7b0858be3499604a7fbd60d",
-  "device_udid": "2B7BCEAA-97D5-40A9-8945-E39243FEB0FC",
-  "device_name": "Mint B3a Proof-b4fbc67d2-82671",
+  "app_cdhash": "8513ca741c31bc73c2096d4b8094f78890ddb9d3",
+  "device_udid": "8AF21FB8-7FE4-4861-8EBD-36DF200A150B",
+  "device_name": "Mint B3a Proof-184ecb100-1997",
   "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
   "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "runtime_version": "26.2",
@@ -17,14 +17,16 @@
   "maestro_version": "2.5.1",
   "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
   "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
-  "command": "bash tools/runtime/mint_next_account_b3a_lifecycle.sh --runtime-commit b4fbc67d257e8102e5cf1b6d7ce286e2e9e40606 --capture-evidence",
-  "captured_at": "2026-08-13T01:45:18Z",
+  "command": "bash tools/runtime/mint_next_account_b3a_lifecycle.sh --runtime-commit 184ecb100e17f7f4d978b17e805e7211cca73933 --capture-evidence",
+  "captured_at": "2026-08-13T01:58:21Z",
   "ordered_outcomes": [
     "centre de confidentialite anonyme : section Compte avec 'Aucun compte connecte' visible, 'Supprimer mon compte' ABSENT",
     "variante preversion : pointeur vers 'Effacer l'etat local' (renvoi B2, meme page)",
+    "drawer ANONYME honnete : action:profile.open_drawer -> 'Se connecter' visible, 'Supprimer mon compte' ABSENT (l'entree n'existe qu'avec un compte canonique)",
+    "renvoi B2 EXECUTE depuis l'etat anonyme : reset complet -> 'Etat local efface.' -> entree onboarding (etat zero)",
     "zero transmission (frontiere HTTP observee, REQBODY)"
   ],
-  "non_runtime_proofs": "drawer->centre (a4, profile_drawer_test), flag isLoggedIn perime (a2), chemin connecte intact (a5) et parcours complet du renvoi B2 (a3) : tests widget account_delete_b3a_test.dart — pas d'id stable pour ouvrir le drawer au runtime, pas de compte au runtime anonyme ; le B2 complet est deja prouve runtime (recu local-reset bf3895c77)",
+  "non_runtime_proofs": "flag isLoggedIn perime (a2), chemin connecte intact (a5) et TAP drawer->centre avec compte (a4, profile_drawer_test) : tests widget — le runtime anonyme n'a pas de compte (l'entree drawer y est structurellement ABSENTE, prouve au screenshot 03) et un flag perime ne s'injecte pas au runtime",
   "dependent_invalidation_tests": [
     "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
     "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: moving an entry across tax years bumps both buckets",
@@ -32,7 +34,7 @@
   ],
   "zero_transmission_check": {
     "boundary": "MintHttpClient.shared — client HTTP unifié process-wide ; chaque requête sortante est journalisée vers OSLog ch.mint.http, BODY DE REQUÊTE inclus en debug (REQBODY) ; un type de requête au body illisible est marqué unobserved et fait échouer le run",
-    "http_boundary_lines_observed": 38,
+    "http_boundary_lines_observed": 41,
     "request_body_lines_observed": 0,
     "unobserved_request_bodies": 0,
     "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
@@ -43,13 +45,21 @@
   },
   "screenshots": {
     "01-compte-anonyme-honnete.png": {
-      "sha256": "d8a307f5a6f8935ab9c5d520b3a454047114e8b979f1da85dc7a999e3519f893",
-      "bytes": 195326
+      "sha256": "2ebf94765ef79868ebe02ff55b29c88836290f7f6488ac2c4449eed1c2ecb6d3",
+      "bytes": 195768
     },
     "02-pointeur-preversion.png": {
-      "sha256": "d8a307f5a6f8935ab9c5d520b3a454047114e8b979f1da85dc7a999e3519f893",
-      "bytes": 195326
+      "sha256": "2ebf94765ef79868ebe02ff55b29c88836290f7f6488ac2c4449eed1c2ecb6d3",
+      "bytes": 195768
+    },
+    "03-drawer-anonyme-honnete.png": {
+      "sha256": "b75a7402be73f351b26297c0555c71d0059a43647f1770df30a15f79da98d19b",
+      "bytes": 165715
+    },
+    "04-renvoi-b2-execute.png": {
+      "sha256": "94751bcca7538f58e52474b11ea40b325a0113d9e61e21f01b9cb8c64da7735f",
+      "bytes": 145760
     }
   },
-  "maestro_log_sha256": "0d73ddd4466ba66e7dbad72109f7e911a20e53a8a377bd8af1507d7f67f8f767"
+  "maestro_log_sha256": "52761d6bceca6b708b739d34178465d7d81a0bb88c7f38f034c778b6f1598b9a"
 }

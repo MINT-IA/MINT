@@ -1,4 +1,4 @@
-Running on Mint B3a Proof-b4fbc67d2-82671 - iOS 26.2 - 2B7BCEAA-97D5-40A9-8945-E39243FEB0FC
+Running on Mint B3a Proof-184ecb100-1997 - iOS 26.2 - 8AF21FB8-7FE4-4861-8EBD-36DF200A150B
  > Flow flow_mint_next_account_b3a_lifecycle
 Launch app "ch.mint.app" with clear state... COMPLETED
 Run flow when "Je comprends, on y va" is visible...
@@ -33,3 +33,25 @@ Take screenshot ${OUTPUT_DIR}/01-compte-anonyme-honnete... COMPLETED
 Assert that ".*Effacer l'état local.*" is visible... COMPLETED
 Assert that "Préversion" is visible... COMPLETED
 Take screenshot ${OUTPUT_DIR}/02-pointeur-preversion... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///mon-argent... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Tap on id: action:profile.open_drawer... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Assert that "Se connecter" is visible... COMPLETED
+Assert that "Supprimer mon compte" is not visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/03-drawer-anonyme-honnete... COMPLETED
+Tap on point (10%,50%)... COMPLETED
+Wait for animation to end within 3000 ms... COMPLETED
+Open mintapp:///profile/privacy... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Assert that "Ma vie privée" is visible... COMPLETED
+Tap on id: action:preview_reset.open... COMPLETED
+Assert that "Écris REPARTIR À ZÉRO pour confirmer" is visible... COMPLETED
+Tap on "Écris REPARTIR À ZÉRO pour confirmer"... COMPLETED
+Input text REPARTIR A ZERO... COMPLETED
+Tap on "Effacer l'état local"... COMPLETED
+Assert that "État local effacé." is visible... COMPLETED
+Assert that "Un premier aperçu suisse." is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/04-renvoi-b2-execute... COMPLETED

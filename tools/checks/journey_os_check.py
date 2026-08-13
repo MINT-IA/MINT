@@ -89,6 +89,8 @@ ALLOW = {
     "tools/runtime/mint_next_account_b3a_lifecycle.sh",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_account_b3a_lifecycle.yaml",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/account-b3a-lifecycle/01-compte-anonyme-honnete.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/account-b3a-lifecycle/03-drawer-anonyme-honnete.png",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/account-b3a-lifecycle/04-renvoi-b2-execute.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/account-b3a-lifecycle/02-pointeur-preversion.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/account-b3a-lifecycle/runtime.json",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/account-b3a-lifecycle/maestro.log",
