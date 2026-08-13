@@ -47,8 +47,10 @@ Sans elles, tout écran construit au-dessus fabrique de la dette.
 
 | # | Chantier | Pourquoi maintenant | État |
 |---|---|---|---|
-| **F1** | **Historique des faits** — versions immuables ajoutées ; le magasin plat devient une projection, plus l'autorité | Sans historique, impossible de suivre un déménagement, un mariage, un changement d'emploi. C'est la promesse même du jumeau. | 📐 **architecture tranchée** — ADR `2026-08-13-jumeau-financier-faits-versionnes.md` |
-| **F2** | **Contexte porté par chaque fait** — enveloppe à 16 champs, plus un reçu de calcul citant les versions consommées | Un montant sans son année ni sa source ne peut alimenter aucun calcul honnête. Et un chiffre affiché doit pouvoir dire de quoi il est fait. | 📐 **champs arrêtés** — voir l'ADR |
+| **F1** | **Historique des faits** — versions immuables ajoutées ; `asOf(instant)` répond à « que savait MINT alors » | Sans historique, impossible de suivre un déménagement, un mariage, un changement d'emploi. | ✅ **fait** — `f776d2ed1`, `451a694c8`, `9ff461e7f` · reçu `a941c25bd3` · 28 oracles |
+| **F1b** | **Persistance durable** — une transaction liant le registre et sa projection | Sans elle, deux processus peuvent perdre une version ou en produire deux courantes. Nommé par la relecture comme le manque principal. | ⏳ prochain lot |
+| **F1c** | **Migration v1** des six faits déjà écrits | Le registre reste théorique tant qu'il ne porte pas les faits réels. | ⏳ après F1b |
+| **F2** | **Contexte porté par chaque fait** — enveloppe complète, plus un reçu de calcul citant les versions consommées | Un montant sans son année ni sa source ne peut alimenter aucun calcul honnête. | ✅ **fait avec F1** — et « sans date d'effet, la couverture est INCONNUE, pas supposée » |
 | **F3** | **Le garde de la règle** — un contrôle mécanique qui échoue si un écran collecte sans rejoindre le jumeau | Une règle déclarative sera oubliée. Mesuré ailleurs : une consigne procédurale sans contrôle mécanique dégrade le résultat. | ⏳ après F1-F2 |
 | **F4** | **Rebrancher les faits orphelins** — le logement est enregistré mais consommé nulle part | Vérifié le 2026-08-13 : le fait logement EST persisté, rechargé et visible dans « Ma situation » — mais absent de la frontière fiscale. Les intérêts hypothécaires n'atteignent aucun calcul. La donnée n'est pas perdue, elle est inerte. | ⏳ après F2 |
 
@@ -67,6 +69,8 @@ Vérifié, pas déclaré. Chaque ligne porte son commit.
 | Un frontalier n'a plus à inventer une commune suisse | `946679393` — fait à deux états, sans valeur sentinelle |
 | Aucun canton n'est fabriqué pour qui n'en a pas | `bd6787c08`, `ddd059f90`, `01b5c3598` — ZH, CH et le taux « national » supprimés |
 | Le périmètre de vérification n'est plus un choix | `aa32dbc62`, `2066bf107` — 9 gates, reçu machine, garde de pré-envoi |
+| Un frontalier ne se voit plus redemander son canton | `01b5c3598` — la complétude lit l'état du fait, plus la seule présence de la clé |
+| Écrire un fait n'efface plus le précédent | `f776d2ed1` + `451a694c8` — registre en ajout seul, 28 oracles |
 | 52 fichiers de test entrent enfin en intégration continue | `7ce7c2c67`, `a28ff0053` |
 
 ---
@@ -126,3 +130,10 @@ apparaîtront quand quelques lots auront été mesurés.
 **Lacune 3 — l'ordre F1 → F2 → F3 → F4 n'est pas arbitré.** Il découle du bon
 sens (pas de contexte sans historique) mais n'a pas encore été confronté à une
 relecture adversariale au moment où ces lignes sont écrites.
+
+**Ce que la relecture de F1 a coûté, et rapporté.** Six défauts, dont un aveu :
+`coversFiscalYear` fabriquait une couverture depuis l'année de déclaration
+pendant que le commentaire voisin promettait « on ne sait pas ». Un domicile
+déclaré le 31 décembre couvrait janvier, puis toutes les années suivantes. Sans
+cette relecture, le registre serait passé pour honnête. C'est l'argument le plus
+concret en faveur de la dépense.
