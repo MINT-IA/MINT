@@ -73,6 +73,11 @@ abstract interface class TwinBackend {
     required int expectedRevision,
     required String registry,
     required Map<String, Object?> projection,
+
+    /// Les clés dont le jumeau a la charge — y compris celles d'un fait
+    /// supprimé, qui doivent DISPARAÎTRE de la projection. Sans elles, une
+    /// pierre tombale laisserait sa valeur visible aux écrans.
+    required Set<String> ownedKeys,
   });
 }
 
@@ -168,6 +173,7 @@ class TwinStore {
       expectedRevision: snapshot.revision,
       registry: draft.encode(),
       projection: projectionOf(draft),
+      ownedKeys: draft.ownedKeys(),
     );
     if (!written) {
       // L'état a bougé. L'instantané de l'appelant n'a PAS été touché : il

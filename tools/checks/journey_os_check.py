@@ -657,6 +657,10 @@ ALLOW = {
     # jamais deduire de date d'effet ni d'annee fiscale.
     "apps/mobile/lib/services/twin/twin_migration.dart",
     "apps/mobile/test/services/twin/twin_migration_test.dart",
+    # F2b — le branchement sur le magasin reel : le registre vit sous une cle
+    # reservee du meme objet que sa projection, donc une seule ecriture.
+    "apps/mobile/lib/services/twin/answers_twin_backend.dart",
+    "apps/mobile/test/services/twin/answers_twin_backend_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",

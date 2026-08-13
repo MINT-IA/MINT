@@ -19,6 +19,7 @@ class _FakeBackend implements TwinBackend {
 
   int writes = 0;
   int refusals = 0;
+  Set<String> lastOwnedKeys = const {};
   bool failNextWrite = false;
 
   /// Appelé juste avant l'échange — permet de simuler un autre processus qui
@@ -34,7 +35,9 @@ class _FakeBackend implements TwinBackend {
     required int expectedRevision,
     required String registry,
     required Map<String, Object?> projection,
+    required Set<String> ownedKeys,
   }) async {
+    lastOwnedKeys = ownedKeys;
     beforeSwap?.call();
     // La comparaison appartient au support : c'est ce qui la rend atomique.
     if (revision != expectedRevision) {
@@ -306,6 +309,22 @@ void main() {
           reason: 'la personne a bien déclaré quelque chose un jour');
       expect(backend.projection.containsKey('q_domicile_commune_name'), isFalse,
           reason: 'mais le fait n\'alimente plus ni écran ni calcul');
+    });
+
+    test('a removed fact keeps its keys under the twin\'s charge', () async {
+      var snapshot = await store.read();
+      await append(snapshot, 'Aarau');
+      snapshot = await store.read();
+      await store.remove(snapshot,
+          factId: 'domicile',
+          factType: 'domicile',
+          assertedAt: clock,
+          source: FactSource.userDeclaration);
+
+      expect(backend.lastOwnedKeys, contains('q_domicile_commune_name'),
+          reason: 'le support doit savoir quelle valeur retirer — sinon elle '
+              'survivrait dans ce que lisent les écrans');
+      expect(backend.projection.containsKey('q_domicile_commune_name'), isFalse);
     });
 
     test('a fact can be declared again after being removed', () async {

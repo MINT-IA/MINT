@@ -240,6 +240,21 @@ class FactRegistry {
     }
   }
 
+  /// Toutes les clés que ce registre a un jour projetées, pierres tombales
+  /// comprises.
+  ///
+  /// C'est ce qui permet au support d'effacer de la projection la valeur d'un
+  /// fait supprimé : sans elle, une pierre tombale laisserait sa valeur
+  /// visible — le fait serait supprimé pour le registre et bien présent pour
+  /// les écrans.
+  Set<String> ownedKeys() {
+    final keys = <String>{};
+    for (final version in _versions) {
+      keys.addAll(version.payload.keys);
+    }
+    return keys;
+  }
+
   /// Copie indépendante. Sert à préparer une écriture sans toucher au
   /// registre de l'appelant tant que rien n'est persisté.
   FactRegistry clone() {
