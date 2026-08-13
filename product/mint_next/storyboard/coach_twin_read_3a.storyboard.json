@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "coach_twin_read_3a_c1",
+    "title": "Lego C1 — « Éclairer ma marge 3a » : premier retour coach en lecture-jumeau",
+    "promise": "Le coach revient dans la préversion par UNE capacité de lecture : expliquer la marge 3a déjà attestée. Il ne lit QUE l'attestation publique (montant, année, état, fraîcheur, hashes) — jamais les faits scellés, jamais le contexte legacy. Il ne produit AUCUN chiffre hors de la sortie de son outil forcé (claim-checker déterministe avant rendu, violation = rejet sans consommer le quota). Un seul échange, imputé atomiquement au quota device existant, uniquement sur réponse validée. Jumeau vide = état honnête local, zéro appel, zéro quota. Le chat général reste masqué."
+  },
+  "generated_at": "2026-08-13",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
+    "cadrage": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-coach-c1-eclairer-marge-3a-cadrage-codex.md (GO Codex : surface ponctuelle, une capacité de lecture par Lego, jamais un chat démasqué)"
+  },
+  "semantic_contract": "ENVELOPPE FERMÉE : POST /api/v1/coach/twin-read/3a-margin, schéma extra=forbid des DEUX côtés — {contractVersion, purpose='explain_attested_3a_margin', question, consentReceipt{receiptId, purpose, version, grantedAt}, attestation{amountCents, currency, taxYear, state, computedAt, engineVersion, inputsHash, registryHash}}. NE PARTENT JAMAIS : valeurs scellées des faits, clés Keychain, wizard answers, CoachContext/profileContext, mémoires/insights/historique legacy, identifiants de provenance locale. CONSENTEMENT : purpose DÉDIÉ twinRead3aMargin sur la machinerie ConsentService existante (reçu versionné, révocable au centre de confidentialité) — PRÉCONDITION : sans reçu actif, AUCUN appel HTTP, explication locale statique sans chiffre. ANTI-DEUXIÈME-VÉRITÉ : un outil interne unique read_attested_3a_margin, tool_choice FORCÉ au premier appel, tool-result = uniquement l'attestation validée, AUCUN outil write ; claim-checker déterministe AVANT affichage (chaque montant/pourcentage/année/seuil présent dans la sortie outil et référencé sourceRef ; aucune recommandation/projection/optimisation/donnée nouvelle ; aucune contradiction de state/fraîcheur/hashes) ; violation ⇒ réponse rejetée, quota INTACT, copie locale sûre sans chiffre. QUOTA : un seul échange C1, imputé au quota device anonyme existant (3), consommation ATOMIQUE uniquement après réponse validée affichable, verrou local C1 ensuite ; ÉCHECS : un échec prouvé PRÉ-ENVOI (pas de consentement, jumeau non attesté, validation locale) ou un rejet DÉTERMINISTE (claim-checker KO, 4xx de schéma) ne consomme RIEN ; un timeout/5xx POST-ENVOI est une issue AMBIGUË — la réservation locale est CONSERVÉE, la même clé d'opération est rejouée, et seul le reçu durable résout la consommation (0 ou 1, jamais 2, jamais présumée). LSFin : information pédagogique uniquement — jamais « tu devrais », produit, rendement promis, optimisation personnalisée ; année et fraîcheur visibles ; CTA uniquement vers correction/complétion de la situation. JUMEAU VIDE/INVALIDE/TROP ANCIEN : aucun appel LLM, aucun quota, état honnête + renvoi Ma situation. LE CHAT GÉNÉRAL RESTE MASQUÉ (PreviewShellPolicy inchangée). CONSENTEMENT ANONYME : le reçu twin-read d'un anonyme vit en LOCAL (machinerie ConsentService, chemin local-first) — sa révocation est LOCALE et IMMÉDIATE au centre (pas d'appel backend requis pour révoquer un reçu anonyme) ; le gate mobile bloque AVANT tout HTTP si le reçu est absent/révoqué ; le serveur valide la PRÉSENCE et la FORME du reçu (receiptId+purpose+version), la preuve de non-révocation d'un reçu anonyme étant par construction locale. VOCABULAIRE DES CLAIMS (fermé) : la sortie outil = attestation + champs dérivés AUTORISÉS énumérés, chacun avec sourceRef — amountCents (source), amountFrancsFloor (dérivé floor), taxYear, state, freshness humanisée ; le claim-checker n'autorise QUE les nombres de cet ensemble (aucun pourcentage, aucun seuil : ils ne sont pas dans l'outil). QUOTA IDEMPOTENT (réservation/commit) : clé d'opération dérivée de l'attestation (inputsHash+registryHash+taxYear) ; réservation locale DURABLE avant l'appel ; le backend décrémente par clé d'opération IDEMPOTENTE (rejeu = même réponse validée, PAS de double décompte) ; commit local à l'affichage validé ; réponse perdue = réconciliation au boot en rejouant la clé. VERROU C1 : par ATTESTATION-HASH (une correction qui produit une nouvelle attestation rouvre l'éclairage) — jamais par cycle de reset (le reset n'est pas une autorité métier).",
+  "known_risks_from_cadrage": [
+    "un chat démasqué recréerait la deuxième vérité (contexte legacy) — C1 est une surface ponctuelle, pas une porte",
+    "un chiffre généré hors sortie d'outil = trust collapse — claim-checker mécanique, jamais déclaratif",
+    "consommer le quota sur un échec = vol du testeur — atomicité stricte succès-seulement",
+    "sérialiser le profil complet « par commodité » = fuite du jumeau — enveloppe extra=forbid testée des deux côtés",
+    "copie LSFin : l'éclairage explique, ne recommande jamais"
+  ],
+  "out_of_scope": [
+    "onglet Coach et /coach/chat démasqués (restent bloqués par la politique)",
+    "lecture des faits canoniques individuels (Legos C2+ — une capacité par Lego)",
+    "écriture/correction/collecte de faits par le coach",
+    "mémoire de conversation, relances libres, historique",
+    "migration du contexte legacy (wizard answers, CoachContext, insights)"
+  ],
+  "beats": [
+    {
+      "id": "c1_hidden",
+      "story": "Le coach général reste masqué : la politique de coque est INCHANGÉE, seule la surface C1 existe — depuis le vertical 3a uniquement.",
+      "code": "apps/mobile/lib/services/preview_shell_policy.dart (inchangé) + apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen.dart",
+      "tests_planned": [
+        "the coach tab and chat routes stay blocked while the C1 surface exists",
+        "the C1 entry is reachable from the vertical in every state but the LLM call is only possible on an attested margin"
+      ]
+    },
+    {
+      "id": "c2_empty_twin",
+      "story": "Chaque état non-attesté est DISTINCT et honnête : marge absente, entrées invalides, lecture en échec (loadFailed ≠ jumeau vide), attestation trop ancienne — chacun rend son état, CTA Ma situation, ZÉRO appel réseau, ZÉRO quota.",
+      "code": "apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_coach_eclairage_screen.dart (nouveau)",
+      "tests_planned": [
+        "each non-attested state (absent, invalid, read-failure, stale) renders its own honest state",
+        "a read failure is never presented as an empty twin",
+        "no non-attested state ever triggers a network call or consumes quota"
+      ]
+    },
+    {
+      "id": "c3_consent",
+      "story": "Consentement DÉDIÉ twinRead3aMargin, full-stack : enum mobile + enum backend + ConsentSheet + ARB ×6 + rangée au centre de confidentialité. Reçu anonyme = LOCAL-FIRST : accordé ET RÉVOCABLE localement, immédiatement, sans backend. Le gate mobile bloque avant tout HTTP sans reçu actif ; l'enveloppe porte {receiptId, purpose, version, grantedAt} et le serveur valide présence + forme.",
+      "code": "apps/mobile/lib/services/consent/consent_service.dart (purpose + révocation locale anonyme) + apps/mobile/lib/screens/profile/privacy_center_screen.dart (rangée) + ConsentSheet + ARB ×6 + services/backend/app/models/consent.py (enum)",
+      "tests_planned": [
+        "without an active twin-read consent receipt no HTTP request ever leaves",
+        "an anonymous twin-read receipt is granted and revoked locally and immediately without any backend call",
+        "the revoked receipt blocks the next call at the mobile gate",
+        "the envelope carries receiptId, purpose and version and the backend rejects a malformed receipt"
+      ]
+    },
+    {
+      "id": "c4_closed_envelope",
+      "story": "L'enveloppe sérialise EXCLUSIVEMENT l'attestation publique + hashes — schéma RÉCURSIF fermé des deux côtés : endpoint/méthode/cardinalité (UNE requête), types, bornes (amountCents entier borné, hashes hex de longueur fixe, question à longueur max), extra=forbid à chaque niveau. Anti-exfiltration par VALEURS : aucune valeur scellée connue ne peut transiter, même recopiée sous une clé autorisée (question comprise).",
+      "code": "apps/mobile/lib/services/coach/twin_read_api_service.dart (nouveau) + services/backend/app/models/coach/twin_read.py (nouveau)",
+      "tests_planned": [
+        "the mobile envelope serializes only the public attestation fields (closed recursive schema, unknown key = test failure)",
+        "the backend rejects any extra field at any nesting level and any legacy context key with a 422",
+        "the golden contract pins endpoint, method, types, value bounds and patterns on both sides",
+        "a sealed value smuggled inside the question field is detected by the value-level guard"
+      ]
+    },
+    {
+      "id": "c5_forced_read",
+      "story": "Endpoint dédié : un outil interne unique read_attested_3a_margin, tool_choice forcé au premier appel, aucun outil write enregistré.",
+      "code": "services/backend/app/api/v1/endpoints/coach_twin_read.py (nouveau) + services/backend/app/services/coach/twin_read_service.py (nouveau)",
+      "tests_planned": [
+        "the endpoint registers exactly one read-only tool and forces its invocation",
+        "a response produced without the tool trace is rejected server-side",
+        "no write-capable tool exists on this endpoint"
+      ]
+    },
+    {
+      "id": "c6_claim_check",
+      "story": "Claim-checker déterministe AVANT rendu sur un VOCABULAIRE FERMÉ : la sortie outil énumère les claims autorisés avec sourceRef (amountCents, amountFrancsFloor, taxYear, state, freshness) ; tout nombre de la réponse doit appartenir à cet ensemble ; aucun pourcentage ni seuil (absents de l'outil) ; aucune recommandation ; aucune contradiction d'état/fraîcheur/hashes. Violation = rejet, fallback sûr sans chiffre, RIEN consommé.",
+      "code": "services/backend/app/services/coach/twin_read_claim_checker.py (nouveau)",
+      "tests_planned": [
+        "the tool output enumerates the closed claim vocabulary with sourceRefs",
+        "every number in the answer must belong to the closed claim set or the answer is rejected",
+        "percentages and thresholds are rejected by construction (absent from the tool output)",
+        "a recommendation or banned LSFin phrasing is rejected deterministically",
+        "a rejected answer returns the safe no-number fallback and consumes nothing"
+      ]
+    },
+    {
+      "id": "c7_valid_render",
+      "story": "Un éclairage borné, sourcé et daté (année + fraîcheur visibles), copie pédagogique — aucune relance libre.",
+      "code": "apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_coach_eclairage_screen.dart",
+      "tests_planned": [
+        "the rendered answer shows the source year and freshness, states its limits, and its only CTA leads to correction or completion",
+        "the answer never contradicts the attested state and offers no free follow-up nor generated navigation"
+      ]
+    },
+    {
+      "id": "c8_failure_atomicity",
+      "story": "Protocole réservation/commit : clé d'opération dérivée de l'attestation (inputsHash+registryHash+taxYear), réservation locale DURABLE avant l'appel, commit à l'affichage validé. Échec PRÉ-ENVOI ou rejet déterministe = rien consommé, fallback sans chiffre. Timeout/5xx POST-ENVOI = issue AMBIGUË : réservation conservée, rejeu de la même clé, résolution UNIQUEMENT par le reçu durable (0 ou 1, jamais présumée).",
+      "code": "apps/mobile/lib/services/coach/twin_read_api_service.dart",
+      "tests_planned": [
+        "a pre-send failure and a deterministic rejection consume nothing and fall back without numbers",
+        "an ambiguous post-send timeout keeps the reservation, replays the same operation key and resolves only through the durable receipt",
+        "a lost response is reconciled at boot by replaying the operation key without double counting",
+        "a crash between reservation and commit converges at boot to exactly zero or one consumption"
+      ]
+    },
+    {
+      "id": "c9_quota_once",
+      "story": "Succès validé : consommation ATOMIQUE de 1 (clé d'opération idempotente côté backend) + verrou local par ATTESTATION-HASH — une correction produisant une NOUVELLE attestation rouvre l'éclairage ; un reset local n'est pas une autorité métier.",
+      "code": "apps/mobile/lib/services/coach/twin_read_api_service.dart + apps/mobile/lib/services/anonymous_session_service.dart (lecture)",
+      "tests_planned": [
+        "the anonymous quota is decremented exactly once per operation key even when the call is replayed",
+        "a second C1 attempt on the same attestation hash is locked locally",
+        "a new attestation hash after a correction reopens the C1 surface"
+      ]
+    },
+    {
+      "id": "c10_runtime_receipt",
+      "story": "Reçu runtime lié au SHA : jumeau vide (zéro réseau/quota), succès (enveloppe exacte + trace outil + réponse sourcée), second essai bloqué, échec sans consommation.",
+      "code": "tools/runtime/mint_next_coach_c1_lifecycle.sh (nouveau) + tools/simulator/flows/maestro-perfect-set/flow_mint_next_coach_c1_lifecycle.yaml (nouveau)",
+      "tests_planned": [
+        "the runtime receipt proves empty-twin honesty, consent refusal stopping locally, one validated exchange with the exact closed envelope and no seeded sealed value in the observed REQBODY, the attestation-hash lock, and quota accounting"
+      ]
+    }
+  ],
+  "gate_requirements": {
+    "outcomes_runtime": [
+      "jumeau vide → état honnête + renvoi Ma situation, ZÉRO ligne HTTP sortante, quota inchangé",
+      "consentement REFUSÉ à la sheet → arrêt local, ZÉRO requête",
+      "consentement accordé + jumeau attesté → UNE requête vers /coach/twin-read/3a-margin : REQBODY observé = enveloppe fermée exacte ET aucune valeur scellée SEEDÉE PAR LE RUN (salaire, montants wizard, dates) n'apparaît nulle part dans le corps (anti-exfiltration par VALEURS, le harnais connaît ce qu'il a saisi)",
+      "réponse affichée : chiffres ∈ vocabulaire fermé de l'attestation, année + fraîcheur visibles, copie sans termes bannis",
+      "second essai sur la MÊME attestation → verrou local, aucune nouvelle requête ; nouvelle attestation (versement corrigé) → surface rouverte",
+      "compteur anonyme décrémenté d'exactement 1 pour la clé d'opération"
+    ],
+    "non_runtime": "claim-checker (rejets déterministes sur vocabulaire fermé), outil forcé serveur, golden contract récursif, 422 sur extra à tout niveau, réconciliation réponse-perdue (test d'intégration déterministe rejouant la clé) : pytest backend + tests widget/service cités au reçu — une hallucination ou une réponse perdue ne s'injectent pas à la demande au runtime",
+    "zero_tx_evolution": "le scan zéro-tx SORTANT évolue sur CE flow : une requête est ATTENDUE — le gate valide le REQBODY contre le schéma récursif fermé (endpoint, méthode, cardinalité UNE requête, types, bornes, patterns) ET scanne les VALEURS : aucune valeur scellée seedée par le run ne doit apparaître dans le corps, question comprise (une allowlist de clés seule ne prouve rien contre une valeur recopiée). Les clés scellées/wizard restent interdites.",
+    "preuves": "review Codex contrat P1=0 · tests promus par beat (suites : apps/mobile/test/screens/mint_next_vertical_3a/*coach*_test.dart + apps/mobile/test/services/twin_read_api_service_test.dart + services/backend/tests/test_coach_twin_read*.py ; commandes : flutter test <suites> ; cd services/backend && python3 -m pytest tests/test_coach_twin_read*.py -q) · reçu runtime lié au SHA · flag + kill-switch OFF par défaut"
+  }
+}

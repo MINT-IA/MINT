@@ -68,6 +68,7 @@ ALLOW = {
     "product/mint_next/storyboard/preview_shell.storyboard.json",
     "product/mint_next/storyboard/local_reset.storyboard.json",
     "product/mint_next/storyboard/account_delete.storyboard.json",
+    "product/mint_next/storyboard/coach_twin_read_3a.storyboard.json",
     ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule3-account-delete-cadrage-codex.md",
     ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-coach-c1-eclairer-marge-3a-cadrage-codex.md",
     "apps/mobile/lib/services/local_preview_reset_service.dart",
