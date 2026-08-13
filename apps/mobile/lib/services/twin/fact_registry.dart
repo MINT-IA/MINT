@@ -240,5 +240,15 @@ class FactRegistry {
     }
   }
 
+  /// Copie indépendante. Sert à préparer une écriture sans toucher au
+  /// registre de l'appelant tant que rien n'est persisté.
+  FactRegistry clone() {
+    final copy = FactRegistry(newId: _newId, now: _now == DateTime.now ? null : _now);
+    copy._versions.addAll(_versions);
+    copy._nextSequence = _nextSequence;
+    copy._lastRecordedAt = _lastRecordedAt;
+    return copy;
+  }
+
   void debugClear() => _versions.clear();
 }

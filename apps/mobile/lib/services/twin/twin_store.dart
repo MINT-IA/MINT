@@ -59,12 +59,20 @@ class TwinConcurrencyException implements Exception {
 abstract interface class TwinBackend {
   Future<({String? registry, int revision})> read();
 
-  /// Écrit registre ET projection en une opération. Doit être atomique :
-  /// après un échec, le support garde son état précédent.
-  Future<void> write({
+  /// Écrit registre ET projection SI la révision est toujours celle attendue.
+  ///
+  /// La comparaison appartient à l'écriture, pas à l'appelant. La première
+  /// version de ce code vérifiait puis écrivait : deux appelants lisant la
+  /// révision 0 passaient tous deux le contrôle, écrivaient tous deux la
+  /// révision 1, et la seconde écriture effaçait la première. Un contrôle qui
+  /// ne s'exécute pas dans l'opération atomique ne contrôle rien.
+  ///
+  /// Rend `true` si l'écriture a eu lieu, `false` si la révision avait bougé.
+  /// Doit être atomique : après un échec, le support garde son état précédent.
+  Future<bool> compareAndSwap({
+    required int expectedRevision,
     required String registry,
     required Map<String, Object?> projection,
-    required int revision,
   });
 }
 
@@ -96,6 +104,28 @@ class TwinStore {
   /// Rend la version ajoutée. Lève [TwinConcurrencyException] si l'état a
   /// bougé depuis la lecture — dans ce cas RIEN n'est écrit, et l'appelant
   /// relit avant de recommencer.
+  /// Retire un fait de la projection en AJOUTANT une pierre tombale.
+  ///
+  /// Rien n'est effacé : la personne a bien déclaré quelque chose un jour, et
+  /// l'historique le garde. Mais le fait cesse d'alimenter les écrans et les
+  /// calculs.
+  Future<FactVersion> remove(
+    TwinSnapshot snapshot, {
+    required String factId,
+    required String factType,
+    required DateTime assertedAt,
+    required FactSource source,
+  }) =>
+      append(
+        snapshot,
+        factId: factId,
+        factType: factType,
+        payload: const {},
+        assertedAt: assertedAt,
+        source: source,
+        status: FactStatus.deleted,
+      );
+
   Future<FactVersion> append(
     TwinSnapshot snapshot, {
     required String factId,
@@ -111,14 +141,13 @@ class TwinStore {
     int schemaVersion = 1,
     String? consentRef,
   }) async {
-    final current = await _backend.read();
-    if (current.revision != snapshot.revision) {
-      // Refuser plutôt qu'écraser. L'autre écriture a peut-être ajouté une
-      // version que celle-ci ne connaît pas ; publier par-dessus la perdrait.
-      throw TwinConcurrencyException(snapshot.revision, current.revision);
-    }
+    // La modification se prépare sur une COPIE. La première version de ce code
+    // mutait l'instantané avant d'écrire : après un échec, l'appelant gardait
+    // une version fantôme, et un réessai avec le même objet la persistait —
+    // un échec devenait une écriture différée.
+    final draft = snapshot.registry.clone();
 
-    final version = snapshot.registry
+    final version = draft
         .append(
           factId: factId,
           factType: factType,
@@ -135,11 +164,16 @@ class TwinStore {
         )
         .version;
 
-    await _backend.write(
-      registry: snapshot.registry.encode(),
-      projection: projectionOf(snapshot.registry),
-      revision: snapshot.revision + 1,
+    final written = await _backend.compareAndSwap(
+      expectedRevision: snapshot.revision,
+      registry: draft.encode(),
+      projection: projectionOf(draft),
     );
+    if (!written) {
+      // L'état a bougé. L'instantané de l'appelant n'a PAS été touché : il
+      // relit et recommence, et les deux versions survivent.
+      throw TwinConcurrencyException(snapshot.revision, -1);
+    }
     return version;
   }
 
@@ -149,8 +183,23 @@ class TwinStore {
   /// chemin pour écrire dans la projection sans ajouter une version.
   static Map<String, Object?> projectionOf(FactRegistry registry) {
     final projection = <String, Object?>{};
+    final owner = <String, String>{};
     for (final version in registry.currentVersions()) {
-      projection.addAll(version.payload);
+      // Une pierre tombale ne projette rien : le fait n'a plus cours.
+      if (version.isTombstone) continue;
+      for (final entry in version.payload.entries) {
+        // Deux faits distincts revendiquant la même clé s'écrasaient en
+        // silence, selon l'ordre d'itération. Le conflit est désormais refusé
+        // plutôt qu'arbitré au hasard : une clé a un propriétaire.
+        final previous = owner[entry.key];
+        if (previous != null && previous != version.factId) {
+          throw StateError(
+              'clé « ${entry.key} » revendiquée par « $previous » et '  // lint-ignore
+              '« ${version.factId} »');  // lint-ignore
+        }
+        owner[entry.key] = version.factId;
+        projection[entry.key] = entry.value;
+      }
     }
     return Map<String, Object?>.unmodifiable(projection);
   }

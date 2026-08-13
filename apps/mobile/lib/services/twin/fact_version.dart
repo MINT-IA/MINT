@@ -40,7 +40,13 @@ enum FactSource {
 
 /// Confirmé par la personne, ou estimé par MINT. Un chiffre estimé ne doit
 /// jamais être présenté comme un chiffre su.
-enum FactStatus { confirmed, estimated }
+///
+/// `deleted` est la PIERRE TOMBALE : dans un registre où rien ne s'efface,
+/// supprimer un fait consiste à en ajouter une version qui dit « ce fait n'a
+/// plus cours ». Elle reste dans l'historique — la personne a bien déclaré
+/// quelque chose un jour — mais elle est exclue de la projection, donc
+/// invisible pour les écrans et les calculs.
+enum FactStatus { confirmed, estimated, deleted }
 
 /// Une version immuable d'un fait.
 ///
@@ -129,6 +135,9 @@ class FactVersion {
   final String? consentRef;
 
   bool get isCurrent => effectiveTo == null;
+
+  /// Cette version dit que le fait n'a plus cours.
+  bool get isTombstone => status == FactStatus.deleted;
 
   /// Cette version peut-elle parler de cette année fiscale ?
   ///
