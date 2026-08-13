@@ -116,7 +116,14 @@ class FiscalService {
     double impotCantonalCommunal = parts.cantonal * cf;
 
     // Ajustement communal (ratio commune / chef-lieu)
+    // Quand la commune demandée n'a pas de coefficient connu — 169 communes
+    // sur 2110 en ont un — aucun ajustement n'est appliqué et le montant
+    // rendu est celui du CHEF-LIEU. L'appelant ne pouvait pas le savoir : le
+    // libellé vide était le seul indice, et rien ne l'obligeait à le lire.
+    // `communeApplied` le dit maintenant explicitement, pour qu'une surface
+    // puisse présenter un chiffre cantonal comme cantonal.
     String communeLabel = '';
+    var communeApplied = false;
     if (commune != null) {
       final communeMult = CommuneData.getCommuneMultiplier(canton, commune);
       final chefLieuMult = CommuneData.getChefLieuMultiplier(canton);
@@ -124,6 +131,7 @@ class FiscalService {
         final communeRatio = communeMult / chefLieuMult;
         impotCantonalCommunal *= communeRatio;
         communeLabel = commune;
+        communeApplied = true;
       }
     }
 
@@ -134,6 +142,7 @@ class FiscalService {
       'canton': canton,
       'cantonNom': cantonNames[canton] ?? canton,
       'commune': communeLabel,
+      'communeApplied': communeApplied,
       'revenuImposable': revenuImposable,
       'impotFederal': impotFederal,
       'impotCantonalCommunal': impotCantonalCommunal,

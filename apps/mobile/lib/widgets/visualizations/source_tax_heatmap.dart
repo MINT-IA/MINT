@@ -1,3 +1,13 @@
+// CODE MORT — ce widget n'est instancié nulle part (vérifié 2026-08-13 :
+// `grep -rn SourceTaxHeatmap apps/mobile/lib` ne renvoie que ce fichier).
+// Ses chaînes ne sont donc rendues à personne, d'où les `lint-ignore`
+// ci-dessous : le lint i18n vise les libellés VUS par quelqu'un.
+//
+// Signalé plutôt que supprimé — retirer 400 lignes n'était pas la demande.
+// Les noms de cantons y ont été ré-accentués malgré tout, pour que le garde
+// `test/constants/canton_names_accents_test.dart` reste vrai sur tout le
+// source et non sur une partie choisie.
+
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:mint_mobile/theme/colors.dart';
@@ -42,8 +52,8 @@ const List<CantonTaxRate> kDefaultCantonTaxRates = [
   CantonTaxRate(abbreviation: 'ZG', name: 'Zoug', rate: 9.8),
   CantonTaxRate(abbreviation: 'FR', name: 'Fribourg', rate: 14.3),
   CantonTaxRate(abbreviation: 'SO', name: 'Soleure', rate: 13.6),
-  CantonTaxRate(abbreviation: 'BS', name: 'Bale-Ville', rate: 14.8),
-  CantonTaxRate(abbreviation: 'BL', name: 'Bale-Campagne', rate: 13.9),
+  CantonTaxRate(abbreviation: 'BS', name: 'Bâle-Ville', rate: 14.8),  // lint-ignore
+  CantonTaxRate(abbreviation: 'BL', name: 'Bâle-Campagne', rate: 13.9),  // lint-ignore
   CantonTaxRate(abbreviation: 'SH', name: 'Schaffhouse', rate: 12.5),
   CantonTaxRate(abbreviation: 'AR', name: 'Appenzell RE', rate: 11.7),
   CantonTaxRate(abbreviation: 'AI', name: 'Appenzell RI', rate: 10.5),
@@ -54,8 +64,8 @@ const List<CantonTaxRate> kDefaultCantonTaxRates = [
   CantonTaxRate(abbreviation: 'TI', name: 'Tessin', rate: 13.4),
   CantonTaxRate(abbreviation: 'VD', name: 'Vaud', rate: 14.6),
   CantonTaxRate(abbreviation: 'VS', name: 'Valais', rate: 13.0),
-  CantonTaxRate(abbreviation: 'NE', name: 'Neuchatel', rate: 14.9),
-  CantonTaxRate(abbreviation: 'GE', name: 'Geneve', rate: 15.5),
+  CantonTaxRate(abbreviation: 'NE', name: 'Neuchâtel', rate: 14.9),  // lint-ignore
+  CantonTaxRate(abbreviation: 'GE', name: 'Genève', rate: 15.5),  // lint-ignore
   CantonTaxRate(abbreviation: 'JU', name: 'Jura', rate: 15.2),
 ];
 
@@ -162,7 +172,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
   Widget build(BuildContext context) {
     return Semantics(
       label:
-          'Carte thermique des taux d\'imposition à la source par canton suisse',
+          'Carte thermique des taux d\'imposition à la source par canton suisse',  // lint-ignore
       child: LayoutBuilder(
         builder: (context, constraints) {
           return Container(
@@ -221,11 +231,11 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Taux d\'imposition à la source',
+                'Taux d\'imposition à la source',  // lint-ignore
                 style: MintTextStyles.titleMedium(),
               ),
               Text(
-                '26 cantons  ·  Célibataire, CHF 80\'000',
+                '26 cantons  ·  Célibataire, CHF 80\'000',  // lint-ignore
                 style: MintTextStyles.labelMedium(),
               ),
             ],
@@ -405,7 +415,7 @@ class _SourceTaxHeatmapState extends State<SourceTaxHeatmap>
                   style: MintTextStyles.bodyMedium(color: MintColors.textPrimary).copyWith(fontWeight: FontWeight.w700),
                 ),
                 Text(
-                  'Taux indicatif d\'imposition à la source',
+                  'Taux indicatif d\'imposition à la source',  // lint-ignore
                   style: MintTextStyles.labelSmall(color: MintColors.textSecondary),
                 ),
               ],

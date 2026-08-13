@@ -177,8 +177,8 @@ class FamilyService {
     'ZG': 'Zoug',
     'FR': 'Fribourg',
     'SO': 'Soleure',
-    'BS': 'Bale-Ville',
-    'BL': 'Bale-Campagne',
+    'BS': 'Bâle-Ville',  // lint-ignore
+    'BL': 'Bâle-Campagne',  // lint-ignore
     'SH': 'Schaffhouse',
     'AR': 'Appenzell RE',
     'AI': 'Appenzell RI',
@@ -189,8 +189,8 @@ class FamilyService {
     'TI': 'Tessin',
     'VD': 'Vaud',
     'VS': 'Valais',
-    'NE': 'Neuchatel',
-    'GE': 'Geneve',
+    'NE': 'Neuchâtel',  // lint-ignore
+    'GE': 'Genève',  // lint-ignore
     'JU': 'Jura',
   };
 

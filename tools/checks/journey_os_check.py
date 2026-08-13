@@ -1654,6 +1654,15 @@ ALLOW = {
     # canton manquait, et etiquete CH. Une phrase montree a l'utilisateur.
     "services/backend/app/services/rules_engine.py",
     "services/backend/tests/test_roadmap_assumptions_no_invented_canton.py",
+    # Six copies de la meme table de 26 noms de cantons, quatre sans accents,
+    # toutes affichees. Le garde balaie le source plutot que de corriger copie
+    # par copie — il a d'ailleurs trouve la sixieme, ratee par le grep manuel.
+    "apps/mobile/lib/services/family_service.dart",
+    "apps/mobile/lib/services/expat_service.dart",
+    "apps/mobile/lib/widgets/visualizations/source_tax_heatmap.dart",
+    "apps/mobile/lib/services/fiscal_service.dart",
+    "apps/mobile/test/constants/canton_names_accents_test.dart",
+    "apps/mobile/test/screens/gender_gap_gate_test.dart",
     "lefthook.yml",
     ".gitignore",
 }

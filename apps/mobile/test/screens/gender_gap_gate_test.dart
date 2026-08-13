@@ -463,7 +463,7 @@ void main() {
       expect(_state(tester).debugCantonConfirmed, isTrue);
       expect(_state(tester).debugCanton, 'GE');
       // The picker shows the seeded canton (code — name, concubinage idiom).
-      expect(find.text('GE — Geneve'), findsOneWidget);
+      expect(find.text('GE — Genève'), findsOneWidget);
     });
 
     testWidgets('legacy valid "ZH" WITHOUT the canton key → NOT confirmed',
