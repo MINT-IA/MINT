@@ -1,0 +1,69 @@
+appId: ch.mint.app
+tags:
+  - mint-next-account-b3a
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "nav_tab_aujourdhui"
+    timeout: 15000
+# ─── Centre de confidentialité anonyme : état compte HONNÊTE ───
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "Compte"
+    timeout: 15000
+- assertVisible: "Aucun compte connecté sur cet appareil.*"
+- assertNotVisible: "Supprimer mon compte"
+- takeScreenshot: "${OUTPUT_DIR}/01-compte-anonyme-honnete"
+# ─── Variante préversion : pointeur vers le reset local (renvoi B2) ───
+- assertVisible: ".*Effacer l'état local.*"
+- assertVisible: "Préversion"
+- takeScreenshot: "${OUTPUT_DIR}/02-pointeur-preversion"

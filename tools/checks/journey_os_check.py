@@ -86,6 +86,8 @@ ALLOW = {
     "apps/mobile/test/widgets/preview_shell_masking_test.dart",
     "tools/runtime/mint_next_preview_shell_lifecycle.sh",
     "tools/runtime/mint_next_local_reset_lifecycle.sh",
+    "tools/runtime/mint_next_account_b3a_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_account_b3a_lifecycle.yaml",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_local_reset_lifecycle.yaml",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/local-reset-lifecycle/01-etat-charge.png",
     ".planning/phases/mint-next-user-twin-foundation-20260808/evidence/local-reset-lifecycle/02-preversion-section.png",
