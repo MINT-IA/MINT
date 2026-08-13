@@ -48,8 +48,9 @@ Sans elles, tout écran construit au-dessus fabrique de la dette.
 | # | Chantier | Pourquoi maintenant | État |
 |---|---|---|---|
 | **F1** | **Historique des faits** — versions immuables ajoutées ; `asOf(instant)` répond à « que savait MINT alors » | Sans historique, impossible de suivre un déménagement, un mariage, un changement d'emploi. | ✅ **fait** — `f776d2ed1`, `451a694c8`, `9ff461e7f` · reçu `a941c25bd3` · 28 oracles |
-| **F1b** | **Persistance durable** — une transaction liant le registre et sa projection | Sans elle, deux processus peuvent perdre une version ou en produire deux courantes. Nommé par la relecture comme le manque principal. | ⏳ prochain lot |
-| **F1c** | **Migration v1** des six faits déjà écrits | Le registre reste théorique tant qu'il ne porte pas les faits réels. | ⏳ après F1b |
+| **F1b** | **Transaction** — registre et projection écrits ensemble, révision comparée DANS l'écriture, pierres tombales pour la suppression | Sans elle, deux processus perdent une version. Et supprimer, dans un registre où rien ne s'efface, demande une forme propre. | ✅ **fait** — `3af8e6d92`, `9a23c7346`, `d8e5c540c` · reçu `55e1dc919c` |
+| **F1c** | **Migration v1** des six faits déjà écrits | Le registre reste théorique tant qu'il ne porte pas les faits réels. | ✅ **fait** — `bf7d59b53` · reçu `bed73ab38f` · sans inventer date d'effet, déclaration ni propriétaire |
+| **F2b** | **Brancher le registre sur le magasin réel** — aujourd'hui le support est une interface, aucun écran n'écrit encore par le jumeau | Tant que ce branchement n'existe pas, le jumeau est complet et inutilisé. C'est le prochain lot. | ⏳ prochain lot |
 | **F2** | **Contexte porté par chaque fait** — enveloppe complète, plus un reçu de calcul citant les versions consommées | Un montant sans son année ni sa source ne peut alimenter aucun calcul honnête. | ✅ **fait avec F1** — et « sans date d'effet, la couverture est INCONNUE, pas supposée » |
 | **F3** | **Le garde de la règle** — un contrôle mécanique qui échoue si un écran collecte sans rejoindre le jumeau | Une règle déclarative sera oubliée. Mesuré ailleurs : une consigne procédurale sans contrôle mécanique dégrade le résultat. | ⏳ après F1-F2 |
 | **F4** | **Rebrancher les faits orphelins** — le logement est enregistré mais consommé nulle part | Vérifié le 2026-08-13 : le fait logement EST persisté, rechargé et visible dans « Ma situation » — mais absent de la frontière fiscale. Les intérêts hypothécaires n'atteignent aucun calcul. La donnée n'est pas perdue, elle est inerte. | ⏳ après F2 |
@@ -70,7 +71,9 @@ Vérifié, pas déclaré. Chaque ligne porte son commit.
 | Aucun canton n'est fabriqué pour qui n'en a pas | `bd6787c08`, `ddd059f90`, `01b5c3598` — ZH, CH et le taux « national » supprimés |
 | Le périmètre de vérification n'est plus un choix | `aa32dbc62`, `2066bf107` — 9 gates, reçu machine, garde de pré-envoi |
 | Un frontalier ne se voit plus redemander son canton | `01b5c3598` — la complétude lit l'état du fait, plus la seule présence de la clé |
-| Écrire un fait n'efface plus le précédent | `f776d2ed1` + `451a694c8` — registre en ajout seul, 28 oracles |
+| Écrire un fait n'efface plus le précédent | `f776d2ed1` + `451a694c8` — registre en ajout seul |
+| Registre et projection ne peuvent plus diverger | `3af8e6d92` + `9a23c7346` — une seule écriture, comparaison atomique |
+| Les six faits existants sont enveloppés sans invention | `bf7d59b53` — 56 oracles sur le jumeau |
 | 52 fichiers de test entrent enfin en intégration continue | `7ce7c2c67`, `a28ff0053` |
 
 ---
