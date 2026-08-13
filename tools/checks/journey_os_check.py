@@ -640,6 +640,9 @@ ALLOW = {
     "apps/mobile/test/providers/recommended_section_no_canton_relance_test.dart",
     "services/backend/app/routes/wizard.py",
     "apps/mobile/lib/services/report/report_builder.dart",
+    # Feuille de route vivante + ADR du jumeau financier (doctrine Julien du
+    # 2026-08-13 : faits versionnes, contexte porte, regle rendue mecanique).
+    ".planning/FEUILLE-DE-ROUTE.md",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
