@@ -24243,6 +24243,32 @@ class SFr extends S {
   String get privacyCenterSectionHistory => 'HISTORIQUE';
 
   @override
+  String get previewResetSection => 'Préversion';
+
+  @override
+  String get previewResetTitle => 'Repartir à zéro sur cet appareil ?';
+
+  @override
+  String get previewResetBody =>
+      'MINT effacera ta situation financière et ton historique enregistrés sur cet appareil. Ton compte, ta connexion et tes consentements restent inchangés. Les données déjà enregistrées sur nos serveurs ne seront pas supprimées.';
+
+  @override
+  String get previewResetCta => 'Effacer l\'état local';
+
+  @override
+  String get previewResetConfirmHint => 'Écris REPARTIR À ZÉRO pour confirmer';
+
+  @override
+  String get previewResetConfirmWord => 'REPARTIR À ZÉRO';
+
+  @override
+  String get previewResetDone => 'État local effacé.';
+
+  @override
+  String get previewResetFailed =>
+      'L\'effacement n\'a pas abouti. Il sera retenté au prochain démarrage.';
+
+  @override
   String get privacyCenterEmpty => 'Aucun consentement actif pour le moment.';
 
   @override

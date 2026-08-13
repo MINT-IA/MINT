@@ -24293,6 +24293,32 @@ class SDe extends S {
   String get privacyCenterSectionHistory => 'VERLAUF';
 
   @override
+  String get previewResetSection => 'Vorschau';
+
+  @override
+  String get previewResetTitle => 'Auf diesem Gerät neu beginnen?';
+
+  @override
+  String get previewResetBody =>
+      'MINT löscht deine auf diesem Gerät gespeicherte finanzielle Situation und deinen Verlauf. Dein Konto, deine Anmeldung und deine Einwilligungen bleiben unverändert. Bereits auf unseren Servern gespeicherte Daten werden nicht gelöscht.';
+
+  @override
+  String get previewResetCta => 'Lokalen Zustand löschen';
+
+  @override
+  String get previewResetConfirmHint => 'Schreibe NEU BEGINNEN zur Bestätigung';
+
+  @override
+  String get previewResetConfirmWord => 'NEU BEGINNEN';
+
+  @override
+  String get previewResetDone => 'Lokaler Zustand gelöscht.';
+
+  @override
+  String get previewResetFailed =>
+      'Das Löschen wurde nicht abgeschlossen. Es wird beim nächsten Start wiederholt.';
+
+  @override
   String get privacyCenterEmpty => 'Noch keine aktive Einwilligung.';
 
   @override
