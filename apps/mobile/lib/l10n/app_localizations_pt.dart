@@ -24281,6 +24281,17 @@ class SPt extends S {
       'A eliminação não foi concluída. Será repetida no próximo arranque.';
 
   @override
+  String get accountDeleteNoAccountTitle => 'Conta';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'Nenhuma conta ligada neste aparelho — não há conta para eliminar.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'Nenhuma conta ligada neste aparelho — não há conta para eliminar. Para recomeçar do zero, usa «Apagar o estado local» na secção Pré-visualização acima.';
+
+  @override
   String get privacyCenterEmpty => 'Ainda sem consentimentos ativos.';
 
   @override

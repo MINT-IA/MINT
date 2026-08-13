@@ -24319,6 +24319,17 @@ class SDe extends S {
       'Das Löschen wurde nicht abgeschlossen. Es wird beim nächsten Start wiederholt.';
 
   @override
+  String get accountDeleteNoAccountTitle => 'Konto';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'Auf diesem Gerät ist kein Konto angemeldet — es gibt kein Konto zu löschen.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'Auf diesem Gerät ist kein Konto angemeldet — es gibt kein Konto zu löschen. Um neu zu beginnen, nutze «Lokalen Zustand löschen» im Bereich Vorschau oben.';
+
+  @override
   String get privacyCenterEmpty => 'Noch keine aktive Einwilligung.';
 
   @override

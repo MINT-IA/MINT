@@ -24272,6 +24272,17 @@ class SEs extends S {
       'El borrado no se completó. Se reintentará en el próximo inicio.';
 
   @override
+  String get accountDeleteNoAccountTitle => 'Cuenta';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'No hay ninguna cuenta conectada en este dispositivo: no hay cuenta que eliminar.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'No hay ninguna cuenta conectada en este dispositivo: no hay cuenta que eliminar. Para empezar de cero, usa «Borrar el estado local» en la sección Vista previa de arriba.';
+
+  @override
   String get privacyCenterEmpty => 'Aún no hay consentimientos activos.';
 
   @override

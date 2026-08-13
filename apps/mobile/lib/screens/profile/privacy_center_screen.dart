@@ -128,7 +128,13 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
   @override
   Widget build(BuildContext context) {
     final l = S.of(context)!;
-    final isLoggedIn = context.watch<AuthProvider>().isLoggedIn;
+    // B3a — l'autorité est l'état lifecycle CANONIQUE, jamais un booléen
+    // isLoggedIn potentiellement périmé face aux jetons réels : la
+    // suppression de compte n'existe qu'avec un compte confirmé
+    // (hasAccountSession exige aussi le data scope user — sessionExpired
+    // a un userId null ET un scope none).
+    final hasCanonicalAccount =
+        context.watch<AuthProvider>().authLifecycle.hasAccountSession;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
@@ -173,13 +179,42 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                 ],
               ),
             ),
-          Expanded(child: _buildConsentsBody(l, isLoggedIn)),
+          Expanded(child: _buildConsentsBody(l)),
+          // B3a — la section compte est une vérité LOCALE (lifecycle
+          // canonique) : elle rend indépendamment du fetch consents, comme
+          // la section Préversion (même principe, même leçon runtime).
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Divider(color: MintColors.lightBorder),
+                if (hasCanonicalAccount)
+                  _DeleteAccountRow(onTap: _confirmDeleteAccount)
+                else ...[
+                  // État anonyme HONNÊTE : pas de compte, pas d'action de
+                  // suppression, jamais une promesse serveur.
+                  _SectionHeader(title: l.accountDeleteNoAccountTitle),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      PreviewShellPolicy.instance.isPreviewShell
+                          ? l.accountDeleteNoAccountBodyPreview
+                          : l.accountDeleteNoAccountBody,
+                      style: MintTextStyles.bodySmall(
+                          color: MintColors.textSecondary),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildConsentsBody(S l, bool isLoggedIn) {
+  Widget _buildConsentsBody(S l) {
     return FutureBuilderSafe<List<ConsentReceipt>>(
         future: _future,
         onRetry: _refresh,
@@ -217,11 +252,6 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
                     grantedAt: r.consentTimestamp,
                     revokedAt: r.revokedAt,
                   ),
-                if (isLoggedIn) ...[
-                  const SizedBox(height: 24),
-                  const Divider(color: MintColors.lightBorder),
-                  _DeleteAccountRow(onTap: _confirmDeleteAccount),
-                ],
               ],
             ),
           );
