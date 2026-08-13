@@ -149,7 +149,7 @@ void main() {
       CommuneRegistry.debugReset();
       CommuneRegistry.parse('''
 # Instantané : 13-08-2026
-5871|L\'Abbaye|VD|12.09.1848|
+5871|L'Abbaye|VD|12.09.1848|
 6002|Saint-Maurice|VS|12.09.1848|
 3506|Domat/Ems|GR|12.09.1848|
 ''');
