@@ -220,6 +220,19 @@ class _AvailableView extends StatelessWidget {
               key: const Key('vertical_3a_provenance'),
               style: MintTextStyles.bodySmall(color: MintColors.textSecondary),
             ),
+            const SizedBox(height: MintSpacing.md),
+            // Lego C1 — la SEULE surface coach de la préversion : elle
+            // n'existe que sur une marge attestée.
+            Semantics(
+              identifier: 'action:vertical_3a.eclairer',
+              button: true,
+              child: TextButton(
+                // lint-ignore: prefer_mint_cta
+                onPressed: () =>
+                    context.go('/mint-next/coach-explain-3a'),
+                child: Text(l10n.mintNextCoachEclairageAsk),
+              ),
+            ),
           ],
         ),
       ),

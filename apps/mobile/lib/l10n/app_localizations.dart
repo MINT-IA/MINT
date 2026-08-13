@@ -42292,6 +42292,90 @@ abstract class S {
   /// **'Pour t\'expliquer ta marge 3a attestée, MINT envoie uniquement ce montant, son année et sa date de calcul — jamais tes autres données.'**
   String get consentPurposeTwinRead3aMarginWhy;
 
+  /// No description provided for @mintNextCoachEclairageTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éclairer ma marge'**
+  String get mintNextCoachEclairageTitle;
+
+  /// No description provided for @mintNextCoachEclairageIntro.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une question sur ta marge 3a attestée. MINT n\'envoie que ce montant, son année et sa date de calcul.'**
+  String get mintNextCoachEclairageIntro;
+
+  /// No description provided for @mintNextCoachEclairageHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta question sur cette marge'**
+  String get mintNextCoachEclairageHint;
+
+  /// No description provided for @mintNextCoachEclairageAsk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander un éclairage'**
+  String get mintNextCoachEclairageAsk;
+
+  /// No description provided for @mintNextCoachEclairageConsentAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'J\'accepte'**
+  String get mintNextCoachEclairageConsentAccept;
+
+  /// No description provided for @mintNextCoachEclairageUnattested.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta marge 3a n\'est pas encore attestée : il n\'y a rien à éclairer pour l\'instant.'**
+  String get mintNextCoachEclairageUnattested;
+
+  /// No description provided for @mintNextCoachEclairageReadFailure.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tes données n\'ont pas pu être lues sur cet appareil. Rien n\'a été envoyé.'**
+  String get mintNextCoachEclairageReadFailure;
+
+  /// No description provided for @mintNextCoachEclairageGoToSituation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir ma situation'**
+  String get mintNextCoachEclairageGoToSituation;
+
+  /// No description provided for @mintNextCoachEclairageRefused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je ne peux pas produire un éclairage fiable pour le moment. Ta marge attestée reste visible dans ta situation.'**
+  String get mintNextCoachEclairageRefused;
+
+  /// No description provided for @mintNextCoachEclairageAmbiguous.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'éclairage n\'a pas abouti. Tu peux réessayer : rien n\'a été décompté tant qu\'aucune réponse n\'est arrivée.'**
+  String get mintNextCoachEclairageAmbiguous;
+
+  /// No description provided for @mintNextCoachEclairageQuotaExhausted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tu as utilisé tes échanges disponibles sur cet appareil.'**
+  String get mintNextCoachEclairageQuotaExhausted;
+
+  /// No description provided for @mintNextCoachEclairageConsentMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans ton accord, rien n\'est envoyé — et aucun éclairage n\'est possible.'**
+  String get mintNextCoachEclairageConsentMissing;
+
+  /// No description provided for @mintNextCoachEclairageSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : ta marge 3a attestée {year}, calculée le {date}.'**
+  String mintNextCoachEclairageSource(String year, String date);
+
+  /// No description provided for @mintNextCoachEclairageLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite : cet éclairage ne repose que sur cette marge attestée. Pour corriger ou compléter, passe par ta situation.'**
+  String get mintNextCoachEclairageLimit;
+
   /// No description provided for @consentRevoke.
   ///
   /// In fr, this message translates to:

@@ -62,6 +62,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     FlutterSecureStorage.setMockInitialValues({});
+    ConsentService.resetCacheForTest();
     sentBodies = [];
     sentPaths = [];
     mockApi();
@@ -117,7 +118,7 @@ void main() {
   });
 
   test('the mobile envelope serializes only the public attestation fields '
-      '(closed schema, unknown key = test failure)', () async {
+      '(closed recursive schema, unknown key = test failure)', () async {
     await grantConsent();
     await TwinReadApiService.requestEclairage(
       question: 'Que veut dire cette marge ?',
@@ -149,8 +150,8 @@ void main() {
         {'receiptId', 'purpose', 'version', 'grantedAt'});
   });
 
-  test('no sealed value or legacy context can appear anywhere in the body',
-      () async {
+  test('a sealed value smuggled inside the question field is detected by '
+      'the value-level guard', () async {
     await grantConsent();
     await TwinReadApiService.requestEclairage(
       question: 'Mon revenu de 120000 change quoi ?',
@@ -215,8 +216,8 @@ void main() {
         isNull);
   });
 
-  test('a deterministic rejection clears the reservation and consumes '
-      'nothing while an ambiguous failure keeps it replayable', () async {
+  test('a pre-send failure and a deterministic rejection consume nothing '
+      'and fall back without numbers', () async {
     await grantConsent();
     final key = TwinReadApiService.operationKeyFor(
       inputsHash: _attestation['inputsHash']! as String,
@@ -237,6 +238,19 @@ void main() {
     expect(await TwinReadApiService.isLockedFor(key), isFalse,
         reason: 'aucun verrou sur un rejet');
 
+  });
+
+  test('an ambiguous post-send timeout keeps the reservation, replays the '
+      'same operation key and resolves only through the durable receipt',
+      () async {
+    await grantConsent();
+    final key = TwinReadApiService.operationKeyFor(
+      inputsHash: _attestation['inputsHash']! as String,
+      registryHash: _attestation['registryHash']! as String,
+      taxYear: _attestation['taxYear']! as int,
+    );
+    final prefs = await SharedPreferences.getInstance();
+
     mockApi(status: 503, body: const {'detail': 'server error'});
     final ambiguous = await TwinReadApiService.requestEclairage(
       question: 'Question',
@@ -245,7 +259,130 @@ void main() {
     );
     expect(ambiguous.kind, TwinReadOutcomeKind.ambiguous);
     expect(prefs.getBool('${TwinReadApiService.pendingKeyPrefix}$key'), isTrue,
-        reason: 'issue ambiguë = réservation CONSERVÉE, rejouable');
+        reason: 'issue ambiguë = réservation CONSERVÉE, jamais présumée');
+
+    // Le rejeu de la MÊME clé tranche : seul le reçu durable résout.
+    sentBodies.clear();
+    mockApi();
+    await TwinReadApiService.reconcilePendingAtBoot(
+      attestationLookup: (_) async => _attestation,
+      sessionId: _sessionId,
+    );
+    expect(sentBodies.single['operationKey'], key,
+        reason: 'même clé rejouée, jamais une nouvelle opération');
+    expect(prefs.getBool('${TwinReadApiService.pendingKeyPrefix}$key'), isNull);
+    expect(await TwinReadApiService.isLockedFor(key), isTrue);
+  });
+
+  test('a second C1 attempt on the same attestation hash is locked locally',
+      () async {
+    await grantConsent();
+    final first = await TwinReadApiService.requestEclairage(
+      question: 'Question',
+      attestation: _attestation,
+      sessionId: _sessionId,
+    );
+    expect(first.kind, TwinReadOutcomeKind.answered);
+    final key = TwinReadApiService.operationKeyFor(
+      inputsHash: _attestation['inputsHash']! as String,
+      registryHash: _attestation['registryHash']! as String,
+      taxYear: _attestation['taxYear']! as int,
+    );
+    expect(await TwinReadApiService.isLockedFor(key), isTrue,
+        reason: 'un éclairage servi verrouille CETTE attestation');
+  });
+
+  test('a new attestation hash after a correction reopens the C1 surface',
+      () async {
+    await grantConsent();
+    await TwinReadApiService.requestEclairage(
+      question: 'Question',
+      attestation: _attestation,
+      sessionId: _sessionId,
+    );
+    // Correction du jumeau => nouvelles révisions => nouvel inputsHash.
+    final corrected = {..._attestation, 'inputsHash': 'c' * 64};
+    final correctedKey = TwinReadApiService.operationKeyFor(
+      inputsHash: corrected['inputsHash']! as String,
+      registryHash: corrected['registryHash']! as String,
+      taxYear: corrected['taxYear']! as int,
+    );
+    expect(await TwinReadApiService.isLockedFor(correctedKey), isFalse,
+        reason: 'une nouvelle attestation ROUVRE la surface');
+    final second = await TwinReadApiService.requestEclairage(
+      question: 'Et après ma correction ?',
+      attestation: corrected,
+      sessionId: _sessionId,
+    );
+    expect(second.kind, TwinReadOutcomeKind.answered);
+  });
+
+  test('a lost response is reconciled at boot by replaying the operation '
+      'key without double counting', () async {
+    await grantConsent();
+    final key = TwinReadApiService.operationKeyFor(
+      inputsHash: _attestation['inputsHash']! as String,
+      registryHash: _attestation['registryHash']! as String,
+      taxYear: _attestation['taxYear']! as int,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    // Crash simulé : réservation posée, aucune réponse traitée.
+    await prefs.setBool('${TwinReadApiService.pendingKeyPrefix}$key', true);
+
+    await TwinReadApiService.reconcilePendingAtBoot(
+      attestationLookup: (_) async => _attestation,
+      sessionId: _sessionId,
+    );
+
+    expect(prefs.getBool('${TwinReadApiService.pendingKeyPrefix}$key'), isNull,
+        reason: 'la réservation est close par le rejeu');
+    expect(await TwinReadApiService.isLockedFor(key), isTrue,
+        reason: 'le serveur a resservi sa réponse — exactement une fois');
+    expect(sentBodies, hasLength(1),
+        reason: 'un seul rejeu, avec la MÊME clé');
+    expect(sentBodies.single['operationKey'], key);
+  });
+
+  test('a crash between reservation and commit converges at boot to exactly '
+      'zero or one consumption', () async {
+    await grantConsent();
+    final key = TwinReadApiService.operationKeyFor(
+      inputsHash: _attestation['inputsHash']! as String,
+      registryHash: _attestation['registryHash']! as String,
+      taxYear: _attestation['taxYear']! as int,
+    );
+    final prefs = await SharedPreferences.getInstance();
+    // Crash APRÈS réservation : ni verrou, ni réponse rendue.
+    await prefs.setBool('${TwinReadApiService.pendingKeyPrefix}$key', true);
+    expect(await TwinReadApiService.isLockedFor(key), isFalse);
+
+    // Deux boots successifs : la convergence est idempotente (0 ou 1).
+    await TwinReadApiService.reconcilePendingAtBoot(
+      attestationLookup: (_) async => _attestation,
+      sessionId: _sessionId,
+    );
+    await TwinReadApiService.reconcilePendingAtBoot(
+      attestationLookup: (_) async => _attestation,
+      sessionId: _sessionId,
+    );
+    expect(prefs.getBool('${TwinReadApiService.pendingKeyPrefix}$key'), isNull);
+    expect(sentBodies, hasLength(1),
+        reason: 'le second boot n\'a plus rien à rejouer');
+  });
+
+  test('a reservation whose attestation disappeared is lifted honestly',
+      () async {
+    await grantConsent();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(
+        '${TwinReadApiService.pendingKeyPrefix}orphan', true);
+    await TwinReadApiService.reconcilePendingAtBoot(
+      attestationLookup: (_) async => null,
+      sessionId: _sessionId,
+    );
+    expect(prefs.getBool('${TwinReadApiService.pendingKeyPrefix}orphan'),
+        isNull);
+    expect(sentBodies, isEmpty, reason: 'rien à rejouer, rien envoyé');
   });
 
   test('a quota exhaustion is surfaced as such and never as a network '

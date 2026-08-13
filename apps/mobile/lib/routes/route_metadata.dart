@@ -519,6 +519,15 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
     killFlag: 'enableMintNextVertical3a',
     description: 'Attested 3a room vertical, read-only surface (Lego 7)',
   ),
+  '/mint-next/coach-explain-3a': RouteMeta(
+    path: '/mint-next/coach-explain-3a',
+    category: RouteCategory.flow,
+    owner: RouteOwner.system,
+    requiresAuth: false,
+    killFlag: 'enableMintNextVertical3a',
+    description:
+        'Coach twin-read explanation of the attested 3a margin (Lego C1)',
+  ),
   '/mint-next/housing': RouteMeta(
     path: '/mint-next/housing',
     category: RouteCategory.flow,

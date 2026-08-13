@@ -24094,6 +24094,58 @@ class SEn extends S {
       'To explain your attested 3a margin, MINT sends only that amount, its year and its computation date — never your other data.';
 
   @override
+  String get mintNextCoachEclairageTitle => 'Explain my margin';
+
+  @override
+  String get mintNextCoachEclairageIntro =>
+      'One question about your attested 3a margin. MINT only sends that amount, its year and its computation date.';
+
+  @override
+  String get mintNextCoachEclairageHint => 'Your question about this margin';
+
+  @override
+  String get mintNextCoachEclairageAsk => 'Ask for an explanation';
+
+  @override
+  String get mintNextCoachEclairageConsentAccept => 'I agree';
+
+  @override
+  String get mintNextCoachEclairageUnattested =>
+      'Your 3a margin is not attested yet: there is nothing to explain right now.';
+
+  @override
+  String get mintNextCoachEclairageReadFailure =>
+      'Your data could not be read on this device. Nothing was sent.';
+
+  @override
+  String get mintNextCoachEclairageGoToSituation => 'See my situation';
+
+  @override
+  String get mintNextCoachEclairageRefused =>
+      'I cannot produce a reliable explanation right now. Your attested margin stays visible in your situation.';
+
+  @override
+  String get mintNextCoachEclairageAmbiguous =>
+      'The explanation did not complete. You can try again: nothing was counted while no answer arrived.';
+
+  @override
+  String get mintNextCoachEclairageQuotaExhausted =>
+      'You have used the exchanges available on this device.';
+
+  @override
+  String get mintNextCoachEclairageConsentMissing =>
+      'Without your agreement nothing is sent — and no explanation is possible.';
+
+  @override
+  String mintNextCoachEclairageSource(String year, String date) {
+    return 'Source: your attested 3a margin $year, computed on $date.';
+  }
+
+  @override
+  String get mintNextCoachEclairageLimit =>
+      'Limit: this explanation only relies on that attested margin. To correct or complete, go to your situation.';
+
+  @override
   String get consentRevoke => 'Revoke';
 
   @override

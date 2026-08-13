@@ -156,6 +156,7 @@ import 'package:mint_mobile/screens/mint_next_etat_civil/mint_next_etat_civil_sc
 import 'package:mint_mobile/screens/mint_next_lpp_affiliation/mint_next_lpp_affiliation_screen.dart';
 import 'package:mint_mobile/screens/mint_next_revenu/mint_next_revenu_screen.dart';
 import 'package:mint_mobile/screens/mint_next_versements_3a/mint_next_versements_3a_screen.dart';
+import 'package:mint_mobile/screens/mint_next_vertical_3a/mint_next_coach_eclairage_screen.dart';
 import 'package:mint_mobile/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen.dart';
 import 'package:mint_mobile/screens/mint_next_housing/mint_next_housing_screen.dart';
 import 'package:mint_mobile/screens/mon_argent/mon_argent_screen.dart';
@@ -847,6 +848,14 @@ final _router = GoRouter(
       redirect: (_, __) =>
           FeatureFlags.enableMintNextVersements3a ? null : '/home',
       builder: (context, state) => const MintNextVersements3aScreen(),
+    ),
+    ScopedGoRoute(
+      path: '/mint-next/coach-explain-3a',
+      scope: RouteScope.public,
+      parentNavigatorKey: _rootNavigatorKey,
+      redirect: (_, __) =>
+          FeatureFlags.enableMintNextVertical3a ? null : '/home',
+      builder: (context, state) => const MintNextCoachEclairageScreen(),
     ),
     ScopedGoRoute(
       path: '/mint-next/vertical-3a',

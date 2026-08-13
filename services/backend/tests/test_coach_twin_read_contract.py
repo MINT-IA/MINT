@@ -79,6 +79,7 @@ def valid_payload(**overrides):
 
 class TestClosedEnvelope:
     def test_extra_field_at_top_level_is_rejected(self):
+        """the backend rejects any extra field at any nesting level and any legacy context key with a 422"""
         with pytest.raises(ValidationError):
             TwinRead3aMarginRequest.model_validate(
                 valid_payload(profileContext={"salary": 120000})
@@ -108,6 +109,7 @@ class TestClosedEnvelope:
         assert response.status_code == 422
 
     def test_malformed_consent_receipt_is_rejected(self):
+        """the envelope carries receiptId, purpose and version and the backend rejects a malformed receipt"""
         consent = dict(VALID_CONSENT)
         consent["purpose"] = "something_else"
         with pytest.raises(ValidationError):
@@ -116,6 +118,7 @@ class TestClosedEnvelope:
             )
 
     def test_hash_bounds_and_question_length_are_enforced(self):
+        """the golden contract pins endpoint, method, types, value bounds and patterns on both sides"""
         attestation = dict(VALID_ATTESTATION)
         attestation["inputsHash"] = "xyz"
         with pytest.raises(ValidationError):
@@ -133,6 +136,7 @@ class TestClaimChecker:
         return Attested3aMargin.model_validate(VALID_ATTESTATION)
 
     def test_closed_vocabulary_is_enumerated_with_source_refs(self):
+        """the tool output enumerates the closed claim vocabulary with sourceRefs"""
         claims = build_allowed_claims(self.attested())
         refs = {c.source_ref for c in claims}
         assert refs == {
@@ -156,6 +160,7 @@ class TestClaimChecker:
         assert verdict.accepted, verdict.reasons
 
     def test_a_number_outside_the_vocabulary_is_rejected(self):
+        """every number in the answer must belong to the closed claim set or the answer is rejected"""
         verdict = check_answer(
             "Ta marge est de 3758 CHF et le plafond légal est 7258 CHF.",
             self.attested(),
@@ -164,6 +169,7 @@ class TestClaimChecker:
         assert any("7258" in r for r in verdict.reasons)
 
     def test_percentages_are_rejected_by_construction(self):
+        """percentages and thresholds are rejected by construction (absent from the tool output)"""
         verdict = check_answer(
             "Ta marge 3758 CHF pour 2026 représente 15 % de ton revenu.",
             self.attested(),
@@ -171,6 +177,7 @@ class TestClaimChecker:
         assert not verdict.accepted
 
     def test_recommendations_and_banned_terms_are_rejected(self):
+        """a recommendation or banned LSFin phrasing is rejected deterministically"""
         verdict = check_answer(
             "Tu devrais verser 3758 CHF, c'est le placement optimal.",
             self.attested(),
@@ -209,6 +216,7 @@ class TestForcedToolAndIdempotence:
     def test_the_endpoint_registers_exactly_one_read_only_tool_and_forces_it(
         self, client
     ):
+        """the endpoint registers exactly one read-only tool and forces its invocation"""
         mock = self._mock_llm(self.VALID_ANSWER)
         with patch(
             "app.services.coach.twin_read_service.get_router"
@@ -231,6 +239,7 @@ class TestForcedToolAndIdempotence:
         assert body["quotaConsumed"] is True
 
     def test_a_response_without_the_tool_trace_is_rejected_server_side(self, client):
+        """a response produced without the tool trace is rejected server-side"""
         class _Block:
             type = "text"
             text = "réponse sans outil"
@@ -248,6 +257,7 @@ class TestForcedToolAndIdempotence:
         assert response.json()["detail"]["code"] == "tool_not_invoked"
 
     def test_a_rejected_answer_consumes_nothing(self, client):
+        """a rejected answer returns the safe no-number fallback and consumes nothing"""
         mock = self._mock_llm(
             "Le placement optimal serait de verser 9999 CHF."
         )
@@ -262,7 +272,10 @@ class TestForcedToolAndIdempotence:
         assert response.status_code == 422
         assert response.json()["detail"]["code"] == "claim_check_rejected"
 
-    def test_replaying_the_same_operation_key_never_double_counts(self, client):
+    def test_the_anonymous_quota_is_decremented_exactly_once_per_operation_key_even_when_the_call_is_replayed(
+        self, client
+    ):
+        """the anonymous quota is decremented exactly once per operation key even when the call is replayed"""
         mock = self._mock_llm(self.VALID_ANSWER)
         attestation = {**VALID_ATTESTATION, "inputsHash": "f" * 64}
         with patch(
@@ -288,6 +301,7 @@ class TestForcedToolAndIdempotence:
         )
 
     def test_no_write_capable_tool_exists_on_this_endpoint(self):
+        """no write-capable tool exists on this endpoint"""
         source = open(
             "app/services/coach/twin_read_service.py", encoding="utf-8"
         ).read()

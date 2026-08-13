@@ -24270,6 +24270,58 @@ class SDe extends S {
       'Um deine bescheinigte 3a-Marge zu erklären, sendet MINT nur diesen Betrag, sein Jahr und sein Berechnungsdatum — nie deine anderen Daten.';
 
   @override
+  String get mintNextCoachEclairageTitle => 'Meine Marge erläutern';
+
+  @override
+  String get mintNextCoachEclairageIntro =>
+      'Eine Frage zu deiner bescheinigten 3a-Marge. MINT sendet nur diesen Betrag, sein Jahr und sein Berechnungsdatum.';
+
+  @override
+  String get mintNextCoachEclairageHint => 'Deine Frage zu dieser Marge';
+
+  @override
+  String get mintNextCoachEclairageAsk => 'Erläuterung anfragen';
+
+  @override
+  String get mintNextCoachEclairageConsentAccept => 'Ich stimme zu';
+
+  @override
+  String get mintNextCoachEclairageUnattested =>
+      'Deine 3a-Marge ist noch nicht bescheinigt: Es gibt derzeit nichts zu erläutern.';
+
+  @override
+  String get mintNextCoachEclairageReadFailure =>
+      'Deine Daten konnten auf diesem Gerät nicht gelesen werden. Es wurde nichts gesendet.';
+
+  @override
+  String get mintNextCoachEclairageGoToSituation => 'Meine Situation ansehen';
+
+  @override
+  String get mintNextCoachEclairageRefused =>
+      'Ich kann derzeit keine verlässliche Erläuterung erstellen. Deine bescheinigte Marge bleibt in deiner Situation sichtbar.';
+
+  @override
+  String get mintNextCoachEclairageAmbiguous =>
+      'Die Erläuterung wurde nicht abgeschlossen. Du kannst es erneut versuchen: Solange keine Antwort kam, wurde nichts gezählt.';
+
+  @override
+  String get mintNextCoachEclairageQuotaExhausted =>
+      'Du hast die auf diesem Gerät verfügbaren Austausche genutzt.';
+
+  @override
+  String get mintNextCoachEclairageConsentMissing =>
+      'Ohne deine Zustimmung wird nichts gesendet — und keine Erläuterung ist möglich.';
+
+  @override
+  String mintNextCoachEclairageSource(String year, String date) {
+    return 'Quelle: deine bescheinigte 3a-Marge $year, berechnet am $date.';
+  }
+
+  @override
+  String get mintNextCoachEclairageLimit =>
+      'Grenze: Diese Erläuterung beruht nur auf dieser bescheinigten Marge. Zum Korrigieren oder Ergänzen gehe zu deiner Situation.';
+
+  @override
   String get consentRevoke => 'Widerrufen';
 
   @override

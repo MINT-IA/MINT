@@ -94,12 +94,44 @@ class TwinReadApiService {
     return prefs.getBool('$lockKeyPrefix$operationKey') == true;
   }
 
+  /// Réconciliation au boot : une réservation laissée par une réponse
+  /// perdue est REJOUÉE avec la même clé — le serveur ressert sa réponse
+  /// sans re-consommer, et la consommation converge à 0 ou 1, jamais 2.
+  static Future<void> reconcilePendingAtBoot({
+    required Future<Map<String, dynamic>?> Function(String operationKey)
+        attestationLookup,
+    required String sessionId,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    final pending = prefs
+        .getKeys()
+        .where((k) => k.startsWith(pendingKeyPrefix))
+        .toList(growable: false);
+    for (final key in pending) {
+      final operationKey = key.substring(pendingKeyPrefix.length);
+      final attestation = await attestationLookup(operationKey);
+      if (attestation == null) {
+        // L'attestation a disparu (reset, correction) : la réservation
+        // n'a plus d'objet — la lever est honnête, rien n'est inventé.
+        await prefs.remove(key);
+        continue;
+      }
+      await requestEclairage(
+        question: '',
+        attestation: attestation,
+        sessionId: sessionId,
+        replayOnly: true,
+      );
+    }
+  }
+
   /// Demande l'éclairage. Aucun octet ne part sans reçu de consentement
   /// actif ; la réservation durable précède l'appel.
   static Future<TwinReadOutcome> requestEclairage({
     required String question,
     required Map<String, dynamic> attestation,
     required String sessionId,
+    bool replayOnly = false,
   }) async {
     final receipt = await ConsentService()
         .activeReceiptFor(ConsentPurpose.twinRead3aMargin);
@@ -136,6 +168,15 @@ class TwinReadApiService {
         },
       );
       final answer = response['answer'] as String?;
+      if (replayOnly) {
+        // Rejeu de réconciliation : on ne rend rien, on clôt seulement
+        // l'état durable (verrou si servi, réservation levée).
+        if (answer != null && answer.isNotEmpty) {
+          await prefs.setBool('$lockKeyPrefix$operationKey', true);
+        }
+        await prefs.remove('$pendingKeyPrefix$operationKey');
+        return const TwinReadOutcome(kind: TwinReadOutcomeKind.answered);
+      }
       if (answer == null || answer.isEmpty) {
         return const TwinReadOutcome(kind: TwinReadOutcomeKind.refused);
       }

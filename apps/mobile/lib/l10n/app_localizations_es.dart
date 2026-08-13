@@ -24222,6 +24222,58 @@ class SEs extends S {
       'Para explicarte tu margen 3a certificado, MINT envía solo ese importe, su año y su fecha de cálculo, nunca tus otros datos.';
 
   @override
+  String get mintNextCoachEclairageTitle => 'Explicar mi margen';
+
+  @override
+  String get mintNextCoachEclairageIntro =>
+      'Una pregunta sobre tu margen 3a certificado. MINT solo envía ese importe, su año y su fecha de cálculo.';
+
+  @override
+  String get mintNextCoachEclairageHint => 'Tu pregunta sobre este margen';
+
+  @override
+  String get mintNextCoachEclairageAsk => 'Pedir una explicación';
+
+  @override
+  String get mintNextCoachEclairageConsentAccept => 'Acepto';
+
+  @override
+  String get mintNextCoachEclairageUnattested =>
+      'Tu margen 3a aún no está certificado: no hay nada que explicar por ahora.';
+
+  @override
+  String get mintNextCoachEclairageReadFailure =>
+      'No se han podido leer tus datos en este dispositivo. No se ha enviado nada.';
+
+  @override
+  String get mintNextCoachEclairageGoToSituation => 'Ver mi situación';
+
+  @override
+  String get mintNextCoachEclairageRefused =>
+      'No puedo dar una explicación fiable ahora mismo. Tu margen certificado sigue visible en tu situación.';
+
+  @override
+  String get mintNextCoachEclairageAmbiguous =>
+      'La explicación no se completó. Puedes reintentar: no se ha descontado nada mientras no llegó respuesta.';
+
+  @override
+  String get mintNextCoachEclairageQuotaExhausted =>
+      'Has usado los intercambios disponibles en este dispositivo.';
+
+  @override
+  String get mintNextCoachEclairageConsentMissing =>
+      'Sin tu acuerdo no se envía nada, y ninguna explicación es posible.';
+
+  @override
+  String mintNextCoachEclairageSource(String year, String date) {
+    return 'Fuente: tu margen 3a certificado $year, calculado el $date.';
+  }
+
+  @override
+  String get mintNextCoachEclairageLimit =>
+      'Límite: esta explicación solo se basa en ese margen certificado. Para corregir o completar, ve a tu situación.';
+
+  @override
   String get consentRevoke => 'Revocar';
 
   @override

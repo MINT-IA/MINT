@@ -24220,6 +24220,58 @@ class SFr extends S {
       'Pour t\'expliquer ta marge 3a attestée, MINT envoie uniquement ce montant, son année et sa date de calcul — jamais tes autres données.';
 
   @override
+  String get mintNextCoachEclairageTitle => 'Éclairer ma marge';
+
+  @override
+  String get mintNextCoachEclairageIntro =>
+      'Une question sur ta marge 3a attestée. MINT n\'envoie que ce montant, son année et sa date de calcul.';
+
+  @override
+  String get mintNextCoachEclairageHint => 'Ta question sur cette marge';
+
+  @override
+  String get mintNextCoachEclairageAsk => 'Demander un éclairage';
+
+  @override
+  String get mintNextCoachEclairageConsentAccept => 'J\'accepte';
+
+  @override
+  String get mintNextCoachEclairageUnattested =>
+      'Ta marge 3a n\'est pas encore attestée : il n\'y a rien à éclairer pour l\'instant.';
+
+  @override
+  String get mintNextCoachEclairageReadFailure =>
+      'Tes données n\'ont pas pu être lues sur cet appareil. Rien n\'a été envoyé.';
+
+  @override
+  String get mintNextCoachEclairageGoToSituation => 'Voir ma situation';
+
+  @override
+  String get mintNextCoachEclairageRefused =>
+      'Je ne peux pas produire un éclairage fiable pour le moment. Ta marge attestée reste visible dans ta situation.';
+
+  @override
+  String get mintNextCoachEclairageAmbiguous =>
+      'L\'éclairage n\'a pas abouti. Tu peux réessayer : rien n\'a été décompté tant qu\'aucune réponse n\'est arrivée.';
+
+  @override
+  String get mintNextCoachEclairageQuotaExhausted =>
+      'Tu as utilisé tes échanges disponibles sur cet appareil.';
+
+  @override
+  String get mintNextCoachEclairageConsentMissing =>
+      'Sans ton accord, rien n\'est envoyé — et aucun éclairage n\'est possible.';
+
+  @override
+  String mintNextCoachEclairageSource(String year, String date) {
+    return 'Source : ta marge 3a attestée $year, calculée le $date.';
+  }
+
+  @override
+  String get mintNextCoachEclairageLimit =>
+      'Limite : cet éclairage ne repose que sur cette marge attestée. Pour corriger ou compléter, passe par ta situation.';
+
+  @override
   String get consentRevoke => 'Révoquer';
 
   @override

@@ -324,4 +324,17 @@ void main() {
     expect(PreviewShellPolicy.instance.redirectForShellParams(
         {'screen': 'coach'}), isNull);
   });
+  test('the coach tab and chat routes stay blocked while the C1 surface '
+      'exists', () {
+    // Lego C1 n'ouvre PAS le coach : la politique de coque est inchangée,
+    // seule la surface d'éclairage (route dédiée) existe.
+    const policy = PreviewShellPolicy.forTest(isPreviewShell: true);
+    expect(policy.showCoachTab, isFalse);
+    expect(policy.blocksRoute('/coach/chat'), isTrue);
+    // Les alias (/ask-mint…) héritent du blocage AU POINT DE
+    // DESTINATION (/coach/chat), pas à leur propre chemin.
+    expect(policy.blocksRoute('/mint-next/coach-explain-3a'), isFalse,
+        reason: "la surface C1 est la SEULE porte coach de la préversion");
+  });
+
 }

@@ -24287,6 +24287,58 @@ class SIt extends S {
       'Per spiegarti il tuo margine 3a attestato, MINT invia solo quell’importo, il suo anno e la sua data di calcolo, mai gli altri tuoi dati.';
 
   @override
+  String get mintNextCoachEclairageTitle => 'Spiegare il mio margine';
+
+  @override
+  String get mintNextCoachEclairageIntro =>
+      'Una domanda sul tuo margine 3a attestato. MINT invia solo quell’importo, il suo anno e la sua data di calcolo.';
+
+  @override
+  String get mintNextCoachEclairageHint => 'La tua domanda su questo margine';
+
+  @override
+  String get mintNextCoachEclairageAsk => 'Chiedere una spiegazione';
+
+  @override
+  String get mintNextCoachEclairageConsentAccept => 'Accetto';
+
+  @override
+  String get mintNextCoachEclairageUnattested =>
+      'Il tuo margine 3a non è ancora attestato: per ora non c’è nulla da spiegare.';
+
+  @override
+  String get mintNextCoachEclairageReadFailure =>
+      'Non è stato possibile leggere i tuoi dati su questo dispositivo. Non è stato inviato nulla.';
+
+  @override
+  String get mintNextCoachEclairageGoToSituation => 'Vedere la mia situazione';
+
+  @override
+  String get mintNextCoachEclairageRefused =>
+      'Non posso fornire una spiegazione affidabile in questo momento. Il tuo margine attestato resta visibile nella tua situazione.';
+
+  @override
+  String get mintNextCoachEclairageAmbiguous =>
+      'La spiegazione non è andata a buon fine. Puoi riprovare: non è stato conteggiato nulla finché non è arrivata una risposta.';
+
+  @override
+  String get mintNextCoachEclairageQuotaExhausted =>
+      'Hai usato gli scambi disponibili su questo dispositivo.';
+
+  @override
+  String get mintNextCoachEclairageConsentMissing =>
+      'Senza il tuo accordo non viene inviato nulla — e nessuna spiegazione è possibile.';
+
+  @override
+  String mintNextCoachEclairageSource(String year, String date) {
+    return 'Fonte: il tuo margine 3a attestato $year, calcolato il $date.';
+  }
+
+  @override
+  String get mintNextCoachEclairageLimit =>
+      'Limite: questa spiegazione si basa solo su quel margine attestato. Per correggere o completare, vai alla tua situazione.';
+
+  @override
   String get consentRevoke => 'Revocare';
 
   @override

@@ -190,6 +190,11 @@ class ConsentService {
   static const String currentPolicyVersion = 'v2.4.0';
 
   static List<ConsentReceipt>? _cache;
+
+  /// Le cache est STATIQUE : sans ce reset, un reçu accordé dans un test
+  /// survit au suivant et masque le gate de consentement.
+  @visibleForTesting
+  static void resetCacheForTest() => _cache = null;
   static final _LocalConsentStore _localStore = _LocalConsentStore();
 
   /// Returns the union of backend receipts + local receipts. In mode local

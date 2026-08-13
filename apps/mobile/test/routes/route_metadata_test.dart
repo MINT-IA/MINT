@@ -107,7 +107,7 @@ void main() {
     test('has exactly 161 entries', () {
       // 147 in Phase 32 ; 14 routes added since. Refresh count when adding /
       // removing routes (intentional gate, not auto-updated).
-      expect(kRouteRegistry.length, 161);
+      expect(kRouteRegistry.length, 162);
     });
 
     test('/mint-next/3a is the public local private-flow route', () {

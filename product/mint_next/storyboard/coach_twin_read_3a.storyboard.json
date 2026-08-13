@@ -31,93 +31,125 @@
       "id": "c1_hidden",
       "story": "Le coach général reste masqué : la politique de coque est INCHANGÉE, seule la surface C1 existe — depuis le vertical 3a uniquement.",
       "code": "apps/mobile/lib/services/preview_shell_policy.dart (inchangé) + apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_vertical_3a_screen.dart",
-      "tests_planned": [
+      "tests": [
         "the coach tab and chat routes stay blocked while the C1 surface exists",
         "the C1 entry is reachable from the vertical in every state but the LLM call is only possible on an attested margin"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/coach_eclairage_screen_test.dart",
+        "apps/mobile/test/widgets/preview_shell_masking_test.dart"
       ]
     },
     {
       "id": "c2_empty_twin",
       "story": "Chaque état non-attesté est DISTINCT et honnête : marge absente, entrées invalides, lecture en échec (loadFailed ≠ jumeau vide), attestation trop ancienne — chacun rend son état, CTA Ma situation, ZÉRO appel réseau, ZÉRO quota.",
       "code": "apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_coach_eclairage_screen.dart (nouveau)",
-      "tests_planned": [
+      "tests": [
         "each non-attested state (absent, invalid, read-failure, stale) renders its own honest state",
         "a read failure is never presented as an empty twin",
         "no non-attested state ever triggers a network call or consumes quota"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/coach_eclairage_screen_test.dart"
       ]
     },
     {
       "id": "c3_consent",
       "story": "Consentement DÉDIÉ twinRead3aMargin, full-stack : enum mobile + enum backend + ConsentSheet + ARB ×6 + rangée au centre de confidentialité. Reçu anonyme = LOCAL-FIRST : accordé ET RÉVOCABLE localement, immédiatement, sans backend. Le gate mobile bloque avant tout HTTP sans reçu actif ; l'enveloppe porte {receiptId, purpose, version, grantedAt} et le serveur valide présence + forme.",
       "code": "apps/mobile/lib/services/consent/consent_service.dart (purpose + révocation locale anonyme) + apps/mobile/lib/screens/profile/privacy_center_screen.dart (rangée) + ConsentSheet + ARB ×6 + services/backend/app/models/consent.py (enum)",
-      "tests_planned": [
+      "tests": [
         "without an active twin-read consent receipt no HTTP request ever leaves",
         "an anonymous twin-read receipt is granted and revoked locally and immediately without any backend call",
         "the revoked receipt blocks the next call at the mobile gate",
         "the envelope carries receiptId, purpose and version and the backend rejects a malformed receipt"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/twin_read_api_service_test.dart",
+        "services/backend/tests/test_coach_twin_read_contract.py"
       ]
     },
     {
       "id": "c4_closed_envelope",
       "story": "L'enveloppe sérialise EXCLUSIVEMENT l'attestation publique + hashes — schéma RÉCURSIF fermé des deux côtés : endpoint/méthode/cardinalité (UNE requête), types, bornes (amountCents entier borné, hashes hex de longueur fixe, question à longueur max), extra=forbid à chaque niveau. Anti-exfiltration par VALEURS : aucune valeur scellée connue ne peut transiter, même recopiée sous une clé autorisée (question comprise).",
       "code": "apps/mobile/lib/services/coach/twin_read_api_service.dart (nouveau) + services/backend/app/models/coach/twin_read.py (nouveau)",
-      "tests_planned": [
+      "tests": [
         "the mobile envelope serializes only the public attestation fields (closed recursive schema, unknown key = test failure)",
         "the backend rejects any extra field at any nesting level and any legacy context key with a 422",
         "the golden contract pins endpoint, method, types, value bounds and patterns on both sides",
         "a sealed value smuggled inside the question field is detected by the value-level guard"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/twin_read_api_service_test.dart",
+        "services/backend/tests/test_coach_twin_read_contract.py"
       ]
     },
     {
       "id": "c5_forced_read",
       "story": "Endpoint dédié : un outil interne unique read_attested_3a_margin, tool_choice forcé au premier appel, aucun outil write enregistré.",
       "code": "services/backend/app/api/v1/endpoints/coach_twin_read.py (nouveau) + services/backend/app/services/coach/twin_read_service.py (nouveau)",
-      "tests_planned": [
+      "tests": [
         "the endpoint registers exactly one read-only tool and forces its invocation",
         "a response produced without the tool trace is rejected server-side",
         "no write-capable tool exists on this endpoint"
+      ],
+      "test_files": [
+        "services/backend/tests/test_coach_twin_read_contract.py"
       ]
     },
     {
       "id": "c6_claim_check",
       "story": "Claim-checker déterministe AVANT rendu sur un VOCABULAIRE FERMÉ : la sortie outil énumère les claims autorisés avec sourceRef (amountCents, amountFrancsFloor, taxYear, state, freshness) ; tout nombre de la réponse doit appartenir à cet ensemble ; aucun pourcentage ni seuil (absents de l'outil) ; aucune recommandation ; aucune contradiction d'état/fraîcheur/hashes. Violation = rejet, fallback sûr sans chiffre, RIEN consommé.",
       "code": "services/backend/app/services/coach/twin_read_claim_checker.py (nouveau)",
-      "tests_planned": [
+      "tests": [
         "the tool output enumerates the closed claim vocabulary with sourceRefs",
         "every number in the answer must belong to the closed claim set or the answer is rejected",
         "percentages and thresholds are rejected by construction (absent from the tool output)",
         "a recommendation or banned LSFin phrasing is rejected deterministically",
         "a rejected answer returns the safe no-number fallback and consumes nothing"
+      ],
+      "test_files": [
+        "services/backend/tests/test_coach_twin_read_contract.py"
       ]
     },
     {
       "id": "c7_valid_render",
       "story": "Un éclairage borné, sourcé et daté (année + fraîcheur visibles), copie pédagogique — aucune relance libre.",
       "code": "apps/mobile/lib/screens/mint_next_vertical_3a/mint_next_coach_eclairage_screen.dart",
-      "tests_planned": [
+      "tests": [
         "the rendered answer shows the source year and freshness, states its limits, and its only CTA leads to correction or completion",
         "the answer never contradicts the attested state and offers no free follow-up nor generated navigation"
+      ],
+      "test_files": [
+        "apps/mobile/test/screens/mint_next_vertical_3a/coach_eclairage_screen_test.dart"
       ]
     },
     {
       "id": "c8_failure_atomicity",
       "story": "Protocole réservation/commit : clé d'opération dérivée de l'attestation (inputsHash+registryHash+taxYear), réservation locale DURABLE avant l'appel, commit à l'affichage validé. Échec PRÉ-ENVOI ou rejet déterministe = rien consommé, fallback sans chiffre. Timeout/5xx POST-ENVOI = issue AMBIGUË : réservation conservée, rejeu de la même clé, résolution UNIQUEMENT par le reçu durable (0 ou 1, jamais présumée).",
       "code": "apps/mobile/lib/services/coach/twin_read_api_service.dart",
-      "tests_planned": [
+      "tests": [
         "a pre-send failure and a deterministic rejection consume nothing and fall back without numbers",
         "an ambiguous post-send timeout keeps the reservation, replays the same operation key and resolves only through the durable receipt",
         "a lost response is reconciled at boot by replaying the operation key without double counting",
         "a crash between reservation and commit converges at boot to exactly zero or one consumption"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/twin_read_api_service_test.dart",
+        "services/backend/tests/test_coach_twin_read_contract.py"
       ]
     },
     {
       "id": "c9_quota_once",
       "story": "Succès validé : consommation ATOMIQUE de 1 (clé d'opération idempotente côté backend) + verrou local par ATTESTATION-HASH — une correction produisant une NOUVELLE attestation rouvre l'éclairage ; un reset local n'est pas une autorité métier.",
       "code": "apps/mobile/lib/services/coach/twin_read_api_service.dart + apps/mobile/lib/services/anonymous_session_service.dart (lecture)",
-      "tests_planned": [
+      "tests": [
         "the anonymous quota is decremented exactly once per operation key even when the call is replayed",
         "a second C1 attempt on the same attestation hash is locked locally",
         "a new attestation hash after a correction reopens the C1 surface"
+      ],
+      "test_files": [
+        "apps/mobile/test/services/twin_read_api_service_test.dart",
+        "services/backend/tests/test_coach_twin_read_contract.py"
       ]
     },
     {
