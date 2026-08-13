@@ -643,6 +643,12 @@ ALLOW = {
     # Feuille de route vivante + ADR du jumeau financier (doctrine Julien du
     # 2026-08-13 : faits versionnes, contexte porte, regle rendue mecanique).
     ".planning/FEUILLE-DE-ROUTE.md",
+    # F1 — le registre des versions : ecrire un fait AJOUTE une version, la
+    # precedente est close et jamais supprimee. Le magasin plat devient une
+    # projection. ADR 2026-08-13-jumeau-financier-faits-versionnes.md
+    "apps/mobile/lib/services/twin/fact_version.dart",
+    "apps/mobile/lib/services/twin/fact_registry.dart",
+    "apps/mobile/test/services/twin/fact_registry_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
