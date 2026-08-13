@@ -39,6 +39,11 @@ enum RouteOwner {
   scan,
   budget,
   anonymous,
+  /// Bascule 4 — onboarding LEGACY : owner dédié porté par TOUT chemin
+  /// dont la fermeture transitive atteint OnboardingShellScreen. La
+  /// préversion l'interdit fail-closed ; l'autorité est structurelle,
+  /// jamais une liste d'écrans (elle survit à l'ajout d'un alias).
+  legacyOnboarding,
   // 4 infra owners (no kill-flag, always reachable)
   auth,
   admin,

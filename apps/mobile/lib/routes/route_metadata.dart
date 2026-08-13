@@ -122,14 +122,14 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   '/start': RouteMeta(
     path: '/start',
     category: RouteCategory.alias,
-    owner: RouteOwner.anonymous,
+    owner: RouteOwner.legacyOnboarding,
     requiresAuth: false,
     description: 'Landing CTA compatibility redirect — redirects to /onb',
   ),
   '/onb': RouteMeta(
     path: '/onb',
     category: RouteCategory.destination,
-    owner: RouteOwner.anonymous,
+    owner: RouteOwner.legacyOnboarding,
     requiresAuth: false,
     description: 'MVP wedge onboarding v2 — 9-step intent-led dossier flow',
   ),
@@ -182,7 +182,7 @@ const Map<String, RouteMeta> kRouteRegistry = <String, RouteMeta>{
   '/anonymous/chat': RouteMeta(
     path: '/anonymous/chat',
     category: RouteCategory.alias,
-    owner: RouteOwner.anonymous,
+    owner: RouteOwner.legacyOnboarding,
     requiresAuth: false,
     description: 'Retired anonymous chat cold-open — redirects to /onb',
   ),

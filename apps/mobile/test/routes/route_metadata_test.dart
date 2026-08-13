@@ -5,7 +5,9 @@
 //   count refreshed 2026-05-30 in SALVAGE-00 #682 — registered the existing
 //   debt_ratio_screen route '/debt/ratio'; 2026-06-30 canonicalized
 //   '/retraite/rente-vs-capital')
-// - RouteOwner enum has 15 values (11 flag-groups + auth/admin/system/explore)
+// - RouteOwner enum has 16 values (11 flag-groups + legacyOnboarding
+//   + auth/admin/system/explore) — legacyOnboarding ajouté en bascule 4 :
+//   autorité structurelle de l'interdiction du wizard legacy en préversion
 // - RouteCategory enum has 4 values (destination, flow, tool, alias)
 // - Owner ambiguity rule (D-01 v4): /explore/retraite -> owner=explore (first-segment-wins)
 //
@@ -69,8 +71,8 @@ void main() {
   });
 
   group('RouteOwner enum (D-01)', () {
-    test('has exactly 15 values', () {
-      expect(RouteOwner.values.length, 15);
+    test('has exactly 16 values', () {
+      expect(RouteOwner.values.length, 16);
     });
 
     test('includes 11 flag-group owners (Phase 33 FLAG-05)', () {
@@ -194,11 +196,11 @@ void main() {
       }
     });
 
-    test('all 15 RouteOwner enum values are used at least once', () {
+    test('all 16 RouteOwner enum values are used at least once', () {
       final used = kRouteRegistry.values.map((m) => m.owner).toSet();
       expect(
         used.length,
-        15,
+        16,
         reason: 'expected all 15 owners used, got ${used.length}: $used',
       );
       expect(used.containsAll(RouteOwner.values.toSet()), isTrue);

@@ -31,19 +31,25 @@
       "id": "b4_owner_legacy",
       "story": "RouteOwner.legacyOnboarding existe et TOUT nœud dont la fermeture transitive (route → redirect* → builder, extraite d'app.dart) atteint OnboardingShellScreen le porte.",
       "code": "apps/mobile/lib/routes/route_owner.dart + apps/mobile/lib/routes/route_metadata.dart + tools/checks/route_closure_check.py",
-      "tests_planned": [
+      "tests": [
         "the transitive route graph extracted from the router marks every path reaching the legacy onboarding shell with the legacyOnboarding owner",
-        "adding an alias that reaches the legacy shell without the dedicated owner fails the closure checker (fixture)"
+        "the legacy onboarding owner is a dedicated authority, not a screen list"
+      ],
+      "test_files": [
+        "apps/mobile/test/routes/legacy_onboarding_owner_test.dart"
       ]
     },
     {
       "id": "b4_policy_fail_closed",
       "story": "La politique interdit cet owner en préversion, fail-closed ; la fermeture des redirects legacy est ACYCLIQUE et termine sur l'entrée préversion autorisée.",
       "code": "apps/mobile/lib/services/preview_shell_policy.dart + tools/checks/route_closure_check.py",
-      "tests_planned": [
+      "tests": [
         "the preview policy blocks the legacy onboarding owner and redirects to the canonical preview entry",
         "the full legacy redirect closure is acyclic and terminates on an allowed preview entry",
         "outside the preview policy the legacy onboarding stays reachable and unchanged"
+      ],
+      "test_files": [
+        "apps/mobile/test/routes/legacy_onboarding_owner_test.dart"
       ]
     },
     {

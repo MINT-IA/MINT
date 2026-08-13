@@ -17,7 +17,7 @@ flowchart LR
   route__advisor_wizard["/advisor/wizard<br/>alias/system<br/>authenticated"]
   class route__advisor_wizard alias
   class route__advisor_wizard auth
-  route__anonymous_chat["/anonymous/chat<br/>alias/anonymous<br/>public"]
+  route__anonymous_chat["/anonymous/chat<br/>alias/legacyOnboarding<br/>public"]
   class route__anonymous_chat alias
   class route__anonymous_chat public
   route__arbitrage_rente_vs_capital["/arbitrage/rente-vs-capital<br/>alias/system<br/>onboarding"]
@@ -56,7 +56,7 @@ flowchart LR
   route__mon_argent["/mon-argent<br/>destination/system<br/>authenticated"]
   class route__mon_argent route
   class route__mon_argent auth
-  route__onb["/onb<br/>destination/anonymous<br/>public"]
+  route__onb["/onb<br/>destination/legacyOnboarding<br/>public"]
   class route__onb route
   class route__onb public
   route__onboarding_intent["/onboarding/intent<br/>alias/system<br/>onboarding"]
@@ -116,7 +116,7 @@ flowchart LR
   route__simulator_rente_capital["/simulator/rente-capital<br/>alias/system<br/>onboarding"]
   class route__simulator_rente_capital alias
   class route__simulator_rente_capital onboarding
-  route__start["/start<br/>alias/anonymous<br/>public"]
+  route__start["/start<br/>alias/legacyOnboarding<br/>public"]
   class route__start alias
   class route__start public
   route__tools["/tools<br/>alias/system<br/>authenticated"]

@@ -440,8 +440,12 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                         // Route to coach with FATCA context — coach has the
                         // alternative-levers playbook and respects
                         // archetype-aware doctrine via system prompt.
+                        // '/coach' n'est PAS une route déclarée (seul
+                        // '/coach/chat' existe) : la navigation tombait
+                        // sur l'écran d'erreur. Bug réel confirmé par
+                        // route_closure_check (bascule 4).
                         context.push(
-                          '/coach?intent=fatca_3a_alternatives',
+                          '/coach/chat?intent=fatca_3a_alternatives',
                         );
                       },
                       icon: const Icon(Icons.chat_outlined),

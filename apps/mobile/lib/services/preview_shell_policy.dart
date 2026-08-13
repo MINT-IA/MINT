@@ -52,7 +52,12 @@ class PreviewShellPolicy {
     if (!isPreviewShell) return false;
     final meta = kRouteRegistry[path];
     if (meta == null) return false;
-    return meta.owner == RouteOwner.coach || meta.owner == RouteOwner.explore;
+    return meta.owner == RouteOwner.coach ||
+        meta.owner == RouteOwner.explore ||
+        // Bascule 4 — l'onboarding legacy est interdit FAIL-CLOSED : la
+        // première ouverture ne doit jamais y tomber (trou trouvé sur
+        // TestFlight 2.13.3+80).
+        meta.owner == RouteOwner.legacyOnboarding;
   }
 
   /// Redirection déterministe des destinations interdites.
