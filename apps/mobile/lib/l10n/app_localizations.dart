@@ -42280,6 +42280,18 @@ abstract class S {
   /// **'MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.'**
   String get consentPurposeCoupleProjectionWhy;
 
+  /// No description provided for @consentPurposeTwinRead3aMargin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éclairage de ta marge 3a'**
+  String get consentPurposeTwinRead3aMargin;
+
+  /// No description provided for @consentPurposeTwinRead3aMarginWhy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour t\'expliquer ta marge 3a attestée, MINT envoie uniquement ce montant, son année et sa date de calcul — jamais tes autres données.'**
+  String get consentPurposeTwinRead3aMarginWhy;
+
   /// No description provided for @consentRevoke.
   ///
   /// In fr, this message translates to:

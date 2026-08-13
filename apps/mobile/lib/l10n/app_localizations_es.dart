@@ -24215,6 +24215,13 @@ class SEs extends S {
       'MINT utiliza los datos de tu pareja para escenarios conjuntos. Confirmas haber obtenido su consentimiento.';
 
   @override
+  String get consentPurposeTwinRead3aMargin => 'Explicación de tu margen 3a';
+
+  @override
+  String get consentPurposeTwinRead3aMarginWhy =>
+      'Para explicarte tu margen 3a certificado, MINT envía solo ese importe, su año y su fecha de cálculo, nunca tus otros datos.';
+
+  @override
   String get consentRevoke => 'Revocar';
 
   @override

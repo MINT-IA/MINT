@@ -46,6 +46,8 @@ class ConsentSheet extends StatelessWidget {
         return l.consentPurposeTransferUsAnthropic;
       case ConsentPurpose.coupleProjection:
         return l.consentPurposeCoupleProjection;
+      case ConsentPurpose.twinRead3aMargin:
+        return l.consentPurposeTwinRead3aMargin;
     }
   }
 
@@ -59,6 +61,8 @@ class ConsentSheet extends StatelessWidget {
         return l.consentPurposeTransferUsAnthropicWhy;
       case ConsentPurpose.coupleProjection:
         return l.consentPurposeCoupleProjectionWhy;
+      case ConsentPurpose.twinRead3aMargin:
+        return l.consentPurposeTwinRead3aMarginWhy;
     }
   }
 

@@ -24224,6 +24224,13 @@ class SPt extends S {
       'A MINT usa os dados do/a teu/tua parceiro/a para cenários de casal. Confirmas ter obtido o consentimento dele/dela.';
 
   @override
+  String get consentPurposeTwinRead3aMargin => 'Explicação da tua margem 3a';
+
+  @override
+  String get consentPurposeTwinRead3aMarginWhy =>
+      'Para explicar a tua margem 3a atestada, o MINT envia apenas esse montante, o seu ano e a sua data de cálculo — nunca os teus outros dados.';
+
+  @override
   String get consentRevoke => 'Revogar';
 
   @override

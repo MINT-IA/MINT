@@ -11402,6 +11402,8 @@
   "consentPurposeTransferUsAnthropicWhy": "Your documents (Zero Data Retention) and — when you use the coach — your pseudonymized financial profile (exact amounts included, never your name, IBAN or AVS number) and your messages go through the Claude API (Anthropic, USA).",
   "consentPurposeCoupleProjection": "Couple projections",
   "consentPurposeCoupleProjectionWhy": "MINT uses your partner's data for couple scenarios. You confirm you have obtained their consent.",
+  "consentPurposeTwinRead3aMargin": "Explanation of your 3a margin",
+  "consentPurposeTwinRead3aMarginWhy": "To explain your attested 3a margin, MINT sends only that amount, its year and its computation date — never your other data.",
   "consentRevoke": "Revoke",
   "consentCancel": "Cancel",
   "consentRevokeConfirmTitle": "Revoke this consent?",

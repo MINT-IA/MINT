@@ -122,6 +122,8 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
         return l.consentPurposeTransferUsAnthropic;
       case ConsentPurpose.coupleProjection:
         return l.consentPurposeCoupleProjection;
+      case ConsentPurpose.twinRead3aMargin:
+        return l.consentPurposeTwinRead3aMargin;
     }
   }
 

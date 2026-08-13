@@ -26,6 +26,11 @@ enum ConsentPurpose {
   persistence365d,
   transferUsAnthropic,
   coupleProjection,
+
+  /// Lego C1 — lecture par le coach de l'attestation de marge 3a
+  /// (enveloppe fermée, aucun fait scellé). Reçu LOCAL pour un anonyme :
+  /// accordé et révoqué sur l'appareil, sans backend.
+  twinRead3aMargin,
 }
 
 extension ConsentPurposeX on ConsentPurpose {
@@ -39,6 +44,8 @@ extension ConsentPurposeX on ConsentPurpose {
         return 'transfer_us_anthropic';
       case ConsentPurpose.coupleProjection:
         return 'couple_projection';
+      case ConsentPurpose.twinRead3aMargin:
+        return 'twin_read_3a_margin';
     }
   }
 
@@ -52,6 +59,8 @@ extension ConsentPurposeX on ConsentPurpose {
         return ConsentPurpose.transferUsAnthropic;
       case 'couple_projection':
         return ConsentPurpose.coupleProjection;
+      case 'twin_read_3a_margin':
+        return ConsentPurpose.twinRead3aMargin;
       default:
         throw ArgumentError('unknown consent purpose: $raw');
     }
@@ -158,6 +167,20 @@ class _LocalConsentStore {
   Future<void> clear() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_prefsKey);
+  }
+
+  /// Révocation LOCALE d'un reçu de cet appareil — un reçu anonyme n'a
+  /// pas d'existence serveur : il doit pouvoir mourir sans réseau.
+  Future<bool> revokeLocal(String receiptId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final existing = await load();
+    final next = existing.where((c) => c.receiptId != receiptId).toList();
+    if (next.length == existing.length) return false;
+    await prefs.setString(
+      _prefsKey,
+      jsonEncode(next.map((c) => c.toJson()).toList(growable: false)),
+    );
+    return true;
   }
 }
 
@@ -272,10 +295,37 @@ class ConsentService {
   }
 
   Future<Map<String, dynamic>> revoke(String receiptId) async {
+    // Reçu LOCAL (anonyme) : il n'existe pas côté serveur — le révoquer
+    // sur l'appareil est la révocation complète, sans réseau.
+    if (await _localStore.revokeLocal(receiptId)) {
+      _cache = null;
+      return const {'revoked': true, 'scope': 'local'};
+    }
     final resp =
         await ApiService.post('/consents/$receiptId/revoke', const {});
     _cache = null;
     return resp;
+  }
+
+  /// Reçu ACTIF pour ce purpose à la version de politique courante, ou
+  /// null — gate local du Lego C1 (aucun HTTP sans reçu).
+  Future<ConsentReceipt?> activeReceiptFor(ConsentPurpose purpose) async {
+    final consents = await list();
+    for (final c in consents) {
+      if (c.purpose == purpose &&
+          c.isActive &&
+          c.policyVersion == currentPolicyVersion) {
+        return c;
+      }
+    }
+    return null;
+  }
+
+  /// Accord LOCAL (anonyme) du purpose twin-read.
+  Future<ConsentReceipt> grantLocal(ConsentPurpose purpose) async {
+    final receipt = await _localStore.grant(purpose);
+    _cache = null;
+    return receipt;
   }
 
   /// Returns true iff every purpose has an active grant at the current policy

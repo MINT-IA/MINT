@@ -24280,6 +24280,13 @@ class SIt extends S {
       'MINT usa i dati del/la tuo/a partner per scenari di coppia. Confermi di aver ottenuto il suo consenso.';
 
   @override
+  String get consentPurposeTwinRead3aMargin => 'Spiegazione del tuo margine 3a';
+
+  @override
+  String get consentPurposeTwinRead3aMarginWhy =>
+      'Per spiegarti il tuo margine 3a attestato, MINT invia solo quell’importo, il suo anno e la sua data di calcolo, mai gli altri tuoi dati.';
+
+  @override
   String get consentRevoke => 'Revocare';
 
   @override

@@ -24213,6 +24213,13 @@ class SFr extends S {
       'MINT utilise les données de ta/ton partenaire pour les scénarios de couple. Tu confirmes avoir obtenu son consentement.';
 
   @override
+  String get consentPurposeTwinRead3aMargin => 'Éclairage de ta marge 3a';
+
+  @override
+  String get consentPurposeTwinRead3aMarginWhy =>
+      'Pour t\'expliquer ta marge 3a attestée, MINT envoie uniquement ce montant, son année et sa date de calcul — jamais tes autres données.';
+
+  @override
   String get consentRevoke => 'Révoquer';
 
   @override

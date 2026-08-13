@@ -24263,6 +24263,13 @@ class SDe extends S {
       'MINT nutzt die Daten deines Partners / deiner Partnerin für Paar-Szenarien. Du bestätigst, dass du deren Einwilligung eingeholt hast.';
 
   @override
+  String get consentPurposeTwinRead3aMargin => 'Erläuterung deiner 3a-Marge';
+
+  @override
+  String get consentPurposeTwinRead3aMarginWhy =>
+      'Um deine bescheinigte 3a-Marge zu erklären, sendet MINT nur diesen Betrag, sein Jahr und sein Berechnungsdatum — nie deine anderen Daten.';
+
+  @override
   String get consentRevoke => 'Widerrufen';
 
   @override

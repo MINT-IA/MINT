@@ -24087,6 +24087,13 @@ class SEn extends S {
       'MINT uses your partner\'s data for couple scenarios. You confirm you have obtained their consent.';
 
   @override
+  String get consentPurposeTwinRead3aMargin => 'Explanation of your 3a margin';
+
+  @override
+  String get consentPurposeTwinRead3aMarginWhy =>
+      'To explain your attested 3a margin, MINT sends only that amount, its year and its computation date — never your other data.';
+
+  @override
   String get consentRevoke => 'Revoke';
 
   @override
