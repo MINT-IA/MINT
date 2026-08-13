@@ -62,7 +62,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </style>
 <main>
 <header class="hero">
-  <div class="stamp">Herméneutique · v11 · 13 août 2026 · Legos 1-7 + bascules 1-2 — coque pure ET « repartir à zéro » honnête</div>
+  <div class="stamp">Herméneutique · v12 · 13 août 2026 · Legos 1-7 + bascules 1-3a — coque pure, reset honnête, suppression de compte sans mensonge</div>
   <h1>Le code raconte-t-il la même histoire que le storyboard&nbsp;?</h1>
   <p class="sub">Chaque thème en trois volets — l'histoire promise, le code qui la porte, la preuve. Quatre états, jamais confondus&nbsp;: <span class="tag proof">PROUVÉ</span> <span class="tag partial">PARTIEL</span> <span class="tag pending">NON PROUVÉ</span> <span class="tag oos">HORS PÉRIMÈTRE</span></p>
   <p class="legend">Types de preuve, du plus fort au plus faible&nbsp;: <strong>runtime</strong> (parcours réel sim/appareil, captures hash-bound) &gt; <strong>test déterministe</strong> (exit code) &gt; <strong>review indépendante</strong> (verdict P1=0) &gt; <strong>déclaration documentaire</strong> (aucune preuve).</p>
@@ -304,6 +304,25 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
   <div class="honest"><strong>Honnêteté&nbsp;:</strong> le harnais a imposé 3 corrections réelles APRÈS la promotion du code&nbsp;: la section était masquée par l'échec du fetch consents en anonyme (une action locale ne dépend jamais du réseau), le driver de saisie E2E iOS perd les majuscules accentuées, et le build sim sans entitlements lève -34018 sur tout le Keychain (tolérance strictement bornée au chemin e2e). Quota anonyme, quarantaine par compte et partition exhaustive sont intestables au runtime anonyme de la coque — couverts par les tests service, cités au reçu. Parcours device réel (TestFlight) non exercé.</div>
 </section>
 
+<section id="compte">
+  <h2>Suppression de compte honnête — Bascule 3a <span class="tag proof">PROMU 5/5 · mergé</span></h2>
+  <p class="axiom">Sans identité canoniquement confirmée, l'action de suppression n'existe pas — plus jamais «&nbsp;Suppression impossible pour le moment&nbsp;» menti à un état sans compte.</p>
+  <div class="tri">
+    <div class="pane"><h3>Histoire</h3><p>Le déclencheur&nbsp;: le screenshot TestFlight de Julien — une «&nbsp;suppression de compte&nbsp;» proposée à un état anonyme, qui échoue en mentant. B3a rend l'état honnête&nbsp;: «&nbsp;Aucun compte connecté — il n'y a pas de compte à supprimer&nbsp;», pointeur préversion vers le reset local, drawer qui dit «&nbsp;Se connecter&nbsp;». La tranche B3b (transaction serveur idempotente, DELETE staging sur compte jetable, 7 conditions arrêtées) reste au contrat scellé.</p></div>
+    <div class="pane"><h3>Code</h3><ul>
+      <li>Autorité d'identité = <code>authLifecycle.hasAccountSession</code> — jamais un booléen périmable, au centre ET au drawer</li>
+      <li>Entrypoint UNIQUE&nbsp;: le drawer navigue, sa confirmation divergente supprimée&nbsp;; section compte = vérité locale hors du fetch consents (principe B2 réappliqué)</li>
+      <li><code>Semantics action:profile.open_drawer</code> ajouté — exigence review&nbsp;: «&nbsp;ajouter l'id, pas affaiblir le gate&nbsp;»</li>
+    </ul></div>
+    <div class="pane"><h3>Preuve</h3><ul>
+      <li><span class="tag proof">TESTS</span> 7 tests contrat (flag périmé, état anonyme, renvoi B2 bout-en-bout, drawer, connecté intact) + 3 fakes alignés lifecycle</li>
+      <li><span class="tag proof">REVIEW</span> contrat 2×REJET→ACCEPT (timeout/5xx = issue AMBIGUË résolue par rejeu) · ACCEPT T1 premier coup · PROMOTION 1 REJET→#2 (hashes du reçu vérifiés par Codex)</li>
+      <li><span class="tag proof">RUNTIME</span> reçu passed @ <code>b00650ebd</code> (SHA mergé, premier run) — 4 jalons&nbsp;: centre anonyme honnête, pointeur préversion, drawer anonyme honnête, renvoi B2 EXÉCUTÉ (reset complet → état zéro)&nbsp;; zéro-tx 0 REQBODY</li>
+    </ul></div>
+  </div>
+  <div class="honest"><strong>Honnêteté&nbsp;:</strong> le run 2 a montré que le drawer anonyme était DÉJÀ honnête (entrée gatée) — le gate a été réaligné sur la réalité produit au lieu d'inventer un parcours&nbsp;; le tap drawer→centre avec compte et le flag périmé restent des preuves widget, citées au reçu (aucun compte n'existe au runtime anonyme). La suppression connectée réelle n'est PAS livrée — c'est B3b.</div>
+</section>
+
 <section id="troisA">
   <h2>3a — Vertical Golden</h2>
   <p class="axiom">Aujourd'hui → occasion → faits connus/manquants → confirmation minimale → scénario déterministe → widget pédagogique → choix libre → mini-plan → Aujourd'hui.</p>
@@ -398,6 +417,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td class="n">#1226</td><td>Lego 3 — revenu, gate 5/5 (reçu runtime, anti-double-×12)</td><td>LOOP: GO (Q0-Q5) · 3× REJET→ACCEPT · PROMOTION ACCEPT P1=0</td><td class="n">11.08 13:37</td></tr>
     <tr><td class="n">#1227</td><td>Clôture Lego 3 — herméneutique v5 + journal BRIEF</td><td>—</td><td class="n">11.08 13:43</td></tr>
     <tr><td class="n">#1228</td><td>Lego 4 — affiliation LPP, gate 5/5 (runtime 1er run)</td><td>LOOP: GO AFFILIATION LPP · REJET→ACCEPT (masquage corrupt) · PROMOTION ACCEPT P1=0</td><td class="n">11.08 19:46</td></tr>
+    <tr><td class="n">#1246</td><td>Bascule 3a — suppression de compte honnête, tranche anonyme (gate 5/5, reçu SHA mergé b00650ebd)</td><td>contrat 2×REJET→ACCEPT · ACCEPT T1 · PROMOTION 1 REJET→#2</td><td class="n">13.08 04:11</td></tr>
     <tr><td class="n">#1243</td><td>Bascule 2 — reset local «&nbsp;repartir à zéro&nbsp;» (gate 5/5, reçu SHA mergé bf3895c77)</td><td>contrat REJET→ACCEPT · code 5×REJET→PROMOTION #8 · 3 fixes runtime · PROMOTION finale #9</td><td class="n">13.08 01:55</td></tr>
     <tr><td class="n">#1239</td><td>Bascule 1 — coque préversion pure jumeau (gate 5/5, PROMOTION GO)</td><td>cadrage GO coque-seule · contrat 2×REJET→ACCEPT · T2 2×REJET→ACCEPT · NO-GO reçu→GO</td><td class="n">12.08 19:07</td></tr>
     <tr><td class="n">#1237</td><td>Lego 7 — vrai vertical 3a (gate 5/5, PROMOTION GO)</td><td>PRIORITÉ: B · contrat 2×REJET→ACCEPT · écran 2×REJET→ACCEPT · entrées ACCEPT · NO-GO incomeMissing→GO</td><td class="n">12.08 16:10</td></tr>
@@ -409,6 +429,6 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </section>
 
 <footer>
-  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu. v7&nbsp;: Lego 5 versements 3a promu — premier fait pluriel, reçu à 7 outcomes, zéro-transmission observée à la frontière HTTP, traçabilité storyboard↔tests en guard. La file initiale du jumeau est complète&nbsp;: six faits canoniques runtime. v8&nbsp;: Lego 6 marge 3a attestée — premier chiffre CHF du jumeau, marge signée, registre hashé, 6 états fail-closed. v9&nbsp;: Lego 7 vertical 3a promu — le calcul attesté a son parcours réel (entrées visibles, 3 classes d'états, 9 outcomes runtime). v10&nbsp;: bascule 1 — la coque préversion est pure jumeau (politique centrale, masquages prouvés ON/OFF, deeplinks fail-closed). v11&nbsp;: bascule 2 — «&nbsp;repartir à zéro&nbsp;» honnête (purge par délégation V6-4, quarantaine anti-réhydratation, matrice transactionnelle sous 5 REJET Codex, reçu runtime 6 jalons dont la boucle testeur re-seed→second reset). Ce qui n'est pas cité n'est pas prouvé.
+  Document vivant, régénéré à chaque Lego. v2 amendée sur review Codex (registre des preuves ouvertes, thèmes fiscalité/coach, matrices, 33 transitions, statut domicile réel). v4&nbsp;: Lego 2 état civil promu — premier fait 100&nbsp;% scellé. v5&nbsp;: Lego 3 revenu promu. v6&nbsp;: Lego 4 affiliation LPP promu. v7&nbsp;: Lego 5 versements 3a promu — premier fait pluriel, reçu à 7 outcomes, zéro-transmission observée à la frontière HTTP, traçabilité storyboard↔tests en guard. La file initiale du jumeau est complète&nbsp;: six faits canoniques runtime. v8&nbsp;: Lego 6 marge 3a attestée — premier chiffre CHF du jumeau, marge signée, registre hashé, 6 états fail-closed. v9&nbsp;: Lego 7 vertical 3a promu — le calcul attesté a son parcours réel (entrées visibles, 3 classes d'états, 9 outcomes runtime). v10&nbsp;: bascule 1 — la coque préversion est pure jumeau (politique centrale, masquages prouvés ON/OFF, deeplinks fail-closed). v11&nbsp;: bascule 2 — «&nbsp;repartir à zéro&nbsp;» honnête (purge par délégation V6-4, quarantaine anti-réhydratation, matrice transactionnelle sous 5 REJET Codex, reçu runtime 6 jalons dont la boucle testeur re-seed→second reset). v12&nbsp;: bascule 3a — suppression de compte sans mensonge (autorité lifecycle canonique, drawer unifié, état anonyme explicite, renvoi B2 exécuté au runtime). Ce qui n'est pas cité n'est pas prouvé.
 </footer>
 </main>
