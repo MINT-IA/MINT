@@ -10,7 +10,6 @@ import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/local_preview_reset_service.dart';
 import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
-import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/consent/consent_service.dart';
@@ -132,11 +131,10 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
     // B3a — l'autorité est l'état lifecycle CANONIQUE, jamais un booléen
     // isLoggedIn potentiellement périmé face aux jetons réels : la
     // suppression de compte n'existe qu'avec un compte confirmé
-    // (accessMode account + userId ; sessionExpired a un userId null).
-    final lifecycle = context.watch<AuthProvider>().authLifecycle;
+    // (hasAccountSession exige aussi le data scope user — sessionExpired
+    // a un userId null ET un scope none).
     final hasCanonicalAccount =
-        lifecycle.accessMode == AuthAccessMode.account &&
-            lifecycle.userId != null;
+        context.watch<AuthProvider>().authLifecycle.hasAccountSession;
     return Scaffold(
       backgroundColor: MintColors.white,
       appBar: AppBar(
