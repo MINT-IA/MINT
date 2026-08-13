@@ -37,7 +37,7 @@ class _FakeBackend implements TwinBackend {
   }) async {
     beforeSwap?.call();
     // La comparaison appartient au support : c'est ce qui la rend atomique.
-    if (this.revision != expectedRevision) {
+    if (revision != expectedRevision) {
       refusals++;
       return false;
     }
@@ -48,7 +48,7 @@ class _FakeBackend implements TwinBackend {
     }
     this.registry = registry;
     this.projection = Map<String, Object?>.from(projection);
-    this.revision = expectedRevision + 1;
+    revision = expectedRevision + 1;
     return true;
   }
 }
