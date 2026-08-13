@@ -983,6 +983,39 @@ def _create_tax_splitting_recommendation(profile: Profile) -> Recommendation:
 # --- Full Report Generation ---
 
 
+def _roadmap_assumptions(profile) -> list[str]:
+    """Les hypothèses affichées — sans en inventer une seule.
+
+    Cette liste énonçait « Taux marginal estimé à X% (CH) » pour TOUT LE MONDE.
+    Quand le canton manquait, le taux était calculé avec `profile.canton or
+    'ZH'` — donc sur Zurich — et l'étiquette affichée disait « CH ». Un chiffre
+    zurichois présenté comme national, à quelqu'un dont on ignore le canton.
+    Le revenu manquant recevait de même un 80'000 muet.
+
+    Le cas est devenu courant : une personne sans domicile fiscal suisse n'a
+    plus de canton du tout. On n'annonce donc une hypothèse que lorsqu'on a de
+    quoi la fonder, et on dit ce qui manque plutôt que de le combler.
+    """
+    assumptions: list[str] = []
+    canton = (profile.canton or "").strip().upper()
+    income = profile.incomeGrossYearly
+
+    if canton and income:
+        rate = int(calculate_marginal_tax_rate(canton, income) * 100)
+        assumptions.append(f"Taux marginal estimé à {rate}% ({canton}).")
+    elif not canton:
+        assumptions.append(
+            "Taux marginal non estimé : ton canton d'imposition n'est pas connu."
+        )
+    else:
+        assumptions.append(
+            "Taux marginal non estimé : ton revenu annuel n'est pas connu."
+        )
+
+    assumptions.append("Profil de risque modéré par défaut.")
+    return assumptions
+
+
 def generate_session_report(
     profile: Profile, answers: dict, focus_kinds: List[str], session_id: uuid.UUID,
     reference_date: Optional[datetime] = None,
@@ -1051,10 +1084,7 @@ def generate_session_report(
             "Basé sur des déclarations auto-remplies sans vérification.",
             "Ne constitue pas un conseil en investissement personnalisé au sens de la LSFin.",
         ],
-        assumptions=[
-            f"Taux marginal estimé à {int(calculate_marginal_tax_rate(profile.canton or 'ZH', profile.incomeGrossYearly or 80000) * 100)}% ({profile.canton or 'CH'}).",
-            "Profil de risque modéré par défaut.",
-        ],
+        assumptions=_roadmap_assumptions(profile),
         conflictsOfInterest=[
             ConflictOfInterest(
                 partner="Partner-3a-1",

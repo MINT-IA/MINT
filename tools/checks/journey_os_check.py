@@ -1650,6 +1650,10 @@ ALLOW = {
     # l'enumeration a l'arbre reel.
     ".github/workflows/ci.yml",
     "tools/checks/ci_test_coverage_gate.py",
+    # « Taux marginal estime a X% (CH) » etait calcule sur Zurich quand le
+    # canton manquait, et etiquete CH. Une phrase montree a l'utilisateur.
+    "services/backend/app/services/rules_engine.py",
+    "services/backend/tests/test_roadmap_assumptions_no_invented_canton.py",
     "lefthook.yml",
     ".gitignore",
 }
