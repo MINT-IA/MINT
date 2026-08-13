@@ -286,7 +286,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
 </section>
 
 <section id="reset">
-  <h2>Reset local — Bascule 2 <span class="tag proof">PR #1243 · reçu VERT</span></h2>
+  <h2>Reset local — Bascule 2 <span class="tag proof">PROMU 5/5 · mergé</span></h2>
   <p class="axiom">«&nbsp;Repartir à zéro sur cet appareil&nbsp;», honnêtement&nbsp;: purge locale complète, compte et consentements intacts, rien ne ressuscite en silence.</p>
   <div class="tri">
     <div class="pane"><h3>Histoire</h3><p>Section «&nbsp;Préversion&nbsp;» du centre de confidentialité, promesse BORNÉE mot à mot (appareil vs compte vs serveur — jamais «&nbsp;toutes tes données&nbsp;»), confirmation forte par saisie de la phrase entière (insensible aux diacritiques&nbsp;: le geste reste, la fragilité clavier part). Reset réussi = retour à l'entrée d'onboarding — l'état zéro légitime du testeur, qui re-onboarde puis peut re-reset (boucle prouvée au runtime).</p></div>
@@ -298,7 +298,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <div class="pane"><h3>Preuve</h3><ul>
       <li><span class="tag proof">TESTS</span> 36 (29 service + 7 widget) — matrice transactionnelle complète&nbsp;: panne avant/entre/après CHAQUE écriture, retours bool prefs exigés, orpheline inerte par construction, barrière d'erreur totale au boot</li>
       <li><span class="tag proof">REVIEW</span> 9 passes Codex&nbsp;: contrat REJET→ACCEPT · code 5×REJET (frontières réelles à chaque passe) → PROMOTION #8 · PROMOTION finale #9 pré-PR (tolérance -34018 vérifiée inaccessible en release via kReleaseMode)</li>
-      <li><span class="tag proof">RUNTIME</span> reçu passed @ <code>51043d8f2</code> — 6 jalons en un run&nbsp;: état chargé (marge 375800) → section → confirmation forte → état zéro + vertical sans résidu → relance à froid vierge + disclosure préservée → idempotence testeur (re-seed + second reset)&nbsp;; zéro-tx&nbsp;: 73 lignes frontière HTTP, 0 REQBODY</li>
+      <li><span class="tag proof">RUNTIME</span> reçu passed @ <code>bf3895c77</code> (SHA mergé, régénéré au premier run) — 6 jalons en un run&nbsp;: état chargé (marge 375800) → section → confirmation forte → état zéro + vertical sans résidu → relance à froid vierge + disclosure préservée → idempotence testeur (re-seed + second reset)&nbsp;; zéro-tx&nbsp;: 73 lignes frontière HTTP, 0 REQBODY</li>
     </ul></div>
   </div>
   <div class="honest"><strong>Honnêteté&nbsp;:</strong> le harnais a imposé 3 corrections réelles APRÈS la promotion du code&nbsp;: la section était masquée par l'échec du fetch consents en anonyme (une action locale ne dépend jamais du réseau), le driver de saisie E2E iOS perd les majuscules accentuées, et le build sim sans entitlements lève -34018 sur tout le Keychain (tolérance strictement bornée au chemin e2e). Quota anonyme, quarantaine par compte et partition exhaustive sont intestables au runtime anonyme de la coque — couverts par les tests service, cités au reçu. Parcours device réel (TestFlight) non exercé.</div>
@@ -398,7 +398,7 @@ footer{margin-top:3.5rem;border-top:1px solid var(--line);padding-top:1rem;color
     <tr><td class="n">#1226</td><td>Lego 3 — revenu, gate 5/5 (reçu runtime, anti-double-×12)</td><td>LOOP: GO (Q0-Q5) · 3× REJET→ACCEPT · PROMOTION ACCEPT P1=0</td><td class="n">11.08 13:37</td></tr>
     <tr><td class="n">#1227</td><td>Clôture Lego 3 — herméneutique v5 + journal BRIEF</td><td>—</td><td class="n">11.08 13:43</td></tr>
     <tr><td class="n">#1228</td><td>Lego 4 — affiliation LPP, gate 5/5 (runtime 1er run)</td><td>LOOP: GO AFFILIATION LPP · REJET→ACCEPT (masquage corrupt) · PROMOTION ACCEPT P1=0</td><td class="n">11.08 19:46</td></tr>
-    <tr><td class="n">#1243</td><td>Bascule 2 — reset local «&nbsp;repartir à zéro&nbsp;» (reçu VERT 51043d8f2)</td><td>contrat REJET→ACCEPT · code 5×REJET→PROMOTION #8 · 3 fixes runtime · PROMOTION finale #9</td><td class="n">13.08 01:55</td></tr>
+    <tr><td class="n">#1243</td><td>Bascule 2 — reset local «&nbsp;repartir à zéro&nbsp;» (gate 5/5, reçu SHA mergé bf3895c77)</td><td>contrat REJET→ACCEPT · code 5×REJET→PROMOTION #8 · 3 fixes runtime · PROMOTION finale #9</td><td class="n">13.08 01:55</td></tr>
     <tr><td class="n">#1239</td><td>Bascule 1 — coque préversion pure jumeau (gate 5/5, PROMOTION GO)</td><td>cadrage GO coque-seule · contrat 2×REJET→ACCEPT · T2 2×REJET→ACCEPT · NO-GO reçu→GO</td><td class="n">12.08 19:07</td></tr>
     <tr><td class="n">#1237</td><td>Lego 7 — vrai vertical 3a (gate 5/5, PROMOTION GO)</td><td>PRIORITÉ: B · contrat 2×REJET→ACCEPT · écran 2×REJET→ACCEPT · entrées ACCEPT · NO-GO incomeMissing→GO</td><td class="n">12.08 16:10</td></tr>
     <tr><td class="n">#1236</td><td>fix coach — gate anonyme honnête (401 ≠ panne réseau)</td><td>—</td><td class="n">12.08 12:30</td></tr>

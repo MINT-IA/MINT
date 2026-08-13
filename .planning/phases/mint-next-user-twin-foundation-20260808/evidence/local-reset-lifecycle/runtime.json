@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
   "status": "passed",
-  "runtime_commit": "51043d8f251042f969f25425a2209c96be98fae8",
+  "runtime_commit": "bf3895c77275151c20bfd6b50c48364bacfd8e1e",
   "git_dirty": false,
   "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_local_reset_lifecycle.yaml",
   "flow_sha256": "baa60d3157ac81447441698c2afdeb9f6a9f50636632c272b471721ccb2da22e",
-  "app_sha256": "5ef90d3ccdc889655ee36dcc2b9da93f3edefb80b93dff9619032686787c8e4d",
+  "app_sha256": "361f3fd45b507ea0f9ea823a6e5b1b37cc99582d5dedd95d8653c6fac6ca50fb",
   "app_signature": "adhoc",
-  "app_cdhash": "244b1309aa0d284f5ec5cbd675a1fe92d7e1a45c",
-  "device_udid": "CB5137F0-A223-477D-81D4-8A718795A6D5",
-  "device_name": "Mint Reset Proof-51043d8f2-98422",
+  "app_cdhash": "b3af4fc9fdffd5c3724e29b65924c22d553a8ebf",
+  "device_udid": "101EE897-4F2A-4745-B8AA-3291D8BD04AD",
+  "device_name": "Mint Reset Proof-bf3895c77-15045",
   "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
   "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
   "runtime_version": "26.2",
@@ -17,8 +17,8 @@
   "maestro_version": "2.5.1",
   "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
   "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
-  "command": "bash tools/runtime/mint_next_local_reset_lifecycle.sh --runtime-commit 51043d8f251042f969f25425a2209c96be98fae8 --capture-evidence",
-  "captured_at": "2026-08-12T23:49:06Z",
+  "command": "bash tools/runtime/mint_next_local_reset_lifecycle.sh --runtime-commit bf3895c77275151c20bfd6b50c48364bacfd8e1e --capture-evidence",
+  "captured_at": "2026-08-13T00:07:48Z",
   "ordered_outcomes": [
     "etat charge : fait LPP + versement 3500 -> marge attestee 375800",
     "centre de confidentialite : section Preversion visible, promesse bornee",
@@ -47,29 +47,29 @@
   },
   "screenshots": {
     "01-etat-charge.png": {
-      "sha256": "2857ab19c79f6e67723cb92013c47093b4c0bf1da12374944c1a5252039b6275",
-      "bytes": 132970
+      "sha256": "c47ba616845334f70a1ef27f33f4e3a72f791d36337bfe2554622e5d541bfd49",
+      "bytes": 132485
     },
     "02-preversion-section.png": {
-      "sha256": "c20496e54e93729c9b5ebca5cc78ba35fa2964037d636c07073e86a5060697ad",
-      "bytes": 152506
+      "sha256": "2565093597cfcdd2ff7b679e6021f2ee2564ecb7abd9af94344c6b5ea0edd9c1",
+      "bytes": 152052
     },
     "03-confirmation-forte.png": {
-      "sha256": "69a7381547c72559246c81ef1ae2ace533bd9b371d6aad138d0c89ccc9fc8692",
-      "bytes": 243638
+      "sha256": "d99e0f8f1a5ba4c1dc494ffb64b0f69690c45a987b10c771097b50e43979caa3",
+      "bytes": 243291
     },
     "04-coque-vierge.png": {
-      "sha256": "2d3e0827b2dfbf4cdb4e1102d268a7f0a51df6f9e0070b1c31a0d3828b55cd30",
-      "bytes": 144253
+      "sha256": "3e25a7ae173d6fab6021445ee31aa90967b0c4277fc7f0d5009fd723b22adea7",
+      "bytes": 143602
     },
     "05-relance-vierge.png": {
-      "sha256": "515a562db84cd4842b078ac75b5bd1875db0d2560601d90a794ebb02bb2deb89",
-      "bytes": 131807
+      "sha256": "73ae7d774540a5216c89f0a48bda06e8f413a70feb59488c57d853d0982faad6",
+      "bytes": 131245
     },
     "06-idempotence.png": {
-      "sha256": "078134bf57cc4d23d7d8266adbadf841ebf928785e34348309bb9296a1b28f60",
-      "bytes": 144043
+      "sha256": "3e25a7ae173d6fab6021445ee31aa90967b0c4277fc7f0d5009fd723b22adea7",
+      "bytes": 143602
     }
   },
-  "maestro_log_sha256": "20a43c702cc420e05176a3575145981a73ebd855fe694bd64ec7afc012b5b5cb"
+  "maestro_log_sha256": "d78f0c0d8cfc5e6d07ec873f842b759091319953d54b918a6cd29eb28ddde1ee"
 }
