@@ -24009,6 +24009,33 @@ class SDe extends S {
   String get tensionEmptySubtitle => 'Deine ersten Spannungen erscheinen hier.';
 
   @override
+  String get firstOpenEmptyEyebrow => 'Heute';
+
+  @override
+  String get firstOpenEmptyTitle => 'Hier beginnt deine Situation.';
+
+  @override
+  String get firstOpenEmptyProof =>
+      'MINT weiss noch nichts über deine Finanzen.';
+
+  @override
+  String get firstOpenFirstFactRationale =>
+      'Dein Kanton und deine Gemeinde ändern die Regeln und das, was MINT dir zeigen kann.';
+
+  @override
+  String get firstOpenAddFirstFact => 'Steuerdomizil angeben';
+
+  @override
+  String get firstOpenDeclineFirstFact => 'Nicht jetzt';
+
+  @override
+  String get firstOpenDeclinedNote =>
+      'Noch kein Anhaltspunkt hinzugefügt. Du kannst jederzeit hier weitermachen.';
+
+  @override
+  String get firstOpenResumeFirstFact => 'Ersten Anhaltspunkt hinzufügen';
+
+  @override
   String get cleoLoopInsight => 'Insight erhalten';
 
   @override

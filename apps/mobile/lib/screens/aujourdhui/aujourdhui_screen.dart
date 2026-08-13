@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import 'package:mint_mobile/widgets/aujourdhui/first_open_empty_state.dart';
 import 'package:mint_mobile/services/preview_shell_policy.dart';
 import 'package:mint_mobile/widgets/mint_next_vertical_3a_entry_card.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
@@ -220,23 +221,42 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       // it on an actually-cold profile — once the user has any captured
       // facts, CapEngine's real cap carries the conversation and the
       // redundant copy disappears.
-      final hasAnyProfileFact =
-          context.watch<CoachProfileProvider>().profile != null;
+      final coachProvider = context.watch<CoachProfileProvider>();
+      final hasAnyProfileFact = coachProvider.profile != null;
+      // Première ouverture : préversion, aucun fait canonique. Le
+      // domicile est le premier prérequis — son absence suffit à
+      // caractériser un jumeau vierge.
+      final isFirstOpenEmpty = PreviewShellPolicy.instance.isPreviewShell &&
+          coachProvider.domicileFact == null &&
+          coachProvider.revenuFact == null &&
+          coachProvider.versements3aFact == null &&
+          !hasAnyProfileFact;
       return Scaffold(
         backgroundColor: MintColors.warmWhite,
         body: SafeArea(
           child: CustomScrollView(
             slivers: [
-              if (PreviewShellPolicy.instance.showLegacyTodayCards)
-                const SliverToBoxAdapter(child: CapDuJourBanner()),
-              const SliverToBoxAdapter(child: MintNext3aHandoffCard()),
-              const SliverToBoxAdapter(child: _Vertical3aEntrySliver()),
-              const SliverToBoxAdapter(child: MintNextHousingCard()),
+              // Bascule 4 — première ouverture : tant qu'aucun fait
+              // canonique n'existe, l'état éditorial est SEUL. Aucune
+              // carte d'événement de vie ne le précède (elles
+              // suggéreraient une connaissance que MINT n'a pas).
+              if (isFirstOpenEmpty)
+                const SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: FirstOpenEmptyState(),
+                ),
+              if (!isFirstOpenEmpty) ...[
+                if (PreviewShellPolicy.instance.showLegacyTodayCards)
+                  const SliverToBoxAdapter(child: CapDuJourBanner()),
+                const SliverToBoxAdapter(child: MintNext3aHandoffCard()),
+                const SliverToBoxAdapter(child: _Vertical3aEntrySliver()),
+                const SliverToBoxAdapter(child: MintNextHousingCard()),
+              ],
               // Walker 2026-05-08: even on an empty timeline, surface the
               // persistent plan if one exists (user can have a plan via
               // coach without a timeline yet).
               if (planSection != null) SliverToBoxAdapter(child: planSection),
-              if (!hasAnyProfileFact)
+              if (!hasAnyProfileFact && !isFirstOpenEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
                   child: Center(

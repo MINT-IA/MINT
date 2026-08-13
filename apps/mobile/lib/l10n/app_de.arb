@@ -11133,6 +11133,14 @@
     "description": "Tension card — empty state welcome."
   },
   "tensionEmptySubtitle": "Deine ersten Spannungen erscheinen hier.",
+  "firstOpenEmptyEyebrow": "Heute",
+  "firstOpenEmptyTitle": "Hier beginnt deine Situation.",
+  "firstOpenEmptyProof": "MINT weiss noch nichts über deine Finanzen.",
+  "firstOpenFirstFactRationale": "Dein Kanton und deine Gemeinde ändern die Regeln und das, was MINT dir zeigen kann.",
+  "firstOpenAddFirstFact": "Steuerdomizil angeben",
+  "firstOpenDeclineFirstFact": "Nicht jetzt",
+  "firstOpenDeclinedNote": "Noch kein Anhaltspunkt hinzugefügt. Du kannst jederzeit hier weitermachen.",
+  "firstOpenResumeFirstFact": "Ersten Anhaltspunkt hinzufügen",
   "@tensionEmptySubtitle": {
     "description": "Tension card — empty state subtitle."
   },

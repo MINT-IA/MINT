@@ -71,8 +71,8 @@
     {
       "id": "b4_empty_today",
       "story": "Aujourd'hui vide est un écran d'ACTION éditorial : eyebrow, phrase Fraunces, une ligne de preuve honnête, UNE action SPÉCIFIQUE (domicile fiscal) avec sa justification, et un refus sans relance. Aucune jauge vide, aucun chiffre, aucune progression numérique, aucune carte concurrente avant lui.",
-      "code": "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart + apps/mobile/lib/l10n/ (ARB ×6)",
-      "tests_planned": [
+      "code": "apps/mobile/lib/widgets/aujourdhui/first_open_empty_state.dart + apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart + apps/mobile/lib/l10n/ (ARB ×6)",
+      "tests": [
         "the empty shell states that nothing is known yet and exposes exactly one primary collection action",
         "that primary action routes to the first missing canonical prerequisite and to no other collection engine",
         "the primary action is specific and a dedicated rationale node sits in its own subtree with the localised copy",
@@ -80,7 +80,13 @@
         "no life-event card type renders inside the empty subtree while no canonical fact exists",
         "declining closes the request without any follow-up prompt and without substituting another question",
         "after declining the shell stays usable and exposes the stable resume action by its identifier",
-        "every touch target inside the empty subtree is at least 48 by 48"
+        "every touch target inside the empty subtree is at least 48 by 48",
+        "the reading order is promise then factual state then action",
+        "the legacy coach invitation never renders on a first open"
+      ],
+      "test_files": [
+        "apps/mobile/test/widgets/first_open_empty_state_test.dart",
+        "apps/mobile/test/screens/aujourdhui/first_open_empty_screen_test.dart"
       ]
     },
     {

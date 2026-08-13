@@ -23834,6 +23834,33 @@ class SEn extends S {
   String get tensionEmptySubtitle => 'Your first tensions will appear here.';
 
   @override
+  String get firstOpenEmptyEyebrow => 'Today';
+
+  @override
+  String get firstOpenEmptyTitle => 'Your situation starts here.';
+
+  @override
+  String get firstOpenEmptyProof =>
+      'MINT knows nothing about your finances yet.';
+
+  @override
+  String get firstOpenFirstFactRationale =>
+      'Your canton and municipality change the rules and what MINT can show you.';
+
+  @override
+  String get firstOpenAddFirstFact => 'Set my tax residence';
+
+  @override
+  String get firstOpenDeclineFirstFact => 'Not now';
+
+  @override
+  String get firstOpenDeclinedNote =>
+      'No landmark added yet. You can pick this up whenever you want.';
+
+  @override
+  String get firstOpenResumeFirstFact => 'Add a first landmark';
+
+  @override
   String get cleoLoopInsight => 'Insight received';
 
   @override

@@ -23972,6 +23972,33 @@ class SPt extends S {
       'As suas primeiras tensões aparecerão aqui.';
 
   @override
+  String get firstOpenEmptyEyebrow => 'Hoje';
+
+  @override
+  String get firstOpenEmptyTitle => 'A tua situação começa aqui.';
+
+  @override
+  String get firstOpenEmptyProof =>
+      'O MINT ainda não sabe nada das tuas finanças.';
+
+  @override
+  String get firstOpenFirstFactRationale =>
+      'O teu cantão e o teu município mudam as regras e o que o MINT te pode mostrar.';
+
+  @override
+  String get firstOpenAddFirstFact => 'Indicar o meu domicílio fiscal';
+
+  @override
+  String get firstOpenDeclineFirstFact => 'Agora não';
+
+  @override
+  String get firstOpenDeclinedNote =>
+      'Nenhuma referência adicionada por agora. Podes retomar quando quiseres.';
+
+  @override
+  String get firstOpenResumeFirstFact => 'Adicionar uma primeira referência';
+
+  @override
   String get cleoLoopInsight => 'Insight recebido';
 
   @override

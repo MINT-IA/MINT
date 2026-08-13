@@ -24027,6 +24027,33 @@ class SIt extends S {
   String get tensionEmptySubtitle => 'Le tue prime tensioni appariranno qui.';
 
   @override
+  String get firstOpenEmptyEyebrow => 'Oggi';
+
+  @override
+  String get firstOpenEmptyTitle => 'Qui inizia la tua situazione.';
+
+  @override
+  String get firstOpenEmptyProof =>
+      'MINT non sa ancora nulla delle tue finanze.';
+
+  @override
+  String get firstOpenFirstFactRationale =>
+      'Il tuo cantone e il tuo comune cambiano le regole e ciò che MINT può mostrarti.';
+
+  @override
+  String get firstOpenAddFirstFact => 'Indicare il mio domicilio fiscale';
+
+  @override
+  String get firstOpenDeclineFirstFact => 'Non ora';
+
+  @override
+  String get firstOpenDeclinedNote =>
+      'Nessun riferimento aggiunto per ora. Puoi riprendere quando vuoi.';
+
+  @override
+  String get firstOpenResumeFirstFact => 'Aggiungere un primo riferimento';
+
+  @override
   String get cleoLoopInsight => 'Insight ricevuto';
 
   @override

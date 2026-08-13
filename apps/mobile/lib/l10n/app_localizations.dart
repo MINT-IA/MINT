@@ -41866,6 +41866,54 @@ abstract class S {
   /// **'Tes premières tensions apparaîtront ici.'**
   String get tensionEmptySubtitle;
 
+  /// No description provided for @firstOpenEmptyEyebrow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get firstOpenEmptyEyebrow;
+
+  /// No description provided for @firstOpenEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ici commence ta situation.'**
+  String get firstOpenEmptyTitle;
+
+  /// No description provided for @firstOpenEmptyProof.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT ne sait encore rien de tes finances.'**
+  String get firstOpenEmptyProof;
+
+  /// No description provided for @firstOpenFirstFactRationale.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ton canton et ta commune changent les règles et ce que MINT peut te montrer.'**
+  String get firstOpenFirstFactRationale;
+
+  /// No description provided for @firstOpenAddFirstFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquer mon domicile fiscal'**
+  String get firstOpenAddFirstFact;
+
+  /// No description provided for @firstOpenDeclineFirstFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas maintenant'**
+  String get firstOpenDeclineFirstFact;
+
+  /// No description provided for @firstOpenDeclinedNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun repère ajouté pour l\'instant. Tu peux reprendre ici quand tu veux.'**
+  String get firstOpenDeclinedNote;
+
+  /// No description provided for @firstOpenResumeFirstFact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un premier repère'**
+  String get firstOpenResumeFirstFact;
+
   /// Cleo loop indicator — insight position.
   ///
   /// In fr, this message translates to:

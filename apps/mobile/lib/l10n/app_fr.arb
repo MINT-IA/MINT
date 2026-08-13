@@ -12358,6 +12358,14 @@
     "description": "Tension card — empty state welcome."
   },
   "tensionEmptySubtitle": "Tes premières tensions apparaîtront ici.",
+  "firstOpenEmptyEyebrow": "Aujourd'hui",
+  "firstOpenEmptyTitle": "Ici commence ta situation.",
+  "firstOpenEmptyProof": "MINT ne sait encore rien de tes finances.",
+  "firstOpenFirstFactRationale": "Ton canton et ta commune changent les règles et ce que MINT peut te montrer.",
+  "firstOpenAddFirstFact": "Indiquer mon domicile fiscal",
+  "firstOpenDeclineFirstFact": "Pas maintenant",
+  "firstOpenDeclinedNote": "Aucun repère ajouté pour l'instant. Tu peux reprendre ici quand tu veux.",
+  "firstOpenResumeFirstFact": "Ajouter un premier repère",
   "@tensionEmptySubtitle": {
     "description": "Tension card — empty state subtitle."
   },

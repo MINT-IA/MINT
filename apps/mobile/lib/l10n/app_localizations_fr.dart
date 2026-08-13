@@ -23960,6 +23960,32 @@ class SFr extends S {
   String get tensionEmptySubtitle => 'Tes premières tensions apparaîtront ici.';
 
   @override
+  String get firstOpenEmptyEyebrow => 'Aujourd\'hui';
+
+  @override
+  String get firstOpenEmptyTitle => 'Ici commence ta situation.';
+
+  @override
+  String get firstOpenEmptyProof => 'MINT ne sait encore rien de tes finances.';
+
+  @override
+  String get firstOpenFirstFactRationale =>
+      'Ton canton et ta commune changent les règles et ce que MINT peut te montrer.';
+
+  @override
+  String get firstOpenAddFirstFact => 'Indiquer mon domicile fiscal';
+
+  @override
+  String get firstOpenDeclineFirstFact => 'Pas maintenant';
+
+  @override
+  String get firstOpenDeclinedNote =>
+      'Aucun repère ajouté pour l\'instant. Tu peux reprendre ici quand tu veux.';
+
+  @override
+  String get firstOpenResumeFirstFact => 'Ajouter un premier repère';
+
+  @override
   String get cleoLoopInsight => 'Insight reçu';
 
   @override

@@ -115,7 +115,10 @@ class _LandingScreenState extends State<LandingScreen>
       );
     }
 
-    return Scaffold(
+    return Semantics(
+      identifier: 'screen:first_open.landing',
+      container: true,
+      child: Scaffold(
       backgroundColor: MintColors.warmWhite,
       body: SafeArea(
         child: Center(
@@ -137,9 +140,12 @@ class _LandingScreenState extends State<LandingScreen>
                       child: Semantics(
                         header: true,
                         label: 'MINT',
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onLongPress: () => context.go('/auth/login'),
+                        // Bascule 4 — raccourci caché par appui long
+                        // SUPPRIMÉ : non découvrable, inaccessible au
+                        // clavier et à VoiceOver, concurrent du lien de
+                        // connexion explicite (axe design).
+                        child: Semantics(
+                          identifier: 'node:first_open.promise',
                           child: Text(
                             'MINT',
                             style: MintTextStyles.brandLogo(
@@ -211,41 +217,29 @@ class _LandingScreenState extends State<LandingScreen>
                   // 7. Login link — bodySmall(textSecondaryAaa), no underline.
                   ctaReveal(
                     Semantics(
+                      identifier: 'action:first_open.login',
                       button: true,
                       label: l10n.landingV2LoginLink,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => context.go('/auth/login'),
-                        child: Text(
-                          l10n.landingV2LoginLink,
-                          textAlign: TextAlign.center,
-                          style: MintTextStyles.bodySmall(
-                            color: MintColors.textSecondaryAaa,
+                      child: SizedBox(
+                        height: 48,
+                        child: TextButton(
+                          // lint-ignore: prefer_mint_cta
+                          onPressed: () => context.go('/auth/login'),
+                          child: Text(
+                            l10n.landingV2LoginLink,
+                            textAlign: TextAlign.center,
+                            style: MintTextStyles.bodySmall(
+                              color: MintColors.textSecondaryAaa,
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                  // 7-bis. SizedBox 12 + anonymous local-mode link. Keep this
-                  // on /start so the router owns the first-run rollout switch.
-                  const SizedBox(height: 12),
-                  ctaReveal(
-                    Semantics(
-                      button: true,
-                      label: l10n.landingV3AnonymousHomeLink,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () => LegacyOnboardingEntry.open(context),
-                        child: Text(
-                          l10n.landingV3AnonymousHomeLink,
-                          textAlign: TextAlign.center,
-                          style: MintTextStyles.bodySmall(
-                            color: MintColors.textSecondaryAaa,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Bascule 4 — le lien « continuer sans compte » est
+                  // SUPPRIMÉ : il menait à la MÊME destination que le CTA
+                  // principal, créant un faux choix et diluant le point
+                  // focal unique de la landing (axes UX + design).
                   // 8. Spacer flex 1.
                   const Spacer(flex: 1),
                   // 9. Legal footer — labelSmall(textMutedAaa), center.
@@ -267,6 +261,7 @@ class _LandingScreenState extends State<LandingScreen>
           ),
         ),
       ),
+    ),
     );
   }
 }

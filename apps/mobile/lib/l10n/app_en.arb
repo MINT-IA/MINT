@@ -11133,6 +11133,14 @@
     "description": "Tension card — empty state welcome."
   },
   "tensionEmptySubtitle": "Your first tensions will appear here.",
+  "firstOpenEmptyEyebrow": "Today",
+  "firstOpenEmptyTitle": "Your situation starts here.",
+  "firstOpenEmptyProof": "MINT knows nothing about your finances yet.",
+  "firstOpenFirstFactRationale": "Your canton and municipality change the rules and what MINT can show you.",
+  "firstOpenAddFirstFact": "Set my tax residence",
+  "firstOpenDeclineFirstFact": "Not now",
+  "firstOpenDeclinedNote": "No landmark added yet. You can pick this up whenever you want.",
+  "firstOpenResumeFirstFact": "Add a first landmark",
   "@tensionEmptySubtitle": {
     "description": "Tension card — empty state subtitle."
   },

@@ -23962,6 +23962,32 @@ class SEs extends S {
   String get tensionEmptySubtitle => 'Tus primeras tensiones aparecerán aquí.';
 
   @override
+  String get firstOpenEmptyEyebrow => 'Hoy';
+
+  @override
+  String get firstOpenEmptyTitle => 'Aquí empieza tu situación.';
+
+  @override
+  String get firstOpenEmptyProof => 'MINT aún no sabe nada de tus finanzas.';
+
+  @override
+  String get firstOpenFirstFactRationale =>
+      'Tu cantón y tu municipio cambian las reglas y lo que MINT puede mostrarte.';
+
+  @override
+  String get firstOpenAddFirstFact => 'Indicar mi domicilio fiscal';
+
+  @override
+  String get firstOpenDeclineFirstFact => 'Ahora no';
+
+  @override
+  String get firstOpenDeclinedNote =>
+      'Ningún dato añadido por ahora. Puedes retomarlo cuando quieras.';
+
+  @override
+  String get firstOpenResumeFirstFact => 'Añadir un primer dato';
+
+  @override
   String get cleoLoopInsight => 'Insight recibido';
 
   @override
