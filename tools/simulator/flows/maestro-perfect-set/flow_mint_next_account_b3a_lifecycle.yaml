@@ -67,3 +67,44 @@ tags:
 - assertVisible: ".*Effacer l'état local.*"
 - assertVisible: "Préversion"
 - takeScreenshot: "${OUTPUT_DIR}/02-pointeur-preversion"
+# ─── Câblage drawer → centre : l'entrée compte NAVIGUE (aucune confirmation) ───
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "action:profile.open_drawer"
+- waitForAnimationToEnd:
+    timeout: 4000
+- scrollUntilVisible:
+    element:
+      text: "Supprimer mon compte"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "Supprimer mon compte"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "Ma vie privée"
+    timeout: 10000
+- assertVisible: "Aucun compte connecté sur cet appareil.*"
+- assertNotVisible: "Supprimer le compte.*"
+- takeScreenshot: "${OUTPUT_DIR}/03-drawer-vers-centre"
+# ─── Renvoi B2 EXÉCUTÉ depuis l'état anonyme : reset complet → état zéro ───
+- tapOn:
+    id: "action:preview_reset.open"
+- extendedWaitUntil:
+    visible: "Écris REPARTIR À ZÉRO pour confirmer"
+    timeout: 5000
+- tapOn: "Écris REPARTIR À ZÉRO pour confirmer"
+- inputText: "REPARTIR A ZERO"
+- tapOn: "Effacer l'état local"
+- extendedWaitUntil:
+    visible: "État local effacé."
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "Un premier aperçu suisse."
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/04-renvoi-b2-execute"

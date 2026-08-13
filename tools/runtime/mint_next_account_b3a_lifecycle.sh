@@ -187,7 +187,9 @@ set -e
 
 for image in \
   01-compte-anonyme-honnete.png \
-  02-pointeur-preversion.png; do
+  02-pointeur-preversion.png \
+  03-drawer-vers-centre.png \
+  04-renvoi-b2-execute.png; do
   [[ -s "$OUT/$image" ]] || {
     echo "missing runtime screenshot: $image" >&2; exit 1;
   }
@@ -280,14 +282,14 @@ receipt = {
     "ordered_outcomes": [
         "centre de confidentialite anonyme : section Compte avec 'Aucun compte connecte' visible, 'Supprimer mon compte' ABSENT",
         "variante preversion : pointeur vers 'Effacer l'etat local' (renvoi B2, meme page)",
+        "cablage drawer -> centre : tap action:profile.open_drawer puis 'Supprimer mon compte' atterrit sur 'Ma vie privee' SANS confirmation locale",
+        "renvoi B2 EXECUTE depuis l'etat anonyme : reset complet -> 'Etat local efface.' -> entree onboarding (etat zero)",
         "zero transmission (frontiere HTTP observee, REQBODY)",
     ],
     "non_runtime_proofs": (
-        "drawer->centre (a4, profile_drawer_test), flag isLoggedIn perime (a2), "
-        "chemin connecte intact (a5) et parcours complet du renvoi B2 (a3) : "
-        "tests widget account_delete_b3a_test.dart — pas d'id stable pour "
-        "ouvrir le drawer au runtime, pas de compte au runtime anonyme ; le "
-        "B2 complet est deja prouve runtime (recu local-reset bf3895c77)"
+        "flag isLoggedIn perime (a2) et chemin connecte intact (a5) : tests "
+        "widget account_delete_b3a_test.dart — le runtime anonyme n'a pas de "
+        "compte et un flag perime ne s'injecte pas au runtime"
     ),
     "dependent_invalidation_tests": [
         "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
