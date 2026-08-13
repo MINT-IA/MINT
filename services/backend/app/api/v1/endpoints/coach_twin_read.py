@@ -16,6 +16,7 @@ import json
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
@@ -118,8 +119,37 @@ async def twin_read_3a_margin(
             detail={"code": "tool_not_invoked"},
         ) from exc
 
-    # ── Consommation atomique par clé d'opération : réponse stockée puis
-    # quota décrémenté dans la même transaction. ──
+    return _finalize_operation(db, payload, session, answer, claims)
+
+
+def _replayed_response(
+    db: Session, payload: TwinRead3aMarginRequest, existing: TwinReadOperation
+) -> TwinRead3aMarginResponse:
+    session = db.get(AnonymousSession, payload.session_id)
+    remaining = MAX_ANONYMOUS_MESSAGES - (
+        session.message_count if session else 0
+    )
+    return TwinRead3aMarginResponse(
+        contract_version=1,
+        answer=existing.answer,
+        claims=[TwinReadClaim(**c) for c in json.loads(existing.claims_json)],
+        tool_invoked="read_attested_3a_margin",
+        quota_consumed=False,
+        messages_remaining=max(0, remaining),
+        replayed=True,
+    )
+
+
+def _finalize_operation(
+    db: Session,
+    payload: TwinRead3aMarginRequest,
+    session: AnonymousSession,
+    answer: str,
+    claims: list[TwinReadClaim],
+) -> TwinRead3aMarginResponse:
+    """Consommation atomique réponse+quota — CONVERGENTE sous concurrence :
+    le perdant d'une course sur la même clé ressert la réponse gagnante
+    (replayed), jamais un 500 IntegrityError."""
     db.add(
         TwinReadOperation(
             operation_key=payload.operation_key,
@@ -133,7 +163,16 @@ async def twin_read_3a_margin(
         )
     )
     session.message_count += 1
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        existing = db.get(TwinReadOperation, payload.operation_key)
+        if existing is None or existing.session_id != payload.session_id:
+            raise HTTPException(
+                status_code=409, detail="operation conflict"
+            ) from None
+        return _replayed_response(db, payload, existing)
 
     return TwinRead3aMarginResponse(
         contract_version=1,

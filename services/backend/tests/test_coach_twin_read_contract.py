@@ -425,3 +425,67 @@ def VALID_ANSWER_HELPER():
     )()
     return AsyncMock(side_effect=[first, second])
 
+
+class TestConcurrencyAndUnits:
+    """Durcissements REJET #2 : course convergente + liaison d'unité."""
+
+    def test_money_unit_is_bound_to_the_francs_value_only(self):
+        attested = Attested3aMargin.model_validate(VALID_ATTESTATION)
+        assert not check_answer("Ta marge vaut 375800 CHF.", attested).accepted
+        assert not check_answer("Ta marge vaut 2026 CHF.", attested).accepted
+        ok = check_answer(
+            "Ta marge 3a attestée pour 2026 est de 3'758 CHF. Limite : "
+            "seule la marge attestée compte — corrige dans Ma situation.",
+            attested,
+        )
+        assert ok.accepted, ok.reasons
+
+    def test_the_loser_of_a_same_key_race_replays_the_winner(self):
+        from app.api.v1.endpoints.coach_twin_read import _finalize_operation
+        from app.models.anonymous_session import AnonymousSession
+        from app.models.twin_read_operation import TwinReadOperation
+        from app.schemas.coach_twin_read import (
+            TwinRead3aMarginRequest,
+            TwinReadClaim,
+        )
+        from tests.conftest import TestingSessionLocal
+
+        payload = TwinRead3aMarginRequest.model_validate(valid_payload())
+        claims = [
+            TwinReadClaim(source_ref="attestation.taxYear", value="2026")
+        ]
+
+        db = TestingSessionLocal()
+        try:
+            session = AnonymousSession(
+                session_id=payload.session_id, message_count=0
+            )
+            db.add(session)
+            db.commit()
+            # Le « gagnant » a déjà committé la même clé (simulé par un
+            # insert direct — l'état exact laissé par la requête gagnante).
+            db.add(
+                TwinReadOperation(
+                    operation_key=payload.operation_key,
+                    session_id=payload.session_id,
+                    answer="réponse gagnante",
+                    claims_json='[{"source_ref": "attestation.taxYear", "value": "2026"}]',
+                    quota_consumed=True,
+                )
+            )
+            session.message_count = 1
+            db.commit()
+
+            # Le « perdant » arrive avec sa propre génération : son commit
+            # heurte la PK — il doit resservir la réponse gagnante.
+            losing = _finalize_operation(
+                db, payload, session, "réponse perdante", claims
+            )
+            assert losing.replayed is True
+            assert losing.answer == "réponse gagnante"
+            assert losing.quota_consumed is False
+            refreshed = db.get(AnonymousSession, payload.session_id)
+            assert refreshed.message_count == 1, "jamais de double décompte"
+        finally:
+            db.close()
+

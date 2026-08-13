@@ -158,10 +158,20 @@ def check_answer(
     def _drop_matching_date(m: "re.Match[str]") -> str:
         return " " if m.group() in (date_iso, date_ch) else m.group()
     scannable = _FULL_DATE_RE.sub(_drop_matching_date, scannable)
+    francs_floor = str(attestation.amount_cents // 100)
     for match in _NUMBER_RE.finditer(scannable):
         normalized = _normalize_number(match.group())
         if normalized not in allowed_numbers:
             reasons.append(f"number-outside-vocabulary:{normalized}")
+            continue
+        # Liaison UNITÉ : un nombre suivi de CHF/francs est un montant —
+        # seul le montant en francs (floor) a le droit de porter l'unité.
+        # « 2026 CHF » (année) et « 375800 CHF » (centimes) sont des
+        # mensonges d'unité.
+        tail = scannable[match.end():match.end() + 12]
+        if re.match(r"\s*(chf|francs?)\b", tail, re.IGNORECASE):
+            if normalized != francs_floor:
+                reasons.append(f"money-unit-mismatch:{normalized}")
 
     if attestation.state == "zero" and str(
         attestation.amount_cents // 100
