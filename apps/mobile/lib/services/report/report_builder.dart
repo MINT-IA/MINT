@@ -36,7 +36,10 @@ class ReportBuilder {
     // === EXPERTISE SUISSE : CALCUL FISCAL ===
     final hasSwissDomicile =
         MintNextDomicileFact.hasSwissTaxDomicileIn(answers);
-    final cantonCode = answers['q_canton'] ?? 'CH';
+    // « CH » n'est pas un canton. Quand il manque, on ne le remplace par rien :
+    // les surfaces qui l'affichent doivent montrer une absence, pas un
+    // pseudo-code qui a l'air d'en être un.
+    final cantonCode = answers['q_canton'] ?? (hasSwissDomicile ? 'CH' : '');
     final estimatedTaxMonthly = budgetInputs.taxProvision;
     // L'économie d'impôt d'un versement 3a se calcule sur un barème
     // cantonal. Sans canton, il n'y a pas de barème — et un chiffre produit

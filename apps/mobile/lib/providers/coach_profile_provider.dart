@@ -975,8 +975,14 @@ class CoachProfileProvider extends ChangeNotifier {
   String get recommendedWizardSection {
     if (_profile == null) return 'identity';
 
-    final identityComplete =
-        _isIdentityBirthDateAnswered && _isAnswered(_lastAnswers['q_canton']);
+    // Le canton ne peut pas manquer à quelqu'un qui vient de déclarer ne pas
+    // en avoir. Sans cette condition, un frontalier était renvoyé à l'infini
+    // vers « Canton de résidence » — la relance que le contrat interdit,
+    // trouvée par la relecture du lot complet.
+    final needsCanton =
+        MintNextDomicileFact.hasSwissTaxDomicileIn(_lastAnswers);
+    final identityComplete = _isIdentityBirthDateAnswered &&
+        (!needsCanton || _isAnswered(_lastAnswers['q_canton']));
     if (!identityComplete) return 'identity';
 
     final hasHousehold = _isAnswered(_lastAnswers['q_household_type']);

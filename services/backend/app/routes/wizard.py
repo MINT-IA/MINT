@@ -435,9 +435,28 @@ def _generate_timeline_items(answers: Dict[str, Any]) -> List[Dict[str, Any]]:
     return items[:6]
 
 
+# NOTE : ce module est du CODE MORT — il importe `app.database`, qui n'existe
+# pas, et n'est reference par aucun routeur de `main.py`. Il ne peut donc meme
+# pas etre charge. Le correctif ci-dessous est applique par coherence, au cas
+# ou le module serait un jour ranime ; le consommateur VIVANT de cette regle
+# est cote mobile (`CoachProfileProvider.recommendedWizardSection`), et c'est
+# la que le test se trouve.
+#
+# Cle du fait domicile a deux etats, cote mobile. Absente = domicile suisse :
+# un profil ecrit avant l'existence de cet etat en portait forcement un.
+_SWISS_TAX_DOMICILE_KEY = "q_domicile_fiscal_suisse"
+
+
+def _has_swiss_tax_domicile(answers: Dict[str, Any]) -> bool:
+    return answers.get(_SWISS_TAX_DOMICILE_KEY) is not False
+
+
 def _get_next_info(answers: Dict[str, Any], precision: float) -> str | None:
     """Retourne la prochaine info la plus rentable"""
-    if "q_canton" not in answers:
+    # Ne jamais redemander le canton a quelqu'un qui vient de declarer n'avoir
+    # aucune commune fiscale suisse : ce serait la relance que le contrat de
+    # la premiere ouverture interdit, cote serveur cette fois.
+    if "q_canton" not in answers and _has_swiss_tax_domicile(answers):
         return "Canton de résidence"
     if "q_birth_year" not in answers:
         return "Année de naissance"

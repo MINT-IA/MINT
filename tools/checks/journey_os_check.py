@@ -634,6 +634,12 @@ ALLOW = {
     "tools/checks/baselines/prefer_mint_text_style.baseline.txt",
     "apps/mobile/lib/screens/gender_gap_screen.dart",
     "apps/mobile/test/screens/gender_gap_gate_test.dart",
+    # Un frontalier se voyait REDEMANDER son canton apres avoir declare n'en
+    # avoir aucun : la completude lisait `q_canton` sans lire l'etat du fait.
+    "apps/mobile/lib/providers/coach_profile_provider.dart",
+    "apps/mobile/test/providers/recommended_section_no_canton_relance_test.dart",
+    "services/backend/app/routes/wizard.py",
+    "apps/mobile/lib/services/report/report_builder.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
