@@ -69,11 +69,11 @@ void main() {
     await pumpEmptyState(tester);
     expect(byIdentifier('node:today.first_fact_rationale'), findsOneWidget);
     expect(
-        find.text('Une partie de tes impôts varie selon le canton et la '
-            'commune.'),
+        find.text('Une partie de tes impôts varie selon la commune où tu '
+            'es imposé.'),
         findsOneWidget,
         reason: 'la justification est AFFICHÉE, pas implicite');
-    expect(find.text('Choisir mon canton'), findsOneWidget,
+    expect(find.text('Choisir ma commune'), findsOneWidget,
         reason: 'action SPÉCIFIQUE, jamais « ajouter une information »');
   });
 

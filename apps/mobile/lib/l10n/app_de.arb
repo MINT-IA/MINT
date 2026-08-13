@@ -11134,13 +11134,14 @@
   },
   "tensionEmptySubtitle": "Deine ersten Spannungen erscheinen hier.",
   "firstOpenEmptyEyebrow": "Heute",
-  "firstOpenEmptyTitle": "Zuerst dein Kanton.",
+  "firstOpenEmptyTitle": "Zuerst deine Gemeinde.",
   "firstOpenEmptyProof": "MINT kennt deine Situation noch nicht.",
-  "firstOpenFirstFactRationale": "Ein Teil deiner Steuern hängt vom Kanton und von der Gemeinde ab.",
-  "firstOpenAddFirstFact": "Kanton wählen",
+  "firstOpenFirstFactRationale": "Ein Teil deiner Steuern hängt von der Gemeinde ab, in der du besteuert wirst.",
+  "firstOpenAddFirstFact": "Gemeinde wählen",
   "firstOpenDeclineFirstFact": "Später",
+  "firstOpenDeclineFirstFactA11y": "Gemeinde später wählen",
   "firstOpenDeclinedNote": "Noch nichts hinzugefügt.",
-  "firstOpenResumeFirstFact": "Kanton wählen",
+  "firstOpenResumeFirstFact": "Gemeinde wählen",
   "@tensionEmptySubtitle": {
     "description": "Tension card — empty state subtitle."
   },

@@ -11134,13 +11134,14 @@
   },
   "tensionEmptySubtitle": "Your first tensions will appear here.",
   "firstOpenEmptyEyebrow": "Today",
-  "firstOpenEmptyTitle": "First, your canton.",
+  "firstOpenEmptyTitle": "First, your municipality.",
   "firstOpenEmptyProof": "MINT does not know your situation yet.",
-  "firstOpenFirstFactRationale": "Part of your taxes varies by canton and municipality.",
-  "firstOpenAddFirstFact": "Choose my canton",
+  "firstOpenFirstFactRationale": "Part of your taxes depends on the municipality where you are taxed.",
+  "firstOpenAddFirstFact": "Choose my municipality",
   "firstOpenDeclineFirstFact": "Later",
+  "firstOpenDeclineFirstFactA11y": "Choose my municipality later",
   "firstOpenDeclinedNote": "Nothing added for now.",
-  "firstOpenResumeFirstFact": "Choose my canton",
+  "firstOpenResumeFirstFact": "Choose my municipality",
   "@tensionEmptySubtitle": {
     "description": "Tension card — empty state subtitle."
   },

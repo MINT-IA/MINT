@@ -24012,26 +24012,29 @@ class SDe extends S {
   String get firstOpenEmptyEyebrow => 'Heute';
 
   @override
-  String get firstOpenEmptyTitle => 'Zuerst dein Kanton.';
+  String get firstOpenEmptyTitle => 'Zuerst deine Gemeinde.';
 
   @override
   String get firstOpenEmptyProof => 'MINT kennt deine Situation noch nicht.';
 
   @override
   String get firstOpenFirstFactRationale =>
-      'Ein Teil deiner Steuern hängt vom Kanton und von der Gemeinde ab.';
+      'Ein Teil deiner Steuern hängt von der Gemeinde ab, in der du besteuert wirst.';
 
   @override
-  String get firstOpenAddFirstFact => 'Kanton wählen';
+  String get firstOpenAddFirstFact => 'Gemeinde wählen';
 
   @override
   String get firstOpenDeclineFirstFact => 'Später';
 
   @override
+  String get firstOpenDeclineFirstFactA11y => 'Gemeinde später wählen';
+
+  @override
   String get firstOpenDeclinedNote => 'Noch nichts hinzugefügt.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Kanton wählen';
+  String get firstOpenResumeFirstFact => 'Gemeinde wählen';
 
   @override
   String get cleoLoopInsight => 'Insight erhalten';

@@ -141,11 +141,11 @@ class _LandingScreenState extends State<LandingScreen>
                         header: true,
                         label: 'MINT',
                         // Bascule 4 — raccourci caché par appui long
-                        // SUPPRIMÉ : non découvrable, inaccessible au
-                        // clavier et à VoiceOver, concurrent du lien de
-                        // connexion explicite (axe design).
-                        child: Semantics(
-                          identifier: 'node:first_open.promise',
+                        // SUPPRIMÉ (non découvrable, inaccessible au
+                        // clavier et à VoiceOver). Le wordmark n'a plus
+                        // de fonction : header retiré, et l'identifiant
+                        // de promesse va sur le hero, pas sur le logo.
+                        child: ExcludeSemantics(
                           child: Text(
                             'MINT',
                             style: MintTextStyles.brandLogo(
@@ -169,6 +169,7 @@ class _LandingScreenState extends State<LandingScreen>
                     child: SlideTransition(
                       position: _paragraphOffset,
                       child: Semantics(
+                        identifier: 'node:first_open.promise',
                         container: true,
                         label: l10n.landingV3Hero,
                         child: Text(

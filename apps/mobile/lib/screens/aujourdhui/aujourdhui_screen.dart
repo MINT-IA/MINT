@@ -226,9 +226,15 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       // Première ouverture : préversion, aucun fait canonique. Le
       // domicile est le premier prérequis — son absence suffit à
       // caractériser un jumeau vierge.
+      // TOUS les faits canoniques comptent : en oublier un afficherait
+      // « MINT ne connaît pas encore ta situation » à quelqu'un qui a
+      // déjà répondu, en masquant ses cartes (review T2, axe code).
       final isFirstOpenEmpty = PreviewShellPolicy.instance.isPreviewShell &&
           coachProvider.domicileFact == null &&
+          coachProvider.civilStatusFact == null &&
           coachProvider.revenuFact == null &&
+          coachProvider.housingFact == null &&
+          coachProvider.lppAffiliationFact == null &&
           coachProvider.versements3aFact == null &&
           !hasAnyProfileFact;
       return Scaffold(

@@ -41875,7 +41875,7 @@ abstract class S {
   /// No description provided for @firstOpenEmptyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'D\'abord, ton canton.'**
+  /// **'D\'abord, ta commune.'**
   String get firstOpenEmptyTitle;
 
   /// No description provided for @firstOpenEmptyProof.
@@ -41887,13 +41887,13 @@ abstract class S {
   /// No description provided for @firstOpenFirstFactRationale.
   ///
   /// In fr, this message translates to:
-  /// **'Une partie de tes impôts varie selon le canton et la commune.'**
+  /// **'Une partie de tes impôts varie selon la commune où tu es imposé.'**
   String get firstOpenFirstFactRationale;
 
   /// No description provided for @firstOpenAddFirstFact.
   ///
   /// In fr, this message translates to:
-  /// **'Choisir mon canton'**
+  /// **'Choisir ma commune'**
   String get firstOpenAddFirstFact;
 
   /// No description provided for @firstOpenDeclineFirstFact.
@@ -41901,6 +41901,12 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Plus tard'**
   String get firstOpenDeclineFirstFact;
+
+  /// No description provided for @firstOpenDeclineFirstFactA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir ma commune plus tard'**
+  String get firstOpenDeclineFirstFactA11y;
 
   /// No description provided for @firstOpenDeclinedNote.
   ///
@@ -41911,7 +41917,7 @@ abstract class S {
   /// No description provided for @firstOpenResumeFirstFact.
   ///
   /// In fr, this message translates to:
-  /// **'Choisir mon canton'**
+  /// **'Choisir ma commune'**
   String get firstOpenResumeFirstFact;
 
   /// Cleo loop indicator — insight position.

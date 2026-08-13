@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -26,6 +27,23 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _EmptyTwinProvider extends CoachProfileProvider {
   @override
   bool get isLoaded => true;
+}
+
+/// Jumeau PARTIEL : un seul fait canonique renseigné (l'état civil).
+/// L'état vide ne doit PAS s'afficher — sinon on annonce « MINT ne
+/// connaît pas encore ta situation » à quelqu'un qui a déjà répondu,
+/// en masquant ses cartes (P1 review T2, axe code).
+class _PartialTwinProvider extends CoachProfileProvider {
+  @override
+  bool get isLoaded => true;
+  @override
+  MintNextCivilStatusFact? get civilStatusFact => MintNextCivilStatusFact(
+        status: MintNextCivilStatus.celibataire,
+        assertedAt: DateTime.utc(2026, 8, 13),
+        source: 'user_declaration',
+        schemaVersion: 1,
+        needsConfirmation: false,
+      );
 }
 
 class _EmptyTimeline extends TimelineProvider {
@@ -57,10 +75,10 @@ void main() {
 
   tearDown(() => PreviewShellPolicy.debugOverride = null);
 
-  Widget harness() => MultiProvider(
+  Widget harness({CoachProfileProvider? provider}) => MultiProvider(
         providers: [
           ChangeNotifierProvider<CoachProfileProvider>(
-            create: (_) => _EmptyTwinProvider(),
+            create: (_) => provider ?? _EmptyTwinProvider(),
           ),
           ChangeNotifierProvider<TimelineProvider>(
             create: (_) => _EmptyTimeline(),
@@ -115,5 +133,37 @@ void main() {
 
     expect(find.textContaining('coach'), findsNothing,
         reason: "la promesse ne bascule pas vers un autre canal");
+  });
+
+  testWidgets(
+      'a twin holding any canonical fact never shows the first-open empty '
+      'state', (tester) async {
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(harness(provider: _PartialTwinProvider()));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FirstOpenEmptyState), findsNothing,
+        reason: "un seul fait suffit à sortir de l'état vierge");
+    expect(byIdentifier('screen:today.empty'), findsNothing);
+  });
+
+  testWidgets('the empty state survives a 200 percent text scale without '
+      'overflow', (tester) async {
+    tester.view.physicalSize = const Size(750, 1334);
+    tester.view.devicePixelRatio = 2;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(MediaQuery(
+      data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+      child: harness(),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull,
+        reason: 'aucun débordement à 200 % de taille de texte');
+    expect(find.byType(FirstOpenEmptyState), findsOneWidget);
   });
 }

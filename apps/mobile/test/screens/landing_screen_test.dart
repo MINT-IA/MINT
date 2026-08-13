@@ -214,25 +214,21 @@ void main() {
         find.byType(FilledButton),
         unexpectedDestination: 'ONB_STUB',
       );
-      await expectEarlyTapIgnored(
-        find.text('Continuer sans compte'),
-        unexpectedDestination: 'ONB_STUB',
-      );
+      // Le second lien vers la même destination a été supprimé
+      // (bascule 4) : il ne reste qu'un point d'entrée à tester.
     });
 
-    testWidgets('primary CTA hit area is isolated from /onb link',
+    testWidgets('primary CTA hit area is isolated from the login link',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
       final cta = find.byKey(const Key('landing_talk_to_mint_cta'));
       final primaryRect = tester.getRect(cta);
-      final onbRect = tester.getRect(find.text('Continuer sans compte'));
-      final onbTapTargetRect = tester.getRect(
-        find.widgetWithText(GestureDetector, 'Continuer sans compte'),
-      );
-      expect(primaryRect.overlaps(onbRect), isFalse);
-      expect(primaryRect.overlaps(onbTapTargetRect), isFalse);
+      // Le lien redondant vers la même destination a disparu ; le seul
+      // voisin cliquable est désormais la connexion.
+      final loginRect = tester.getRect(find.text('J\u2019ai déjà un compte'));
+      expect(primaryRect.overlaps(loginRect), isFalse);
 
       final tapPoints = <Offset>[
         primaryRect.center,
@@ -258,18 +254,17 @@ void main() {
     // (not /home) so FATCA Q (T2.5) fires before coach chat — otherwise
     // archetype=unknown silently redirects to /waitlist on first message.
     testWidgets(
-        'S005 — « Continuer sans compte » link renders + routes to /onb',
-        (tester) async {
+        'the redundant continue-without-account link is gone and the '
+        'landing keeps a single primary destination', (tester) async {
+      // Bascule 4 : ce lien menait à la MÊME destination que le CTA
+      // principal — faux choix qui diluait le point focal (axes UX +
+      // design). Le test devient l'assertion INVERSE.
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
 
-      expect(find.text('Continuer sans compte'), findsOneWidget);
-
-      await tester.tap(find.text('Continuer sans compte'));
-      await tester.pumpAndSettle();
-
-      expect(find.text('ONB_STUB'), findsOneWidget);
-      expect(find.text('ANONYMOUS_CHAT_STUB'), findsNothing);
+      expect(find.text('Continuer sans compte'), findsNothing);
+      expect(find.text('Éclaire ma situation'), findsOneWidget,
+          reason: 'une seule destination primaire');
     });
 
     testWidgets('reduced-motion: content visible on first pump',

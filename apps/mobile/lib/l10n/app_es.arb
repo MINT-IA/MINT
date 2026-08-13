@@ -11134,13 +11134,14 @@
   },
   "tensionEmptySubtitle": "Tus primeras tensiones aparecerán aquí.",
   "firstOpenEmptyEyebrow": "Hoy",
-  "firstOpenEmptyTitle": "Primero, tu cantón.",
+  "firstOpenEmptyTitle": "Primero, tu municipio.",
   "firstOpenEmptyProof": "MINT todavía no conoce tu situación.",
-  "firstOpenFirstFactRationale": "Una parte de tus impuestos varía según el cantón y el municipio.",
-  "firstOpenAddFirstFact": "Elegir mi cantón",
+  "firstOpenFirstFactRationale": "Una parte de tus impuestos depende del municipio donde tributas.",
+  "firstOpenAddFirstFact": "Elegir mi municipio",
   "firstOpenDeclineFirstFact": "Más tarde",
+  "firstOpenDeclineFirstFactA11y": "Elegir mi municipio más tarde",
   "firstOpenDeclinedNote": "Nada añadido por ahora.",
-  "firstOpenResumeFirstFact": "Elegir mi cantón",
+  "firstOpenResumeFirstFact": "Elegir mi municipio",
   "@tensionEmptySubtitle": {
     "description": "Tension card — empty state subtitle."
   },

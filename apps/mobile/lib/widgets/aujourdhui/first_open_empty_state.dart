@@ -20,6 +20,7 @@ import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Hauteur minimale d'une cible tactile (contrat d'accessibilité).
 const double kMinTouchTarget = 48;
@@ -35,7 +36,38 @@ class FirstOpenEmptyState extends StatefulWidget {
 }
 
 class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
+  /// Clé du refus : un booléen local disparaîtrait au moindre rebuild et
+  /// la demande reviendrait — ce serait la relance que le contrat
+  /// interdit (review T2, axe UX).
+  static const String declinedKey = 'mint_first_open_declined_v1';
+
   bool _declined = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _restoreDecline();
+  }
+
+  Future<void> _restoreDecline() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    if (prefs.getBool(declinedKey) == true) {
+      setState(() => _declined = true);
+    }
+  }
+
+  Future<void> _decline() async {
+    setState(() => _declined = true);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(declinedKey, true);
+  }
+
+  Future<void> _resume() async {
+    setState(() => _declined = false);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(declinedKey);
+  }
 
   void _addFirstFact() {
     if (widget.onAddFirstFact != null) {
@@ -106,31 +138,35 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  height: kMinTouchTarget + 6,
-                  child: Semantics(
-                    identifier: 'action:today.add_first_fact',
-                    button: true,
-                    child: FilledButton(
-                      // lint-ignore: prefer_mint_cta
-                      onPressed: _addFirstFact,
-                      child: Text(l.firstOpenAddFirstFact),
+                // Un SEUL nœud par action : le bouton fournit déjà rôle,
+                // libellé et action — un wrapper `button: true` par-dessus
+                // produirait une annonce VoiceOver dupliquée. La hauteur
+                // est un MINIMUM, jamais un plafond (troncature à 200 %).
+                Semantics(
+                  identifier: 'action:today.add_first_fact',
+                  child: FilledButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: _addFirstFact,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size.fromHeight(kMinTouchTarget),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: MintSpacing.sm),
                     ),
+                    child: Text(l.firstOpenAddFirstFact),
                   ),
                 ),
                 const SizedBox(height: MintSpacing.xs),
-                SizedBox(
-                  width: double.infinity,
-                  height: kMinTouchTarget,
-                  child: Semantics(
-                    identifier: 'action:today.decline_first_fact',
-                    button: true,
-                    child: TextButton(
-                      // lint-ignore: prefer_mint_cta
-                      onPressed: () => setState(() => _declined = true),
-                      child: Text(l.firstOpenDeclineFirstFact),
+                Semantics(
+                  identifier: 'action:today.decline_first_fact',
+                  // « Plus tard » est ambigu hors contexte visuel.
+                  label: l.firstOpenDeclineFirstFactA11y,
+                  child: TextButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: _decline,
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size.fromHeight(kMinTouchTarget),
                     ),
+                    child: Text(l.firstOpenDeclineFirstFact),
                   ),
                 ),
               ] else ...[
@@ -145,17 +181,15 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
                   ),
                 ),
                 const SizedBox(height: MintSpacing.md),
-                SizedBox(
-                  width: double.infinity,
-                  height: kMinTouchTarget,
-                  child: Semantics(
-                    identifier: 'action:today.resume_first_fact',
-                    button: true,
-                    child: TextButton(
-                      // lint-ignore: prefer_mint_cta
-                      onPressed: () => setState(() => _declined = false),
-                      child: Text(l.firstOpenResumeFirstFact),
+                Semantics(
+                  identifier: 'action:today.resume_first_fact',
+                  child: TextButton(
+                    // lint-ignore: prefer_mint_cta
+                    onPressed: _resume,
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size.fromHeight(kMinTouchTarget),
                     ),
+                    child: Text(l.firstOpenResumeFirstFact),
                   ),
                 ),
               ],

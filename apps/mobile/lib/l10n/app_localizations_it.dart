@@ -24030,7 +24030,7 @@ class SIt extends S {
   String get firstOpenEmptyEyebrow => 'Oggi';
 
   @override
-  String get firstOpenEmptyTitle => 'Prima, il tuo cantone.';
+  String get firstOpenEmptyTitle => 'Prima, il tuo comune.';
 
   @override
   String get firstOpenEmptyProof =>
@@ -24038,19 +24038,23 @@ class SIt extends S {
 
   @override
   String get firstOpenFirstFactRationale =>
-      'Una parte delle tue imposte varia secondo il cantone e il comune.';
+      'Una parte delle tue imposte dipende dal comune in cui sei tassato.';
 
   @override
-  String get firstOpenAddFirstFact => 'Scegliere il mio cantone';
+  String get firstOpenAddFirstFact => 'Scegliere il mio comune';
 
   @override
   String get firstOpenDeclineFirstFact => 'Più tardi';
 
   @override
+  String get firstOpenDeclineFirstFactA11y =>
+      'Scegliere il mio comune più tardi';
+
+  @override
   String get firstOpenDeclinedNote => 'Niente aggiunto per ora.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Scegliere il mio cantone';
+  String get firstOpenResumeFirstFact => 'Scegliere il mio comune';
 
   @override
   String get cleoLoopInsight => 'Insight ricevuto';
