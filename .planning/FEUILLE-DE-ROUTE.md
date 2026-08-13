@@ -53,7 +53,7 @@ Sans elles, tout écran construit au-dessus fabrique de la dette.
 | **F2b** | **Brancher le registre sur le magasin réel** | Sans lui le jumeau était complet et inutilisé. | ✅ **fait** — `4553dbc04` · reçu `b5686a778a` · le registre vit sous une clé réservée du même objet que sa projection |
 | **F2** | **Contexte porté par chaque fait** — enveloppe complète, plus un reçu de calcul citant les versions consommées | Un montant sans son année ni sa source ne peut alimenter aucun calcul honnête. | ✅ **fait avec F1** — et « sans date d'effet, la couverture est INCONNUE, pas supposée » |
 | **F3** | **Le garde de la règle** — plus aucune écriture directe NOUVELLE dans la projection | Une règle déclarative sera oubliée. Cliquet sur 28 sites hérités : ils sont nommés, tolérés, et la liste ne peut que décroître. | ✅ **fait** — 10ᵉ gate, plus un job CI dédié |
-| **F4** | **Rebrancher les faits orphelins** — le logement est enregistré mais consommé nulle part | Vérifié le 2026-08-13 : le fait logement EST persisté, rechargé et visible dans « Ma situation » — mais absent de la frontière fiscale. Les intérêts hypothécaires n'atteignent aucun calcul. La donnée n'est pas perdue, elle est inerte. | ⏳ après F2 |
+| **F4** | **Rebrancher les faits orphelins** — le logement entre dans la frontière fiscale | Les intérêts hypothécaires, déduction la plus courante en Suisse, étaient enregistrés, affichés, et n'atteignaient aucun calcul. La donnée n'était pas perdue : elle était inerte. | ✅ **fait** — avec son ANNÉE : une attestation 2025 ne répond pas pour 2026, et le dit au lieu de fournir un chiffre |
 
 ---
 
@@ -76,6 +76,7 @@ Vérifié, pas déclaré. Chaque ligne porte son commit.
 | Les six faits existants sont enveloppés sans invention | `bf7d59b53` — 56 oracles sur le jumeau |
 | Le jumeau écrit dans le magasin que lisent les écrans | `4553dbc04` — une écriture, un objet |
 | Une écriture directe NOUVELLE est mécaniquement refusée | garde + cliquet à 28 sites hérités |
+| Les intérêts hypothécaires atteignent un calcul | le fait logement entre dans la frontière fiscale, avec son année |
 | 52 fichiers de test entrent enfin en intégration continue | `7ce7c2c67`, `a28ff0053` |
 
 ---

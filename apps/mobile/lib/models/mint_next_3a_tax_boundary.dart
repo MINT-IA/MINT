@@ -138,6 +138,62 @@ abstract interface class ConfirmedRevenuSource {
   MintNext3aRevenuContext? toConfirmedRevenuContext();
 }
 
+/// Charge hypothécaire confirmée vue par la préparation fiscale.
+///
+/// POURQUOI CE CONTEXTE N'EXISTAIT PAS, ET POURQUOI C'ÉTAIT GRAVE
+///
+/// Le fait logement était enregistré, rechargé au retour, et visible dans
+/// « Ma situation ». Il n'était consommé NULLE PART ailleurs. Les intérêts
+/// hypothécaires — la déduction fiscale la plus courante en Suisse —
+/// n'atteignaient donc aucun calcul. La donnée n'était pas perdue : elle était
+/// inerte. C'est le défaut que Julien a pointé le 2026-08-13.
+///
+/// L'ANNÉE FISCALE EST PORTÉE, ET ELLE MORD. Des intérêts 2025 ne disent rien
+/// de 2026 : la charge d'une année ne se reporte pas sur une autre. Un
+/// consommateur qui prépare 2026 avec une attestation 2025 doit le savoir,
+/// pas recevoir un chiffre.
+class MintNext3aHousingContext {
+  const MintNext3aHousingContext({
+    required this.annualInterestCents,
+    required this.statementYear,
+    required this.revision,
+    this.debtBalanceCents,
+  });
+
+  /// Intérêts hypothécaires annuels, en centimes.
+  final int annualInterestCents;
+
+  /// Année de l'attestation. La charge appartient à CETTE année-là.
+  final int statementYear;
+
+  /// Solde de la dette, quand il est connu. Null n'est pas zéro.
+  final int? debtBalanceCents;
+
+  /// Empreinte du fait — tout dérivé fiscal devient périmé quand elle change.
+  final String revision;
+
+  /// Ces intérêts peuvent-ils nourrir un calcul pour cette année fiscale ?
+  bool coversTaxYear(int taxYear) => statementYear == taxYear;
+
+  Map<String, Object?> toJson() => {
+        'annual_interest_cents': annualInterestCents,
+        'statement_year': statementYear,
+        'debt_balance_cents': debtBalanceCents,
+        'revision': revision,
+      };
+
+  /// Un fait en attente de confirmation n'est PAS une charge connue.
+  static MintNext3aHousingContext? fromConfirmedFact(Object? fact) {
+    if (fact is! ConfirmedHousingSource) return null;
+    return fact.toConfirmedHousingContext();
+  }
+}
+
+/// Implémenté par le fait logement canonique — évite une dépendance inverse.
+abstract interface class ConfirmedHousingSource {
+  MintNext3aHousingContext? toConfirmedHousingContext();
+}
+
 /// Affiliation LPP confirmée vue par la préparation 3a.
 ///
 /// Null = INCONNUE (fait absent ou en attente) — jamais « non affilié ».
@@ -220,6 +276,7 @@ class MintNext3aFiscalContext {
     this.revenu,
     this.lppAffiliation,
     this.versements,
+    this.housing,
   });
 
   final int contextVersion;
@@ -242,12 +299,28 @@ class MintNext3aFiscalContext {
   /// Null while no confirmed versements fact exists. Le total est un agrégat
   /// de faits ; AUCUNE marge n'est jamais matérialisée ici.
   final MintNext3aVersementsContext? versements;
+
+  /// Null tant qu'aucune charge hypothécaire confirmée n'existe.
+  final MintNext3aHousingContext? housing;
   static const capability = 'no_attested_engine';
 
   /// Un domicile déclaré APRÈS l'année fiscale demandée n'est pas un domicile
   /// connu pour cette année-là. Le contrat de cette frontière est de ne jamais
   /// deviner un lieu ; répondre « Lausanne » pour 2024 parce que la personne
   /// l'a déclaré en 2026 serait précisément une supposition.
+  /// La charge hypothécaire est connue POUR CETTE ANNÉE.
+  ///
+  /// Une attestation d'une autre année ne compte pas : des intérêts 2025 ne
+  /// disent rien de 2026, et les présenter comme tels serait un chiffre faux
+  /// montré comme vrai.
+  bool get housingKnown =>
+      housing != null && housing!.coversTaxYear(taxYear);
+
+  /// Vrai quand une attestation existe mais porte sur une AUTRE année — à
+  /// distinguer de l'absence, qui appelle une collecte.
+  bool get housingStatementFromAnotherYear =>
+      housing != null && !housing!.coversTaxYear(taxYear);
+
   bool get domicileKnown =>
       domicile != null && domicile!.coversTaxYear(taxYear);
 
@@ -280,6 +353,12 @@ class MintNext3aFiscalContext {
         'tax_year': taxYear,
         'effective_at': effectiveAt.toUtc().toIso8601String(),
         'capability': capability,
+        'housing_status': housingKnown
+            ? 'known'
+            : housingStatementFromAnotherYear
+                ? 'statement_from_another_year'
+                : 'missing',
+        if (housingKnown) 'housing': housing!.toJson(),
         'domicile_status': domicileKnown
             ? 'known'
             : domicileDeclaredAfterTaxYear

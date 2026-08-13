@@ -665,6 +665,12 @@ ALLOW = {
     # dans la projection. Cliquet sur les 28 sites herites.
     "tools/checks/twin_write_discipline.py",
     "tools/checks/_baseline_twin_direct_writes.txt",
+    # F4 — le logement entre enfin dans la frontiere fiscale. Les interets
+    # hypothecaires etaient enregistres, affiches, et n'atteignaient AUCUN
+    # calcul : la donnee n'etait pas perdue, elle etait inerte.
+    "apps/mobile/lib/models/mint_next_3a_tax_boundary.dart",
+    "apps/mobile/lib/models/mint_next_housing_fact.dart",
+    "apps/mobile/test/models/mint_next_housing_fiscal_context_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",

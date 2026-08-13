@@ -1,3 +1,5 @@
+import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
+
 enum PrimaryHomeTenure { tenant, ownerOccupier, other, unknown }
 
 extension PrimaryHomeTenureId on PrimaryHomeTenure {
@@ -29,7 +31,7 @@ extension MortgageStatementAvailabilityId on MortgageStatementAvailability {
 ///
 /// Money is represented as integer cents so persistence never introduces a
 /// binary floating-point rounding loss.
-class MintNextHousingFact {
+class MintNextHousingFact implements ConfirmedHousingSource {
   static const userDeclarationSource = 'user_declaration';
 
   static const tenureKey = 'q_housing_status';
@@ -81,6 +83,24 @@ class MintNextHousingFact {
     required this.schemaVersion,
     required this.needsConfirmation,
   });
+
+  /// Null tant que le fait attend confirmation, qu'il n'y a pas d'hypothèque,
+  /// ou que l'attestation ne porte ni intérêts ni année.
+  ///
+  /// Une charge sans son année ne peut nourrir aucun calcul : elle ne dit pas
+  /// de quel exercice elle parle.
+  @override
+  MintNext3aHousingContext? toConfirmedHousingContext() {
+    final interest = annualInterestCents;
+    final year = statementYear;
+    if (needsConfirmation || interest == null || year == null) return null;
+    return MintNext3aHousingContext(
+      annualInterestCents: interest,
+      statementYear: year,
+      debtBalanceCents: debtBalanceCents,
+      revision: assertedAt.toUtc().toIso8601String(),
+    );
+  }
 
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
         tenureKey: tenure.id,
