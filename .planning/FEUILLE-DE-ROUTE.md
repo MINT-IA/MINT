@@ -94,6 +94,41 @@ Vérifié, pas déclaré. Chaque ligne porte son commit.
 
 ---
 
+## ⛔ Ce qui BLOQUE la suite — le contrat des faits
+
+Une relecture du lot complet a posé la question que j'avais formulée ainsi :
+« qu'est-ce qui, si on ne le fait pas maintenant, coûtera dix fois plus cher
+dans six mois ? » La réponse est nette, et elle arrête l'ajout de tout nouveau
+fait.
+
+**Les faits naturellement multiples sont impossibles.** Trois comptes 3a, deux
+hypothèques, plusieurs employeurs : sous un `factId` unique, chaque écriture
+remplace la précédente ; sous des identités inventées au vol, la projection
+lève un conflit de propriétaire. Pluralité théorique dans le registre,
+**écrasement ou exception dans le produit**.
+
+**La projection détruit l'enveloppe.** Provenance, statut, confirmation
+attendue, date d'effet, année fiscale, péremption, identité de version :
+tout disparaît. CHF 4 250 d'intérêts 2025, tirés d'un document et encore à
+confirmer, deviennent une clé et un montant. Ce que lisent les écrans ne sait
+ni de quelle année il s'agit, ni d'où ça vient, ni si c'est confirmé.
+
+**Deux temps sont mélangés.** Le début de validité est du temps métier, la fin
+est du temps d'enregistrement. `asOf()` répond donc à « que savait MINT ? »,
+jamais à « qu'est-ce qui était vrai ? ». Une correction rétroactive après
+taxation ne se reconstruit pas.
+
+**Et le coach ne peut pas savoir ce qu'il ignore.** Des champs nullables ne
+sont pas une connaissance des lacunes : rien ne distingue « inconnu » de
+« confirmé absent », d'« inapplicable », de « périmé » ou d'« à confirmer ».
+
+**F0 — Le contrat canonique des faits** doit donc être écrit puis imposé
+AVANT d'ajouter ou de migrer un seul fait de plus : type, identité,
+cardinalité, intervalle métier, états de connaissance. Sans lui, chaque nouvel
+employeur, compte ou logement inventera son propre pseudo-identifiant, et la
+normalisation future devra désambiguïser des historiques devenus
+inattribuables.
+
 ## La fondation est posée — ce qu'elle permet maintenant
 
 Les cinq chantiers F1 à F4 sont faits. Concrètement, cela veut dire :
