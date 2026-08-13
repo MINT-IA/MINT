@@ -1627,6 +1627,14 @@ ALLOW = {
     # ADR : .planning/decisions/2026-08-13-perimetre-de-verification-non-negociable.md
     "tools/verify_full.sh",
     "tools/checks/verify_receipt_gate.py",
+    # La relecture payante devient permanente sans devenir ruineuse : les axes
+    # se déduisent des chemins modifiés, le gratuit passe avant le payant, une
+    # seule batterie par lot.
+    "tools/codex_axes.sh",
+    "tools/codex_prompts/code.md",
+    "tools/codex_prompts/ux.md",
+    "tools/codex_prompts/copie.md",
+    "tools/codex_prompts/donnees.md",
     "lefthook.yml",
     ".gitignore",
 }

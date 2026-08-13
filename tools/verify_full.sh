@@ -57,6 +57,28 @@ if [ -z "$TREE" ]; then
   exit 1
 fi
 
+# Les gates lisent le RÉPERTOIRE DE TRAVAIL ; le reçu signe l'arbre COMMITTÉ.
+# Tant que les deux diffèrent, le reçu attesterait un contenu qui n'a pas été
+# exécuté — un correctif local non commité ferait passer les tests puis
+# signerait un arbre qui ne le contient pas. Faille trouvée par la relecture
+# adversariale de la première version.
+DIRTY="$(git status --porcelain --untracked-files=normal)"
+if [ -n "$DIRTY" ]; then
+  echo "ÉCHEC — répertoire de travail modifié ; committer d'abord."
+  echo "        Le reçu porte l'arbre COMMITTÉ ; vérifier un contenu et en"
+  echo "        signer un autre n'attesterait rien."
+  echo
+  echo "$DIRTY" | head -20
+  exit 1
+fi
+
+# Un crochet non installé ne se voit pas : le garde de pré-envoi ne tournerait
+# tout simplement pas. On le dit, sans bloquer — le reçu reste valable, c'est
+# la barrière qui manquerait.
+if ! git config core.hooksPath >/dev/null 2>&1 && [ ! -f "$REPO/.git/hooks/pre-push" ]; then
+  printf '\033[33mAvertissement : aucun crochet pre-push installé — le garde ne tournera pas. `lefthook install`.\033[0m\n'
+fi
+
 declare -a NAMES=()
 declare -a CODES=()
 FAILED=0
@@ -88,6 +110,8 @@ run_gate "garde Journey OS"             python3 tools/checks/journey_os_check.py
 run_gate "lint du wiki"                 python3 tools/checks/wiki_lint.py
 run_gate "intégrité du registre des communes" \
          python3 tools/data/build_commune_registry.py --check
+run_gate "auto-test du garde de reçu" \
+         python3 tools/checks/verify_receipt_gate.py --self-test
 run_gate "parité des 6 fichiers de langue" python3 - <<'PY'
 import json, glob, sys
 ref = {k for k in json.load(open('apps/mobile/lib/l10n/app_fr.arb')) if not k.startswith('@')}
@@ -120,7 +144,11 @@ if [ "$FAILED" -ne 0 ]; then
   exit 1
 fi
 
-mkdir -p "$RECEIPT_DIR"
+if ! mkdir -p "$RECEIPT_DIR"; then
+  echo "ÉCHEC — impossible de créer $RECEIPT_DIR" >&2
+  exit 1
+fi
+TMP="$RECEIPT.tmp.$$"
 {
   printf '{\n'
   printf '  "arbre": "%s",\n' "$TREE"
@@ -133,7 +161,12 @@ mkdir -p "$RECEIPT_DIR"
     printf '\n    "%s": %s' "${NAMES[$i]}" "${CODES[$i]}"
   done
   printf '\n  }\n}\n'
-} > "$RECEIPT"
+} > "$TMP"
+if [ ! -s "$TMP" ] || ! mv -f "$TMP" "$RECEIPT"; then
+  rm -f "$TMP" "$RECEIPT"
+  echo "ÉCHEC — le reçu n'a pas pu être écrit ; aucun envoi ne sera débloqué." >&2
+  exit 1
+fi
 
 printf '\n\033[32mReçu écrit : %s\033[0m\n' "${RECEIPT#$REPO/}"
 printf 'Arbre vérifié : %s\n' "$TREE"

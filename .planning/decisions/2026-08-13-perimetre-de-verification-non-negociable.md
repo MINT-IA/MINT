@@ -92,6 +92,36 @@ Ce que ce dispositif change concrètement pour moi : je ne peux plus écrire
 « vert » à partir de ce que je crois avoir couvert. Je cite un reçu, ou je
 n'écris rien.
 
+## La relecture adversariale a cassé la première version
+
+Le dispositif ci-dessus a été soumis à une relecture adversariale avant d'être
+considéré comme acquis. Elle a rendu **REJET**, et sur deux points qui vidaient
+le garde de son sens :
+
+**Le crochet ne lisait pas ce qui était envoyé.** Un crochet `pre-push` reçoit
+sur son entrée standard les références réellement poussées. Je ne les lisais
+pas : je comparais le reçu à `HEAD^{tree}`. Donc
+`git push origin <autre-sha>:refs/heads/dev` passait le garde tout en envoyant
+un arbre jamais vérifié, sans le moindre `--no-verify`. Le poussé de plusieurs
+références était pire : une seule pointe était contrôlée. La phrase de cet ADR
+qui affirmait comparer « l'arbre qu'on envoie » était **fausse**. Le garde lit
+désormais l'entrée standard et exige que chaque référence envoyée porte l'arbre
+attesté.
+
+**Le script testait le répertoire de travail et signait l'arbre committé.** Les
+gates lisent les fichiers sur disque ; le reçu portait `HEAD^{tree}`. Un
+correctif local non commité faisait donc passer les tests, puis signait un arbre
+qui ne le contenait pas. La vérification refuse maintenant de démarrer sur un
+répertoire modifié.
+
+Deux défauts moindres corrigés dans la foulée : le reçu n'attestait pas que
+**tous** les gates obligatoires avaient tourné (un reçu à trois gates passait),
+et il était écrit sans atomicité (un disque plein produisait un reçu tronqué et
+mensonger).
+
+Il reste vrai — et c'est écrit plus bas — qu'un crochet local n'est pas une
+garantie de dépôt.
+
 ## Pourquoi « tout » plutôt qu'une sélection intelligente
 
 La tentation était de construire une carte d'impact — un index code → tests
@@ -138,7 +168,14 @@ sera l'absence de nouvelle annonce fausse sur les prochaines sessions. Un reçu
 existant ne garantit pas que je le cite honnêtement ; il garantit seulement que
 l'envoi est bloqué sans lui.
 
-**Lacune 4 — les quatre travaux les plus directement applicables (TDAD, false
+**Lacune 4 — le contexte de branche n'est pas couvert.** Le reçu identifie un
+*contenu* (l'arbre), pas un contexte. Or au moins un gate — le garde Journey OS
+— compare le travail à `origin/dev`. Le même arbre poussé depuis une autre
+branche n'a donc pas forcément le même verdict. Choisir l'arbre plutôt que le
+commit évite de tout revérifier après un simple changement de message ; c'est un
+arbitrage assumé, pas une propriété démontrée.
+
+**Lacune 5 — les quatre travaux les plus directement applicables (TDAD, false
 success, building-to-the-test) sont des préprints non relus par les pairs**, et
 l'un d'eux est signé d'un seul auteur. Les résultats sur l'incapacité à
 s'auto-corriger, eux, sont publiés en conférence (ICLR, TACL, ACL).
@@ -171,6 +208,32 @@ s'auto-corriger, eux, sont publiés en conférence (ICLR, TACL, ACL).
   <https://getautonoma.com/blog/ai-agent-breaks-existing-features>
 - Graphite, *bors, Google TAP and merge queues* —
   <https://graphite.com/blog/bors-google-tap-merge-queue>
+
+## La relecture payante devient permanente sans devenir ruineuse
+
+Julien : « collaboration maximale avec Codex, y compris sur ce sujet, et rendre
+l'infra permanente mais sans qu'elle ne coûte une fortune en jetons ».
+
+Les deux exigences ne s'opposent que si les axes sont lancés à l'aveugle.
+`tools/codex_axes.sh` les déduit désormais des chemins modifiés :
+
+| Axe | Déclencheur mécanique |
+|---|---|
+| code | tout `.dart`, `.py`, `.sh`, `.yml` |
+| ux | `lib/screens/`, `lib/widgets/`, `lib/routes/` |
+| copie | `lib/l10n/`, `lib/screens/`, `lib/widgets/`, tout `.arb` |
+| données | `lib/data/`, `lib/models/`, `financial_core/`, `backend/app/{services,models}/`, `assets/`, migrations |
+
+Trois règles bornent la dépense. **Le gratuit passe d'abord** : sans reçu
+valable, aucune relecture n'est lancée — payer un modèle pour diagnostiquer un
+arbre dont les tests échouent, c'est acheter ce que la suite donne pour rien.
+**Une seule batterie par lot**, sur la pointe candidate, jamais à chaque commit.
+Et **tout défaut trouvé qui est mécaniquement détectable devient un contrôle
+gratuit**, pour ne plus jamais être payé deux fois — c'est ce qui a été fait ici
+même : les deux failles du garde sont devenues des cas de test.
+
+Ce que l'on envoie est le diff, pas le dépôt. On y perd le contexte lointain ;
+on y gagne de pouvoir lancer plusieurs axes.
 
 Lié : [[feedback_zero_trust_protocol]] · `CLAUDE.md` §9 ·
 `.planning/decisions/2026-08-13-identite-communale-registre-federal.md`
