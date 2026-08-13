@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "kind": "mini_storyboard_lego",
+  "goal": {
+    "id": "first_open_bascule4",
+    "title": "Bascule 4 — première ouverture pure",
+    "promise": "En préversion, une installation neuve ne rencontre JAMAIS l'onboarding legacy : landing + disclosure, puis le CTA active explicitement le mode local et ouvre Aujourd'hui, qui dit honnêtement ne rien savoir encore et propose un seul fait à la fois via les parcours canoniques. L'interdiction passe par un OWNER de route dédié, fail-closed — jamais par une liste d'écrans. Les données wizard historiques ne sont ni reprises, ni promues, ni supprimées. Hors préversion : rien ne change."
+  },
+  "generated_at": "2026-08-13",
+  "authority": {
+    "adr": ".planning/decisions/2026-08-03-doctrine-reconstruction-mint.md",
+    "cadrage": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule4-premiere-ouverture-cadrage-codex.md (GO Codex option A : aucun onboarding neuf, autorité par owner, gate cold-start sans fixture)",
+    "declencheur": "retour Julien sur TestFlight 2.13.3+80 — l'onboarding legacy intégral au premier lancement ; cause : /onb owner=anonymous, hors périmètre de la politique de coque"
+  },
+  "semantic_contract": "AUTORITÉ PAR OWNER : un owner de route DÉDIÉ RouteOwner.legacyOnboarding est créé et porté par TOUT chemin menant au shell d'onboarding legacy (/onb destination, /start alias, tout futur alias convergent). PreviewShellPolicy interdit cet owner FAIL-CLOSED en préversion et redirige vers l'entrée préversion canonique (jamais vers une autre route legacy). L'interdiction n'est JAMAIS une liste d'écrans, de textes ou de widgets : elle est structurelle, donc elle survit à l'ajout d'un alias. FERMETURE DU REGISTRE : un guard prouve (a) que l'unique builder d'OnboardingShellScreen n'est atteignable que par des routes de cet owner, (b) qu'aucun context.go/push/Navigator/builder direct hors registre ne l'atteint. ENTRÉE PRÉVERSION : la landing et la disclosure TestFlight sont CONSERVÉES ; le CTA active explicitement le mode local (guestLocal) PUIS ouvre /home — aucun transit par le wizard, aucun questionnaire obligatoire avant de voir la coque. AUJOURD'HUI VIDE : état honnête « MINT ne sait encore rien de ta situation », un SEUL prochain fait proposé à la fois via les parcours canoniques déjà livrés (l'entrée vertical 3a existante tient ce rôle en préversion — aucun second moteur de collecte). DONNÉES LEGACY HISTORIQUES : ni reprise du wizard, ni suppression automatique, ni promotion silencieuse vers le jumeau, ni lecture comme autorité produit — seuls les faits réécrits par les parcours canoniques alimentent le jumeau. RESET B2 : renvoie désormais à la LANDING, jamais à /start ni /onb (le reçu B2 devra être régénéré). HORS PRÉVERSION : comportement strictement inchangé. ORACLE D'ATTEINTE (mécanique) : un checker dédié EXTRAIT d'app.dart le graphe route → redirect* → builder, calcule la fermeture TRANSITIVE, et exige que TOUT nœud atteignant OnboardingShellScreen porte l'owner legacyOnboarding dans kRouteRegistry — le registre seul ne suffit pas (il ignore builder et cible de redirect). L'inverse (owner ⇒ atteint le shell) n'est PAS exigé : il interdirait des redirects fail-closed possédés par cet owner sans rien prouver. TRACE RUNTIME : un sink debug/E2E dédié (NavigationTraceSink, strippé en release) est appelé DANS le redirect global pour chaque route tentée et après résolution, émettant des événements ordonnés {seq, path, owner|unknown, decision, target} ; le harnais les exporte dans runtime.json. EMPREINTE : sha256 d'un graphe NORMALISÉ path → owner → redirectTarget|builderSymbol, produit par le checker au SHA testé et inscrit au reçu. Le gate ÉCHOUE sur : owner inconnu visité, owner legacyOnboarding visité, divergence d'empreinte, ou cycle dans la fermeture des redirects. MODE LOCAL : l'autorité est AuthProvider (état lifecycle guestLocal) + sa persistance InstallLifecycleService ; l'ordre observable est activation RÉUSSIE puis navigation /home, jamais l'inverse.",
+  "known_risks_from_cadrage": [
+    "une interdiction par liste d'écrans se périme au premier alias ajouté — l'autorité doit être l'owner",
+    "un onboarding NEUF rouvrirait un second moteur de collecte concurrent des parcours canoniques (deuxième vérité) — rejeté",
+    "un harnais qui démarre par une fixture E2E saute l'onboarding et prouve un couloir que personne n'emprunte (angle mort réel des reçus B1/B2/B3a)",
+    "supprimer les données wizard historiques serait destructeur ; les promouvoir silencieusement serait une deuxième vérité — isolation stricte",
+    "rediriger une route legacy vers une AUTRE route legacy annulerait le fail-closed"
+  ],
+  "out_of_scope": [
+    "suppression physique des 7 scènes legacy (chantier writers/legacy séparé)",
+    "onboarding neuf du jumeau (aucun second moteur de collecte)",
+    "séquenceur multi-faits (l'entrée vertical existante tient le rôle du prochain fait utile)",
+    "migration des données wizard vers les faits canoniques (chantier retrofit séparé)"
+  ],
+  "beats": [
+    {
+      "id": "b4_owner_legacy",
+      "story": "RouteOwner.legacyOnboarding existe et TOUT nœud dont la fermeture transitive (route → redirect* → builder, extraite d'app.dart) atteint OnboardingShellScreen le porte.",
+      "code": "apps/mobile/lib/routes/route_owner.dart + apps/mobile/lib/routes/route_metadata.dart + tools/checks/route_closure_check.py",
+      "tests_planned": [
+        "the transitive route graph extracted from the router marks every path reaching the legacy onboarding shell with the legacyOnboarding owner",
+        "adding an alias that reaches the legacy shell without the dedicated owner fails the closure checker (fixture)"
+      ]
+    },
+    {
+      "id": "b4_policy_fail_closed",
+      "story": "La politique interdit cet owner en préversion, fail-closed ; la fermeture des redirects legacy est ACYCLIQUE et termine sur l'entrée préversion autorisée.",
+      "code": "apps/mobile/lib/services/preview_shell_policy.dart + tools/checks/route_closure_check.py",
+      "tests_planned": [
+        "the preview policy blocks the legacy onboarding owner and redirects to the canonical preview entry",
+        "the full legacy redirect closure is acyclic and terminates on an allowed preview entry",
+        "outside the preview policy the legacy onboarding stays reachable and unchanged"
+      ]
+    },
+    {
+      "id": "b4_entry_local",
+      "story": "La landing conserve disclosure et CTA ; le CTA active le mode local via l'autorité lifecycle (AuthProvider guestLocal, persisté) et n'ouvre /home qu'APRÈS activation réussie.",
+      "code": "apps/mobile/lib/screens/landing_screen.dart + apps/mobile/lib/providers/auth_provider.dart + apps/mobile/lib/l10n/ (ARB ×6)",
+      "tests_planned": [
+        "in preview the landing CTA enables durable local mode through the lifecycle authority before navigating to the shell",
+        "a failed local activation never navigates to the shell",
+        "the disclosure and the landing itself are preserved in preview"
+      ]
+    },
+    {
+      "id": "b4_empty_today",
+      "story": "Aujourd'hui vide dit ne rien savoir et expose EXACTEMENT UNE action, qui route vers le prochain prérequis canonique MANQUANT (aucun second moteur de collecte).",
+      "code": "apps/mobile/lib/screens/aujourdhui/aujourdhui_screen.dart + apps/mobile/lib/l10n/ (ARB ×6)",
+      "tests_planned": [
+        "the empty shell states that nothing is known yet and exposes exactly one action",
+        "that single action routes to the first missing canonical prerequisite and to no other collection engine"
+      ]
+    },
+    {
+      "id": "b4_lifecycle",
+      "story": "Premier lancement, abandon APRÈS disclosure affichée/fermée mais avant CTA (relance sur landing, sans mode local implicite), abandon après CTA (relance sur Aujourd'hui, mode local persisté) — jamais de reprise du wizard.",
+      "code": "apps/mobile/lib/app.dart + apps/mobile/lib/services/install_lifecycle_service.dart",
+      "tests_planned": [
+        "a relaunch after the disclosure was shown but before the CTA lands on the landing without any implicit local mode",
+        "a relaunch after the CTA lands on the shell in persisted local mode and never resumes the wizard"
+      ]
+    },
+    {
+      "id": "b4_legacy_data_isolation",
+      "story": "Inventaire DÉTERMINISTE des stores legacy (wizard_answers_v2, wizard_completed, mini_onboarding_completed) vs faits canoniques : snapshots avant/après prouvent conservation byte-for-byte des premiers, absence de promotion dans les seconds, aucune reprise, aucune suppression.",
+      "code": "apps/mobile/lib/app.dart + apps/mobile/lib/services/report_persistence_service.dart + apps/mobile/lib/providers/coach_profile_provider.dart",
+      "tests_planned": [
+        "historic wizard stores are preserved byte-for-byte and never promoted into the canonical facts",
+        "historic wizard data never resumes the wizard and is never deleted by the preview entry"
+      ]
+    },
+    {
+      "id": "b4_reset_to_landing",
+      "story": "Le reset local B2 renvoie à la LANDING, jamais à /start ni /onb.",
+      "code": "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+      "tests_planned": [
+        "after a local reset the app returns to the landing and never to a legacy onboarding route"
+      ]
+    },
+    {
+      "id": "b4_registry_closure",
+      "story": "Checker DÉDIÉ (route_closure_check.py) : extraction structurelle des GoRoute/ScopedGoRoute (builders + redirects) d'app.dart, graphe transitif comparé à kRouteRegistry, analyse des références à OnboardingShellScreen hors fichier autorisé, grep conservateur des navigations littérales vers /onb, /start et aliases. Exclusions par CHEMIN et SYNTAXE (tests, commentaires, fixtures, navigation interne au wizard, imports de types) — jamais une allowlist extensible de call-sites produit.",
+      "code": "tools/checks/route_closure_check.py + tools/checks/tests/fixtures/",
+      "tests_planned": [
+        "the closure checker fails when the legacy onboarding shell is referenced outside its authorized file",
+        "the closure checker fails on a literal navigation to a legacy onboarding path from product code (fixture)",
+        "the closure checker excludes tests, comments, fixtures, wizard-internal navigation and type imports by path and syntax"
+      ]
+    },
+    {
+      "id": "b4_cold_start_receipt",
+      "story": "DEUX scénarios runtime : (1) cold start sur stockage VIERGE sans fixture ni deeplink ; (2) scénario HISTORIQUE seedé (données wizard legacy présentes) prouvant conservation, non-reprise, non-promotion, aucune scène legacy. Les deux exportent la trace ordonnée des owners et l'empreinte de registre.",
+      "code": "tools/runtime/mint_next_first_open_lifecycle.sh + tools/simulator/flows/maestro-perfect-set/flow_mint_next_first_open_lifecycle.yaml + apps/mobile/lib/services/navigation_trace_sink.dart",
+      "tests_planned": [
+        "the navigation trace sink records ordered path, owner, decision and target for every attempted route and is stripped in release"
+      ]
+    }
+  ],
+  "gate_requirements": {
+    "outcomes_runtime": [
+      "SCÉNARIO 1 — COLD START sur stockage vierge, SANS fixture ni deeplink : premier frame utile = landing/disclosure",
+      "aucune navigation automatique vers /start ou /onb — aucune scène legacy atteinte",
+      "CTA → mode local persisté → Aujourd'hui rendu (état vide honnête + exactement une action)",
+      "kill/relaunch → Aujourd'hui, sans wizard",
+      "reset local (B2) → retour LANDING",
+      "SCÉNARIO 2 — HISTORIQUE seedé (wizard_answers_v2 + wizard_completed présents) : snapshot avant/après prouve la conservation byte-for-byte, aucune reprise du wizard, aucune promotion dans les faits canoniques, aucune scène legacy",
+      "les DEUX scénarios : trace ordonnée des owners visités sans aucun legacyOnboarding, empreinte de registre conforme au SHA",
+      "zéro transmission SORTANTE (REQBODY)"
+    ],
+    "empreinte_registre": "le reçu embarque (a) l'empreinte sha256 du graphe NORMALISÉ path → owner → redirectTarget|builderSymbol produit par tools/checks/route_closure_check.py au SHA testé, et (b) la trace ordonnée {seq, path, owner|unknown, decision, target} émise par NavigationTraceSink. Le gate ÉCHOUE si : un chemin atteignant le shell legacy n'a pas l'owner dédié, un owner legacyOnboarding OU un owner inconnu apparaît dans la trace, l'empreinte diverge du SHA, ou la fermeture des redirects contient un cycle",
+    "non_runtime": "référence OFF (hors préversion, legacy inchangé) et échec d'activation du mode local = tests widget cités au reçu — les deux exigent une configuration que le runtime préversion ne peut pas produire ; le scénario historique reste RUNTIME (scénario 2), il n'est pas rétrogradé en widget",
+    "interdit": "AUCUNE preuve fondée sur une liste manuelle des 7 scènes legacy ou de leurs libellés",
+    "preuves": "review Codex contrat P1=0 · tests promus par beat (AUCUN tests_planned résiduel) · reçu runtime cold-start lié au SHA"
+  }
+}
