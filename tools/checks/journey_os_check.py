@@ -649,6 +649,10 @@ ALLOW = {
     "apps/mobile/lib/services/twin/fact_version.dart",
     "apps/mobile/lib/services/twin/fact_registry.dart",
     "apps/mobile/test/services/twin/fact_registry_test.dart",
+    # F1b — la transaction : registre et projection ecrits ensemble ou pas du
+    # tout, revision optimiste contre les ecritures concurrentes.
+    "apps/mobile/lib/services/twin/twin_store.dart",
+    "apps/mobile/test/services/twin/twin_store_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
