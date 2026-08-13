@@ -159,4 +159,62 @@ void main() {
     expect(MintNext3aRevenuContext.fromConfirmedFact(pending), isNull);
     expect(MintNext3aRevenuContext.fromConfirmedFact(null), isNull);
   });
+
+  test(
+      'a domicile declared after the tax year is not a known domicile for '
+      'that year', () {
+    // `assertedAt` est la date de DÉCLARATION, pas celle à laquelle le
+    // domicile était administrativement valable. Quelqu'un ayant déménagé en
+    // 2026 n'habitait pas forcément là en 2024. Répondre « Lausanne » pour
+    // 2024 serait une supposition — exactement ce que cette frontière
+    // interdit. Trouvé par la relecture adversariale.
+    final declaredIn2026 = MintNextDomicileFact(
+      canton: 'VD',
+      communeName: 'Lausanne',
+      communeBfs: 5586,
+      registrySnapshot: '13-08-2026',
+      assertedAt: DateTime.utc(2026, 8, 13),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+
+    final pastYear = MintNext3aFiscalContext(
+      taxYear: 2024,
+      effectiveAt: DateTime.utc(2026, 8, 13),
+      domicile: MintNext3aDomicileContext.fromConfirmedFact(declaredIn2026),
+    );
+    expect(pastYear.domicileKnown, isFalse);
+    expect(pastYear.domicileDeclaredAfterTaxYear, isTrue);
+    // L'absence pure appelle une collecte ; ce cas-ci appelle une date
+    // d'effet. Les deux ne se confondent pas.
+    expect(pastYear.toJson()['domicile_status'], 'declared_after_tax_year');
+
+    final currentYear = MintNext3aFiscalContext(
+      taxYear: 2026,
+      effectiveAt: DateTime.utc(2026, 8, 13),
+      domicile: MintNext3aDomicileContext.fromConfirmedFact(declaredIn2026),
+    );
+    expect(currentYear.domicileKnown, isTrue,
+        reason: "l'année de la déclaration, elle, est couverte");
+    expect(currentYear.toJson()['domicile_status'], 'known');
+  });
+
+  test('a later tax year is covered — the domicile is the current one', () {
+    final declaredIn2026 = MintNextDomicileFact(
+      canton: 'VD',
+      communeName: 'Lausanne',
+      communeBfs: 5586,
+      assertedAt: DateTime.utc(2026, 1, 5),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+    final future = MintNext3aFiscalContext(
+      taxYear: 2027,
+      effectiveAt: DateTime.utc(2027, 3, 1),
+      domicile: MintNext3aDomicileContext.fromConfirmedFact(declaredIn2026),
+    );
+    expect(future.domicileKnown, isTrue);
+  });
 }

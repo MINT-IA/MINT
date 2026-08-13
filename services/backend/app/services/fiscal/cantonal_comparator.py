@@ -363,9 +363,23 @@ def estimate_income_tax_parts(
         impot_federal += taxable * rate
         prev_bound = upper
 
-    pts = CANTONAL_COMMUNAL_TAX_CHF.get(canton.upper())
+    pts = CANTONAL_COMMUNAL_TAX_CHF.get((canton or "").upper())
     if pts is None:
         # Canton inconnu : moyenne simple des 26 (transparent, pas un 0.13 magique).
+        #
+        # ARBITRAGE OUVERT, PAS UN OUBLI. Trois tests protègent explicitement ce
+        # repli — « Unknown canton should use default multiplier, not crash »
+        # (test_rules_engine, test_life_events, test_retirement) — alors que les
+        # cinq contrôles voisins de ce module REFUSENT un canton inconnu. Les
+        # deux exigences sont légitimes et s'opposent : ne pas planter, ne pas
+        # mentir. Cette fonction rendant un couple de montants nus, l'appelant
+        # ne peut pas distinguer une moyenne nationale de l'impôt de la
+        # personne — et le cas est devenu atteignable, quelqu'un sans domicile
+        # fiscal suisse n'ayant plus de canton du tout.
+        #
+        # Inverser un contrat testé sans arbitrage serait exactement le
+        # périmètre trop étroit que ce chantier corrige. Constat porté à
+        # `.planning/decisions/2026-08-13-identite-communale-registre-federal.md`.
         pts = [
             sum(v[i] for v in CANTONAL_COMMUNAL_TAX_CHF.values())
             / len(CANTONAL_COMMUNAL_TAX_CHF)

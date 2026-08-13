@@ -126,6 +126,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
               communeName: communeName ?? '',
               communeBfs: communeBfs,
               revision: revision,
+              declaredAt: assertedAt,
             );
 
   /// `q_canton` est PARTAGÉE avec le profil historique. En l'absence de

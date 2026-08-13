@@ -8,6 +8,7 @@ class MintNext3aDomicileContext {
     required this.communeName,
     this.communeBfs,
     required this.revision,
+    this.declaredAt,
   });
 
   final String canton;
@@ -17,6 +18,25 @@ class MintNext3aDomicileContext {
   /// Fingerprint of the underlying fact (assertedAt UTC). Any fiscal
   /// derivative must be bound to it and treated stale when it changes.
   final String revision;
+
+  /// Date à laquelle ce domicile a été DÉCLARÉ.
+  ///
+  /// Ce n'est pas la date à laquelle il était administrativement valable —
+  /// MINT ne demande pas encore depuis quand la personne habite là. Faute de
+  /// cette date d'effet, le fait ne peut rien dire d'une année antérieure à
+  /// sa déclaration : quelqu'un ayant déménagé n'habitait pas forcément là
+  /// l'an dernier. On refuse donc de répondre plutôt que de supposer.
+  final DateTime? declaredAt;
+
+  /// Ce fait peut-il parler de cette année fiscale ?
+  ///
+  /// Sans date d'effet, la seule réponse honnête est : à partir de l'année de
+  /// la déclaration, pas avant.
+  bool coversTaxYear(int taxYear) {
+    final declared = declaredAt;
+    if (declared == null) return true;
+    return taxYear >= declared.toUtc().year;
+  }
 
   Map<String, Object?> toJson() => {
         'canton': canton,
@@ -224,7 +244,17 @@ class MintNext3aFiscalContext {
   final MintNext3aVersementsContext? versements;
   static const capability = 'no_attested_engine';
 
-  bool get domicileKnown => domicile != null;
+  /// Un domicile déclaré APRÈS l'année fiscale demandée n'est pas un domicile
+  /// connu pour cette année-là. Le contrat de cette frontière est de ne jamais
+  /// deviner un lieu ; répondre « Lausanne » pour 2024 parce que la personne
+  /// l'a déclaré en 2026 serait précisément une supposition.
+  bool get domicileKnown =>
+      domicile != null && domicile!.coversTaxYear(taxYear);
+
+  /// Vrai quand un fait existe mais ne peut pas parler de l'année demandée —
+  /// à distinguer de l'absence pure, qui appelle une collecte.
+  bool get domicileDeclaredAfterTaxYear =>
+      domicile != null && !domicile!.coversTaxYear(taxYear);
   bool get civilStatusKnown => civilStatus != null;
   bool get revenuKnown => revenu != null;
   bool get lppAffiliationKnown => lppAffiliation != null;
@@ -250,7 +280,11 @@ class MintNext3aFiscalContext {
         'tax_year': taxYear,
         'effective_at': effectiveAt.toUtc().toIso8601String(),
         'capability': capability,
-        'domicile_status': domicileKnown ? 'known' : 'missing',
+        'domicile_status': domicileKnown
+            ? 'known'
+            : domicileDeclaredAfterTaxYear
+                ? 'declared_after_tax_year'
+                : 'missing',
         if (domicile != null) 'domicile': domicile!.toJson(),
         'civil_status_status': civilStatusKnown ? 'known' : 'missing',
         if (civilStatus != null) 'civil_status': civilStatus!.toJson(),

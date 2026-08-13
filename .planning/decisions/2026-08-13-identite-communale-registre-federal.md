@@ -106,6 +106,34 @@ La règle d'accentuation du projet est violée sur une surface visible. Les mêm
 valeurs ont été corrigées dans `cantonFullNames` parce que le parcours domicile
 en dépend désormais.
 
+## Un arbitrage que je laisse à Julien : planter ou mentir
+
+`services/backend/app/services/fiscal/cantonal_comparator.py:366` remplace un
+canton inconnu par la **moyenne simple des 26 cantons**. La fonction rend un
+couple de montants nus : l'appelant ne peut pas distinguer cette moyenne de
+l'impôt réel de la personne. « Transparent » dans un commentaire n'est pas
+transparent à l'écran.
+
+Cinq autres contrôles du même module **refusent** un canton inconnu. Ce n'est
+donc pas une incohérence d'inattention : trois tests protègent explicitement le
+repli, dont un dont le titre dit tout — *« Unknown canton should use default
+multiplier, not crash »*.
+
+Les deux exigences sont légitimes et s'opposent : ne pas planter, ne pas mentir.
+Le cas est devenu atteignable, puisqu'une personne sans domicile fiscal suisse
+n'a plus de canton du tout.
+
+J'ai essayé la voie du refus. Les trois tests sont tombés, et ils avaient
+raison de tomber : ils portent une décision prise avant moi. Inverser un
+contrat testé sans arbitrage serait exactement le périmètre trop étroit que ce
+chantier corrige. **Je laisse donc le comportement en place et je pose la
+question**, plutôt que de la trancher seul.
+
+La troisième voie, si elle est retenue : ne planter ni ne mentir, mais rendre le
+repli VISIBLE à l'appelant — un indicateur à côté du montant, que la surface
+affiche. Cela suppose de changer la signature et ses appelants, dont le registre
+de calculateurs.
+
 ## Counter-arguments and data gaps
 
 **Contre-argument 1 — « 63 Ko d'asset pour une information que l'utilisateur
