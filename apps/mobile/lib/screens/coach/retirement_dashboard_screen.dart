@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/providers/byok_provider.dart';
@@ -1369,7 +1370,7 @@ class _RetirementDashboardScreenState extends State<RetirementDashboardScreen> {
                 // D8: « Commencer — 2 min » mène au parcours de questions réel
                 // (OnboardingShellScreen via /onb — âge / canton / revenu …),
                 // plus jamais vers le home coach sans formulaire (CTA mort).
-                onPressed: () => context.go('/onb'),
+                onPressed: () => LegacyOnboardingEntry.open(context),
                 style: FilledButton.styleFrom(
                   backgroundColor: MintColors.primary,
                   padding: const EdgeInsets.symmetric(vertical: 14),

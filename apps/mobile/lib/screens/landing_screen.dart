@@ -12,6 +12,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -90,7 +91,9 @@ class _LandingScreenState extends State<LandingScreen>
   @override
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
-    void openOnboarding() => context.go('/start');
+    // Bascule 4 — entrée canonique : en préversion, le CTA active le
+    // mode local puis ouvre la coque, sans jamais passer par le wizard.
+    void openOnboarding() => LegacyOnboardingEntry.open(context);
 
     Widget ctaReveal(Widget child) {
       return AnimatedBuilder(
@@ -232,7 +235,7 @@ class _LandingScreenState extends State<LandingScreen>
                       label: l10n.landingV3AnonymousHomeLink,
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () => context.go('/start'),
+                        onTap: () => LegacyOnboardingEntry.open(context),
                         child: Text(
                           l10n.landingV3AnonymousHomeLink,
                           textAlign: TextAlign.center,

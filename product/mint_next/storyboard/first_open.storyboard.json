@@ -54,12 +54,14 @@
     },
     {
       "id": "b4_entry_local",
-      "story": "La landing conserve disclosure et CTA ; le CTA active le mode local via l'autorité lifecycle (AuthProvider guestLocal, persisté) et n'ouvre /home qu'APRÈS activation réussie.",
-      "code": "apps/mobile/lib/screens/landing_screen.dart + apps/mobile/lib/providers/auth_provider.dart + apps/mobile/lib/l10n/ (ARB ×6)",
-      "tests_planned": [
+      "story": "Entrée CANONIQUE unique (LegacyOnboardingEntry) : aucun écran ne nomme plus un chemin legacy. En préversion elle active le mode local via l'autorité lifecycle et n'ouvre la coque qu'APRÈS activation réussie ET navigation autorisée ; hors préversion le comportement legacy est inchangé.",
+      "code": "apps/mobile/lib/routes/legacy_onboarding_entry.dart + apps/mobile/lib/screens/landing_screen.dart + apps/mobile/lib/providers/auth_provider.dart",
+      "tests": [
         "in preview the landing CTA enables durable local mode through the lifecycle authority before navigating to the shell",
-        "a failed local activation never navigates to the shell",
-        "the disclosure and the landing itself are preserved in preview"
+        "a failed local activation never navigates to the shell"
+      ],
+      "test_files": [
+        "apps/mobile/test/routes/legacy_onboarding_entry_test.dart"
       ]
     },
     {

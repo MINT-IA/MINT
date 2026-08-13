@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show HapticFeedback;
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/services/navigation/safe_pop.dart';
 import 'package:mint_mobile/services/cap_memory_store.dart';
@@ -121,7 +122,8 @@ class FinancialSummaryScreen extends StatelessWidget {
   }
 
   Future<void> _handleRestartDiagnostic(BuildContext context) async {
-    final router = GoRouter.of(context);
+    // La navigation passe désormais par l'entrée canonique (bascule 4),
+    // qui consulte la politique de coque — plus de GoRouter capturé ici.
     final messenger = ScaffoldMessenger.of(context);
     final l10n = S.of(context)!;
     final coachProvider = context.read<CoachProfileProvider>();
@@ -131,7 +133,8 @@ class FinancialSummaryScreen extends StatelessWidget {
 
     if (!context.mounted) return;
     if (failures.isEmpty) {
-      router.go('/onb');
+      // Bascule 4 — entrée canonique (préversion : coque du jumeau).
+      LegacyOnboardingEntry.open(context);
       return;
     }
 
@@ -207,7 +210,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         title: S.of(context)!.financialSummaryNoProfile,
         subtitle: '', // No subtitle in original
         ctaLabel: S.of(context)!.financialSummaryStartDiagnostic,
-        onCta: () => context.go('/onb'),
+        onCta: () => LegacyOnboardingEntry.open(context),
       ),
     );
   }
@@ -262,7 +265,7 @@ class FinancialSummaryScreen extends StatelessWidget {
         title: s.profileBilanSubtitleIncomplete,
         subtitle: s.futurCompleterProfil,
         ctaLabel: s.financialSummaryStartDiagnostic,
-        onCta: () => context.go('/onb'),
+        onCta: () => LegacyOnboardingEntry.open(context),
       ),
     );
   }

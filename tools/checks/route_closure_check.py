@@ -49,11 +49,19 @@ AUTHORIZED_SHELL_REFERENCES = {
     "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart",
 }
 
+# L'entrée CANONIQUE : le seul fichier produit autorisé à nommer un
+# chemin legacy — tous les écrans passent par elle (intention explicite au
+# point d'appel, pas seulement au redirect global).
+CANONICAL_ENTRY_FILES = {"apps/mobile/lib/routes/legacy_onboarding_entry.dart"}
+
 # Répertoires exclus par CHEMIN (jamais du code produit).
 EXCLUDED_PATH_PARTS = ("/test/", "/tests/", "/fixtures/", "/.dart_tool/")
 
-# Le wizard navigue en interne entre ses propres écrans : ce n'est pas un
-# contournement, c'est son fonctionnement. Exclusion par CHEMIN.
+# Le wizard navigue en interne entre ses propres écrans : exclusion par
+# CHEMIN pour les NAVIGATIONS uniquement. Elle ne s'applique JAMAIS à la
+# référence au symbole du shell : seul son fichier de DÉFINITION est
+# exempté, sinon n'importe quel fichier du dossier pourrait l'instancier
+# directement (P1 review T1).
 WIZARD_INTERNAL_PREFIX = "apps/mobile/lib/screens/onboarding/"
 
 
@@ -94,6 +102,33 @@ def parse_registry(source: str) -> dict[str, str]:
     return owners
 
 
+def _extract_redirect(window: str) -> str | None:
+    """Cible littérale d'un redirect — flèche OU corps de bloc.
+
+    Trois formes réellement présentes dans app.dart :
+      redirect: (_, __) => '/x',
+      redirect: (_, __) => cond ? null : '/x',
+      redirect: (_, state) { ...; return '/x'; },
+    Ignorer la troisième rendait invisible toute une famille d'alias
+    /onboarding/* qui atteignent le wizard (P1 review T1).
+    """
+    arrow = re.search(r"redirect:\s*\([^)]*\)\s*=>\s*'([^']+)'", window)
+    if arrow:
+        return arrow.group(1)
+    ternary = re.search(
+        r"redirect:\s*\([^)]*\)\s*=>\s*\n?\s*\w[^;]*?\?\s*null\s*:\s*'([^']+)'",
+        window,
+    )
+    if ternary:
+        return ternary.group(1)
+    block = re.search(r"redirect:\s*\([^)]*\)\s*\{(.*?)\n?\s*\}", window, re.S)
+    if block:
+        returned = re.search(r"return\s+'([^']+)'\s*;", block.group(1))
+        if returned:
+            return returned.group(1)
+    return None
+
+
 def parse_router(source: str) -> list[RouteNode]:
     """Extraction STRUCTURELLE des routes : path, builder, redirect."""
     clean = _strip_comments(source)
@@ -106,14 +141,12 @@ def parse_router(source: str) -> list[RouteNode]:
         end = starts[index + 1][0] if index + 1 < len(starts) else len(clean)
         window = clean[offset:end]
         builder = re.search(r"builder:\s*\([^)]*\)\s*(?:=>|\{)\s*(?:const\s+)?(\w+)", window)
-        redirect = re.search(r"redirect:\s*\([^)]*\)\s*=>\s*'([^']+)'", window)
-        if redirect is None:
-            redirect = re.search(r"redirect:\s*\([^)]*\)\s*=>\s*\n?\s*\w[^;]*?\?\s*null\s*:\s*'([^']+)'", window)
+        redirect = _extract_redirect(window)
         nodes.append(
             RouteNode(
                 path=path,
                 builder=builder.group(1) if builder else None,
-                redirect_target=redirect.group(1) if redirect else None,
+                redirect_target=redirect,
             )
         )
     return nodes
@@ -167,13 +200,42 @@ def check_shell_references() -> list[str]:
             continue
         if rel in AUTHORIZED_SHELL_REFERENCES:
             continue
-        if rel.startswith(WIZARD_INTERNAL_PREFIX):
-            continue
         source = _strip_comments(dart.read_text(encoding="utf-8"))
         if LEGACY_SHELL_SYMBOL in source:
             errors.append(
                 f"{rel} references {LEGACY_SHELL_SYMBOL} outside the router"
             )
+    return errors
+
+
+def check_legacy_navigations(legacy_paths: set[str]) -> list[str]:
+    """Grep CONSERVATEUR des navigations littérales vers un chemin legacy.
+
+    Composant 4 du cadrage, conservé tel quel : une navigation produit
+    vers /onb, /start ou un alias est signalée même si le redirect global
+    la neutraliserait — le contrat exige la trace, pas seulement l'effet.
+    Exclusions par CHEMIN (tests, fixtures, navigation interne au wizard,
+    routeur) et par SYNTAXE (commentaires).
+    """
+    errors: list[str] = []
+    nav = re.compile(
+        r"(?:context\.(?:go|push|replace)|Navigator\.[\w.]+)\(\s*'([^']+)'"
+    )
+    for dart in MOBILE_LIB.rglob("*.dart"):
+        rel = str(dart.relative_to(ROOT))
+        if any(part in f"/{rel}" for part in EXCLUDED_PATH_PARTS):
+            continue
+        if rel in CANONICAL_ENTRY_FILES:
+            continue
+        if rel.startswith(WIZARD_INTERNAL_PREFIX) or rel == "apps/mobile/lib/app.dart":
+            continue
+        source = _strip_comments(dart.read_text(encoding="utf-8"))
+        for match in nav.finditer(source):
+            if match.group(1).split("?")[0] in legacy_paths:
+                errors.append(
+                    f"{rel} navigates literally to legacy path "
+                    f"{match.group(1)} — route it through the preview entry"
+                )
     return errors
 
 
@@ -226,14 +288,45 @@ def fingerprint(report: ClosureReport) -> str:
     return hashlib.sha256("\n".join(normalized).encode()).hexdigest()
 
 
+FINGERPRINT_FILE = ROOT / "product/mint_next/route_closure_fingerprint.json"
+
+
+def read_expected_fingerprint() -> dict | None:
+    if not FINGERPRINT_FILE.exists():
+        return None
+    return json.loads(FINGERPRINT_FILE.read_text(encoding="utf-8"))
+
+
+def check_fingerprint(report: ClosureReport) -> list[str]:
+    """L'empreinte du graphe est PERSISTÉE et comparée : une divergence
+    signifie que le graphe de routes a bougé sans que le contrat le sache
+    (P1 review T1 — une empreinte non comparée ne prouve rien)."""
+    expected = read_expected_fingerprint()
+    if expected is None:
+        return [
+            "no persisted route-closure fingerprint — run --write-fingerprint"
+        ]
+    actual = fingerprint(report)
+    if expected.get("registry_fingerprint") != actual:
+        return [
+            "route graph fingerprint diverged from the persisted contract: "
+            f"expected {expected.get('registry_fingerprint')}, got {actual} "
+            "(re-run --write-fingerprint and justify the change)"
+        ]
+    return []
+
+
 def run() -> ClosureReport:
     report = build_closure(
         APP_DART.read_text(encoding="utf-8"),
         REGISTRY_DART.read_text(encoding="utf-8"),
     )
     registered = set(parse_registry(REGISTRY_DART.read_text(encoding="utf-8")))
+    legacy_paths = {p for p, n in report.nodes.items() if n.owner == LEGACY_OWNER}
     report.errors.extend(check_shell_references())
+    report.errors.extend(check_legacy_navigations(legacy_paths))
     report.errors.extend(check_unregistered_navigations(registered))
+    report.errors.extend(check_fingerprint(report))
     return report
 
 
@@ -267,6 +360,19 @@ def self_test() -> int:
     assert not ko.ok, "an alias reaching the shell without the owner must FAIL"
     assert any("/sneaky" in e for e in ko.errors), ko.errors
 
+    block_body = """
+    GoRoute(
+      path: '/onboarding/legacy-alias',
+      redirect: (_, state) {
+        MintBreadcrumbs.legacyRedirectHit(from: state.uri.path, to: '/legit');
+        return '/legit';
+      },
+    ),
+""" + good_router
+    blk = build_closure(block_body, registry)
+    assert any("/onboarding/legacy-alias" in e for e in blk.errors), (
+        "a block-bodied redirect reaching the shell must FAIL", blk.errors)
+
     cyclic = """
     GoRoute(path: '/a', redirect: (_, __) => '/b'),
     GoRoute(path: '/b', redirect: (_, __) => '/a'),
@@ -286,8 +392,28 @@ def main() -> int:
     if "--self-test" in sys.argv:
         return self_test()
     report = run()
+    if "--write-fingerprint" in sys.argv:
+        payload = {
+            "registry_fingerprint": fingerprint(report),
+            "routes": len(report.nodes),
+            "note": (
+                "empreinte du graphe route -> owner -> redirect|builder ; "
+                "toute divergence doit etre justifiee au contrat"
+            ),
+        }
+        FINGERPRINT_FILE.write_text(
+            json.dumps(payload, indent=2) + "\n", encoding="utf-8"
+        )
+        print(f"wrote {FINGERPRINT_FILE.relative_to(ROOT)}")
+        return 0
     if "--fingerprint" in sys.argv:
-        print(json.dumps({"registry_fingerprint": fingerprint(report)}))
+        expected = read_expected_fingerprint() or {}
+        print(json.dumps({
+            "registry_fingerprint": fingerprint(report),
+            "persisted_fingerprint": expected.get("registry_fingerprint"),
+            "matches": expected.get("registry_fingerprint") == fingerprint(report),
+            "routes": len(report.nodes),
+        }))
         return 0 if report.ok else 1
     if report.ok:
         print(f"OK route_closure_check ({len(report.nodes)} routes)")
