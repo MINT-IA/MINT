@@ -653,6 +653,10 @@ ALLOW = {
     # tout, revision optimiste contre les ecritures concurrentes.
     "apps/mobile/lib/services/twin/twin_store.dart",
     "apps/mobile/test/services/twin/twin_store_test.dart",
+    # F1c — la migration des six faits deja ecrits : enveloppes en v1, sans
+    # jamais deduire de date d'effet ni d'annee fiscale.
+    "apps/mobile/lib/services/twin/twin_migration.dart",
+    "apps/mobile/test/services/twin/twin_migration_test.dart",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
