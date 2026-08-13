@@ -500,11 +500,15 @@ jobs:
             test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/ test/journeys/ test/accessibility/ test/i18n/"
             run_analyze: false
           # Quatrieme shard ne : les trois premiers enumeraient 15 repertoires
-          # alors que le depot en compte 32. Quinze repertoires et 18 fichiers
-          # poses a la racine de test/ ne s'executaient JAMAIS en integration
-          # continue — 70 fichiers de test au total, dont test/architecture/,
+          # alors que le depot en compte 32. Quinze repertoires — 52 fichiers de
+          # test — ne s'executaient JAMAIS, dont test/architecture/,
           # test/goldens/ et test/integration/. Les 9 echecs livres le
           # 2026-08-13 vivaient precisement la : la CI ne les aurait pas vus.
+          #
+          # Les 18 fichiers poses a la RACINE de test/ tournaient deja, eux :
+          # l'etape d'execution les ajoute au shard services via un `find
+          # test/ -maxdepth 1`. Premier comptage errone de ma part — j'avais lu
+          # `test_dirs:` sans lire la commande qui l'utilise.
           #
           # Piege de nommage a retenir : le shard screens liste test/golden/ au
           # SINGULIER, tandis que les references visuelles vivent dans
@@ -515,7 +519,7 @@ jobs:
           # enumeration a l'arbre reel et echoue sur tout repertoire omis :
           # l'oubli redevient impossible en silence.
           - shard: rest
-            test_dirs: "test/architecture/ test/coach/ test/constants/ test/data/ test/design/ test/design_system/ test/goldens/ test/integration/ test/l10n/ test/l10n_regional/ test/navigation/ test/personas/ test/router/ test/routes/ test/theme/ test/*_test.dart"
+            test_dirs: "test/architecture/ test/coach/ test/constants/ test/data/ test/design/ test/design_system/ test/goldens/ test/integration/ test/l10n/ test/l10n_regional/ test/navigation/ test/personas/ test/router/ test/routes/ test/theme/"
             run_analyze: false
     defaults:
       run:

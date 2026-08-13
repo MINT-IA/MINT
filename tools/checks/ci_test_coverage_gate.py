@@ -5,9 +5,13 @@ CE QUE CE GARDE A TROUVÉ EN NAISSANT
 
 `.github/workflows/ci.yml` n'exécute pas `flutter test`. Il exécute trois
 shards sur des répertoires ÉNUMÉRÉS À LA MAIN. Le dépôt en contient 32 ;
-quinze n'apparaissaient dans aucun shard, plus dix-huit fichiers de test posés
-à la racine de `test/`. **Soixante-dix fichiers de test ne s'exécutaient jamais
-en intégration continue.**
+quinze n'apparaissaient dans aucun shard. **Cinquante-deux fichiers de test ne s'exécutaient jamais en intégration
+continue.**
+
+(Premier comptage : soixante-dix. Il était faux, et de ma main : j'avais lu
+`test_dirs:` sans lire la commande qui l'utilise. Les dix-huit fichiers posés à
+la racine de `test/` tournaient déjà, ajoutés au shard services par un `find
+test/ -maxdepth 1`. Le trou réel porte sur les quinze répertoires.)
 
 Le piège de nommage vaut d'être cité : un shard listait `test/golden/` au
 singulier, tandis que les références visuelles vivent dans `test/goldens/` au
@@ -65,9 +69,17 @@ def ci_listed_directories(ci_text: str) -> set[str]:
 
 
 def ci_covers_root_tests(ci_text: str) -> bool:
-    """Un motif tel que `test/*_test.dart` couvre les fichiers posés à la
-    racine de `test/`, qu'aucun répertoire ne peut atteindre."""
-    return bool(re.search(r'test_dirs:\s*"[^"]*test/\*[^"]*"', ci_text))
+    """Les fichiers posés à la racine de `test/` sont-ils atteints ?
+
+    Deux formes valent couverture : un motif `test/*_test.dart` dans un shard,
+    ou le `find test/ -maxdepth 1` que l'étape d'exécution applique déjà au
+    shard services. C'est cette seconde forme qui existe ici — je l'avais
+    manquée au premier examen en ne lisant que `test_dirs:`, ce qui m'a fait
+    annoncer 70 fichiers non couverts au lieu de 52.
+    """
+    if re.search(r'test_dirs:\s*"[^"]*test/\*[^"]*"', ci_text):
+        return True
+    return bool(re.search(r"find\s+test/\s+-maxdepth\s+1\s+-name\s+'\*_test\.dart'", ci_text))
 
 
 def directories_with_tests(root: Path) -> set[str]:
@@ -165,6 +177,9 @@ def self_test() -> int:
         failures += 1
     if not ci_covers_root_tests('test_dirs: "test/theme/ test/*_test.dart"'):
         print("ÉCHEC self-test : le motif racine n'est pas reconnu")
+        failures += 1
+    if not ci_covers_root_tests("find test/ -maxdepth 1 -name '*_test.dart'"):
+        print("ÉCHEC self-test : le find racine du shard services n'est pas reconnu")
         failures += 1
 
     parsed = ci_listed_directories(
