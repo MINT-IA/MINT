@@ -7,6 +7,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mint_mobile/widgets/aujourdhui/first_open_empty_state.dart';
 
 Finder byIdentifier(String identifier) => find.byWidgetPredicate(
@@ -160,5 +161,67 @@ void main() {
         lessThan(topOf('status:today.no_financial_facts')));
     expect(topOf('status:today.no_financial_facts'),
         lessThan(topOf('action:today.add_first_fact')));
+  });
+
+  testWidgets(
+      'refusing one request never silences the next one', (tester) async {
+    // Le refus était un booléen unique : quelqu'un refusant « Choisir ma
+    // commune », puis déclarant n'avoir aucune commune fiscale suisse, voyait
+    // le même refus masquer la demande de revenu qui prend sa place. Un refus
+    // de commune devenait silencieusement un refus de revenu.
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
+      locale: const Locale('fr'),
+      home: Scaffold(body: FirstOpenEmptyState(onAddFirstFact: () {})),
+    ));
+    await tester.pumpAndSettle();
+
+    await tester.tap(byIdentifier('action:today.decline_first_fact'));
+    await tester.pumpAndSettle();
+    expect(byIdentifier('action:today.add_first_fact'), findsNothing);
+
+    // La demande change : elle ne porte plus sur la commune mais sur le
+    // revenu. Le refus précédent ne dit rien de celle-ci.
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
+      locale: const Locale('fr'),
+      home: Scaffold(
+        body: FirstOpenEmptyState(
+          hasSwissTaxDomicile: false,
+          onAddFirstFact: () {},
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+
+    expect(byIdentifier('action:today.add_first_fact'), findsOneWidget,
+        reason: 'un refus de commune n\'est pas un refus de revenu');
+    expect(find.text('Indiquer mon revenu'), findsOneWidget);
+  });
+
+  testWidgets('each request keeps its own refusal', (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: S.localizationsDelegates,
+      supportedLocales: S.supportedLocales,
+      locale: const Locale('fr'),
+      home: Scaffold(
+        body: FirstOpenEmptyState(
+          hasSwissTaxDomicile: false,
+          onAddFirstFact: () {},
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    await tester.tap(byIdentifier('action:today.decline_first_fact'));
+    await tester.pumpAndSettle();
+
+    final prefs = await SharedPreferences.getInstance();
+    expect(prefs.getBool('mint_first_open_declined_v2_revenu'), isTrue);
+    expect(prefs.getBool('mint_first_open_declined_v2_commune'), isNull,
+        reason: 'refuser une demande ne refuse pas les autres');
   });
 }

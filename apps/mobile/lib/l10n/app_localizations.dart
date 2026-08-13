@@ -45860,7 +45860,7 @@ abstract class S {
   /// No description provided for @mintNextDomicileNoMatch.
   ///
   /// In fr, this message translates to:
-  /// **'Commune introuvable. Essaie le nom de la commune politique, plutôt que celui du quartier ou du hameau.'**
+  /// **'Rien trouvé sous ce nom. Essaie celui qui figure sur ton avis d\'impôt — c\'est le nom officiel, pas celui du quartier ou du hameau.'**
   String get mintNextDomicileNoMatch;
 
   /// No description provided for @mintNextDomicileCantonDerived.

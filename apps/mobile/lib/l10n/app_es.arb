@@ -12444,7 +12444,7 @@
     }
   },
   "mintNext3aDomicileMissing": "Domicilio: aún no indicado",
-  "mintNextDomicileNoMatch": "Municipio no encontrado. Prueba con el nombre del municipio político, no el del barrio o la aldea.",
+  "mintNextDomicileNoMatch": "No hay nada con ese nombre. Prueba el que figura en tu liquidación de impuestos: el nombre oficial, no el del barrio ni la aldea.",
   "mintNextDomicileCantonDerived": "Municipio encontrado, en el cantón {canton}.",
   "mintNextDomicileChangeCommune": "Elegir otro municipio",
   "mintNextDomicileRegistrySource": "Municipio verificado en el registro federal, actualizado el {date}.",

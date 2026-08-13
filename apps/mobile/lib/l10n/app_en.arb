@@ -12461,7 +12461,7 @@
     }
   },
   "mintNext3aDomicileMissing": "Residence: not provided yet",
-  "mintNextDomicileNoMatch": "Commune not found. Try the name of the political commune rather than the district or hamlet.",
+  "mintNextDomicileNoMatch": "Nothing found under that name. Try the one on your tax assessment — the official name, not the district or hamlet.",
   "mintNextDomicileCantonDerived": "Commune found, in canton {canton}.",
   "mintNextDomicileChangeCommune": "Choose another commune",
   "mintNextDomicileRegistrySource": "Commune checked against the federal register, updated {date}.",

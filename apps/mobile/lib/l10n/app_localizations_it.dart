@@ -26425,7 +26425,7 @@ class SIt extends S {
 
   @override
   String get mintNextDomicileNoMatch =>
-      'Comune non trovato. Prova con il nome del comune politico, non del quartiere o della frazione.';
+      'Niente con questo nome. Prova quello che compare sulla tua decisione di tassazione: il nome ufficiale, non quello del quartiere o della frazione.';
 
   @override
   String mintNextDomicileCantonDerived(String canton) {

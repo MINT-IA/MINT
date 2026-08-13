@@ -274,6 +274,11 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(byIdentifier('status:domicile.no_match'), findsOneWidget);
+    // Le message oriente vers le nom officiel — celui de l'avis d'impôt —
+    // sans accuser la personne d'une faute d'orthographe que MINT n'a pas
+    // constatée, et sans la pousser vers « je n'ai pas de commune suisse »,
+    // qui enregistrerait une donnée fausse.
+    expect(find.textContaining("avis d'impôt"), findsOneWidget);
     expect(byIdentifier('node:domicile.suggestions'), findsNothing);
 
     await tester.tap(byIdentifier('action:domicile.continue'));

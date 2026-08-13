@@ -12441,7 +12441,7 @@
     }
   },
   "mintNext3aDomicileMissing": "Wohnsitz: noch nicht angegeben",
-  "mintNextDomicileNoMatch": "Gemeinde nicht gefunden. Versuche den Namen der politischen Gemeinde statt des Quartiers oder Weilers.",
+  "mintNextDomicileNoMatch": "Unter diesem Namen nichts gefunden. Versuche den Namen auf deiner Steuerveranlagung — den amtlichen, nicht den des Quartiers oder Weilers.",
   "mintNextDomicileCantonDerived": "Gemeinde gefunden, im Kanton {canton}.",
   "mintNextDomicileChangeCommune": "Andere Gemeinde wählen",
   "mintNextDomicileRegistrySource": "Gemeinde im Bundesregister geprüft, Stand {date}.",

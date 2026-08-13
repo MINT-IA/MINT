@@ -12444,7 +12444,7 @@
     }
   },
   "mintNext3aDomicileMissing": "Domicilio: non ancora indicato",
-  "mintNextDomicileNoMatch": "Comune non trovato. Prova con il nome del comune politico, non del quartiere o della frazione.",
+  "mintNextDomicileNoMatch": "Niente con questo nome. Prova quello che compare sulla tua decisione di tassazione: il nome ufficiale, non quello del quartiere o della frazione.",
   "mintNextDomicileCantonDerived": "Comune trovato, nel cantone {canton}.",
   "mintNextDomicileChangeCommune": "Scegliere un altro comune",
   "mintNextDomicileRegistrySource": "Comune verificato nel registro federale, aggiornato il {date}.",

@@ -14154,7 +14154,7 @@
     }
   },
   "mintNext3aDomicileMissing": "Domicile : pas encore renseigné",
-  "mintNextDomicileNoMatch": "Commune introuvable. Essaie le nom de la commune politique, plutôt que celui du quartier ou du hameau.",
+  "mintNextDomicileNoMatch": "Rien trouvé sous ce nom. Essaie celui qui figure sur ton avis d'impôt — c'est le nom officiel, pas celui du quartier ou du hameau.",
   "mintNextDomicileCantonDerived": "Commune trouvée, dans le canton {canton}.",
   "mintNextDomicileChangeCommune": "Choisir une autre commune",
   "mintNextDomicileRegistrySource": "Commune vérifiée dans le registre fédéral, mis à jour le {date}.",

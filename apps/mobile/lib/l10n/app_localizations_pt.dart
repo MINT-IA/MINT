@@ -26368,7 +26368,7 @@ class SPt extends S {
 
   @override
   String get mintNextDomicileNoMatch =>
-      'Município não encontrado. Tenta o nome do município político, em vez do bairro ou da aldeia.';
+      'Nada encontrado com esse nome. Tenta o que consta da tua liquidação de impostos — o nome oficial, não o do bairro ou da aldeia.';
 
   @override
   String mintNextDomicileCantonDerived(String canton) {

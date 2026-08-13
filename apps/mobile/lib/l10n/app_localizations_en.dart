@@ -26216,7 +26216,7 @@ class SEn extends S {
 
   @override
   String get mintNextDomicileNoMatch =>
-      'Commune not found. Try the name of the political commune rather than the district or hamlet.';
+      'Nothing found under that name. Try the one on your tax assessment — the official name, not the district or hamlet.';
 
   @override
   String mintNextDomicileCantonDerived(String canton) {

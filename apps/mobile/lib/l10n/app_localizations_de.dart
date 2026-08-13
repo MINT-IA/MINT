@@ -26410,7 +26410,7 @@ class SDe extends S {
 
   @override
   String get mintNextDomicileNoMatch =>
-      'Gemeinde nicht gefunden. Versuche den Namen der politischen Gemeinde statt des Quartiers oder Weilers.';
+      'Unter diesem Namen nichts gefunden. Versuche den Namen auf deiner Steuerveranlagung — den amtlichen, nicht den des Quartiers oder Weilers.';
 
   @override
   String mintNextDomicileCantonDerived(String canton) {

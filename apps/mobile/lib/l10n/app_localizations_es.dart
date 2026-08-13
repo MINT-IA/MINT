@@ -26355,7 +26355,7 @@ class SEs extends S {
 
   @override
   String get mintNextDomicileNoMatch =>
-      'Municipio no encontrado. Prueba con el nombre del municipio político, no el del barrio o la aldea.';
+      'No hay nada con ese nombre. Prueba el que figura en tu liquidación de impuestos: el nombre oficial, no el del barrio ni la aldea.';
 
   @override
   String mintNextDomicileCantonDerived(String canton) {

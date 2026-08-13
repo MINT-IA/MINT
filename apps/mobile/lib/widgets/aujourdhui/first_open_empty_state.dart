@@ -46,10 +46,23 @@ class FirstOpenEmptyState extends StatefulWidget {
 }
 
 class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
-  /// Clé du refus : un booléen local disparaîtrait au moindre rebuild et
-  /// la demande reviendrait — ce serait la relance que le contrat
-  /// interdit (review T2, axe UX).
-  static const String declinedKey = 'mint_first_open_declined_v1';
+  /// Clé du refus, PAR DEMANDE et non globale.
+  ///
+  /// Un booléen local disparaîtrait au moindre rebuild et la demande
+  /// reviendrait — ce serait la relance que le contrat interdit. Mais un
+  /// booléen unique était pire encore : quelqu'un refusant « Choisir ma
+  /// commune », puis déclarant n'avoir aucune commune fiscale suisse, voyait
+  /// le MÊME refus masquer la demande de revenu qui prend sa place. Un refus
+  /// de commune devenait silencieusement un refus de revenu. Trouvé par la
+  /// relecture adversariale.
+  static const String declinedKeyPrefix = 'mint_first_open_declined_v2_';
+
+  /// Clé héritée, purgée au premier passage : sa valeur ne dit pas à quelle
+  /// demande elle se rapportait, donc elle n'est transposable à aucune.
+  static const String legacyDeclinedKey = 'mint_first_open_declined_v1';
+
+  String get _declinedKey =>
+      '$declinedKeyPrefix${widget.hasSwissTaxDomicile ? 'commune' : 'revenu'}';
 
   bool _declined = false;
 
@@ -61,8 +74,9 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
 
   Future<void> _restoreDecline() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(legacyDeclinedKey);
     if (!mounted) return;
-    if (prefs.getBool(declinedKey) == true) {
+    if (prefs.getBool(_declinedKey) == true) {
       setState(() => _declined = true);
     }
   }
@@ -70,13 +84,13 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
   Future<void> _decline() async {
     setState(() => _declined = true);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool(declinedKey, true);
+    await prefs.setBool(_declinedKey, true);
   }
 
   Future<void> _resume() async {
     setState(() => _declined = false);
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(declinedKey);
+    await prefs.remove(_declinedKey);
   }
 
   void _addFirstFact() {
@@ -91,6 +105,17 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
     context.go(widget.hasSwissTaxDomicile
         ? '/mint-next/domicile'
         : '/mint-next/revenu');
+  }
+
+  @override
+  void didUpdateWidget(FirstOpenEmptyState oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // La demande a changé : le refus de la précédente ne dit rien de
+    // celle-ci. On relit, on ne transpose pas.
+    if (oldWidget.hasSwissTaxDomicile != widget.hasSwissTaxDomicile) {
+      setState(() => _declined = false);
+      _restoreDecline();
+    }
   }
 
   @override
