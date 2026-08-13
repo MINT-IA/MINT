@@ -67,6 +67,7 @@ ALLOW = {
     "product/mint_next/storyboard/vertical_3a.storyboard.json",
     "product/mint_next/storyboard/preview_shell.storyboard.json",
     "product/mint_next/storyboard/local_reset.storyboard.json",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule3-account-delete-cadrage-codex.md",
     "apps/mobile/lib/services/local_preview_reset_service.dart",
     "apps/mobile/lib/main.dart",
     "apps/mobile/test/services/local_preview_reset_service_test.dart",
