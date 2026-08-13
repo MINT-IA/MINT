@@ -11,6 +11,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/providers/financial_plan_provider.dart';
 import 'package:mint_mobile/providers/mint_state_provider.dart';
@@ -166,4 +167,36 @@ void main() {
         reason: 'aucun débordement à 200 % de taille de texte');
     expect(find.byType(FirstOpenEmptyState), findsOneWidget);
   });
+
+  testWidgets(
+      'someone who just said they have no Swiss commune is never asked for it '
+      'again — the first action becomes their income', (tester) async {
+    tester.view.physicalSize = const Size(1170, 2532);
+    tester.view.devicePixelRatio = 3;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(harness(provider: _NoSwissDomicileTwin()));
+    await tester.pumpAndSettle();
+
+    // L'écran d'ouverture reste : une limite déclarée n'apporte aucune
+    // matière financière. Mais la question posée change.
+    expect(find.byType(FirstOpenEmptyState), findsOneWidget);
+    expect(find.text("D'abord, ta commune."), findsNothing,
+        reason: 'reposer la question serait la relance que le contrat interdit');
+    expect(find.text("D'abord, ce que tu gagnes."), findsOneWidget);
+    expect(find.text('Indiquer mon revenu'), findsOneWidget);
+  });
+}
+
+/// Jumeau ayant déclaré n'avoir aucune commune fiscale suisse.
+class _NoSwissDomicileTwin extends CoachProfileProvider {
+  @override
+  bool get isLoaded => true;
+  @override
+  MintNextDomicileFact? get domicileFact =>
+      MintNextDomicileFact.noSwissTaxDomicile(
+        assertedAt: DateTime.utc(2026, 8, 13),
+        source: MintNextDomicileFact.userDeclarationSource,
+        schemaVersion: 1,
+      );
 }

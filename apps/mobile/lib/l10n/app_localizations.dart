@@ -45910,6 +45910,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Réessayer'**
   String get mintNextDomicileRegistryRetry;
+
+  /// No description provided for @mintNextDomicileNoSwissAction.
+  ///
+  /// In fr, this message translates to:
+  /// **'Je n\'ai pas de commune fiscale en Suisse'**
+  String get mintNextDomicileNoSwissAction;
+
+  /// No description provided for @mintNextDomicileNoSwissTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ta situation est différente'**
+  String get mintNextDomicileNoSwissTitle;
+
+  /// No description provided for @mintNextDomicileNoSwissLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans commune fiscale en Suisse, MINT ne peut pas calculer ton impôt communal.'**
+  String get mintNextDomicileNoSwissLimit;
+
+  /// No description provided for @mintNextDomicileNoSwissStillUseful.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que tu gagnes, ce que tu mets de côté, ta prévoyance : tout cela reste utile à mettre au clair.'**
+  String get mintNextDomicileNoSwissStillUseful;
+
+  /// No description provided for @mintNextDomicileNoSwissConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec ces limites'**
+  String get mintNextDomicileNoSwissConfirm;
+
+  /// No description provided for @mintNextDomicileNoSwissSavedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de commune fiscale en Suisse'**
+  String get mintNextDomicileNoSwissSavedTitle;
+
+  /// No description provided for @firstOpenEmptyTitleNoCommune.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'abord, ce que tu gagnes.'**
+  String get firstOpenEmptyTitleNoCommune;
+
+  /// No description provided for @firstOpenFirstFactRationaleNoCommune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans commune suisse, MINT part de ton revenu — c\'est ce qui fixe tout le reste.'**
+  String get firstOpenFirstFactRationaleNoCommune;
+
+  /// No description provided for @firstOpenAddFirstFactNoCommune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indiquer mon revenu'**
+  String get firstOpenAddFirstFactNoCommune;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

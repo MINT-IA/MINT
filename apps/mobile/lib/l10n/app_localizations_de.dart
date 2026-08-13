@@ -26443,4 +26443,36 @@ class SDe extends S {
 
   @override
   String get mintNextDomicileRegistryRetry => 'Erneut versuchen';
+
+  @override
+  String get mintNextDomicileNoSwissAction =>
+      'Ich habe keine Steuergemeinde in der Schweiz';
+
+  @override
+  String get mintNextDomicileNoSwissTitle => 'Deine Lage ist anders';
+
+  @override
+  String get mintNextDomicileNoSwissLimit =>
+      'Ohne Schweizer Steuergemeinde kann MINT deine Gemeindesteuer nicht berechnen.';
+
+  @override
+  String get mintNextDomicileNoSwissStillUseful =>
+      'Was du verdienst, was du zurücklegst, deine Vorsorge: das alles lohnt sich trotzdem zu klären.';
+
+  @override
+  String get mintNextDomicileNoSwissConfirm => 'Mit diesen Grenzen fortfahren';
+
+  @override
+  String get mintNextDomicileNoSwissSavedTitle =>
+      'Keine Steuergemeinde in der Schweiz';
+
+  @override
+  String get firstOpenEmptyTitleNoCommune => 'Zuerst, was du verdienst.';
+
+  @override
+  String get firstOpenFirstFactRationaleNoCommune =>
+      'Ohne Schweizer Gemeinde beginnt MINT bei deinem Einkommen — davon hängt alles andere ab.';
+
+  @override
+  String get firstOpenAddFirstFactNoCommune => 'Mein Einkommen angeben';
 }

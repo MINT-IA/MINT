@@ -26249,4 +26249,36 @@ class SEn extends S {
 
   @override
   String get mintNextDomicileRegistryRetry => 'Try again';
+
+  @override
+  String get mintNextDomicileNoSwissAction =>
+      'I have no commune of taxation in Switzerland';
+
+  @override
+  String get mintNextDomicileNoSwissTitle => 'Your situation is different';
+
+  @override
+  String get mintNextDomicileNoSwissLimit =>
+      'Without a Swiss commune of taxation, MINT cannot compute your communal tax.';
+
+  @override
+  String get mintNextDomicileNoSwissStillUseful =>
+      'What you earn, what you set aside, your pension: all of that is still worth getting clear.';
+
+  @override
+  String get mintNextDomicileNoSwissConfirm => 'Continue with those limits';
+
+  @override
+  String get mintNextDomicileNoSwissSavedTitle =>
+      'No commune of taxation in Switzerland';
+
+  @override
+  String get firstOpenEmptyTitleNoCommune => 'First, what you earn.';
+
+  @override
+  String get firstOpenFirstFactRationaleNoCommune =>
+      'Without a Swiss commune, MINT starts from your income — it sets everything else.';
+
+  @override
+  String get firstOpenAddFirstFactNoCommune => 'Enter my income';
 }

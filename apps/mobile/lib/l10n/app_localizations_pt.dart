@@ -26401,4 +26401,36 @@ class SPt extends S {
 
   @override
   String get mintNextDomicileRegistryRetry => 'Tentar novamente';
+
+  @override
+  String get mintNextDomicileNoSwissAction =>
+      'Não tenho município fiscal na Suíça';
+
+  @override
+  String get mintNextDomicileNoSwissTitle => 'A tua situação é diferente';
+
+  @override
+  String get mintNextDomicileNoSwissLimit =>
+      'Sem município fiscal suíço, o MINT não consegue calcular o teu imposto municipal.';
+
+  @override
+  String get mintNextDomicileNoSwissStillUseful =>
+      'O que ganhas, o que pões de lado, a tua previdência: vale a pena esclarecer tudo isso.';
+
+  @override
+  String get mintNextDomicileNoSwissConfirm => 'Continuar com esses limites';
+
+  @override
+  String get mintNextDomicileNoSwissSavedTitle =>
+      'Sem município fiscal na Suíça';
+
+  @override
+  String get firstOpenEmptyTitleNoCommune => 'Primeiro, o que ganhas.';
+
+  @override
+  String get firstOpenFirstFactRationaleNoCommune =>
+      'Sem município suíço, o MINT parte do teu rendimento — é dele que depende tudo o resto.';
+
+  @override
+  String get firstOpenAddFirstFactNoCommune => 'Indicar o meu rendimento';
 }

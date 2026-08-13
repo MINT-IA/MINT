@@ -25,7 +25,7 @@ class MintNextDomicileScreen extends StatefulWidget {
   State<MintNextDomicileScreen> createState() => _MintNextDomicileScreenState();
 }
 
-enum _Step { collect, review, saved }
+enum _Step { collect, review, noSwissDomicile, saved }
 
 enum _RegistryState { loading, ready, failed }
 
@@ -57,7 +57,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
       _selected = existing.communeBfs == null
           ? null
           : CommuneRegistry.byBfs(existing.communeBfs!);
-      _communeController.text = existing.communeName;
+      _communeController.text = existing.communeName ?? '';
     }
     _loadRegistry();
   }
@@ -123,6 +123,37 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
       });
     } on Object catch (error, stack) {
       debugPrint('[MintNextDomicile] save failed: '
+          '${error.runtimeType}: $error\n$stack');
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _saveFailed = true;
+      });
+    }
+  }
+
+  Future<void> _confirmNoSwissDomicile() async {
+    setState(() {
+      _busy = true;
+      _saveFailed = false;
+    });
+    try {
+      await context.read<CoachProfileProvider>().saveDomicileFact(
+            MintNextDomicileFact.noSwissTaxDomicile(
+              assertedAt: _now(),
+              source: MintNextDomicileFact.userDeclarationSource,
+              schemaVersion: 1,
+            ),
+          );
+      if (!mounted) return;
+      setState(() {
+        _busy = false;
+        _selected = null;
+        _communeController.clear();
+        _step = _Step.saved;
+      });
+    } on Object catch (error, stack) {
+      debugPrint('[MintNextDomicile] save failed: '  // lint-ignore
           '${error.runtimeType}: $error\n$stack');
       if (!mounted) return;
       setState(() {
@@ -240,9 +271,10 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
     // revenir au champ de commune. Sans cela il quitte l'écran et perd la
     // sélection, alors que l'écran affiche une marche arrière.
     return PopScope(
-      canPop: _step != _Step.review,
+      canPop: _step != _Step.review && _step != _Step.noSwissDomicile,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop && _step == _Step.review) {
+        if (!didPop &&
+            (_step == _Step.review || _step == _Step.noSwissDomicile)) {
           setState(() => _step = _Step.collect);
         }
       },
@@ -290,6 +322,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
                 switch (_step) {
                   _Step.collect => _collect(l10n),
                   _Step.review => _review(l10n),
+                  _Step.noSwissDomicile => _noSwissDomicile(l10n),
                   _Step.saved => _saved(l10n),
                 },
               ],
@@ -459,7 +492,26 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
                     style: MintTextStyles.bodySmall(color: MintColors.error)),
               ),
             ],
-            const SizedBox(height: MintSpacing.xl),
+            const SizedBox(height: MintSpacing.md),
+            // Visible dès l'ouverture, pas seulement après une recherche
+            // infructueuse : quelqu'un qui SAIT ne pas avoir de commune
+            // suisse ne doit pas devoir échouer d'abord pour le dire.
+            // Secondaire, pour que la question « es-tu imposé en Suisse ? »
+            // ne soit pas posée d'emblée à tout le monde.
+            Semantics(
+              identifier: 'action:domicile.no_swiss_domicile',
+              child: TextButton(
+                onPressed: _busy
+                    ? null
+                    : () => setState(() => _step = _Step.noSwissDomicile),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                  alignment: Alignment.centerLeft,
+                ),
+                child: Text(l10n.mintNextDomicileNoSwissAction),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.md),
             Semantics(
               identifier: 'action:domicile.continue',
               button: true,
@@ -474,6 +526,58 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
                         setState(() => _step = _Step.review);
                       },
                 child: Text(l10n.mintNextDomicileContinue),
+              ),
+            ),
+          ],
+        ),
+      );
+
+  /// Une limite structurante s'annonce AVANT toute collecte supplémentaire,
+  /// pas après. Ce que MINT ne pourra pas faire est dit ici, une fois, sans
+  /// détour et sans transformer l'aveu en rejet à la porte.
+  Widget _noSwissDomicile(S l10n) => Semantics(
+        identifier: 'node:domicile.no_swiss',
+        container: true,
+        explicitChildNodes: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Semantics(
+              header: true,
+              child: Text(l10n.mintNextDomicileNoSwissTitle,
+                  style: MintTextStyles.headlineMedium(
+                      color: MintColors.textPrimary)),
+            ),
+            const SizedBox(height: MintSpacing.md),
+            Semantics(
+              identifier: 'status:domicile.no_swiss_limit',
+              child: Text(l10n.mintNextDomicileNoSwissLimit,
+                  style:
+                      MintTextStyles.bodyMedium(color: MintColors.textPrimary)),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Text(l10n.mintNextDomicileNoSwissStillUseful,
+                style:
+                    MintTextStyles.bodySmall(color: MintColors.textSecondary)),
+            const SizedBox(height: MintSpacing.xl),
+            Semantics(
+              identifier: 'action:domicile.no_swiss_confirm',
+              child: FilledButton(
+                onPressed: _busy ? null : _confirmNoSwissDomicile,
+                style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(48)),
+                child: Text(l10n.mintNextDomicileNoSwissConfirm),
+              ),
+            ),
+            const SizedBox(height: MintSpacing.sm),
+            Semantics(
+              identifier: 'action:domicile.back_to_collect',
+              child: TextButton(
+                onPressed:
+                    _busy ? null : () => setState(() => _step = _Step.collect),
+                style:
+                    TextButton.styleFrom(minimumSize: const Size.fromHeight(48)),
+                child: Text(l10n.mintNextDomicileBack),
               ),
             ),
           ],
@@ -593,15 +697,23 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
               children: [
                 Semantics(
                   identifier: 'fact:domicile.summary',
-                  child: Text(fact.communeName,
+                  child: Text(
+                      fact.hasSwissTaxDomicile
+                          ? (fact.communeName ?? '')
+                          : l10n.mintNextDomicileNoSwissSavedTitle,
                       style: MintTextStyles.headlineSmall(
                           color: MintColors.textPrimary)),
                 ),
-                Text(
-                    l10n.mintNextDomicileCantonDerived(
-                        _cantonPhrase(context, fact.canton)),
-                    style: MintTextStyles.bodyMedium(
-                        color: MintColors.textSecondary)),
+                if (fact.hasSwissTaxDomicile && fact.canton != null)
+                  Text(
+                      l10n.mintNextDomicileCantonDerived(
+                          _cantonPhrase(context, fact.canton!)),
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textSecondary))
+                else if (!fact.hasSwissTaxDomicile)
+                  Text(l10n.mintNextDomicileNoSwissLimit,
+                      style: MintTextStyles.bodyMedium(
+                          color: MintColors.textSecondary)),
                 const SizedBox(height: MintSpacing.sm),
                 Text(
                   l10n.mintNextDomicileReviewSource(
@@ -635,7 +747,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
                         _selected = fact.communeBfs == null
                             ? null
                             : CommuneRegistry.byBfs(fact.communeBfs!);
-                        _communeController.text = fact.communeName;
+                        _communeController.text = fact.communeName ?? '';
                         _suggestions = const [];
                         _step = _Step.collect;
                       }),

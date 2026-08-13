@@ -12493,5 +12493,14 @@
   },
   "mintNextDomicileRegistryLoading": "Reading the register of communes…",
   "mintNextDomicileRegistryFailed": "The register of communes could not be read. Nothing is lost.",
-  "mintNextDomicileRegistryRetry": "Try again"
+  "mintNextDomicileRegistryRetry": "Try again",
+  "mintNextDomicileNoSwissAction": "I have no commune of taxation in Switzerland",
+  "mintNextDomicileNoSwissTitle": "Your situation is different",
+  "mintNextDomicileNoSwissLimit": "Without a Swiss commune of taxation, MINT cannot compute your communal tax.",
+  "mintNextDomicileNoSwissStillUseful": "What you earn, what you set aside, your pension: all of that is still worth getting clear.",
+  "mintNextDomicileNoSwissConfirm": "Continue with those limits",
+  "mintNextDomicileNoSwissSavedTitle": "No commune of taxation in Switzerland",
+  "firstOpenEmptyTitleNoCommune": "First, what you earn.",
+  "firstOpenFirstFactRationaleNoCommune": "Without a Swiss commune, MINT starts from your income — it sets everything else.",
+  "firstOpenAddFirstFactNoCommune": "Enter my income"
 }

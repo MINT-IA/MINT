@@ -26458,4 +26458,36 @@ class SIt extends S {
 
   @override
   String get mintNextDomicileRegistryRetry => 'Riprovare';
+
+  @override
+  String get mintNextDomicileNoSwissAction =>
+      'Non ho un comune fiscale in Svizzera';
+
+  @override
+  String get mintNextDomicileNoSwissTitle => 'La tua situazione è diversa';
+
+  @override
+  String get mintNextDomicileNoSwissLimit =>
+      'Senza comune fiscale svizzero, MINT non può calcolare la tua imposta comunale.';
+
+  @override
+  String get mintNextDomicileNoSwissStillUseful =>
+      'Quello che guadagni, quello che metti da parte, la tua previdenza: tutto questo vale comunque la pena di chiarirlo.';
+
+  @override
+  String get mintNextDomicileNoSwissConfirm => 'Continuare con questi limiti';
+
+  @override
+  String get mintNextDomicileNoSwissSavedTitle =>
+      'Nessun comune fiscale in Svizzera';
+
+  @override
+  String get firstOpenEmptyTitleNoCommune => 'Prima, quello che guadagni.';
+
+  @override
+  String get firstOpenFirstFactRationaleNoCommune =>
+      'Senza comune svizzero, MINT parte dal tuo reddito: è da lì che dipende il resto.';
+
+  @override
+  String get firstOpenAddFirstFactNoCommune => 'Indicare il mio reddito';
 }

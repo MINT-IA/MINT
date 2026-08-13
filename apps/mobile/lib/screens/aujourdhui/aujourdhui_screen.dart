@@ -230,7 +230,12 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
       // « MINT ne connaît pas encore ta situation » à quelqu'un qui a
       // déjà répondu, en masquant ses cartes (review T2, axe code).
       final isFirstOpenEmpty = PreviewShellPolicy.instance.isPreviewShell &&
-          coachProvider.domicileFact == null &&
+          // Un fait qui dit « je n'ai pas de commune fiscale suisse » pose
+          // une limite ; il n'apporte aucune matière financière. La personne
+          // reste donc devant un écran d'ouverture — mais avec une PREMIÈRE
+          // ACTION différente, jamais avec la même question reposée.
+          (coachProvider.domicileFact == null ||
+                  !coachProvider.domicileFact!.hasSwissTaxDomicile) &&
           coachProvider.civilStatusFact == null &&
           coachProvider.revenuFact == null &&
           coachProvider.housingFact == null &&
@@ -247,9 +252,12 @@ class _AujourdhuiScreenState extends State<AujourdhuiScreen> {
               // carte d'événement de vie ne le précède (elles
               // suggéreraient une connaissance que MINT n'a pas).
               if (isFirstOpenEmpty)
-                const SliverFillRemaining(
+                SliverFillRemaining(
                   hasScrollBody: false,
-                  child: FirstOpenEmptyState(),
+                  child: FirstOpenEmptyState(
+                    hasSwissTaxDomicile:
+                        coachProvider.domicileFact?.hasSwissTaxDomicile ?? true,
+                  ),
                 ),
               if (!isFirstOpenEmpty) ...[
                 if (PreviewShellPolicy.instance.showLegacyTodayCards)

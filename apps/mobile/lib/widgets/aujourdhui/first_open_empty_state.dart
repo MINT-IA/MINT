@@ -26,10 +26,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 const double kMinTouchTarget = 48;
 
 class FirstOpenEmptyState extends StatefulWidget {
-  const FirstOpenEmptyState({super.key, this.onAddFirstFact});
+  const FirstOpenEmptyState({
+    super.key,
+    this.onAddFirstFact,
+    this.hasSwissTaxDomicile = true,
+  });
 
   /// Seam de test : par défaut, navigation vers le parcours canonique.
   final VoidCallback? onAddFirstFact;
+
+  /// Faux quand la personne a déclaré n'avoir aucune commune fiscale suisse.
+  /// Lui reproposer « d'abord, ta commune » serait la relance que le contrat
+  /// de la première ouverture interdit — et une question à laquelle elle
+  /// vient de répondre.
+  final bool hasSwissTaxDomicile;
 
   @override
   State<FirstOpenEmptyState> createState() => _FirstOpenEmptyStateState();
@@ -75,8 +85,12 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
       return;
     }
     // Le premier prérequis canonique manquant — aucun autre moteur de
-    // collecte n'est sollicité.
-    context.go('/mint-next/domicile');
+    // collecte n'est sollicité. Sans commune fiscale suisse, ce prérequis
+    // n'existe pas : le revenu prend sa place, il ne dépend d'aucun
+    // territoire.
+    context.go(widget.hasSwissTaxDomicile
+        ? '/mint-next/domicile'
+        : '/mint-next/revenu');
   }
 
   @override
@@ -113,7 +127,9 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
               Semantics(
                 identifier: 'node:today.empty_editorial',
                 child: Text(
-                  l.firstOpenEmptyTitle,
+                  widget.hasSwissTaxDomicile
+                      ? l.firstOpenEmptyTitle
+                      : l.firstOpenEmptyTitleNoCommune,
                   style: MintTextStyles.editorialLarge(
                       color: MintColors.textPrimary),
                 ),
@@ -132,7 +148,9 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
                 Semantics(
                   identifier: 'node:today.first_fact_rationale',
                   child: Text(
-                    l.firstOpenFirstFactRationale,
+                    widget.hasSwissTaxDomicile
+                      ? l.firstOpenFirstFactRationale
+                      : l.firstOpenFirstFactRationaleNoCommune,
                     style: MintTextStyles.bodySmall(
                         color: MintColors.textSecondary),
                   ),
@@ -152,7 +170,9 @@ class _FirstOpenEmptyStateState extends State<FirstOpenEmptyState> {
                       padding: const EdgeInsets.symmetric(
                           vertical: MintSpacing.sm),
                     ),
-                    child: Text(l.firstOpenAddFirstFact),
+                    child: Text(widget.hasSwissTaxDomicile
+                        ? l.firstOpenAddFirstFact
+                        : l.firstOpenAddFirstFactNoCommune),
                   ),
                 ),
                 const SizedBox(height: MintSpacing.xs),

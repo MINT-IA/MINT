@@ -13,6 +13,17 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   /// Shared legacy key — written by this fact, never deleted by it.
   static const cantonKey = 'q_canton';
 
+  /// Le fait porte DEUX états, pas un état et une absence : « domicile fiscal
+  /// en Suisse » et « pas de domicile fiscal en Suisse ». Quelqu'un imposé à
+  /// la source sans domicile suisse — frontalier, personne résidant à
+  /// l'étranger — n'a aucune commune à donner ; l'obliger à en choisir une
+  /// fabriquerait une donnée fausse enregistrée comme un fait.
+  ///
+  /// Un fait séparé « absence de domicile » autoriserait deux faits
+  /// contradictoires simultanés. L'absence appartient donc au même agrégat et
+  /// remplace l'état précédent.
+  static const hasSwissTaxDomicileKey = 'q_domicile_fiscal_suisse';
+
   static const communeNameKey = 'q_domicile_commune_name';
   static const communeBfsKey = 'q_domicile_commune_bfs';
   static const assertedAtKey = 'q_domicile_fact_asserted_at';
@@ -23,6 +34,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   /// Keys owned by the fact: deleted on fact deletion. `q_canton` is shared
   /// with the pre-existing profile and intentionally excluded.
   static const ownedKeys = <String>{
+    hasSwissTaxDomicileKey,
     communeNameKey,
     communeBfsKey,
     assertedAtKey,
@@ -31,17 +43,39 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
     needsConfirmationKey,
   };
 
-  final String canton;
-  final String communeName;
+  /// Vrai quand la personne est imposée dans une commune suisse.
+  ///
+  /// Faux : aucune commune, aucun numéro OFS, aucun canton — et surtout
+  /// AUCUNE valeur sentinelle du genre « Étranger », numéro 0 ou canton du
+  /// lieu de travail. Une sentinelle serait exactement la donnée fausse que
+  /// cet état existe pour éviter.
+  final bool hasSwissTaxDomicile;
+
+  final String? canton;
+  final String? communeName;
   final int? communeBfs;
   final DateTime assertedAt;
   final String source;
   final int schemaVersion;
   final bool needsConfirmation;
 
+  /// Le seul constructeur de l'état « pas de domicile fiscal en Suisse ».
+  /// Il n'accepte ni commune ni canton : la forme du constructeur interdit
+  /// l'incohérence plutôt que de la contrôler après coup.
+  const MintNextDomicileFact.noSwissTaxDomicile({
+    required this.assertedAt,
+    required this.source,
+    required this.schemaVersion,
+    this.needsConfirmation = false,
+  })  : hasSwissTaxDomicile = false,
+        canton = null,
+        communeName = null,
+        communeBfs = null;
+
   const MintNextDomicileFact({
-    required this.canton,
-    required this.communeName,
+    this.hasSwissTaxDomicile = true,
+    this.canton,
+    this.communeName,
     this.communeBfs,
     required this.assertedAt,
     required this.source,
@@ -55,16 +89,23 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   /// Null tant que le fait attend une confirmation : un domicile proposé
   /// n'est jamais « connu » pour un consommateur fiscal.
   @override
-  MintNext3aDomicileContext? toConfirmedDomicileContext() => needsConfirmation
-      ? null
-      : MintNext3aDomicileContext(
-          canton: canton,
-          communeName: communeName,
-          communeBfs: communeBfs,
-          revision: revision,
-        );
+  MintNext3aDomicileContext? toConfirmedDomicileContext() =>
+      needsConfirmation || !hasSwissTaxDomicile || canton == null
+          ? null
+          : MintNext3aDomicileContext(
+              canton: canton!,
+              communeName: communeName ?? '',
+              communeBfs: communeBfs,
+              revision: revision,
+            );
 
+  /// `q_canton` est PARTAGÉE avec le profil historique. En l'absence de
+  /// domicile suisse, la garder ferait survivre une donnée devenue fausse :
+  /// elle est donc mise à null ici. Le raffinement — n'effacer que si la
+  /// valeur présente est bien celle que ce fait avait écrite — est une lacune
+  /// connue, documentée dans l'ADR.
   Map<String, dynamic> toWizardAnswers() => <String, dynamic>{
+        hasSwissTaxDomicileKey: hasSwissTaxDomicile,
         cantonKey: canton,
         communeNameKey: communeName,
         communeBfsKey: communeBfs,
@@ -87,6 +128,26 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
     final source = answers[sourceKey];
     final schema = _int(answers[schemaVersionKey]);
     final confirmation = answers[needsConfirmationKey];
+
+    // Clé absente = fait écrit avant l'existence de cet état, donc un fait
+    // qui portait forcément une commune. On ne suppose jamais l'inverse.
+    final hasSwiss = answers[hasSwissTaxDomicileKey];
+    if (hasSwiss == false) {
+      if (assertedAt == null ||
+          source is! String ||
+          source.isEmpty ||
+          schema == null ||
+          confirmation is! bool) {
+        return null;
+      }
+      return MintNextDomicileFact.noSwissTaxDomicile(
+        assertedAt: assertedAt.toUtc(),
+        source: source,
+        schemaVersion: schema,
+        needsConfirmation: confirmation,
+      );
+    }
+
     if (canton is! String ||
         canton.isEmpty ||
         communeName is! String ||
@@ -122,6 +183,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   @override
   bool operator ==(Object other) =>
       other is MintNextDomicileFact &&
+      hasSwissTaxDomicile == other.hasSwissTaxDomicile &&
       canton == other.canton &&
       communeName == other.communeName &&
       communeBfs == other.communeBfs &&
@@ -131,6 +193,6 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
       needsConfirmation == other.needsConfirmation;
 
   @override
-  int get hashCode => Object.hash(canton, communeName, communeBfs, assertedAt,
-      source, schemaVersion, needsConfirmation);
+  int get hashCode => Object.hash(hasSwissTaxDomicile, canton, communeName,
+      communeBfs, assertedAt, source, schemaVersion, needsConfirmation);
 }

@@ -495,4 +495,92 @@ void main() {
     expect(byIdentifier('node:domicile.collect'), findsOneWidget);
     expect(provider.domicileFact, isNull);
   });
+
+  group('sans commune fiscale suisse', () {
+    // Le défaut le plus grave trouvé par les relectures : un frontalier, ou
+    // quelqu'un imposé à la source sans domicile suisse, était OBLIGÉ de
+    // choisir une commune pour avancer. Ce n'est pas une friction, c'est une
+    // donnée fausse enregistrée comme un fait.
+
+    testWidgets('the way out is visible from the start, not only after a '
+        'failed search', (tester) async {
+      final provider = await loadedProvider();
+      await tester.pumpWidget(wrap(provider));
+      await tester.pumpAndSettle();
+
+      expect(byIdentifier('action:domicile.no_swiss_domicile'), findsOneWidget,
+          reason: 'quelqu\'un qui SAIT ne pas avoir de commune suisse ne doit '
+              'pas devoir échouer d\'abord pour le dire');
+    });
+
+    testWidgets('the limit is stated before anything else is collected',
+        (tester) async {
+      final provider = await loadedProvider();
+      await tester.pumpWidget(wrap(provider));
+      await tester.pumpAndSettle();
+
+      await tester.tap(byIdentifier('action:domicile.no_swiss_domicile'));
+      await tester.pumpAndSettle();
+
+      expect(byIdentifier('status:domicile.no_swiss_limit'), findsOneWidget);
+      expect(
+          find.text('Sans commune fiscale en Suisse, MINT ne peut pas '
+              'calculer ton impôt communal.'),
+          findsOneWidget);
+      expect(provider.domicileFact, isNull,
+          reason: 'rien n\'est enregistré avant que la limite soit acceptée');
+    });
+
+    testWidgets('confirming records a fact that carries NO commune, NO federal '
+        'number and NO canton', (tester) async {
+      final provider = await loadedProvider();
+      await tester.pumpWidget(wrap(provider));
+      await tester.pumpAndSettle();
+
+      await tester.tap(byIdentifier('action:domicile.no_swiss_domicile'));
+      await tester.pumpAndSettle();
+      await tester.tap(byIdentifier('action:domicile.no_swiss_confirm'));
+      await tester.pumpAndSettle();
+
+      final fact = provider.domicileFact;
+      expect(fact, isNotNull);
+      expect(fact!.hasSwissTaxDomicile, isFalse);
+      expect(fact.communeName, isNull, reason: 'aucune valeur sentinelle');
+      expect(fact.communeBfs, isNull);
+      expect(fact.canton, isNull,
+          reason: 'un canton conservé serait une donnée devenue fausse');
+      // Le fait ne peut pas alimenter un contexte fiscal communal.
+      expect(fact.toConfirmedDomicileContext(), isNull);
+    });
+
+    testWidgets('backing out of the admission returns to the commune field '
+        'and records nothing', (tester) async {
+      final provider = await loadedProvider();
+      await tester.pumpWidget(wrap(provider));
+      await tester.pumpAndSettle();
+
+      await tester.tap(byIdentifier('action:domicile.no_swiss_domicile'));
+      await tester.pumpAndSettle();
+      await tester.tap(byIdentifier('action:domicile.back_to_collect'));
+      await tester.pumpAndSettle();
+
+      expect(byIdentifier('node:domicile.collect'), findsOneWidget);
+      expect(provider.domicileFact, isNull);
+    });
+
+    testWidgets('a saved no-domicile fact reopens on its own summary, without '
+        'a canton', (tester) async {
+      final provider = await loadedProvider();
+      await provider.saveDomicileFact(MintNextDomicileFact.noSwissTaxDomicile(
+        assertedAt: DateTime.utc(2026, 8, 13),
+        source: MintNextDomicileFact.userDeclarationSource,
+        schemaVersion: 1,
+      ));
+      await tester.pumpWidget(wrap(provider));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Pas de commune fiscale en Suisse'), findsOneWidget);
+      expect(find.textContaining('Canton'), findsNothing);
+    });
+  });
 }

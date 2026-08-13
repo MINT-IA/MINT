@@ -26388,4 +26388,36 @@ class SEs extends S {
 
   @override
   String get mintNextDomicileRegistryRetry => 'Reintentar';
+
+  @override
+  String get mintNextDomicileNoSwissAction =>
+      'No tengo municipio fiscal en Suiza';
+
+  @override
+  String get mintNextDomicileNoSwissTitle => 'Tu situación es distinta';
+
+  @override
+  String get mintNextDomicileNoSwissLimit =>
+      'Sin municipio fiscal suizo, MINT no puede calcular tu impuesto municipal.';
+
+  @override
+  String get mintNextDomicileNoSwissStillUseful =>
+      'Lo que ganas, lo que apartas, tu previsión: todo eso sigue mereciendo claridad.';
+
+  @override
+  String get mintNextDomicileNoSwissConfirm => 'Continuar con esos límites';
+
+  @override
+  String get mintNextDomicileNoSwissSavedTitle =>
+      'Sin municipio fiscal en Suiza';
+
+  @override
+  String get firstOpenEmptyTitleNoCommune => 'Primero, lo que ganas.';
+
+  @override
+  String get firstOpenFirstFactRationaleNoCommune =>
+      'Sin municipio suizo, MINT parte de tus ingresos: de ahí depende todo lo demás.';
+
+  @override
+  String get firstOpenAddFirstFactNoCommune => 'Indicar mis ingresos';
 }

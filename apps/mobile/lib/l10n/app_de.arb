@@ -12473,5 +12473,14 @@
   },
   "mintNextDomicileRegistryLoading": "Das Gemeindeverzeichnis wird gelesen…",
   "mintNextDomicileRegistryFailed": "Das Gemeindeverzeichnis konnte nicht gelesen werden. Es geht nichts verloren.",
-  "mintNextDomicileRegistryRetry": "Erneut versuchen"
+  "mintNextDomicileRegistryRetry": "Erneut versuchen",
+  "mintNextDomicileNoSwissAction": "Ich habe keine Steuergemeinde in der Schweiz",
+  "mintNextDomicileNoSwissTitle": "Deine Lage ist anders",
+  "mintNextDomicileNoSwissLimit": "Ohne Schweizer Steuergemeinde kann MINT deine Gemeindesteuer nicht berechnen.",
+  "mintNextDomicileNoSwissStillUseful": "Was du verdienst, was du zurücklegst, deine Vorsorge: das alles lohnt sich trotzdem zu klären.",
+  "mintNextDomicileNoSwissConfirm": "Mit diesen Grenzen fortfahren",
+  "mintNextDomicileNoSwissSavedTitle": "Keine Steuergemeinde in der Schweiz",
+  "firstOpenEmptyTitleNoCommune": "Zuerst, was du verdienst.",
+  "firstOpenFirstFactRationaleNoCommune": "Ohne Schweizer Gemeinde beginnt MINT bei deinem Einkommen — davon hängt alles andere ab.",
+  "firstOpenAddFirstFactNoCommune": "Mein Einkommen angeben"
 }

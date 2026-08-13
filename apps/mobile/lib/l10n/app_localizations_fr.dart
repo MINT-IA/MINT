@@ -26386,4 +26386,36 @@ class SFr extends S {
 
   @override
   String get mintNextDomicileRegistryRetry => 'Réessayer';
+
+  @override
+  String get mintNextDomicileNoSwissAction =>
+      'Je n\'ai pas de commune fiscale en Suisse';
+
+  @override
+  String get mintNextDomicileNoSwissTitle => 'Ta situation est différente';
+
+  @override
+  String get mintNextDomicileNoSwissLimit =>
+      'Sans commune fiscale en Suisse, MINT ne peut pas calculer ton impôt communal.';
+
+  @override
+  String get mintNextDomicileNoSwissStillUseful =>
+      'Ce que tu gagnes, ce que tu mets de côté, ta prévoyance : tout cela reste utile à mettre au clair.';
+
+  @override
+  String get mintNextDomicileNoSwissConfirm => 'Continuer avec ces limites';
+
+  @override
+  String get mintNextDomicileNoSwissSavedTitle =>
+      'Pas de commune fiscale en Suisse';
+
+  @override
+  String get firstOpenEmptyTitleNoCommune => 'D\'abord, ce que tu gagnes.';
+
+  @override
+  String get firstOpenFirstFactRationaleNoCommune =>
+      'Sans commune suisse, MINT part de ton revenu — c\'est ce qui fixe tout le reste.';
+
+  @override
+  String get firstOpenAddFirstFactNoCommune => 'Indiquer mon revenu';
 }

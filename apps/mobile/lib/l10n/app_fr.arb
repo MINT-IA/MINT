@@ -14186,5 +14186,14 @@
   },
   "mintNextDomicileRegistryLoading": "Lecture du registre des communes…",
   "mintNextDomicileRegistryFailed": "Le registre des communes n'a pas pu être lu. Rien n'est perdu.",
-  "mintNextDomicileRegistryRetry": "Réessayer"
+  "mintNextDomicileRegistryRetry": "Réessayer",
+  "mintNextDomicileNoSwissAction": "Je n'ai pas de commune fiscale en Suisse",
+  "mintNextDomicileNoSwissTitle": "Ta situation est différente",
+  "mintNextDomicileNoSwissLimit": "Sans commune fiscale en Suisse, MINT ne peut pas calculer ton impôt communal.",
+  "mintNextDomicileNoSwissStillUseful": "Ce que tu gagnes, ce que tu mets de côté, ta prévoyance : tout cela reste utile à mettre au clair.",
+  "mintNextDomicileNoSwissConfirm": "Continuer avec ces limites",
+  "mintNextDomicileNoSwissSavedTitle": "Pas de commune fiscale en Suisse",
+  "firstOpenEmptyTitleNoCommune": "D'abord, ce que tu gagnes.",
+  "firstOpenFirstFactRationaleNoCommune": "Sans commune suisse, MINT part de ton revenu — c'est ce qui fixe tout le reste.",
+  "firstOpenAddFirstFactNoCommune": "Indiquer mon revenu"
 }

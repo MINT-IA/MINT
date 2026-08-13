@@ -12476,5 +12476,14 @@
   },
   "mintNextDomicileRegistryLoading": "Leyendo el registro de municipios…",
   "mintNextDomicileRegistryFailed": "No se ha podido leer el registro de municipios. No se pierde nada.",
-  "mintNextDomicileRegistryRetry": "Reintentar"
+  "mintNextDomicileRegistryRetry": "Reintentar",
+  "mintNextDomicileNoSwissAction": "No tengo municipio fiscal en Suiza",
+  "mintNextDomicileNoSwissTitle": "Tu situación es distinta",
+  "mintNextDomicileNoSwissLimit": "Sin municipio fiscal suizo, MINT no puede calcular tu impuesto municipal.",
+  "mintNextDomicileNoSwissStillUseful": "Lo que ganas, lo que apartas, tu previsión: todo eso sigue mereciendo claridad.",
+  "mintNextDomicileNoSwissConfirm": "Continuar con esos límites",
+  "mintNextDomicileNoSwissSavedTitle": "Sin municipio fiscal en Suiza",
+  "firstOpenEmptyTitleNoCommune": "Primero, lo que ganas.",
+  "firstOpenFirstFactRationaleNoCommune": "Sin municipio suizo, MINT parte de tus ingresos: de ahí depende todo lo demás.",
+  "firstOpenAddFirstFactNoCommune": "Indicar mis ingresos"
 }
