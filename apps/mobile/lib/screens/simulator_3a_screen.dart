@@ -444,7 +444,11 @@ class _Simulator3aScreenState extends State<Simulator3aScreen> {
                         // '/coach/chat' existe) : la navigation tombait
                         // sur l'écran d'erreur. Bug réel confirmé par
                         // route_closure_check (bascule 4).
-                        context.push(
+                        // `/coach/chat` est une racine de branche de la
+                        // coque : elle se SÉLECTIONNE, elle ne s'empile pas,
+                        // sinon l'onglet actif, l'URL et l'écran visible
+                        // divergent (doctrine de navigation).
+                        context.go(
                           '/coach/chat?intent=fatca_3a_alternatives',
                         );
                       },

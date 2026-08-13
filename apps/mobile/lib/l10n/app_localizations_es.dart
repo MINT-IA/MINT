@@ -25828,20 +25828,17 @@ class SEs extends S {
   String get mintNextDomicileTitle => 'Tu domicilio fiscal';
 
   @override
-  String get mintNextDomicileQuestion => '¿Dónde vives?';
+  String get mintNextDomicileQuestion => '¿En qué municipio tributas?';
 
   @override
   String get mintNextDomicileWhy =>
-      'Tu cantón y tu comuna determinan cómo se calculan tus impuestos.';
+      'Normalmente el municipio donde vives oficialmente.';
 
   @override
-  String get mintNextDomicileCantonLabel => 'Cantón';
+  String get mintNextDomicileCommuneLabel => 'Municipio fiscal';
 
   @override
-  String get mintNextDomicileCommuneLabel => 'Comuna';
-
-  @override
-  String get mintNextDomicileCommuneHint => 'El nombre de tu comuna';
+  String get mintNextDomicileCommuneHint => 'Escribe el nombre del municipio';
 
   @override
   String get mintNextDomicileContinue => 'Continuar';
@@ -25887,7 +25884,7 @@ class SEs extends S {
 
   @override
   String get mintNextDomicileErrorMissing =>
-      'Elige tu cantón e indica tu comuna para continuar.';
+      'Elige tu municipio en la lista para continuar.';
 
   @override
   String get mintNextDomicileSaveFailed =>
@@ -26355,4 +26352,40 @@ class SEs extends S {
 
   @override
   String get mintNext3aDomicileMissing => 'Domicilio: aún no indicado';
+
+  @override
+  String get mintNextDomicileNoMatch =>
+      'Municipio no encontrado. Prueba con el nombre del municipio político, no el del barrio o la aldea.';
+
+  @override
+  String mintNextDomicileCantonDerived(String canton) {
+    return 'Municipio encontrado, en el cantón $canton.';
+  }
+
+  @override
+  String get mintNextDomicileChangeCommune => 'Elegir otro municipio';
+
+  @override
+  String mintNextDomicileRegistrySource(String date) {
+    return 'Municipio verificado en el registro federal, actualizado el $date.';
+  }
+
+  @override
+  String get mintNextDomicileBackToToday => 'Ver Hoy';
+
+  @override
+  String mintNextDomicileSuggestionA11y(String commune, String canton) {
+    return '$commune, cantón $canton';
+  }
+
+  @override
+  String get mintNextDomicileRegistryLoading =>
+      'Leyendo el registro de municipios…';
+
+  @override
+  String get mintNextDomicileRegistryFailed =>
+      'No se ha podido leer el registro de municipios. No se pierde nada.';
+
+  @override
+  String get mintNextDomicileRegistryRetry => 'Reintentar';
 }

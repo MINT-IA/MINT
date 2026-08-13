@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# Vérification complète — et le reçu qui la prouve.
+#
+# POURQUOI CE FICHIER EXISTE
+#
+# Le 2026-08-13, deux fois dans la même session, j'ai annoncé « tests verts »
+# après avoir lancé les tests des fichiers que je venais de toucher. La suite
+# complète a ensuite montré 9 échecs, dont 7 causés par moi, dans des fichiers
+# que je n'avais pas ouverts : des références visuelles de la landing, un test
+# d'architecture qui LIT le code source comme du texte, un écran
+# d'administration qui COMPTE les valeurs d'une enum partagée. Aucun de ces
+# trois liens n'est visible dans un graphe d'appels.
+#
+# Le défaut n'était pas la qualité du code. C'était que **le périmètre de
+# vérification était mon choix, et je l'ai choisi trop étroit**. La littérature
+# nomme ce mode de défaillance « unsafe test selection » et « false success ».
+#
+# Le remède mesuré n'est pas une règle de discipline. Une instruction
+# procédurale ajoutée à un fichier de doctrine déjà long est mesurée
+# NETTE-NÉGATIVE : elle dilue les règles voisines, et un agent qui promet
+# d'élargir son périmètre n'a toujours aucun moyen de savoir qu'un écran
+# d'administration compte les valeurs de l'enum. Le remède est de retirer le
+# choix : une seule commande, dont le périmètre est « tout », et un reçu
+# machine que le crochet de pré-envoi vérifie.
+#
+# Sources : Huang et al., « LLMs Cannot Self-Correct Reasoning Yet » (ICLR
+# 2024) ; Tyen et al., « LLMs cannot find reasoning errors, but can correct
+# them given the error location » (ACL Findings 2024) — le déficit est dans la
+# LOCALISATION, pas dans la volonté ; TDAD (arXiv:2603.17973) — la consigne
+# procédurale sans carte d'impact fait passer les régressions de 6,08 % à
+# 9,94 %, pire que rien ; Anthropic, Claude Code best-practices — « hooks are
+# deterministic and guarantee the action happens », contrairement aux
+# instructions de doctrine qui « sont consultatives ».
+#
+# USAGE
+#   tools/verify_full.sh          # tout, puis écrit le reçu
+#   tools/verify_full.sh --quick  # sans la suite mobile complète — N'ÉCRIT PAS
+#                                 # de reçu, donc ne débloque aucun envoi
+#
+# L'arbre vérifié est celui de HEAD. Committer D'ABORD, vérifier ENSUITE : le
+# reçu porte l'identifiant de l'arbre committé, ce qui rend impossible de
+# vérifier un état puis d'en envoyer un autre.
+
+set -uo pipefail
+
+REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$REPO" || exit 1
+
+RECEIPT_DIR="$REPO/.planning/.verify"
+RECEIPT="$RECEIPT_DIR/receipt.json"
+QUICK=0
+[ "${1:-}" = "--quick" ] && QUICK=1
+
+TREE="$(git rev-parse HEAD^{tree} 2>/dev/null)"
+if [ -z "$TREE" ]; then
+  echo "ÉCHEC — dépôt sans HEAD, rien à vérifier." >&2
+  exit 1
+fi
+
+declare -a NAMES=()
+declare -a CODES=()
+FAILED=0
+
+run_gate() {
+  local name="$1"; shift
+  printf '\n\033[1m▸ %s\033[0m\n' "$name"
+  "$@"
+  local code=$?
+  NAMES+=("$name")
+  CODES+=("$code")
+  if [ "$code" -ne 0 ]; then
+    FAILED=1
+    printf '\033[31m  ÉCHEC (%s) — %s\033[0m\n' "$code" "$name"
+  else
+    printf '\033[32m  ok\033[0m\n'
+  fi
+  return 0
+}
+
+flutter_analyze() { (cd apps/mobile && flutter analyze) ; }
+flutter_tests()   { (cd apps/mobile && flutter test) ; }
+backend_tests()   { (cd services/backend && python3 -m pytest tests/ -q) ; }
+
+run_gate "analyse statique mobile"      flutter_analyze
+[ "$QUICK" -eq 0 ] && run_gate "suite mobile COMPLÈTE" flutter_tests
+run_gate "suite backend"                backend_tests
+run_gate "garde Journey OS"             python3 tools/checks/journey_os_check.py
+run_gate "lint du wiki"                 python3 tools/checks/wiki_lint.py
+run_gate "intégrité du registre des communes" \
+         python3 tools/data/build_commune_registry.py --check
+run_gate "parité des 6 fichiers de langue" python3 - <<'PY'
+import json, glob, sys
+ref = {k for k in json.load(open('apps/mobile/lib/l10n/app_fr.arb')) if not k.startswith('@')}
+bad = []
+for path in sorted(glob.glob('apps/mobile/lib/l10n/app_*.arb')):
+    keys = {k for k in json.load(open(path)) if not k.startswith('@')}
+    missing = ref - keys
+    extra = keys - ref
+    if missing or extra:
+        bad.append(f"{path}: {len(missing)} manquantes, {len(extra)} en trop")
+for line in bad:
+    print("  ", line)
+sys.exit(1 if bad else 0)
+PY
+
+printf '\n\033[1m── récapitulatif ──\033[0m\n'
+for i in "${!NAMES[@]}"; do
+  printf '  %-42s %s\n' "${NAMES[$i]}" \
+    "$([ "${CODES[$i]}" -eq 0 ] && echo ok || echo "ÉCHEC ${CODES[$i]}")"
+done
+
+if [ "$QUICK" -eq 1 ]; then
+  printf '\n\033[33mMode rapide : aucun reçu écrit. Un envoi restera bloqué.\033[0m\n'
+  exit "$FAILED"
+fi
+
+if [ "$FAILED" -ne 0 ]; then
+  rm -f "$RECEIPT"
+  printf '\n\033[31mAucun reçu : la vérification a échoué.\033[0m\n'
+  exit 1
+fi
+
+mkdir -p "$RECEIPT_DIR"
+{
+  printf '{\n'
+  printf '  "arbre": "%s",\n' "$TREE"
+  printf '  "commit": "%s",\n' "$(git rev-parse HEAD)"
+  printf '  "branche": "%s",\n' "$(git branch --show-current)"
+  printf '  "verifie_le": "%s",\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+  printf '  "gates": {'
+  for i in "${!NAMES[@]}"; do
+    [ "$i" -gt 0 ] && printf ','
+    printf '\n    "%s": %s' "${NAMES[$i]}" "${CODES[$i]}"
+  done
+  printf '\n  }\n}\n'
+} > "$RECEIPT"
+
+printf '\n\033[32mReçu écrit : %s\033[0m\n' "${RECEIPT#$REPO/}"
+printf 'Arbre vérifié : %s\n' "$TREE"
+exit 0

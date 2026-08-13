@@ -68,13 +68,20 @@ void main() {
       expect(meta.description, isNot(contains('/anonymous/chat')));
     });
 
-    test('LandingScreen delegates first-run routing to /start', () {
-      expect(landingSource, contains("context.go('/start')"));
-      expect(
-        landingSource,
-        isNot(contains("context.go('/onb')")),
-        reason: 'LandingScreen must keep routing policy in /start',
-      );
+    test('LandingScreen keeps no routing policy of its own', () {
+      // Bascule 4 : la destination de la première ouverture n'est plus écrite
+      // dans l'écran. Elle passe par l'entrée canonique unique, qui décide
+      // selon la préversion — un littéral dispersé échappait au vérificateur
+      // de fermeture et laissait huit alias mener au wizard historique.
+      expect(landingSource, contains('LegacyOnboardingEntry.open(context)'));
+      for (final literal in const [
+        "context.go('/start')",
+        "context.go('/onb')",
+        "context.go('/anonymous/chat')",
+      ]) {
+        expect(landingSource, isNot(contains(literal)),
+            reason: 'aucune destination d\'entrée en dur dans la landing');
+      }
     });
   });
 }

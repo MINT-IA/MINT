@@ -425,13 +425,32 @@ const double cotisationsSalarieTotal =
 /// Taux de base de l'impot sur le retrait de capital par canton.
 /// Inclut LIFD + impot cantonal + impot communal (chef-lieu).
 const Map<String, double> tauxImpotRetraitCapital = {
-  'ZH': 0.065, 'BE': 0.075, 'LU': 0.055, 'UR': 0.050,
-  'SZ': 0.040, 'OW': 0.045, 'NW': 0.040, 'GL': 0.055,
-  'ZG': 0.035, 'FR': 0.070, 'SO': 0.065, 'BS': 0.075,
-  'BL': 0.065, 'SH': 0.060, 'AR': 0.055, 'AI': 0.045,
-  'SG': 0.060, 'GR': 0.055, 'AG': 0.060, 'TG': 0.055,
-  'TI': 0.065, 'VD': 0.080, 'VS': 0.060, 'NE': 0.070,
-  'GE': 0.075, 'JU': 0.065,
+  'ZH': 0.065,
+  'BE': 0.075,
+  'LU': 0.055,
+  'UR': 0.050,
+  'SZ': 0.040,
+  'OW': 0.045,
+  'NW': 0.040,
+  'GL': 0.055,
+  'ZG': 0.035,
+  'FR': 0.070,
+  'SO': 0.065,
+  'BS': 0.075,
+  'BL': 0.065,
+  'SH': 0.060,
+  'AR': 0.055,
+  'AI': 0.045,
+  'SG': 0.060,
+  'GR': 0.055,
+  'AG': 0.060,
+  'TG': 0.055,
+  'TI': 0.065,
+  'VD': 0.080,
+  'VS': 0.060,
+  'NE': 0.070,
+  'GE': 0.075,
+  'JU': 0.065,
 };
 
 /// Tranches progressives pour l'impot sur retrait de capital.
@@ -453,22 +472,64 @@ const List<List<double>> retraitCapitalTranches = [
 
 /// Noms complets des 26 cantons suisses en francais.
 const Map<String, String> cantonFullNames = {
-  'AG': 'Argovie', 'AI': 'Appenzell RI', 'AR': 'Appenzell RE',
-  'BE': 'Berne', 'BL': 'Bale-Campagne', 'BS': 'Bale-Ville',
-  'FR': 'Fribourg', 'GE': 'Geneve', 'GL': 'Glaris',
-  'GR': 'Grisons', 'JU': 'Jura', 'LU': 'Lucerne',
-  'NE': 'Neuchatel', 'NW': 'Nidwald', 'OW': 'Obwald',
-  'SG': 'Saint-Gall', 'SH': 'Schaffhouse', 'SO': 'Soleure',
-  'SZ': 'Schwyz', 'TG': 'Thurgovie', 'TI': 'Tessin',
-  'UR': 'Uri', 'VD': 'Vaud', 'VS': 'Valais',
-  'ZG': 'Zoug', 'ZH': 'Zurich',
+  'AG': 'Argovie', 'AI': 'Appenzell RI', 'AR': 'Appenzell RE', // lint-ignore
+  'BE': 'Berne', 'BL': 'Bâle-Campagne', 'BS': 'Bâle-Ville', // lint-ignore
+  'FR': 'Fribourg', 'GE': 'Genève', 'GL': 'Glaris', // lint-ignore
+  'GR': 'Grisons', 'JU': 'Jura', 'LU': 'Lucerne', // lint-ignore
+  'NE': 'Neuchâtel', 'NW': 'Nidwald', 'OW': 'Obwald', // lint-ignore
+  'SG': 'Saint-Gall', 'SH': 'Schaffhouse', 'SO': 'Soleure', // lint-ignore
+  'SZ': 'Schwyz', 'TG': 'Thurgovie', 'TI': 'Tessin', // lint-ignore
+  'UR': 'Uri', 'VD': 'Vaud', 'VS': 'Valais', // lint-ignore
+  'ZG': 'Zoug', 'ZH': 'Zurich', // lint-ignore
 };
 
 /// Codes des 26 cantons tries alphabetiquement.
+/// Nom du canton précédé de sa préposition française. « Canton de Argovie »
+/// est la faute qui trahit une phrase assemblée par une machine ; le français
+/// demande « d'Argovie », « du Valais », « des Grisons ».
+const Map<String, String> cantonWithArticle = {
+  'AG': "d'Argovie", 'AI': "d'Appenzell Rhodes-Intérieures", // lint-ignore
+  'AR': "d'Appenzell Rhodes-Extérieures", 'BE': 'de Berne', // lint-ignore
+  'BL': 'de Bâle-Campagne', 'BS': 'de Bâle-Ville',  // lint-ignore
+  'FR': 'de Fribourg', // lint-ignore
+  'GE': 'de Genève', 'GL': 'de Glaris', 'GR': 'des Grisons',  // lint-ignore
+  'JU': 'du Jura', // lint-ignore
+  'LU': 'de Lucerne', 'NE': 'de Neuchâtel', 'NW': 'de Nidwald', // lint-ignore
+  'OW': "d'Obwald", 'SG': 'de Saint-Gall',  // lint-ignore
+  'SH': 'de Schaffhouse', // lint-ignore
+  'SO': 'de Soleure', 'SZ': 'de Schwytz', 'TG': 'de Thurgovie', // lint-ignore
+  'TI': 'du Tessin', 'UR': "d'Uri", 'VD': 'de Vaud',  // lint-ignore
+  'VS': 'du Valais', // lint-ignore
+  'ZG': 'de Zoug', 'ZH': 'de Zurich', // lint-ignore
+};
+
 const List<String> sortedCantonCodes = [
-  'AG', 'AI', 'AR', 'BE', 'BL', 'BS', 'FR', 'GE', 'GL', 'GR',
-  'JU', 'LU', 'NE', 'NW', 'OW', 'SG', 'SH', 'SO', 'SZ', 'TG',
-  'TI', 'UR', 'VD', 'VS', 'ZG', 'ZH',
+  'AG',
+  'AI',
+  'AR',
+  'BE',
+  'BL',
+  'BS',
+  'FR',
+  'GE',
+  'GL',
+  'GR',
+  'JU',
+  'LU',
+  'NE',
+  'NW',
+  'OW',
+  'SG',
+  'SH',
+  'SO',
+  'SZ',
+  'TG',
+  'TI',
+  'UR',
+  'VD',
+  'VS',
+  'ZG',
+  'ZH',
 ];
 
 /// Fallback canton code utilisé quand l'utilisateur n'a pas encore

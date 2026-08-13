@@ -484,6 +484,26 @@ pre-push:
   # .git/index.lock if multiple Python subprocesses fight over staged state).
   parallel: false
   commands:
+    verify-receipt:
+      # Refuse un envoi dont l'arbre n'a pas été vérifié EN ENTIER.
+      #
+      # Pourquoi : le 2026-08-13, deux fois dans la même session, un agent a
+      # annoncé « tests verts » après avoir lancé les seuls tests des fichiers
+      # qu'il venait d'écrire. La suite complète a ensuite montré 9 échecs,
+      # dont 7 causés par lui, dans des fichiers qu'il n'avait pas ouverts :
+      # références visuelles, test d'architecture lisant le source comme du
+      # texte, écran d'administration comptant les valeurs d'une enum. Aucun de
+      # ces liens n'est visible dans un graphe d'appels.
+      #
+      # Le remède n'est pas une règle de plus dans la doctrine — une consigne
+      # procédurale sans carte d'impact est mesurée nette-négative
+      # (arXiv:2603.17973 : 6,08 % -> 9,94 % de régressions). Le remède est de
+      # retirer le choix du périmètre : `tools/verify_full.sh` vérifie TOUT et
+      # écrit un reçu portant l'identifiant de l'arbre vérifié ; ce garde
+      # compare cet identifiant à celui de l'arbre envoyé.
+      run: python3 tools/checks/verify_receipt_gate.py
+      tags: [zero-trust, verification-scope, false-success]
+      fail_text: "Arbre non vérifié en entier — lancer tools/verify_full.sh (voir stderr)."
     doctrine-atomicity:
       # D-04 « same PR » atomicity gate — fails push unless the 6 doctrine
       # files (CLAUDE.md + docs/AGENTS/{backend,flutter}.md + 2 SKILL.md + the

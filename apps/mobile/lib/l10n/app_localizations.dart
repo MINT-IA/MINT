@@ -44966,31 +44966,25 @@ abstract class S {
   /// No description provided for @mintNextDomicileQuestion.
   ///
   /// In fr, this message translates to:
-  /// **'Où habites-tu ?'**
+  /// **'Quelle est ta commune fiscale ?'**
   String get mintNextDomicileQuestion;
 
   /// No description provided for @mintNextDomicileWhy.
   ///
   /// In fr, this message translates to:
-  /// **'Ton canton et ta commune déterminent comment tes impôts sont calculés.'**
+  /// **'En général, c\'est la commune où tu habites officiellement.'**
   String get mintNextDomicileWhy;
-
-  /// No description provided for @mintNextDomicileCantonLabel.
-  ///
-  /// In fr, this message translates to:
-  /// **'Canton'**
-  String get mintNextDomicileCantonLabel;
 
   /// No description provided for @mintNextDomicileCommuneLabel.
   ///
   /// In fr, this message translates to:
-  /// **'Commune'**
+  /// **'Commune fiscale'**
   String get mintNextDomicileCommuneLabel;
 
   /// No description provided for @mintNextDomicileCommuneHint.
   ///
   /// In fr, this message translates to:
-  /// **'Le nom de ta commune'**
+  /// **'Tape le nom de la commune'**
   String get mintNextDomicileCommuneHint;
 
   /// No description provided for @mintNextDomicileContinue.
@@ -45074,7 +45068,7 @@ abstract class S {
   /// No description provided for @mintNextDomicileErrorMissing.
   ///
   /// In fr, this message translates to:
-  /// **'Choisis ton canton et indique ta commune pour continuer.'**
+  /// **'Choisis ta commune dans la liste pour continuer.'**
   String get mintNextDomicileErrorMissing;
 
   /// No description provided for @mintNextDomicileSaveFailed.
@@ -45862,6 +45856,60 @@ abstract class S {
   /// In fr, this message translates to:
   /// **'Domicile : pas encore renseigné'**
   String get mintNext3aDomicileMissing;
+
+  /// No description provided for @mintNextDomicileNoMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commune introuvable. Essaie le nom de la commune politique, plutôt que celui du quartier ou du hameau.'**
+  String get mintNextDomicileNoMatch;
+
+  /// No description provided for @mintNextDomicileCantonDerived.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commune trouvée, dans le canton {canton}.'**
+  String mintNextDomicileCantonDerived(String canton);
+
+  /// No description provided for @mintNextDomicileChangeCommune.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une autre commune'**
+  String get mintNextDomicileChangeCommune;
+
+  /// No description provided for @mintNextDomicileRegistrySource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commune vérifiée dans le registre fédéral, mis à jour le {date}.'**
+  String mintNextDomicileRegistrySource(String date);
+
+  /// No description provided for @mintNextDomicileBackToToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir Aujourd\'hui'**
+  String get mintNextDomicileBackToToday;
+
+  /// No description provided for @mintNextDomicileSuggestionA11y.
+  ///
+  /// In fr, this message translates to:
+  /// **'{commune}, canton {canton}'**
+  String mintNextDomicileSuggestionA11y(String commune, String canton);
+
+  /// No description provided for @mintNextDomicileRegistryLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture du registre des communes…'**
+  String get mintNextDomicileRegistryLoading;
+
+  /// No description provided for @mintNextDomicileRegistryFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le registre des communes n\'a pas pu être lu. Rien n\'est perdu.'**
+  String get mintNextDomicileRegistryFailed;
+
+  /// No description provided for @mintNextDomicileRegistryRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get mintNextDomicileRegistryRetry;
 }
 
 class _SDelegate extends LocalizationsDelegate<S> {

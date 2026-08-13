@@ -12,7 +12,7 @@ import 'package:mint_mobile/screens/admin/routes_registry_screen.dart';
 
 void main() {
   group('RoutesRegistryScreen (MAP-02b)', () {
-    testWidgets('renders 15 ExpansionTiles (one per RouteOwner)',
+    testWidgets('renders one ExpansionTile per RouteOwner',
         (tester) async {
       // Tall viewport so ListView.builder materialises every owner tile
       // (default 600pt height shows only ~10 tiles in the lazy list).
@@ -30,7 +30,9 @@ void main() {
 
       final tiles = find.byType(ExpansionTile);
       expect(tiles, findsNWidgets(RouteOwner.values.length));
-      expect(RouteOwner.values.length, 15);
+      // Bascule 4 : `legacyOnboarding` est un propriétaire à part entière —
+      // c'est lui qui rend le wizard historique interdit en préversion.
+      expect(RouteOwner.values.length, 16);
     });
 
     testWidgets('sum of route rows across all buckets == 161', (tester) async {

@@ -25825,20 +25825,17 @@ class SFr extends S {
   String get mintNextDomicileTitle => 'Ton domicile fiscal';
 
   @override
-  String get mintNextDomicileQuestion => 'Où habites-tu ?';
+  String get mintNextDomicileQuestion => 'Quelle est ta commune fiscale ?';
 
   @override
   String get mintNextDomicileWhy =>
-      'Ton canton et ta commune déterminent comment tes impôts sont calculés.';
+      'En général, c\'est la commune où tu habites officiellement.';
 
   @override
-  String get mintNextDomicileCantonLabel => 'Canton';
+  String get mintNextDomicileCommuneLabel => 'Commune fiscale';
 
   @override
-  String get mintNextDomicileCommuneLabel => 'Commune';
-
-  @override
-  String get mintNextDomicileCommuneHint => 'Le nom de ta commune';
+  String get mintNextDomicileCommuneHint => 'Tape le nom de la commune';
 
   @override
   String get mintNextDomicileContinue => 'Continuer';
@@ -25884,7 +25881,7 @@ class SFr extends S {
 
   @override
   String get mintNextDomicileErrorMissing =>
-      'Choisis ton canton et indique ta commune pour continuer.';
+      'Choisis ta commune dans la liste pour continuer.';
 
   @override
   String get mintNextDomicileSaveFailed =>
@@ -26353,4 +26350,40 @@ class SFr extends S {
 
   @override
   String get mintNext3aDomicileMissing => 'Domicile : pas encore renseigné';
+
+  @override
+  String get mintNextDomicileNoMatch =>
+      'Commune introuvable. Essaie le nom de la commune politique, plutôt que celui du quartier ou du hameau.';
+
+  @override
+  String mintNextDomicileCantonDerived(String canton) {
+    return 'Commune trouvée, dans le canton $canton.';
+  }
+
+  @override
+  String get mintNextDomicileChangeCommune => 'Choisir une autre commune';
+
+  @override
+  String mintNextDomicileRegistrySource(String date) {
+    return 'Commune vérifiée dans le registre fédéral, mis à jour le $date.';
+  }
+
+  @override
+  String get mintNextDomicileBackToToday => 'Voir Aujourd\'hui';
+
+  @override
+  String mintNextDomicileSuggestionA11y(String commune, String canton) {
+    return '$commune, canton $canton';
+  }
+
+  @override
+  String get mintNextDomicileRegistryLoading =>
+      'Lecture du registre des communes…';
+
+  @override
+  String get mintNextDomicileRegistryFailed =>
+      'Le registre des communes n\'a pas pu être lu. Rien n\'est perdu.';
+
+  @override
+  String get mintNextDomicileRegistryRetry => 'Réessayer';
 }

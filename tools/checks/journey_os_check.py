@@ -1595,6 +1595,40 @@ ALLOW = {
     # (mint-experience, 5e lentille) sur les 4 surfaces ci-dessus + login/3a.
     # Constat sans patch — aucune surface modifiée, un seul artefact d'audit.
     ".planning/audit/2026-08-04-fidelite-design-mint-experience.md",
+    # codex/journey-os-bascule4-first-open : le parcours domicile demandait le
+    # canton PUIS la commune, alors qu'une commune suisse appartient à un seul
+    # canton — et la commune était un texte libre rattaché à rien (le champ
+    # `communeBfs` du fait existait sans jamais être écrit). Registre fédéral
+    # embarqué (OFS, 2110 communes, daté), sélection obligatoire, canton dérivé,
+    # numéro OFS enregistré.
+    "apps/mobile/assets/data/commune_registry.txt",
+    "apps/mobile/lib/data/commune_registry.dart",
+    "apps/mobile/test/data/commune_registry_test.dart",
+    "tools/data/build_commune_registry.py",
+    # Régressions de la même bascule, trouvées par la suite complète : le
+    # long-press caché a disparu (l'oracle devient une absence), un
+    # propriétaire de route s'est ajouté, la landing a perdu un CTA redondant
+    # (références visuelles régénérées), `/coach/chat` est une racine de
+    # branche qui se sélectionne, et la purge sécurisée de la bascule 2 signale
+    # son report au lieu de le taire.
+    "apps/mobile/test/screens/landing_v3_test.dart",
+    "apps/mobile/test/screens/admin/routes_registry_screen_test.dart",
+    "apps/mobile/test/architecture/start_route_contract_test.dart",
+    "apps/mobile/test/integration/profile_hydration_test.dart",
+    "apps/mobile/lib/screens/simulator_3a_screen.dart",
+    "apps/mobile/test/goldens/masters/landing_iphone14pro_fr.png",
+    "apps/mobile/test/goldens/masters/landing_iphone14pro_fr_reduced_motion.png",
+    "apps/mobile/test/goldens/masters/landing_galaxya14_fr.png",
+    "apps/mobile/test/goldens/masters/landing_galaxya14_fr_reduced_motion.png",
+    # Le garde qui empêche que ces régressions se reproduisent : une seule
+    # commande vérifie TOUT et écrit un reçu portant l'identifiant de l'arbre
+    # vérifié ; le crochet de pré-envoi compare cet identifiant à celui de
+    # l'arbre envoyé. Le périmètre de vérification cesse d'être un choix.
+    # ADR : .planning/decisions/2026-08-13-perimetre-de-verification-non-negociable.md
+    "tools/verify_full.sh",
+    "tools/checks/verify_receipt_gate.py",
+    "lefthook.yml",
+    ".gitignore",
 }
 DELETION_ALLOW = {
     # -axj : 3e moteur RvC orphelin supprimé (aucun appelant prod, garde

@@ -1,0 +1,2118 @@
+# Registre officiel des communes suisses — asset généré, ne pas éditer à la main.
+# Régénérer : python3 tools/data/build_commune_registry.py --date 13-08-2026
+# Source : OFS, https://www.agvchapp.bfs.admin.ch/api/communes/snapshot
+# Instantané : 13-08-2026
+# Communes : 2110
+# Le numéro OFS est l'identité engagée ; il change lors d'un transfert de canton.
+# Format : numéro OFS|nom officiel|canton|valide depuis|alias de recherche
+#
+4551|Aadorf|TG|01.01.2011|
+4001|Aarau|AG|01.01.2010|
+301|Aarberg|BE|01.01.2010|
+4271|Aarburg|AG|12.09.1848|
+321|Aarwangen|BE|01.01.2010|
+4221|Abtwil|AG|12.09.1848|
+5621|Aclens|VD|01.09.2006|
+5048|Acquarossa|TI|04.04.2004|
+561|Adelboden|BE|01.01.2010|
+1051|Adligenswil|LU|01.01.2013|
+131|Adliswil|ZH|01.01.1893|
+2421|Aedermannsdorf|SO|01.01.1991|
+401|Aefligen|BE|01.01.2010|
+731|Aegerten|BE|01.01.2010|
+2761|Aesch (BL)|BL|01.01.1994|
+1021|Aesch (LU)|LU|01.01.2013|
+241|Aesch (ZH)|ZH|01.01.2003|
+2511|Aeschi (SO)|SO|01.01.2012|
+562|Aeschi bei Spiez|BE|01.01.2010|
+1|Aeugst am Albis|ZH|15.11.1976|
+4711|Affeltrangen|TG|01.01.2011|
+2|Affoltern am Albis|ZH|12.09.1848|
+951|Affoltern im Emmental|BE|01.01.2010|
+6101|Agarn|VS|12.09.1848|
+5742|Agiez|VD|01.09.2006|
+5141|Agno|TI|12.09.1848|
+5401|Aigle|VD|01.09.2006|
+6601|Aire-la-Ville|GE|12.09.1848|
+5061|Airolo|TI|12.09.1848|
+1121|Alberswil|LU|01.01.2013|
+6102|Albinen|VS|12.09.1848|
+3542|Albula/Alvra|GR|01.01.2017|Albula,Alvra
+402|Alchenstorf|BE|01.01.2010|
+5851|Allaman|VD|01.09.2006|
+6771|Alle|JU|01.01.1979|
+630|Allmendingen|BE|01.01.2010|
+2762|Allschwil|BL|01.01.1994|
+1401|Alpnach|OW|12.09.1848|
+1361|Alpthal|SZ|12.09.1848|
+1122|Altbüron|LU|01.01.2013|
+1201|Altdorf (UR)|UR|12.09.1848|
+1341|Altendorf|SZ|12.09.1848|
+211|Altikon|ZH|12.09.1848|
+1123|Altishofen|LU|01.01.2020|
+4641|Altnau|TG|01.01.2011|
+5237|Alto Malcantone|TI|13.03.2005|
+3251|Altstätten|SG|01.01.2003|
+3311|Amden|SG|01.01.2003|
+4881|Amlikon-Bissegg|TG|01.01.2011|
+4191|Ammerswil|AG|12.09.1848|
+4461|Amriswil|TG|01.01.2011|
+921|Amsoldingen|BE|01.01.2010|
+3701|Andeer|GR|01.01.2017|
+291|Andelfingen|ZH|01.01.2023|
+1202|Andermatt|UR|12.09.1848|
+3441|Andwil (SG)|SG|01.01.2003|
+6602|Anières|GE|01.01.1858|
+6252|Anniviers|VS|01.01.2009|
+2841|Anwil|BL|01.01.1994|
+3101|Appenzell|AI|01.01.1997|
+5143|Aranno|TI|12.09.1848|
+6261|Arbaz|VS|12.09.1848|
+5001|Arbedo-Castione|TI|12.09.1848|
+2881|Arboldswil|BL|01.01.1994|
+4401|Arbon|TG|01.01.2011|
+381|Arch|BE|01.01.2010|
+6021|Ardon|VS|12.09.1848|
+2821|Arisdorf|BL|01.01.1994|
+4222|Aristau|AG|12.09.1848|
+2763|Arlesheim|BL|01.01.1994|
+5701|Arnex-sur-Nyon|VD|01.09.2006|
+5743|Arnex-sur-Orbe|VD|01.09.2006|
+4061|Arni (AG)|AG|01.01.1983|
+602|Arni (BE)|BE|01.01.2010|
+5144|Arogno|TI|12.09.1848|
+3921|Arosa|GR|01.01.2017|
+1362|Arth|SZ|12.09.1848|
+5702|Arzier-Le Muids|VD|01.05.2014|
+5091|Ascona|TI|12.09.1848|
+5511|Assens|VD|01.07.2021|
+2321|Attalens|FR|12.09.1848|
+1203|Attinghausen|UR|12.09.1848|
+971|Attiswil|BE|01.01.2010|
+3231|Au (SG)|SG|01.01.2003|
+5422|Aubonne|VD|01.01.2021|
+4091|Auenstein|AG|12.09.1848|
+2822|Augst|BL|01.01.1994|
+6191|Ausserberg|VS|01.01.1923|
+322|Auswil|BE|01.01.2010|
+2173|Autigny|FR|12.09.1848|
+4223|Auw|AG|12.09.1848|
+5324|Avegno Gordevio|TI|20.04.2008|
+5451|Avenches|VD|01.07.2011|
+3681|Avers|GR|01.01.2017|
+2174|Avry|FR|01.01.2001|
+6603|Avully|GE|12.09.1848|
+6604|Avusy|GE|12.09.1848|
+6082|Ayent|VS|12.09.1848|
+1701|Baar|ZG|12.09.1848|
+51|Bachenbülach|ZH|23.03.1850|
+81|Bachs|ZH|12.09.1848|
+3291|Bad Ragaz|SG|01.01.2003|
+4021|Baden|AG|01.01.2024|
+5242|Balerna|TI|12.09.1848|
+3232|Balgach|SG|01.01.2003|
+5744|Ballaigues|VD|01.09.2006|
+5423|Ballens|VD|01.09.2006|
+1023|Ballwil|LU|01.01.2013|
+2541|Balm bei Günsberg|SO|12.09.1848|
+2422|Balsthal|SO|01.01.1991|
+6281|Baltschieder|VS|12.09.1848|
+323|Bannwil|BE|01.01.2010|
+6605|Bardonnex|GE|01.01.1851|
+302|Bargen (BE)|BE|01.01.2010|
+2931|Bargen (SH)|SH|12.09.1848|
+2162|Bas-Intyamon|FR|01.01.2004|
+4536|Basadingen-Schlattingen|TG|01.01.2011|
+2701|Basel|BS|01.01.1908|Bâle,Basilea
+6807|Basse-Allaine|JU|01.01.2009|
+6812|Basse-Vendline|JU|01.01.2024|
+52|Bassersdorf|ZH|01.10.1930|
+5703|Bassins|VD|01.09.2006|
+5745|Baulmes|VD|01.09.2006|
+297|Bauma|ZH|01.01.2015|
+5746|Bavois|VD|01.09.2006|
+571|Beatenberg|BE|01.01.2010|
+1501|Beckenried|NW|01.01.1850|
+5148|Bedano|TI|12.09.1848|
+5063|Bedretto|TI|12.09.1848|
+2951|Beggingen|SH|12.09.1848|
+5704|Begnins|VD|01.09.2006|
+2612|Beinwil (SO)|SO|12.09.1848|
+4224|Beinwil (Freiamt)|AG|01.01.1951|
+4131|Beinwil am See|AG|12.09.1848|
+2175|Belfaux|FR|01.01.2016|
+2542|Bellach|SO|12.09.1848|
+6606|Bellevue|GE|01.01.1855|
+4022|Bellikon|AG|12.09.1848|
+5002|Bellinzona|TI|02.04.2017|
+732|Bellmund|BE|01.01.2010|
+6052|Bellwald|VS|12.09.1848|
+2053|Belmont-Broye|FR|01.01.2016|
+5581|Belmont-sur-Lausanne|VD|01.09.2006|
+5902|Belmont-sur-Yverdon|VD|01.09.2006|
+861|Belp|BE|01.01.2012|
+681|Belprahon|BE|01.01.2010|
+3312|Benken (SG)|SG|01.01.2003|
+22|Benken (ZH)|ZH|12.09.1848|
+2882|Bennwil|BL|01.01.1994|
+5512|Bercher|VD|01.09.2006|
+3211|Berg (SG)|SG|01.01.2003|
+4891|Berg (TG)|TG|01.01.2011|
+23|Berg am Irchel|ZH|12.09.1848|
+4023|Bergdietikon|AG|12.09.1848|
+3544|Bergün Filisur|GR|01.01.2018|
+4062|Berikon|AG|12.09.1848|
+2932|Beringen|SH|01.01.2013|
+972|Berken|BE|01.01.2010|
+4801|Berlingen|TG|01.01.2011|
+351|Bern|BE|01.01.2010|Berne,Berna
+3233|Berneck|SG|01.01.2003|
+6607|Bernex|GE|01.01.1850|
+5424|Berolle|VD|01.09.2006|
+1081|Beromünster|LU|01.01.2015|
+4226|Besenbüren|AG|12.09.1848|
+973|Bettenhausen|BE|01.01.2011|
+5471|Bettens|VD|01.09.2006|
+2702|Bettingen|BS|12.09.1848|
+2543|Bettlach|SO|12.09.1848|
+6205|Bettmeralp|VS|01.01.2014|
+4716|Bettwiesen|TG|01.01.2011|
+4227|Bettwil|AG|12.09.1848|
+3781|Bever|GR|01.01.2017|
+5402|Bex|VD|01.09.2006|
+5281|Biasca|TI|12.09.1848|
+2513|Biberist|SO|01.01.1991|
+4002|Biberstein|AG|12.09.1848|
+4721|Bichelsee-Balterswil|TG|01.01.2011|
+2764|Biel-Benken|BL|01.01.1994|
+371|Biel/Bienne|BE|01.01.2010|Biel,Bienne
+2445|Biezwil|SO|12.09.1848|
+603|Biglen|BE|01.01.2010|
+2063|Billens-Hennens|FR|01.01.1998|
+6054|Binn|VS|12.09.1848|
+2765|Binningen|BL|01.01.1994|
+5151|Bioggio|TI|20.04.2008|
+5903|Bioley-Magnoux|VD|01.09.2006|
+242|Birmensdorf (ZH)|ZH|01.01.1990|
+4024|Birmenstorf (AG)|AG|12.09.1848|
+4092|Birr|AG|12.09.1848|
+4093|Birrhard|AG|12.09.1848|
+4132|Birrwil|AG|12.09.1848|
+2766|Birsfelden|BL|01.01.1994|
+4901|Birwinken|TG|01.01.2011|
+4471|Bischofszell|TG|01.01.2011|
+5154|Bissone|TI|12.09.1848|
+6172|Bister|VS|12.09.1848|
+6173|Bitsch|VS|12.09.1848|
+5425|Bière|VD|01.09.2006|
+6192|Blatten|VS|12.09.1848|
+2781|Blauen|BL|01.01.1994|
+324|Bleienbach|BE|01.01.2010|
+5049|Blenio|TI|22.10.2006|
+5892|Blonay - Saint-Légier|VD|01.01.2022|
+922|Blumenstein|BE|01.01.2010|
+5747|Bofflens|VD|01.09.2006|
+5705|Bogis-Bossey|VD|01.09.2006|
+2238|Bois-d'Amont|FR|01.01.2021|
+2514|Bolken|SO|01.01.1991|
+352|Bolligen|BE|01.01.2010|
+791|Boltigen|BE|01.01.2010|
+3721|Bonaduz|GR|01.01.2017|
+6774|Boncourt|JU|01.01.1979|
+2571|Boningen|SO|12.09.1848|
+4192|Boniswil|AG|01.01.1899|
+3|Bonstetten|ZH|12.09.1848|
+5551|Bonvillars|VD|01.09.2006|
+82|Boppelsen|ZH|12.09.1848|
+5706|Borex|VD|01.09.2006|
+5304|Bosco/Gurin|TI|01.01.1934|Bosco,Gurin
+2323|Bossonnens|FR|12.09.1848|
+4228|Boswil|AG|12.09.1848|
+5514|Bottens|VD|01.09.2006|
+4273|Bottenwil|AG|12.09.1848|
+2123|Botterens|FR|01.01.2006|
+4643|Bottighofen|TG|01.01.2011|
+2767|Bottmingen|BL|01.01.1994|
+6404|Boudry|NE|01.01.2018|
+5426|Bougy-Villars|VD|01.09.2006|
+5661|Boulens|VD|01.09.2006|
+5613|Bourg-en-Lavaux|VD|01.07.2011|
+6032|Bourg-Saint-Pierre|VS|12.09.1848|
+5472|Bournens|VD|01.09.2006|
+6703|Bourrignon|JU|01.01.1979|
+5473|Boussens|VD|01.09.2006|
+6131|Bovernier|VS|12.09.1848|
+605|Bowil|BE|01.01.2010|
+6702|Boécourt|JU|01.01.1979|
+4723|Braunau|TG|01.01.2011|
+3792|Bregaglia|GR|01.01.2017|
+5269|Breggia|TI|25.10.2009|
+3981|Breil/Brigels|GR|01.01.2018|Breil,Brigels
+2613|Breitenbach|SO|12.09.1848|
+5622|Bremblens|VD|01.09.2006|
+4063|Bremgarten (AG)|AG|01.01.2014|
+353|Bremgarten bei Bern|BE|01.01.2010|
+606|Brenzikofen|BE|01.01.2010|
+5515|Bretigny-sur-Morrens|VD|01.09.2006|
+5748|Bretonnières|VD|01.09.2006|
+2883|Bretzwil|BL|01.01.1994|
+573|Brienz (BE)|BE|01.01.2010|
+574|Brienzwiler|BE|01.01.2010|
+6002|Brig-Glis|VS|01.10.1972|
+5096|Brione sopra Minusio|TI|12.09.1848|
+2782|Brislach|BL|01.01.1994|
+5097|Brissago|TI|12.09.1848|
+4274|Brittnau|AG|12.09.1848|
+2124|Broc|FR|12.09.1848|
+6433|Brot-Plamboz|NE|01.01.2018|
+4095|Brugg|AG|01.01.2026|
+4193|Brunegg|AG|12.09.1848|
+5160|Brusino Arsizio|TI|12.09.1848|
+3551|Brusio|GR|01.01.2017|
+733|Brügg|BE|01.01.2010|
+2292|Brünisried|FR|12.09.1848|
+491|Brüttelen|BE|01.01.2010|
+213|Brütten|ZH|12.09.1848|
+2823|Bubendorf|BL|01.01.1994|
+112|Bubikon|ZH|12.09.1848|
+2961|Buch (SH)|SH|01.01.1850|
+24|Buch am Irchel|ZH|01.01.2013|
+2933|Buchberg|SH|12.09.1848|
+2465|Buchegg|SO|01.01.2024|
+923|Buchholterberg|BE|01.01.2010|
+5623|Buchillon|VD|01.09.2006|
+1052|Buchrain|LU|01.01.2013|
+4003|Buchs (AG)|AG|12.09.1848|
+3271|Buchs (SG)|SG|01.01.2003|
+83|Buchs (ZH)|ZH|12.09.1848|
+2843|Buckten|BL|01.01.1994|
+2125|Bulle|FR|01.01.2006|
+5552|Bullet|VD|01.09.2006|
+1502|Buochs|NW|01.01.1850|
+6778|Bure|JU|01.01.1979|
+2783|Burg im Leimental|BL|01.01.1994|
+404|Burgdorf|BE|01.01.2010|
+863|Burgistein|BE|01.01.2010|
+5852|Bursinel|VD|01.09.2006|
+5853|Bursins|VD|01.09.2006|
+5854|Burtigny|VD|01.09.2006|
+3804|Buseno|GR|01.01.2017|
+5624|Bussigny|VD|01.05.2014|
+4921|Bussnang|TG|01.01.2011|
+325|Busswil bei Melchnau|BE|01.01.2010|
+5663|Bussy-sur-Moudon|VD|01.09.2006|
+1083|Buttisholz|LU|01.01.2013|
+4230|Buttwil|AG|12.09.1848|
+2844|Buus|BL|01.01.1994|
+111|Bäretswil|ZH|12.09.1848|
+403|Bäriswil|BE|01.01.2010|
+2611|Bärschwil|SO|12.09.1848|
+533|Bätterkinden|BE|01.01.2010|
+2471|Bättwil|SO|12.09.1848|
+2842|Böckten|BL|01.01.1994|
+572|Bönigen|BE|01.01.2010|
+2295|Bösingen|FR|01.01.1962|
+4303|Böttstein|AG|12.09.1848|
+4124|Bözberg|AG|01.01.2013|
+4185|Böztal|AG|01.01.2022|
+382|Büetigen|BE|01.01.2010|
+734|Bühl|BE|01.01.2010|
+3021|Bühler|AR|12.09.1848|
+53|Bülach|ZH|01.04.1917|
+4229|Bünzen|AG|01.01.1940|
+6193|Bürchen|VS|12.09.1848|
+2472|Büren (SO)|SO|12.09.1848|
+383|Büren an der Aare|BE|01.01.2010|
+4911|Bürglen (TG)|TG|01.01.2011|
+1205|Bürglen (UR)|UR|12.09.1848|
+1082|Büron|LU|01.01.2013|
+2614|Büsserach|SO|12.09.1848|
+3395|Bütschwil-Ganterschwil|SG|01.01.2013|
+2914|Büttenhardt|SH|04.10.1967|
+4064|Büttikon|AG|12.09.1848|
+5161|Cademario|TI|12.09.1848|
+5162|Cadempino|TI|12.09.1848|
+5003|Cadenazzo|TI|13.03.2005|
+3837|Calanca|GR|01.01.2017|
+3831|Cama|GR|01.01.2017|
+5307|Campo (Vallemaggia)|TI|12.09.1848|
+5167|Canobbio|TI|12.09.1848|
+5226|Capriasca|TI|20.04.2008|
+6608|Carouge (GE)|GE|12.09.1848|
+6609|Cartigny|GE|12.09.1848|
+5171|Caslano|TI|12.09.1848|
+3805|Castaneda|GR|01.01.2017|
+5249|Castel San Pietro|TI|04.04.2004|
+3661|Cazis|GR|01.01.2017|
+3782|Celerina/Schlarigna|GR|01.01.2017|Celerina,Schlarigna
+5397|Centovalli|TI|25.10.2009|
+5309|Cerentino|TI|12.09.1848|
+5310|Cevio|TI|22.10.2006|
+6232|Chalais|VS|12.09.1848|
+1702|Cham|ZG|12.09.1848|
+5904|Chamblon|VD|01.09.2006|
+6022|Chamoson|VS|12.09.1848|
+5553|Champagne|VD|01.09.2006|
+683|Champoz|BE|01.01.2010|
+5812|Champtauroz|VD|01.09.2006|
+5905|Champvent|VD|01.01.2012|
+6151|Champéry|VS|12.09.1848|
+6611|Chancy|GE|12.09.1848|
+5882|Chardonne|VD|01.09.2006|
+5707|Chavannes-de-Bogis|VD|01.09.2006|
+5708|Chavannes-des-Bois|VD|01.09.2006|
+5907|Chavannes-le-Chêne|VD|01.09.2006|
+5475|Chavannes-le-Veyron|VD|01.09.2006|
+5627|Chavannes-près-Renens|VD|01.09.2006|
+5665|Chavannes-sur-Moudon|VD|01.09.2006|
+5749|Chavornay|VD|01.01.2017|
+5909|Cheseaux-Noréaz|VD|01.09.2006|
+5582|Cheseaux-sur-Lausanne|VD|01.09.2006|
+5403|Chessel|VD|01.09.2006|
+5476|Chevilly|VD|01.09.2006|
+5813|Chevroux|VD|01.09.2006|
+5601|Chexbres|VD|01.09.2006|
+2055|Cheyres-Châbles|FR|01.01.2017|
+5250|Chiasso|TI|04.04.1976|
+5628|Chigny|VD|01.09.2006|
+6235|Chippis|VS|12.09.1848|
+6614|Choulex|GE|12.09.1848|
+3901|Chur|GR|01.01.2025|Coire,Coira
+3911|Churwalden|GR|01.01.2017|
+5841|Château-d'Oex|VD|01.09.2006|
+2325|Châtel-Saint-Denis|FR|12.09.1848|
+2128|Châtel-sur-Montsalvens|FR|12.09.1848|
+2008|Châtillon (FR)|FR|12.09.1848|
+6704|Châtillon (JU)|JU|01.01.1979|
+2068|Châtonnaye|FR|12.09.1848|
+2177|Chénens|FR|12.09.1848|
+5709|Chéserex|VD|01.09.2006|
+6612|Chêne-Bougeries|GE|12.09.1848|
+6613|Chêne-Bourg|GE|01.01.1869|
+5908|Chêne-Pâquier|VD|01.09.2006|
+5629|Clarmont|VD|01.09.2006|
+6808|Clos du Doubs|JU|01.01.2009|
+6781|Coeuve|JU|01.01.1979|
+5710|Coinsins|VD|01.09.2006|
+5251|Coldrerio|TI|12.09.1848|
+6615|Collex-Bossy|GE|01.01.1855|
+5236|Collina d'Oro|TI|01.04.2012|
+6152|Collombey-Muraz|VS|12.09.1848|
+6616|Collonge-Bellerive|GE|12.09.1848|
+6211|Collonges|VS|12.09.1848|
+6617|Cologny|GE|12.09.1848|
+5176|Comano|TI|12.09.1848|
+5711|Commugny|VD|01.09.2006|
+5554|Concise|VD|01.09.2006|
+6618|Confignon|GE|01.01.1851|
+3881|Conters im Prättigau|GR|01.01.2017|
+6023|Conthey|VS|01.01.1880|
+5712|Coppet|VD|01.09.2006|
+5404|Corbeyrier|VD|01.09.2006|
+2129|Corbières|FR|01.01.2011|
+687|Corcelles (BE)|BE|01.01.2010|
+5785|Corcelles-le-Jorat|VD|01.09.2006|
+5555|Corcelles-près-Concise|VD|01.09.2006|
+5816|Corcelles-près-Payerne|VD|01.09.2006|
+431|Corgémont|BE|01.01.2010|
+2183|Corminboeuf|FR|01.01.2017|
+432|Cormoret|BE|01.01.2010|
+6451|Cornaux|NE|01.01.2018|
+6782|Cornol|JU|01.01.1979|
+5883|Corseaux|VD|01.09.2006|
+6619|Corsier (GE)|GE|01.01.1858|
+5884|Corsier-sur-Vevey|VD|01.09.2006|
+6408|Cortaillod|NE|01.01.2018|
+433|Cortébert|BE|01.01.2010|
+5477|Cossonay|VD|01.09.2006|
+2186|Cottens (FR)|FR|01.01.1933|
+6706|Courchapoix|JU|01.01.1979|
+6783|Courchavon|JU|01.01.1979|
+6784|Courgenay|JU|01.01.1979|
+2250|Courgevaux|FR|12.09.1848|
+6708|Courrendlin|JU|01.01.2019|
+6709|Courroux|JU|01.01.1979|
+690|Court|BE|01.01.2010|
+6785|Courtedoux|JU|01.01.1979|
+434|Courtelary|BE|01.01.2010|
+2254|Courtepin|FR|01.01.2017|
+6710|Courtételle|JU|01.01.1979|
+5713|Crans (VD)|VD|01.01.2021|
+6253|Crans-Montana|VS|01.01.2017|
+5714|Crassier|VD|01.09.2006|
+2257|Cressier (FR)|FR|12.09.1848|
+6452|Cressier (NE)|NE|01.01.2018|
+5583|Crissier|VD|01.09.2006|
+5910|Cronay|VD|01.09.2006|
+5752|Croy|VD|01.09.2006|
+691|Crémines|BE|01.01.2010|
+2130|Crésuz|FR|12.09.1848|
+5479|Cuarnens|VD|01.09.2006|
+5911|Cuarny|VD|01.09.2006|
+5456|Cudrefin|VD|01.09.2006|
+5138|Cugnasco-Gerra|TI|18.10.2020|
+2011|Cugy (FR)|FR|01.01.2005|
+5516|Cugy (VD)|VD|01.09.2006|
+5180|Cureglia|TI|12.09.1848|
+5669|Curtilles|VD|01.09.2006|
+6610|Céligny|GE|12.09.1848|
+25|Dachsen|ZH|12.09.1848|
+1125|Dagmersellen|LU|01.01.2013|
+5480|Daillens|VD|01.09.2006|
+1503|Dallenwil|NW|01.01.1850|
+5071|Dalpe|TI|12.09.1848|
+6811|Damphreux-Lugnez|JU|01.01.2023|
+6620|Dardagny|GE|12.09.1848|
+3851|Davos|GR|01.01.2017|
+3401|Degersheim|SG|01.01.2003|
+535|Deisswil bei Münchenbuchsee|BE|01.01.2010|
+2516|Deitingen|SO|01.01.1991|
+2051|Delley-Portalban|FR|01.01.2005|
+6711|Delémont|JU|01.01.1979|Delsberg
+5631|Denens|VD|01.09.2006|
+5632|Denges|VD|01.09.2006|
+4004|Densbüren|AG|12.09.1848|
+2517|Derendingen|SO|01.01.1991|
+6712|Develier|JU|01.01.1979|
+2884|Diegten|BL|01.01.1994|
+86|Dielsdorf|ZH|12.09.1848|
+762|Diemtigen|BE|01.01.2010|
+2845|Diepflingen|BL|01.01.1994|
+3234|Diepoldsau|SG|01.01.2003|
+1053|Dierikon|LU|01.01.2013|
+385|Diessbach bei Büren|BE|01.01.2010|
+4545|Diessenhofen|TG|01.01.2011|
+243|Dietikon|ZH|01.01.1990|
+54|Dietlikon|ZH|12.09.1848|
+4231|Dietwil|AG|12.09.1848|
+216|Dinhard|ZH|12.09.1848|
+4194|Dintikon|AG|12.09.1848|
+3982|Disentis/Mustér|GR|01.01.2017|Disentis,Mustér
+2784|Dittingen|BL|01.01.1994|
+5481|Dizy|VD|01.09.2006|
+3722|Domat/Ems|GR|01.01.2017|Domat,Ems
+3673|Domleschg|GR|01.01.2017|
+5671|Dompierre (VD)|VD|01.09.2006|
+5913|Donneloye|VD|01.01.2012|
+1001|Doppleschwand|LU|01.01.2013|
+26|Dorf|ZH|12.09.1848|
+2473|Dornach|SO|12.09.1848|
+6212|Dorénaz|VS|12.09.1848|
+4065|Dottikon|AG|12.09.1848|
+386|Dotzigen|BE|01.01.2010|
+4406|Dozwil|TG|01.01.2011|
+2535|Drei Höfe|SO|01.01.2013|
+2785|Duggingen|BL|01.01.1994|
+5715|Duillier|VD|01.09.2006|
+2573|Dulliken|SO|12.09.1848|
+5855|Dully|VD|01.09.2006|
+214|Dägerlen|ZH|12.09.1848|
+84|Dällikon|ZH|12.09.1848|
+2572|Däniken|SO|12.09.1848|
+85|Dänikon|ZH|12.09.1848|
+575|Därligen|BE|01.01.2010|
+761|Därstetten|BE|01.01.2010|
+215|Dättlikon|ZH|12.09.1848|
+5912|Démoret|VD|01.09.2006|
+2915|Dörflingen|SH|12.09.1848|
+4304|Döttingen|AG|12.09.1848|
+191|Dübendorf|ZH|12.09.1848|
+2293|Düdingen|FR|01.01.1922|
+113|Dürnten|ZH|12.09.1848|
+952|Dürrenroth|BE|01.01.2010|
+4134|Dürrenäsch|AG|12.09.1848|
+1054|Ebikon|LU|01.01.2013|
+3352|Ebnat-Kappel|SG|01.01.2003|
+5518|Echallens|VD|01.09.2006|
+5633|Echandens|VD|01.09.2006|
+2131|Echarlens|FR|12.09.1848|
+5634|Echichens|VD|01.07.2011|
+5482|Eclépens|VD|01.09.2006|
+5635|Ecublens (VD)|VD|01.09.2006|
+6713|Ederswiler|JU|01.01.1979|
+2401|Egerkingen|SO|01.01.1991|
+192|Egg|ZH|12.09.1848|
+4066|Eggenwil|AG|12.09.1848|
+6004|Eggerberg|VS|12.09.1848|
+3212|Eggersriet|SG|01.01.2003|
+901|Eggiwil|BE|01.01.2010|
+55|Eglisau|ZH|12.09.1848|
+4195|Egliswil|AG|12.09.1848|
+4411|Egnach|TG|01.01.2011|
+1127|Egolzwil|LU|01.01.2013|
+4049|Ehrendingen|AG|01.01.2006|
+1084|Eich|LU|01.01.2013|
+3252|Eichberg|SG|01.01.2003|
+4161|Eiken|AG|12.09.1848|
+1301|Einsiedeln|SZ|12.09.1848|
+6194|Eischoll|VS|12.09.1848|
+6282|Eisten|VS|12.09.1848|
+294|Elgg|ZH|01.01.2018|
+218|Ellikon an der Thur|ZH|12.09.1848|
+219|Elsau|ZH|01.01.1922|
+6283|Embd|VS|12.09.1848|
+56|Embrach|ZH|01.01.1931|
+1024|Emmen|LU|01.01.2013|
+1504|Emmetten|NW|01.01.1850|
+4305|Endingen|AG|01.01.2014|
+1402|Engelberg|OW|12.09.1848|
+4026|Ennetbaden|AG|12.09.1848|
+1505|Ennetbürgen|NW|01.01.1850|
+1506|Ennetmoos|NW|01.01.1850|
+1002|Entlebuch|LU|01.01.2013|
+5584|Epalinges|VD|01.09.2006|
+5914|Ependes (VD)|VD|01.09.2006|
+2574|Eppenberg-Wöschnau|SO|12.09.1848|
+735|Epsach|BE|01.01.2010|
+2885|Eptingen|BL|01.01.1994|
+6104|Ergisch|VS|12.09.1848|
+953|Eriswil|BE|01.01.2010|
+924|Eriz|BE|01.01.2010|
+492|Erlach|BE|01.01.2010|
+4476|Erlen|TG|01.01.2011|
+151|Erlenbach (ZH)|ZH|12.09.1848|
+763|Erlenbach im Simmental|BE|01.01.2010|
+4005|Erlinsbach (AG)|AG|01.01.2006|
+2503|Erlinsbach (SO)|SO|01.01.2006|
+4646|Ermatingen|TG|01.01.2011|
+1025|Ermensee|LU|01.01.2013|
+6056|Ernen|VS|01.10.2004|
+2615|Erschwil|SO|12.09.1848|
+405|Ersigen|BE|01.01.2016|
+1206|Erstfeld|UR|12.09.1848|
+1026|Eschenbach (LU)|LU|01.01.2013|
+3342|Eschenbach (SG)|SG|01.01.2013|
+4806|Eschenz|TG|01.01.2011|
+692|Eschert|BE|01.01.2010|
+4724|Eschlikon|TG|01.01.2011|
+1010|Escholzmatt-Marbach|LU|01.01.2013|
+5856|Essertines-sur-Rolle|VD|01.09.2006|
+5520|Essertines-sur-Yverdon|VD|01.09.2006|
+2054|Estavayer|FR|01.01.2017|
+5521|Etagnières|VD|01.09.2006|
+5636|Etoy|VD|01.09.2006|
+2768|Ettingen|BL|01.01.1994|
+1128|Ettiswil|LU|01.01.2013|
+2518|Etziken|SO|01.01.1991|
+372|Evilard|BE|01.01.2010|
+6213|Evionnaz|VS|12.09.1848|
+6083|Evolène|VS|12.09.1848|
+5716|Eysins|VD|01.09.2006|
+925|Fahrni|BE|01.01.2010|
+4196|Fahrwangen|AG|12.09.1848|
+6789|Fahy|JU|01.01.1979|
+5072|Faido|TI|10.04.2016|
+3572|Falera|GR|01.01.2017|
+5458|Faoug|VD|01.09.2006|
+975|Farnern|BE|01.01.2010|
+172|Fehraltorf|ZH|12.09.1848|
+2616|Fehren|SO|12.09.1848|
+4561|Felben-Wellhausen|TG|01.01.2011|
+2544|Feldbrunnen-St. Niklaus|SO|12.09.1848|
+3731|Felsberg|GR|01.01.2017|
+6195|Ferden|VS|12.09.1848|
+662|Ferenbalm|BE|01.01.2010|
+2194|Ferpicloz|FR|12.09.1848|
+3713|Ferrera|GR|01.01.2017|
+5483|Ferreyres|VD|01.09.2006|
+27|Feuerthalen|ZH|12.09.1848|
+1321|Feusisberg|SZ|12.09.1848|
+5522|Fey|VD|01.09.2006|
+3861|Fideris|GR|01.01.2017|
+6057|Fiesch|VS|12.09.1848|
+6058|Fieschertal|VS|12.09.1848|
+5556|Fiez|VD|01.09.2006|
+6214|Finhaut|VS|12.09.1848|
+493|Finsterhennen|BE|01.01.2010|
+1129|Fischbach|LU|01.01.2013|
+4067|Fischbach-Göslikon|AG|12.09.1848|
+114|Fischenthal|ZH|12.09.1848|
+4726|Fischingen|TG|01.01.2011|
+4306|Fisibach|AG|12.09.1848|
+4027|Fislisbach|AG|12.09.1848|
+28|Flaach|ZH|12.09.1848|
+3402|Flawil|SG|01.01.2003|
+3662|Flerden|GR|01.01.2017|
+3732|Flims|GR|01.01.2017|
+2545|Flumenthal|SO|12.09.1848|
+3292|Flums|SG|01.01.2003|
+29|Flurlingen|ZH|12.09.1848|
+3951|Fläsch|GR|01.01.2017|
+1207|Flüelen|UR|12.09.1848|
+1004|Flühli|LU|01.01.2013|
+5557|Fontaines-sur-Grandson|VD|01.09.2006|
+6790|Fontenais|JU|01.01.2013|
+5604|Forel (Lavaux)|VD|01.09.2006|
+948|Forst-Längenbühl|BE|01.01.2010|
+5717|Founex|VD|01.09.2006|
+538|Fraubrunnen|BE|01.01.2014|
+4566|Frauenfeld|TG|01.01.2011|
+663|Frauenkappelen|BE|01.01.2010|
+1322|Freienbach|SZ|12.09.1848|
+57|Freienstein-Teufen|ZH|01.01.1958|
+4028|Freienwil|AG|12.09.1848|
+607|Freimettigen|BE|01.01.2010|
+2824|Frenkendorf|BL|01.01.1994|
+2196|Fribourg|FR|12.09.1848|Freiburg
+4163|Frick|AG|12.09.1848|
+5523|Froideville|VD|01.09.2006|
+563|Frutigen|BE|01.01.2010|
+2258|Fräschels|FR|12.09.1848|Chiètres
+2575|Fulenbach|SO|12.09.1848|
+4307|Full-Reuenthal|AG|01.01.1902|
+6133|Fully|VS|12.09.1848|
+3862|Furna|GR|01.01.2017|
+193|Fällanden|ZH|12.09.1848|
+5427|Féchy|VD|01.09.2006|
+2056|Fétigny-Ménières|FR|01.01.2026|
+2825|Füllinsdorf|BL|01.01.1994|
+3633|Fürstenau|GR|01.01.2017|
+4571|Gachnang|TG|01.01.2011|
+3022|Gais|AR|12.09.1848|
+3442|Gaiserwald|SG|01.01.2003|
+1342|Galgenen|SZ|12.09.1848|
+494|Gals|BE|01.01.2010|
+5398|Gambarogno|TI|25.04.2010|
+6118|Gampel-Bratsch|VS|01.01.2009|
+495|Gampelen|BE|01.01.2010|
+3272|Gams|SG|01.01.2003|
+4164|Gansingen|AG|12.09.1848|
+4029|Gebenstorf|AG|01.01.1883|
+2846|Gelterkinden|BL|01.01.1994|
+4232|Geltwil|AG|12.09.1848|
+2474|Gempen|SO|12.09.1848|
+5718|Genolier|VD|01.09.2006|
+6622|Genthod|GE|12.09.1848|
+6621|Genève|GE|01.01.1931|
+2519|Gerlafingen|SO|01.01.1991|
+244|Geroldswil|ZH|01.01.1990|
+1311|Gersau|SZ|12.09.1848|
+866|Gerzensee|BE|01.01.2010|
+1085|Geuensee|LU|01.01.2013|
+2236|Gibloux|FR|01.01.2016|
+2826|Giebenach|BL|01.01.1994|
+5559|Giez|VD|01.09.2006|
+2294|Giffers|FR|12.09.1848|
+5857|Gilly|VD|01.09.2006|
+5428|Gimel|VD|01.09.2006|
+5719|Gingins|VD|01.09.2006|
+5073|Giornico|TI|06.04.2025|
+4165|Gipf-Oberfrick|AG|12.09.1848|
+1055|Gisikon|LU|01.01.2013|
+1403|Giswil|OW|12.09.1848|
+2197|Givisiez|FR|12.09.1848|
+5720|Givrins|VD|01.09.2006|
+5721|Gland|VD|01.09.2006|
+1632|Glarus|GL|01.01.2011|
+1630|Glarus Nord|GL|01.01.2011|
+1631|Glarus Süd|GL|01.01.2011|
+58|Glattfelden|ZH|12.09.1848|
+2022|Gletterens|FR|12.09.1848|
+3213|Goldach|SG|01.01.2003|
+5484|Gollion|VD|01.09.2006|
+3341|Gommiswald|SG|01.01.2013|
+6077|Goms|VS|01.01.2017|
+326|Gondiswil|BE|01.01.2010|
+3102|Gonten|AI|01.01.1997|
+4135|Gontenschwil|AG|12.09.1848|
+5108|Gordola|TI|12.09.1848|
+3443|Gossau (SG)|SG|01.01.2003|
+115|Gossau (ZH)|ZH|12.09.1848|
+4651|Gottlieben|TG|01.01.2011|
+5541|Goumoëns|VD|01.07.2011|
+976|Graben|BE|01.01.2010|
+3273|Grabs|SG|01.01.2003|
+5186|Grancia|TI|12.09.1848|
+5485|Grancy|VD|01.09.2006|
+5817|Grandcour|VD|01.09.2006|
+5560|Grandevent|VD|01.09.2006|
+6792|Grandfontaine|JU|01.01.1979|
+5561|Grandson|VD|01.09.2006|
+694|Grandval|BE|01.01.2010|
+2134|Grandvillard|FR|12.09.1848|
+2328|Granges (Veveyse)|FR|12.09.1848|
+2198|Granges-Paccot|FR|12.09.1848|
+2079|Grangettes|FR|12.09.1848|
+5187|Gravesano|TI|12.09.1848|
+194|Greifensee|ZH|12.09.1848|
+2786|Grellingen|BL|01.01.1994|
+2546|Grenchen|SO|12.09.1848|
+2261|Greng|FR|12.09.1848|
+6177|Grengiols|VS|12.09.1848|
+5722|Grens|VD|01.09.2006|
+1056|Greppen|LU|01.01.2013|
+2576|Gretzenbach|SO|01.01.1973|
+6263|Grimisuat|VS|12.09.1848|
+2617|Grindel|SO|12.09.1848|
+576|Grindelwald|BE|01.01.2010|
+2239|Grolley-Ponthaux|FR|01.01.2025|
+3832|Grono|GR|01.01.2017|
+303|Grossaffoltern|BE|01.01.2010|
+1131|Grossdietwil|LU|01.01.2013|
+608|Grosshöchstetten|BE|01.01.2018|
+1086|Grosswangen|LU|01.01.2013|
+3031|Grub (AR)|AR|12.09.1848|
+2135|Gruyères|FR|12.09.1848|
+5405|Gryon|VD|01.09.2006|
+6285|Grächen|VS|12.09.1848|
+4006|Gränichen|AG|12.09.1848|
+6238|Grône|VS|12.09.1848|
+116|Grüningen|ZH|12.09.1848|
+3961|Grüsch|GR|01.01.2017|
+841|Gsteig|BE|01.01.2010|
+577|Gsteigwiler|BE|01.01.2010|
+852|Guggisberg|BE|01.01.2010|
+2578|Gunzgen|SO|12.09.1848|
+665|Gurbrü|BE|01.01.2010|
+2262|Gurmels|FR|01.01.2026|
+1209|Gurtnellen|UR|12.09.1848|
+867|Gurzelen|BE|01.01.2010|
+782|Guttannen|BE|01.01.2010|
+6117|Guttet-Feschel|VS|01.10.2000|
+6624|Gy|GE|01.01.1851|
+2901|Gächlingen|SH|12.09.1848|
+1208|Göschenen|UR|01.01.1875|
+578|Gündlischwand|BE|01.01.2010|
+2547|Günsberg|SO|12.09.1848|
+4656|Güttingen|TG|01.01.2011|
+579|Habkern|BE|01.01.2010|
+4099|Habsburg|AG|12.09.1848|
+220|Hagenbuch|ZH|12.09.1848|
+736|Hagneck|BE|01.01.2010|
+2971|Hallau|SH|01.01.1934|
+4197|Hallwil|AG|01.01.1951|
+1005|Hasle (LU)|LU|01.01.2013|
+406|Hasle bei Burgdorf|BE|01.01.2010|
+783|Hasliberg|BE|01.01.2010|
+2491|Hauenstein-Ifenthal|SO|12.09.1848|
+4486|Hauptwil-Gottshaus|TG|01.01.2011|
+4100|Hausen (AG)|AG|01.01.2003|
+4|Hausen am Albis|ZH|01.01.1911|
+2121|Haut-Intyamon|FR|01.01.2002|
+6809|Haute-Ajoie|JU|01.01.2018|
+6729|Haute-Sorne|JU|01.01.2013|
+5656|Hautemorges|VD|01.07.2021|
+2233|Hauterive (FR)|FR|01.01.2001|Guin
+2137|Hauteville|FR|12.09.1848|
+5|Hedingen|ZH|12.09.1848|
+4416|Hefenhofen|TG|01.01.2011|
+3032|Heiden|AR|12.09.1848|
+927|Heiligenschwendi|BE|01.01.2010|
+928|Heimberg|BE|01.01.2010|
+977|Heimenhausen|BE|01.01.2010|
+407|Heimiswil|BE|01.01.2010|
+2296|Heitenried|FR|12.09.1848|
+4251|Hellikon|AG|12.09.1848|
+408|Hellsau|BE|01.01.2010|
+2962|Hemishofen|SH|12.09.1848|
+2848|Hemmiken|BL|01.01.1994|
+4198|Hendschiken|AG|12.09.1848|
+31|Henggart|ZH|12.09.1848|
+5819|Henniez|VD|01.09.2006|
+2424|Herbetswil|SO|01.01.1991|
+610|Herbligen|BE|01.01.2010|
+4811|Herdern|TG|01.01.2011|
+1507|Hergiswil (NW)|NW|01.01.1850|
+1132|Hergiswil bei Willisau|LU|01.01.2013|
+3001|Herisau|AR|12.09.1848|
+6625|Hermance|GE|12.09.1848|
+5673|Hermenches|VD|01.09.2006|
+737|Hermrigen|BE|01.01.2010|
+152|Herrliberg|ZH|12.09.1848|
+2827|Hersberg|BL|01.01.1994|
+4186|Herznach-Ueken|AG|01.01.2023|
+979|Herzogenbuchsee|BE|01.01.2010|
+221|Hettlingen|ZH|12.09.1848|
+1088|Hildisrieden|LU|01.01.2013|
+929|Hilterfingen|BE|01.01.2010|
+2618|Himmelried|SO|12.09.1848|
+409|Hindelbank|BE|01.01.2021|
+117|Hinwil|ZH|12.09.1848|
+4007|Hirschthal|AG|12.09.1848|
+173|Hittnau|ZH|12.09.1848|
+1030|Hitzkirch|LU|01.01.2021|
+1031|Hochdorf|LU|01.01.2013|
+59|Hochfelden|ZH|12.09.1848|
+2475|Hochwald|SO|12.09.1848|
+580|Hofstetten bei Brienz|BE|01.01.2010|
+2476|Hofstetten-Flüh|SO|01.01.1986|
+1032|Hohenrain|LU|01.01.2013|
+4495|Hohentannen|TG|01.01.2011|
+4199|Holderbank (AG)|AG|12.09.1848|
+2425|Holderbank (SO)|SO|01.01.1991|
+4136|Holziken|AG|12.09.1848|
+931|Homberg|BE|01.01.2010|
+153|Hombrechtikon|ZH|12.09.1848|
+4816|Homburg|TG|01.01.2011|
+295|Horgen|ZH|01.01.2018|
+4421|Horn|TG|01.01.2011|
+932|Horrenbach-Buchen|BE|01.01.2010|
+2523|Horriwil|SO|01.01.1991|
+1058|Horw|LU|01.01.2013|
+1210|Hospental|UR|12.09.1848|
+2548|Hubersdorf|SO|12.09.1848|
+3002|Hundwil|AR|12.09.1848|
+4200|Hunzenschwil|AG|12.09.1848|
+954|Huttwil|BE|01.01.2010|
+2847|Häfelfingen|BL|01.01.1994|
+2579|Hägendorf|SO|12.09.1848|
+3201|Häggenschwil|SG|01.01.2003|
+4068|Hägglingen|AG|12.09.1848|
+2402|Härkingen|SO|01.01.1991|
+609|Häutligen|BE|01.01.2010|
+6084|Hérémence|VS|12.09.1848|
+410|Höchstetten|BE|01.01.2010|
+2886|Hölstein|BL|01.01.1994|
+60|Höri|ZH|12.09.1848|
+1703|Hünenberg|ZG|12.09.1848|
+2524|Hüniken|SO|01.01.1991|
+61|Hüntwangen|ZH|12.09.1848|
+87|Hüttikon|ZH|12.09.1848|
+4590|Hüttlingen|TG|01.01.2011|
+4821|Hüttwilen|TG|01.01.2011|
+6239|Icogne|VS|01.01.1905|
+541|Iffwil|BE|01.01.2010|
+3619|Ilanz/Glion|GR|01.01.2017|Ilanz,Glion
+1363|Illgau|SZ|12.09.1848|
+296|Illnau-Effretikon|ZH|01.01.2016|
+6109|Inden|VS|12.09.1848|
+1364|Ingenbohl|SZ|12.09.1848|
+980|Inkwil|BE|01.01.2010|
+1343|Innerthal|SZ|12.09.1848|
+784|Innertkirchen|BE|01.01.2014|
+496|Ins|BE|01.01.2010|
+581|Interlaken|BE|01.01.2010|
+1033|Inwil|LU|01.01.2013|
+739|Ipsach|BE|01.01.2010|
+582|Iseltwald|BE|01.01.2010|
+1211|Isenthal|UR|12.09.1848|
+4084|Islisberg|AG|01.01.1983|
+5009|Isone|TI|12.09.1848|
+6134|Isérables|VS|12.09.1848|
+2849|Itingen|BL|01.01.1994|
+362|Ittigen|BE|01.01.2010|
+868|Jaberg|BE|01.01.2010|
+2138|Jaun|FR|12.09.1848|
+540|Jegenstorf|BE|01.01.2014|
+3863|Jenaz|GR|01.01.2017|
+3952|Jenins|GR|01.01.2017|
+738|Jens|BE|01.01.2010|
+4071|Jonen|AG|12.09.1848|
+5885|Jongny|VD|01.09.2006|
+3405|Jonschwil|SG|01.01.2003|
+5804|Jorat-Menthue|VD|01.07.2011|
+5806|Jorat-Mézières|VD|01.07.2016|
+5585|Jouxtens-Mézery|VD|01.09.2006|
+5754|Juriens|VD|01.09.2006|
+6626|Jussy|GE|01.01.1851|
+4252|Kaiseraugst|AG|12.09.1848|
+4169|Kaisten|AG|01.01.2010|
+4233|Kallern|AG|12.09.1848|
+304|Kallnach|BE|01.01.2019|
+3313|Kaltbrunn|SG|01.01.2003|
+2549|Kammersrohr|SO|12.09.1848|
+564|Kandergrund|BE|01.01.2010|
+565|Kandersteg|BE|01.01.2010|
+2580|Kappel (SO)|SO|12.09.1848|
+6|Kappel am Albis|ZH|01.01.1911|
+305|Kappelen|BE|01.01.2010|
+869|Kaufdorf|BE|01.01.2010|
+870|Kehrsatz|BE|01.01.2010|
+4666|Kemmental|TG|01.01.2011|
+411|Kernenried|BE|01.01.2010|
+1404|Kerns|OW|12.09.1848|
+2265|Kerzers|FR|12.09.1848|
+4426|Kesswil|TG|01.01.2011|
+2403|Kestenholz|SO|01.01.1991|
+2492|Kienberg|SO|12.09.1848|
+611|Kiesen|BE|01.01.2010|
+2851|Kilchberg (BL)|BL|01.01.1994|
+135|Kilchberg (ZH)|ZH|12.09.1848|
+4030|Killwangen|AG|12.09.1848|
+6197|Kippel|VS|12.09.1848|
+412|Kirchberg (BE)|BE|01.01.2010|
+3392|Kirchberg (SG)|SG|01.01.2003|
+872|Kirchdorf (BE)|BE|01.01.2018|
+4275|Kirchleerau|AG|12.09.1848|
+354|Kirchlindach|BE|01.01.2010|
+33|Kleinandelfingen|ZH|12.09.1848|
+2266|Kleinbösingen|FR|12.09.1848|
+2619|Kleinlützel|SO|12.09.1848|
+4309|Klingnau|AG|12.09.1848|
+3871|Klosters|GR|01.01.2021|
+62|Kloten|ZH|01.01.2024|
+7|Knonau|ZH|12.09.1848|
+1089|Knutwil|LU|01.01.2013|
+4310|Koblenz|AG|12.09.1848|
+612|Konolfingen|BE|01.01.2010|
+413|Koppigen|BE|01.01.2010|
+4501|Kradolf-Schönenberg|TG|01.01.2011|
+566|Krattigen|BE|01.01.2010|
+414|Krauchthal|BE|01.01.2010|
+4671|Kreuzlingen|TG|01.01.2011|
+666|Kriechenwil|BE|01.01.2010|
+2525|Kriegstetten|SO|01.01.2026|
+1059|Kriens|LU|01.01.2013|
+2850|Känerkinden|BL|01.01.1994|
+4276|Kölliken|AG|12.09.1848|
+355|Köniz|BE|01.01.2010|
+3882|Küblis|GR|01.01.2017|
+4031|Künten|AG|12.09.1848|
+154|Küsnacht (ZH)|ZH|12.09.1848|
+1331|Küssnacht (SZ)|SZ|01.01.2004|
+4008|Küttigen|AG|12.09.1848|
+5871|L'Abbaye|VD|01.09.2006|
+5741|L'Abergement|VD|01.09.2006|
+5486|L'Isle|VD|01.09.2006|
+6810|La Baroche|JU|01.01.2009|
+2234|La Brillaz|FR|01.01.2001|
+6432|La Brévine|NE|01.01.2018|
+5474|La Chaux (Cossonay)|VD|01.09.2006|
+6421|La Chaux-de-Fonds|NE|01.01.2018|
+6435|La Chaux-du-Milieu|NE|01.01.2018|
+6504|La Côte-aux-Fées|NE|01.01.2018|
+435|La Ferrière|BE|01.01.2010|
+6417|La Grande Béroche|NE|01.04.2018|
+723|La Neuveville|BE|01.01.2010|
+5758|La Praz|VD|01.09.2006|
+3785|La Punt Chamues-ch|GR|01.10.2020|
+5726|La Rippe|VD|01.09.2006|
+2149|La Roche|FR|12.09.1848|
+6423|La Sagne|NE|01.01.2018|
+5498|La Sarraz|VD|01.09.2006|
+2235|La Sonnaz|FR|01.01.2004|
+5889|La Tour-de-Peilz|VD|01.09.2006|
+2338|La Verrerie|FR|01.01.2004|
+3575|Laax|GR|01.01.2017|
+1344|Lachen|SZ|12.09.1848|
+6627|Laconnex|GE|01.01.1851|
+6750|Lajoux (JU)|JU|01.01.1979|
+6286|Lalden|VS|12.09.1848|
+5189|Lamone|TI|12.09.1848|
+2887|Lampenberg|BL|01.01.1994|
+6628|Lancy|GE|12.09.1848|
+613|Landiswil|BE|01.01.2010|
+3955|Landquart|GR|01.01.2017|
+2888|Langenbruck|BL|01.01.1994|
+2550|Langendorf|SO|12.09.1848|
+329|Langenthal|BE|01.01.2021|
+136|Langnau am Albis|ZH|12.09.1848|
+902|Langnau im Emmental|BE|01.01.2010|
+4681|Langrickenbach|TG|01.01.2011|
+3513|Lantsch/Lenz|GR|01.01.2017|Lantsch,Lenz
+6513|Laténa|NE|01.01.2025|
+842|Lauenen|BE|01.01.2010|
+1365|Lauerz|SZ|12.09.1848|
+2787|Laufen|BL|01.01.1994|
+34|Laufen-Uhwiesen|ZH|12.09.1848|
+4170|Laufenburg|AG|01.01.2010|
+667|Laupen|BE|01.01.2010|
+2426|Laupersdorf|SO|01.01.1991|
+903|Lauperswil|BE|01.01.2010|
+5586|Lausanne|VD|01.09.2006|
+2828|Lausen|BL|01.01.1994|
+584|Lauterbrunnen|BE|01.01.2010|
+2889|Lauwil|BL|01.01.1994|
+5112|Lavertezzo|TI|18.10.2020|
+5406|Lavey-Morcles|VD|01.09.2006|
+5637|Lavigny|VD|01.09.2006|
+5323|Lavizzara|TI|04.04.2004|
+6061|Lax|VS|12.09.1848|
+6741|Le Bémont (JU)|JU|01.01.1979|
+6434|Le Cerneux-Péquignot|NE|01.01.2018|
+5872|Le Chenit|VD|01.09.2006|
+2067|Le Châtelard|FR|12.09.1848|
+2337|Le Flon|FR|01.01.2004|
+6623|Le Grand-Saconnex|GE|12.09.1848|
+6455|Le Landeron|NE|01.01.2018|
+5873|Le Lieu|VD|01.09.2006|
+6436|Le Locle|NE|01.01.2021|
+5587|Le Mont-sur-Lausanne|VD|01.09.2006|
+2220|Le Mouret|FR|01.01.2003|
+6754|Le Noirmont|JU|01.01.1979|
+2145|Le Pâquier (FR)|FR|12.09.1848|
+5731|Le Vaud|VD|01.09.2006|
+4311|Leibstadt|AG|01.01.1866|
+4137|Leimbach (AG)|AG|12.09.1848|
+585|Leissigen|BE|01.01.2010|
+5395|Lema|TI|06.04.2025|
+4312|Lengnau (AG)|AG|12.09.1848|
+387|Lengnau (BE)|BE|01.01.2010|
+4683|Lengwil|TG|01.01.2011|
+792|Lenk|BE|01.01.2010|
+6240|Lens|VS|01.01.1905|
+4201|Lenzburg|AG|12.09.1848|
+6742|Les Bois|JU|01.01.1979|
+6743|Les Breuleux|JU|01.01.2023|
+5750|Les Clées|VD|01.09.2006|
+6745|Les Enfers|JU|01.01.1979|
+6748|Les Genevez (JU)|JU|01.01.1979|
+2050|Les Montets|FR|01.01.2004|
+6422|Les Planchettes|NE|01.01.2018|
+6437|Les Ponts-de-Martel|NE|01.01.2018|
+6511|Les Verrières|NE|01.01.2018|
+4313|Leuggern|AG|01.01.1902|
+6110|Leuk|VS|01.01.2013|
+6111|Leukerbad|VS|12.09.1848|
+4138|Leutwil|AG|12.09.1848|
+388|Leuzigen|BE|01.01.2010|
+5407|Leysin|VD|01.09.2006|
+6135|Leytron|VS|12.09.1848|
+3374|Lichtensteig|SG|01.01.2003|
+6033|Liddes|VS|12.09.1848|
+2890|Liedertswil|BL|01.01.1994|
+2788|Liesberg|BL|01.01.1994|
+2829|Liestal|BL|01.01.1994|
+740|Ligerz|BE|01.01.2010|
+5755|Lignerolle|VD|01.09.2006|
+6456|Lignières|NE|01.01.2018|
+176|Lindau|ZH|12.09.1848|
+614|Linden|BE|01.01.2010|
+5315|Linescio|TI|01.01.1858|
+5113|Locarno|TI|01.01.1928|
+2917|Lohn (SH)|SH|12.09.1848|
+2526|Lohn-Ammannsegg|SO|01.01.1993|
+4741|Lommis|TG|01.01.2011|
+2551|Lommiswil|SO|12.09.1848|
+5638|Lonay|VD|01.09.2006|
+5429|Longirod|VD|01.09.2006|
+5115|Losone|TI|12.09.1848|
+3821|Lostallo|GR|01.01.2017|
+2493|Lostorf|SO|12.09.1848|
+331|Lotzwil|BE|01.01.2010|
+5674|Lovatens|VD|01.09.2006|
+696|Loveresse|BE|01.01.2010|
+5675|Lucens|VD|01.01.2017|
+63|Lufingen|ZH|12.09.1848|
+5192|Lugano|TI|14.04.2013|Lauis
+5858|Luins|VD|01.09.2006|
+2025|Lully (FR)|FR|01.01.2006|
+5639|Lully (VD)|VD|01.09.2006|
+5010|Lumino|TI|12.09.1848|
+3618|Lumnezia|GR|01.01.2017|
+1405|Lungern|OW|12.09.1848|
+4104|Lupfig|AG|01.01.2018|
+2830|Lupsingen|BL|01.01.1994|
+5487|Lussery-Villars|VD|01.09.2006|
+5640|Lussy-sur-Morges|VD|01.09.2006|
+2527|Luterbach|SO|01.01.1991|
+1135|Luthern|LU|01.01.2013|
+5606|Lutry|VD|01.09.2006|
+3033|Lutzenberg|AR|12.09.1848|
+3891|Luzein|GR|01.01.2017|
+1061|Luzern|LU|01.01.2013|
+306|Lyss|BE|01.01.2011|
+415|Lyssach|BE|01.01.2010|
+2852|Läufelfingen|BL|01.01.1994|
+2903|Löhningen|SH|12.09.1848|
+497|Lüscherz|BE|01.01.2010|
+2464|Lüsslingen-Nennigkofen|SO|01.01.2013|
+2455|Lüterkofen-Ichertswil|SO|01.01.1961|
+3393|Lütisburg|SG|01.01.2003|
+586|Lütschental|BE|01.01.2010|
+955|Lützelflüh|BE|01.01.2010|
+332|Madiswil|BE|01.01.2011|
+3783|Madulain|GR|01.01.2017|
+4253|Magden|AG|12.09.1848|
+5317|Maggia|TI|04.04.2004|
+5193|Magliaso|TI|12.09.1848|
+3953|Maienfeld|GR|01.01.2017|
+2853|Maisprach|BL|01.01.1994|
+3954|Malans|GR|01.01.2017|
+1062|Malters|LU|01.01.2013|
+4826|Mammern|TG|01.01.2011|
+4105|Mandach|AG|12.09.1848|
+5194|Manno|TI|12.09.1848|
+5790|Maracon|VD|01.09.2006|
+3253|Marbach (SG)|SG|01.01.2003|
+5430|Marchissy|VD|01.09.2006|
+2206|Marly|FR|01.01.1976|
+2140|Marsens|FR|01.01.2001|
+35|Marthalen|ZH|12.09.1848|
+6136|Martigny|VS|01.01.2021|
+6137|Martigny-Combe|VS|01.01.1900|
+8|Maschwanden|ZH|12.09.1848|
+3663|Masein|GR|01.01.2017|
+5196|Massagno|TI|12.09.1848|
+6215|Massongex|VS|12.09.1848|
+2086|Massonnens|FR|12.09.1848|
+5919|Mathod|VD|01.09.2006|
+2208|Matran|FR|12.09.1848|
+587|Matten bei Interlaken|BE|01.01.2010|
+543|Mattstetten|BE|01.01.2010|
+2427|Matzendorf|SO|01.01.1991|
+4591|Matzingen|TG|01.01.2011|
+5562|Mauborget|VD|01.09.2006|
+1091|Mauensee|LU|01.01.2013|
+195|Maur|ZH|12.09.1848|
+5488|Mauraz|VD|01.09.2006|
+3983|Medel (Lucmagn)|GR|01.01.2017|
+1063|Meggen|LU|01.01.2013|
+389|Meienried|BE|01.01.2010|
+1064|Meierskappel|LU|01.01.2013|
+307|Meikirch|BE|01.01.2010|
+156|Meilen|ZH|12.09.1848|
+6629|Meinier|GE|12.09.1848|
+390|Meinisberg|BE|01.01.2010|
+785|Meiringen|BE|01.01.2010|
+4202|Meisterschwanden|AG|01.01.1900|
+333|Melchnau|BE|01.01.2010|
+5198|Melide|TI|12.09.1848|
+4314|Mellikon|AG|12.09.1848|
+4033|Mellingen|AG|12.09.1848|
+3293|Mels|SG|01.01.2003|
+2620|Meltingen|SO|12.09.1848|
+5254|Mendrisio|TI|14.04.2013|
+4139|Menziken|AG|01.01.2023|
+1704|Menzingen|ZG|12.09.1848|
+1136|Menznau|LU|01.01.2013|
+4234|Merenschwand|AG|01.01.2012|
+5117|Mergoscia|TI|12.09.1848|
+2936|Merishausen|SH|12.09.1848|
+6715|Mervelier|JU|01.01.1979|
+741|Merzligen|BE|01.01.2010|
+3822|Mesocco|GR|01.01.2017|
+2457|Messen|SO|01.01.2010|
+4184|Mettauertal|AG|01.01.2010|
+6716|Mettembert|JU|01.01.1984|
+9|Mettmenstetten|ZH|12.09.1848|
+2477|Metzerlen-Mariastein|SO|01.01.2004|
+5489|Mex (VD)|VD|01.09.2006|
+2271|Meyriez|FR|12.09.1848|
+6630|Meyrin|GE|12.09.1848|
+5199|Mezzovico-Vira|TI|12.09.1848|
+5723|Mies|VD|01.09.2006|
+6416|Milvignes|NE|01.01.2018|
+5118|Minusio|TI|12.09.1848|
+615|Mirchel|BE|01.01.2010|
+2272|Misery-Courtion|FR|01.01.1997|
+5821|Missy|VD|01.09.2006|
+5490|Moiry|VD|01.09.2006|
+5431|Mollens (VD)|VD|01.09.2006|
+5921|Molondin|VD|01.09.2006|
+5491|Mont-la-Ville|VD|01.09.2006|
+6090|Mont-Noble|VS|01.01.2011|
+5859|Mont-sur-Rolle|VD|01.09.2006|
+437|Mont-Tramelan|BE|01.01.2010|
+2284|Mont-Vully|FR|01.01.2016|
+2029|Montagny (FR)|FR|01.01.2004|
+5922|Montagny-près-Yverdon|VD|01.09.2006|
+5693|Montanaire|VD|01.01.2013|
+5756|Montcherand|VD|01.09.2006|
+5238|Monteceneri|TI|21.11.2010|
+6751|Montfaucon|JU|01.01.2009|
+6153|Monthey|VS|12.09.1848|
+5540|Montilliez|VD|01.07.2011|
+5792|Montpreveyres|VD|01.09.2006|
+5886|Montreux|VD|01.09.2006|
+5492|Montricher|VD|01.09.2006|
+4277|Moosleerau|AG|12.09.1848|
+544|Moosseedorf|BE|01.01.2010|
+5257|Morbio Inferiore|TI|12.09.1848|
+5203|Morcote|TI|12.09.1848|
+5642|Morges|VD|01.09.2006|
+2143|Morlon|FR|12.09.1848|
+5527|Morrens (VD)|VD|01.09.2006|
+1366|Morschach|SZ|12.09.1848|
+3394|Mosnang|SG|01.01.2003|
+5678|Moudon|VD|01.09.2006|
+6831|Moutier|JU|01.01.2026|
+6718|Movelier|JU|01.01.1979|
+4009|Muhen|AG|12.09.1848|
+4255|Mumpf|AG|12.09.1848|
+2274|Muntelier|FR|12.09.1848|
+3715|Muntogna da Schons|GR|01.01.2021|
+3202|Muolen|SG|01.01.2003|
+1367|Muotathal|SZ|12.09.1848|
+5120|Muralto|TI|01.01.1881|
+4279|Murgenthal|AG|01.01.1901|
+4236|Muri (AG)|AG|12.09.1848|
+356|Muri bei Bern|BE|01.01.2010|
+6753|Muriaux|JU|01.01.2009|
+2275|Murten|FR|01.01.2022|Morat
+5563|Mutrux|VD|01.09.2006|
+2770|Muttenz|BL|01.01.1994|
+5205|Muzzano|TI|12.09.1848|
+4032|Mägenwil|AG|12.09.1848|
+155|Männedorf|ZH|12.09.1848|
+4941|Märstetten|TG|01.01.2011|
+2087|Mézières (FR)|FR|01.01.2004|
+4254|Möhlin|AG|12.09.1848|
+196|Mönchaltorf|ZH|12.09.1848|
+4106|Mönthal|AG|12.09.1848|
+6203|Mörel-Filet|VS|01.01.2009|
+742|Mörigen|BE|01.01.2010|
+4203|Möriken-Wildegg|AG|01.01.1951|
+3214|Mörschwil|SG|01.01.2003|
+4235|Mühlau|AG|12.09.1848|
+668|Mühleberg|BE|01.01.2010|
+4831|Müllheim|TG|01.01.2011|
+4107|Mülligen|AG|12.09.1848|
+2428|Mümliswil-Ramiswil|SO|01.01.1991|
+546|Münchenbuchsee|BE|01.01.2023|
+2769|Münchenstein|BL|01.01.1994|
+669|Münchenwiler|BE|01.01.2010|
+4172|Münchwilen (AG)|AG|12.09.1848|
+4746|Münchwilen (TG)|TG|01.01.2011|
+616|Münsingen|BE|01.01.2017|
+4691|Münsterlingen|TG|01.01.2011|
+498|Müntschemier|BE|01.01.2010|
+6007|Naters|VS|01.01.2013|
+1137|Nebikon|LU|01.01.2013|
+3396|Neckertal|SG|01.01.2023|
+88|Neerach|ZH|12.09.1848|
+223|Neftenbach|ZH|01.01.2013|
+5206|Neggio|TI|12.09.1848|
+6024|Nendaz|VS|12.09.1848|
+2789|Nenzlingen|BL|01.01.1994|
+3360|Nesslau|SG|01.01.2013|
+6458|Neuchâtel|NE|01.01.2021|
+2404|Neuendorf|SO|01.01.2025|
+670|Neuenegg|BE|01.01.2010|
+4034|Neuenhof|AG|12.09.1848|
+1093|Neuenkirch|LU|01.01.2013|
+2937|Neuhausen am Rheinfall|SH|01.01.1938|
+1705|Neuheim|ZG|12.09.1848|
+4601|Neunforn|TG|01.01.2011|
+2904|Neunkirch|SH|12.09.1848|
+2211|Neyruz (FR)|FR|01.01.1933|
+743|Nidau|BE|01.01.2010|
+981|Niederbipp|BE|01.01.2020|
+2405|Niederbuchsiten|SO|01.01.1991|
+3422|Niederbüren|SG|01.01.2003|
+2891|Niederdorf|BL|01.01.1994|
+6198|Niedergesteln|VS|12.09.1848|
+89|Niederglatt|ZH|12.09.1848|
+2495|Niedergösgen|SO|12.09.1848|
+90|Niederhasli|ZH|12.09.1848|
+3423|Niederhelfenschwil|SG|01.01.2003|
+617|Niederhünigen|BE|01.01.2010|
+4204|Niederlenz|AG|12.09.1848|
+877|Niedermuhlern|BE|01.01.2010|
+588|Niederried bei Interlaken|BE|01.01.2010|
+4035|Niederrohrdorf|AG|01.01.1854|
+91|Niederweningen|ZH|12.09.1848|
+4072|Niederwil (AG)|AG|01.01.1901|
+982|Niederönz|BE|01.01.2010|
+6254|Noble-Contrée|VS|01.01.2021|
+724|Nods|BE|01.01.2010|
+1094|Nottwil|LU|01.01.2013|
+5564|Novalles|VD|01.09.2006|
+5260|Novazzano|TI|12.09.1848|
+5408|Noville|VD|01.09.2006|
+2478|Nuglar-St. Pantaleon|SO|12.09.1848|
+2621|Nunningen|SO|12.09.1848|
+2854|Nusshof|BL|01.01.1994|
+2035|Nuvilly|FR|12.09.1848|
+5724|Nyon|VD|01.09.2006|
+64|Nürensdorf|ZH|01.01.2024|
+357|Oberbalm|BE|01.01.2010|
+983|Oberbipp|BE|01.01.2010|
+2406|Oberbuchsiten|SO|01.01.2025|
+418|Oberburg|BE|01.01.2010|
+3424|Oberbüren|SG|01.01.2003|
+619|Oberdiessbach|BE|01.01.2014|
+2892|Oberdorf (BL)|BL|01.01.1994|
+1508|Oberdorf (NW)|NW|01.01.1850|
+2553|Oberdorf (SO)|SO|12.09.1848|
+3111|Oberegg|AI|01.01.1997|
+65|Oberembrach|ZH|01.01.1927|
+6112|Oberems|VS|12.09.1848|
+245|Oberengstringen|ZH|01.01.1990|
+4010|Oberentfelden|AG|12.09.1848|
+2528|Obergerlafingen|SO|01.01.1991|
+92|Oberglatt|ZH|12.09.1848|
+6076|Obergoms|VS|01.01.2009|
+2497|Obergösgen|SO|12.09.1848|
+2972|Oberhallau|SH|12.09.1848|
+4173|Oberhof|AG|12.09.1848|
+934|Oberhofen am Thunersee|BE|01.01.2010|
+629|Oberhünigen|BE|01.01.2010|
+1368|Oberiberg|SZ|01.01.1884|
+1095|Oberkirch|LU|01.01.2013|
+4140|Oberkulm|AG|12.09.1848|
+935|Oberlangenegg|BE|01.01.2010|
+4073|Oberlunkhofen|AG|12.09.1848|
+4256|Obermumpf|AG|12.09.1848|
+589|Oberried am Brienzersee|BE|01.01.2010|
+137|Oberrieden|ZH|12.09.1848|
+3254|Oberriet (SG)|SG|01.01.2003|
+4037|Oberrohrdorf|AG|01.01.1854|
+4237|Oberrüti|AG|12.09.1848|
+3988|Obersaxen Mundaun|GR|01.01.2017|
+4038|Obersiggenthal|AG|12.09.1848|
+620|Oberthal|BE|01.01.2010|
+3407|Oberuzwil|SG|01.01.2003|
+93|Oberweningen|ZH|12.09.1848|
+2771|Oberwil (BL)|BL|01.01.1994|
+391|Oberwil bei Büren|BE|01.01.2010|
+766|Oberwil im Simmental|BE|01.01.2010|
+4074|Oberwil-Lieli|AG|01.01.1984|
+1706|Oberägeri|ZG|12.09.1848|
+10|Obfelden|ZH|12.09.1848|
+985|Ochlenberg|BE|01.01.2010|
+2407|Oensingen|SO|01.01.1991|
+335|Oeschenbach|BE|01.01.2010|
+4175|Oeschgen|AG|12.09.1848|
+157|Oetwil am See|ZH|12.09.1848|
+246|Oetwil an der Limmat|ZH|01.01.1990|
+4280|Oftringen|AG|12.09.1848|
+5680|Ogens|VD|01.09.2006|
+5409|Ollon|VD|01.09.2006|
+4257|Olsberg|AG|12.09.1848|
+2581|Olten|SO|12.09.1848|
+2855|Oltingen|BL|01.01.1994|
+6631|Onex|GE|01.01.1851|
+5565|Onnens (VD)|VD|01.09.2006|
+5136|Onsernone|TI|10.04.2016|
+66|Opfikon|ZH|12.09.1848|
+5923|Oppens|VD|01.09.2006|
+622|Oppligen|BE|01.01.2010|
+5757|Orbe|VD|01.09.2006|
+5924|Orges|VD|01.09.2006|
+5208|Origlio|TI|12.09.1848|
+2856|Ormalingen|BL|01.01.1994|
+5410|Ormont-Dessous|VD|01.09.2006|
+5411|Ormont-Dessus|VD|01.09.2006|
+5493|Orny|VD|01.09.2006|
+5805|Oron|VD|01.01.2022|
+744|Orpund|BE|01.01.2010|
+5121|Orselina|TI|01.01.1881|
+6034|Orsières|VS|12.09.1848|
+438|Orvin|BE|01.01.2010|
+5925|Orzens|VD|01.09.2006|
+37|Ossingen|ZH|12.09.1848|
+363|Ostermundigen|BE|01.01.2010|
+94|Otelfingen|ZH|12.09.1848|
+4205|Othmarsingen|AG|12.09.1848|
+11|Ottenbach|ZH|12.09.1848|
+5529|Oulens-sous-Echallens|VD|01.09.2006|
+5530|Pailly|VD|01.09.2006|
+5210|Paradiso|TI|01.01.1929|
+5588|Paudex|VD|01.09.2006|
+5822|Payerne|VD|01.09.2006|
+5495|Penthalaz|VD|01.09.2006|
+5496|Penthaz|VD|01.09.2006|
+5531|Penthéréaz|VD|01.09.2006|
+6632|Perly-Certoux|GE|12.09.1848|
+701|Perrefitte|BE|01.01.2010|
+5860|Perroy|VD|01.09.2006|
+5076|Personico|TI|12.09.1848|
+716|Petit-Val|BE|01.01.2015|
+1139|Pfaffnau|LU|01.01.2013|
+2772|Pfeffingen|BL|01.01.1994|
+224|Pfungen|ZH|12.09.1848|
+4841|Pfyn|TG|01.01.2011|
+3294|Pfäfers|SG|01.01.2003|
+177|Pfäffikon|ZH|12.09.1848|
+2216|Pierrafortscha|FR|12.09.1848|
+392|Pieterlen|BE|01.01.2010|
+2299|Plaffeien|FR|01.01.2017|
+6633|Plan-les-Ouates|GE|01.01.1851|
+2300|Plasselb|FR|01.01.1971|
+726|Plateau de Diesse|BE|01.01.2014|
+6719|Pleigne|JU|01.01.1979|
+936|Pohlern|BE|01.01.2010|
+5533|Poliez-Pittet|VD|01.09.2006|
+5077|Pollegio|TI|12.09.1848|
+5497|Pompaples|VD|01.09.2006|
+5926|Pomy|VD|01.09.2006|
+2122|Pont-en-Ogoz|FR|01.01.2003|
+2147|Pont-la-Ville|FR|12.09.1848|
+5212|Ponte Capriasca|TI|12.09.1848|
+3784|Pontresina|GR|01.01.2017|
+6800|Porrentruy|JU|01.01.1979|
+745|Port|BE|01.01.2010|
+6154|Port-Valais|VS|12.09.1848|
+5214|Porza|TI|12.09.1848|
+3561|Poschiavo|GR|01.01.2017|
+5725|Prangins|VD|01.09.2006|
+2831|Pratteln|BL|01.01.1994|
+6634|Pregny-Chambésy|GE|01.01.1952|
+5759|Premier|VD|01.09.2006|
+6635|Presinge|GE|01.01.1851|
+2237|Prez|FR|01.01.2020|
+5589|Prilly|VD|01.09.2006|
+5566|Provence|VD|01.09.2006|
+5643|Préverenges|VD|01.09.2006|
+2038|Prévondavaux|FR|12.09.1848|
+5683|Prévonloup|VD|01.09.2006|
+5607|Puidoux|VD|01.09.2006|
+5590|Pully|VD|01.09.2006|
+6636|Puplinge|GE|01.01.1851|
+5216|Pura|TI|12.09.1848|
+450|Péry-La Heutte|BE|01.01.2015|
+3295|Quarten|SG|01.01.2003|
+5079|Quinto|TI|06.04.2025|
+309|Radelfingen|BE|01.01.2010|
+67|Rafz|ZH|12.09.1848|
+1037|Rain|LU|01.01.2013|
+2832|Ramlinsburg|BL|01.01.1994|
+2963|Ramsen|SH|12.09.1848|
+5760|Rances|VD|01.09.2006|
+6287|Randa|VS|12.09.1848|
+4846|Raperswilen|TG|01.01.2011|
+310|Rapperswil (BE)|BE|01.01.2016|
+3340|Rapperswil-Jona|SG|01.01.2007|
+6199|Raron|VS|12.09.1848|
+1212|Realp|UR|12.09.1848|
+3255|Rebstein|SG|01.01.2003|
+715|Rebévelier|BE|01.01.2010|
+2530|Recherswil|SO|01.01.1991|
+2301|Rechthalten|FR|12.09.1848|
+703|Reconvilier|BE|01.01.2010|
+95|Regensberg|ZH|12.09.1848|
+96|Regensdorf|ZH|12.09.1848|
+3034|Rehetobel|AR|12.09.1848|
+567|Reichenbach im Kandertal|BE|01.01.2010|
+1345|Reichenburg|SZ|12.09.1848|
+1140|Reiden|LU|01.01.2013|
+2893|Reigoldswil|BL|01.01.1994|
+4141|Reinach (AG)|AG|12.09.1848|
+2773|Reinach (BL)|BL|01.01.1994|
+336|Reisiswil|BE|01.01.2010|
+4281|Reitnau|AG|01.01.2019|
+2333|Remaufens|FR|12.09.1848|
+4039|Remetschwil|AG|01.01.1854|
+4110|Remigen|AG|12.09.1848|
+441|Renan (BE)|BE|01.01.2010|
+5591|Renens (VD)|VD|01.09.2006|
+5412|Rennaz|VD|01.09.2006|
+3035|Reute (AR)|AR|01.01.1875|
+767|Reutigen|BE|01.01.2024|
+38|Rheinau|ZH|12.09.1848|
+3235|Rheineck|SG|01.01.2003|
+4258|Rheinfelden|AG|12.09.1848|
+3714|Rheinwald|GR|01.01.2019|
+3723|Rhäzüns|GR|01.01.2017|
+2148|Riaz|FR|12.09.1848|
+138|Richterswil|ZH|12.09.1848|
+2857|Rickenbach (BL)|BL|01.01.1994|
+1097|Rickenbach (LU)|LU|01.01.2013|
+2582|Rickenbach (SO)|SO|12.09.1848|
+4751|Rickenbach (TG)|TG|01.01.2011|
+225|Rickenbach (ZH)|ZH|12.09.1848|
+6139|Riddes|VS|12.09.1848|
+2276|Ried bei Kerzers|FR|01.01.2006|
+6008|Ried-Brig|VS|01.01.1994|
+6181|Riederalp|VS|01.11.2003|
+2554|Riedholz|SO|01.01.2011|
+2703|Riehen|BS|12.09.1848|
+1369|Riemenstalden|SZ|12.09.1848|
+12|Rifferswil|ZH|12.09.1848|
+879|Riggisberg|BE|01.01.2021|
+590|Ringgenberg (BE)|BE|01.01.2010|
+4111|Riniken|AG|12.09.1848|
+1707|Risch|ZG|12.09.1848|
+5263|Riva San Vitale|TI|12.09.1848|
+5609|Rivaz|VD|01.09.2006|
+5287|Riviera|TI|02.04.2017|
+5413|Roche (VD)|VD|01.09.2006|
+6413|Rochefort|NE|01.01.2018|
+704|Roches (BE)|BE|01.01.2010|
+2479|Rodersdorf|SO|12.09.1848|
+2790|Roggenburg|BL|01.01.1994|
+1142|Roggliswil|LU|01.01.2013|
+337|Roggwil (BE)|BE|01.01.2010|
+4431|Roggwil (TG)|TG|01.01.2011|
+338|Rohrbach|BE|01.01.2010|
+339|Rohrbachgraben|BE|01.01.2010|
+5861|Rolle|VD|01.09.2006|
+5761|Romainmôtier-Envy|VD|01.09.2006|
+5592|Romanel-sur-Lausanne|VD|01.09.2006|
+5645|Romanel-sur-Morges|VD|01.09.2006|
+4436|Romanshorn|TG|01.01.2011|
+442|Romont (BE)|BE|01.01.2010|
+2096|Romont (FR)|FR|01.01.1981|
+1007|Romoos|LU|01.01.2013|
+5125|Ronco sopra Ascona|TI|12.09.1848|
+3711|Rongellen|GR|01.01.2017|
+1065|Root|LU|01.01.2025|
+5798|Ropraz|VD|01.09.2006|
+68|Rorbas|ZH|12.09.1848|
+3215|Rorschach|SG|01.01.2003|
+3216|Rorschacherberg|SG|01.01.2003|
+3808|Rossa|GR|01.01.2017|
+6721|Rossemaison|JU|01.01.1979|
+5684|Rossenges|VD|01.09.2006|
+5842|Rossinière|VD|01.09.2006|
+3637|Rothenbrunnen|GR|01.01.2017|
+1040|Rothenburg|LU|01.01.2013|
+2858|Rothenfluh|BL|01.01.1994|
+1370|Rothenthurm|SZ|12.09.1848|
+4282|Rothrist|AG|01.01.1890|
+4238|Rottenschwil|AG|01.01.1899|
+5843|Rougemont|VD|01.09.2006|
+3834|Roveredo (GR)|GR|01.01.2017|
+5928|Rovray|VD|01.09.2006|
+623|Rubigen|BE|01.01.2010|
+4075|Rudolfstetten-Friedlisberg|AG|01.01.1953|
+2097|Rue|FR|01.01.2025|
+5534|Rueyres|VD|01.09.2006|
+421|Rumendingen|BE|01.01.2010|
+987|Rumisberg|BE|01.01.2010|
+4206|Rupperswil|AG|12.09.1848|
+178|Russikon|ZH|12.09.1848|
+6637|Russin|GE|12.09.1848|
+1098|Ruswil|LU|01.01.2013|
+1039|Römerswil|LU|01.01.2013|
+2791|Röschenz|BL|01.01.1994|
+904|Röthenbach im Emmental|BE|01.01.2010|
+905|Rüderswil|BE|01.01.2010|
+2938|Rüdlingen|SH|12.09.1848|
+420|Rüdtligen-Alchenflüh|BE|01.01.2010|
+880|Rüeggisberg|BE|01.01.2010|
+956|Rüegsau|BE|01.01.2010|
+4112|Rüfenach|AG|01.01.1898|
+97|Rümlang|ZH|12.09.1848|
+2859|Rümlingen|BL|01.01.1994|
+2860|Rünenberg|BL|01.01.1994|
+853|Rüschegg|BE|01.01.2010|
+139|Rüschlikon|ZH|12.09.1848|
+3256|Rüthi (SG)|SG|01.01.2003|
+118|Rüti (ZH)|ZH|12.09.1848|
+393|Rüti bei Büren|BE|01.01.2010|
+422|Rüti bei Lyssach|BE|01.01.2010|
+340|Rütschelen|BE|01.01.2010|
+2555|Rüttenen|SO|12.09.1848|
+3788|S-chanf|GR|01.01.2017|
+843|Saanen|BE|01.01.2010|
+6288|Saas-Almagell|VS|01.01.2007|
+6289|Saas-Balen|VS|01.01.2007|
+6290|Saas-Fee|VS|01.01.2007|
+6291|Saas-Grund|VS|01.01.2007|
+1406|Sachseln|OW|12.09.1848|
+4283|Safenwil|AG|12.09.1848|
+3672|Safiental|GR|01.01.2017|
+746|Safnern|BE|01.01.2010|
+3581|Sagogn|GR|01.01.2017|
+706|Saicourt|BE|01.01.2010|
+6757|Saignelégier|JU|01.01.2009|
+6140|Saillon|VS|12.09.1848|
+2041|Saint-Aubin (FR)|FR|01.01.1991|
+5535|Saint-Barthélemy (VD)|VD|01.09.2006|
+6758|Saint-Brais|JU|01.01.1979|
+5727|Saint-Cergue|VD|01.09.2006|
+5434|Saint-George|VD|01.09.2006|
+6155|Saint-Gingolph|VS|12.09.1848|
+443|Saint-Imier|BE|01.01.2010|
+5435|Saint-Livres|VD|01.09.2006|
+6246|Saint-Léonard|VS|12.09.1848|
+2335|Saint-Martin (FR)|FR|01.01.2004|
+6087|Saint-Martin (VS)|VS|12.09.1848|
+6217|Saint-Maurice|VS|01.01.2013|
+5436|Saint-Oyens|VD|01.09.2006|
+5646|Saint-Prex|VD|01.09.2006|
+5610|Saint-Saphorin (Lavaux)|VD|01.09.2006|
+5648|Saint-Sulpice (VD)|VD|01.09.2006|
+5568|Sainte-Croix|VD|01.09.2006|
+4851|Salenstein|TG|01.01.2011|
+6113|Salgesch|VS|12.09.1848|
+4441|Salmsach|TG|01.01.2011|
+6218|Salvan|VS|01.01.1913|
+3786|Samedan|GR|01.01.2017|
+3752|Samnaun|GR|01.01.2017|
+3835|San Vittore|GR|01.01.2017|
+5017|Sant'Antonino|TI|12.09.1848|
+3810|Santa Maria in Calanca|GR|01.01.2017|
+3296|Sargans|SG|01.01.2003|
+4076|Sarmenstorf|AG|12.09.1848|
+1407|Sarnen|OW|12.09.1848|
+6638|Satigny|GE|12.09.1848|
+1371|Sattel|SZ|12.09.1848|
+5437|Saubraz|VD|01.09.2006|
+449|Sauge|BE|01.01.2014|
+6722|Saulcy|JU|01.01.1979|
+707|Saules (BE)|BE|01.01.2010|
+5611|Savigny|VD|01.09.2006|
+6265|Savièse|VS|12.09.1848|
+5221|Savosa|TI|12.09.1848|
+591|Saxeten|BE|01.01.2010|
+6141|Saxon|VS|12.09.1848|
+2939|Schaffhausen|SH|01.01.2009|
+4207|Schafisheim|AG|12.09.1848|
+906|Schangnau|BE|01.01.2010|
+3638|Scharans|GR|01.01.2017|
+1213|Schattdorf|UR|12.09.1848|
+786|Schattenhalb|BE|01.01.2010|
+708|Schelten|BE|01.01.2010|
+1099|Schenkon|LU|01.01.2015|
+747|Scheuren|BE|01.01.2010|
+3962|Schiers|GR|01.01.2017|
+4125|Schinznach|AG|01.01.2014|
+4546|Schlatt (TG)|TG|01.01.2011|
+226|Schlatt (ZH)|ZH|01.01.1999|
+3104|Schlatt-Haslen|AI|01.01.1997|
+98|Schleinikon|ZH|12.09.1848|
+2952|Schleitheim|SH|12.09.1848|
+1100|Schlierbach|LU|01.01.2013|
+247|Schlieren|ZH|01.01.1990|
+4142|Schlossrued|AG|12.09.1848|
+3582|Schluein|GR|01.01.2017|
+3338|Schmerikon|SG|01.01.2003|
+4143|Schmiedrued|AG|12.09.1848|
+2305|Schmitten (FR)|FR|01.01.1922|
+3514|Schmitten (GR)|GR|01.01.2017|
+4318|Schneisingen|AG|12.09.1848|
+2461|Schnottwil|SO|12.09.1848|
+1041|Schongau|LU|01.01.2013|
+4259|Schupfart|AG|12.09.1848|
+4176|Schwaderloch|AG|12.09.1848|
+748|Schwadernau|BE|01.01.2010|
+592|Schwanden bei Brienz|BE|01.01.2010|
+1066|Schwarzenberg|LU|01.01.2013|
+855|Schwarzenburg|BE|01.01.2011|
+341|Schwarzhäusern|BE|01.01.2010|
+3004|Schwellbrunn|AR|12.09.1848|
+3112|Schwende-Rüte|AI|01.05.2022|
+197|Schwerzenbach|ZH|12.09.1848|
+1372|Schwyz|SZ|12.09.1848|
+3315|Schänis|SG|01.01.2003|
+99|Schöfflisdorf|ZH|12.09.1848|
+4144|Schöftland|AG|12.09.1848|
+2774|Schönenbuch|BL|01.01.1994|
+3003|Schönengrund|AR|12.09.1848|
+2583|Schönenwerd|SO|12.09.1848|
+4756|Schönholzerswilen|TG|01.01.2011|
+1143|Schötz|LU|01.01.2013|
+1346|Schübelbach|SZ|12.09.1848|
+311|Schüpfen|BE|01.01.2010|
+1008|Schüpfheim|LU|01.01.2013|
+3762|Scuol|GR|01.01.2017|
+988|Seeberg|BE|01.01.2016|
+312|Seedorf (BE)|BE|01.01.2010|
+1214|Seedorf (UR)|UR|01.01.2021|
+119|Seegräben|ZH|12.09.1848|
+709|Seehof|BE|01.01.2010|
+1215|Seelisberg|UR|12.09.1848|
+4208|Seengen|AG|12.09.1848|
+2480|Seewen|SO|12.09.1848|
+3972|Seewis im Prättigau|GR|01.01.2017|
+883|Seftigen|BE|01.01.2010|
+2833|Seltisberg|BL|01.01.1994|
+2556|Selzach|SO|12.09.1848|
+6035|Sembrancher|VS|12.09.1848|
+1102|Sempach|LU|01.01.2013|
+2336|Semsales|FR|01.01.1968|
+5499|Senarclens|VD|01.09.2006|
+3274|Sennwald|SG|01.01.2003|
+4209|Seon|AG|01.01.1899|
+5762|Sergey|VD|01.09.2006|
+5050|Serravalle|TI|01.04.2012|
+5799|Servion|VD|01.01.2012|
+227|Seuzach|ZH|12.09.1848|
+3275|Sevelen|SG|01.01.2003|
+2953|Siblingen|SH|12.09.1848|
+6248|Sierre|VS|01.10.1972|Siders
+4319|Siglistorf|AG|12.09.1848|
+907|Signau|BE|01.01.2010|
+5728|Signy-Avenex|VD|01.09.2006|
+938|Sigriswil|BE|01.01.2010|
+1216|Silenen|UR|12.09.1848|
+3640|Sils im Domleschg|GR|01.01.2017|
+3789|Sils im Engadin/Segl|GR|01.01.2017|Sils im Engadin,Segl
+3790|Silvaplana|GR|01.01.2017|
+6009|Simplon|VS|12.09.1848|
+4239|Sins|AG|01.01.1941|
+6266|Sion|VS|01.01.2017|Sitten
+4761|Sirnach|TG|01.01.2011|
+499|Siselen|BE|01.01.2010|
+1217|Sisikon|UR|12.09.1848|
+2861|Sissach|BL|01.01.1994|
+4177|Sisseln|AG|12.09.1848|
+2099|Siviriez|FR|01.01.2004|
+3823|Soazza|GR|01.01.2017|
+2601|Solothurn|SO|12.09.1848|
+4446|Sommeri|TG|01.01.2011|
+444|Sonceboz-Sombeval|BE|01.01.2010|
+445|Sonvilier|BE|01.01.2010|
+6639|Soral|GE|01.01.1851|
+5225|Sorengo|TI|12.09.1848|
+2153|Sorens|FR|12.09.1848|
+711|Sorvilier|BE|01.01.2010|
+6759|Soubey|JU|01.01.1979|
+6724|Soyhières|JU|01.01.1979|
+3023|Speicher|AR|12.09.1848|
+768|Spiez|BE|01.01.2010|
+1218|Spiringen|UR|12.09.1848|
+4040|Spreitenbach|AG|12.09.1848|
+3203|St. Gallen|SG|01.01.2003|
+3236|St. Margrethen|SG|01.01.2003|
+3787|St. Moritz|GR|01.01.2017|
+6292|St. Niklaus|VS|01.01.1870|
+2303|St. Silvester|FR|12.09.1848|
+793|St. Stephan|BE|01.01.2010|
+2304|St. Ursen|FR|12.09.1848|
+5266|Stabio|TI|12.09.1848|
+100|Stadel|ZH|01.01.1907|
+4284|Staffelbach|AG|01.01.1901|
+6293|Stalden (VS)|VS|12.09.1848|
+6294|Staldenried|VS|12.09.1848|
+13|Stallikon|ZH|12.09.1848|
+292|Stammheim|ZH|01.01.2019|
+1509|Stans|NW|01.01.1850|
+1510|Stansstad|NW|01.01.1850|
+2584|Starrkirch-Wil|SO|12.09.1848|
+4210|Staufen|AG|12.09.1848|
+4864|Steckborn|TG|01.01.2011|
+939|Steffisburg|BE|01.01.2020|
+6204|Steg-Hohtenn|VS|01.01.2009|
+4260|Stein (AG)|AG|12.09.1848|
+3005|Stein (AR)|AR|12.09.1848|
+2964|Stein am Rhein|SH|12.09.1848|
+3217|Steinach|SG|01.01.2003|
+1373|Steinen|SZ|12.09.1848|
+1374|Steinerberg|SZ|12.09.1848|
+1708|Steinhausen|ZG|12.09.1848|
+101|Steinmaur|ZH|12.09.1848|
+4041|Stetten (AG)|AG|12.09.1848|
+2919|Stetten (SH)|SH|12.09.1848|
+4606|Stettfurt|TG|01.01.2011|
+358|Stettlen|BE|01.01.2010|
+770|Stocken-Höfen|BE|01.01.2014|
+4285|Strengelbach|AG|12.09.1848|
+749|Studen (BE)|BE|01.01.2010|
+158|Stäfa|ZH|12.09.1848|
+2499|Stüsslingen|SO|01.01.2021|
+2532|Subingen|SO|01.01.1991|
+5929|Suchy|VD|01.09.2006|
+3695|Sufers|GR|01.01.2017|
+4012|Suhr|AG|12.09.1848|
+4506|Sulgen|TG|01.01.2011|
+5501|Sullens|VD|01.09.2006|
+957|Sumiswald|BE|01.01.2010|
+3985|Sumvitg|GR|01.01.2017|
+2044|Surpierre|FR|01.01.2021|
+1103|Sursee|LU|01.01.2013|
+3543|Surses|GR|01.01.2017|
+5930|Suscévaz|VD|01.09.2006|
+750|Sutz-Lattrigen|BE|01.01.2010|
+5688|Syens|VD|01.09.2006|
+2152|Sâles|FR|01.01.2001|
+2043|Sévaz|FR|12.09.1848|
+2306|Tafers|FR|01.01.2021|
+3733|Tamins|GR|01.01.2017|
+5729|Tannay|VD|01.09.2006|
+5862|Tartegnin|VD|01.09.2006|
+713|Tavannes|BE|01.01.2010|
+2862|Tecknau|BL|01.01.1994|
+4320|Tegerfelden|AG|12.09.1848|
+5131|Tenero-Contra|TI|01.01.1914|
+2863|Tenniken|BL|01.01.1994|
+2307|Tentlingen|FR|12.09.1848|
+6010|Termen|VS|12.09.1848|
+5396|Terre di Pedemonte|TI|14.04.2013|
+3024|Teufen (AR)|AR|12.09.1848|
+4145|Teufenthal (AG)|AG|12.09.1848|
+940|Teuffenthal (BE)|BE|01.01.2010|
+3237|Thal|SG|01.01.2003|
+4117|Thalheim (AG)|AG|12.09.1848|
+39|Thalheim an der Thur|ZH|01.01.1878|
+141|Thalwil|ZH|12.09.1848|
+2920|Thayngen|SH|01.01.2009|
+2775|Therwil|BL|01.01.1994|
+941|Thierachern|BE|01.01.2010|
+942|Thun|BE|01.01.2010|
+4611|Thundorf|TG|01.01.2011|
+342|Thunstetten|BE|01.01.2010|
+889|Thurnen|BE|01.01.2020|
+3668|Thusis|GR|01.01.2018|
+6640|Thônex|GE|01.01.1869|
+989|Thörigen|BE|01.01.2010|
+2864|Thürnen|BL|01.01.1994|
+2894|Titterten|BL|01.01.1994|
+4776|Tobel-Tägerschen|TG|01.01.2011|
+884|Toffen|BE|01.01.2010|
+5649|Tolochenaz|VD|01.09.2006|
+2115|Torny|FR|01.01.2004|
+5227|Torricella-Taverne|TI|12.09.1848|
+958|Trachselwald|BE|01.01.2010|
+446|Tramelan|BE|01.01.2010|
+2973|Trasadingen|SH|12.09.1848|
+500|Treiten|BE|01.01.2010|
+5239|Tresa|TI|18.04.2021|
+5827|Trey|VD|01.09.2006|
+5931|Treycovagnes|VD|01.09.2006|
+5828|Treytorrens (Payerne)|VD|01.09.2006|
+2226|Treyvaux|FR|12.09.1848|
+1104|Triengen|LU|01.01.2013|
+6142|Trient|VS|01.01.1900|
+2500|Trimbach|SO|12.09.1848|
+3945|Trimmis|GR|01.01.2017|
+3734|Trin|GR|01.01.2017|
+3025|Trogen|AR|12.09.1848|
+6641|Troinex|GE|12.09.1848|
+6156|Troistorrents|VS|12.09.1848|
+908|Trub|BE|01.01.2010|
+909|Trubschachen|BE|01.01.2010|
+3987|Trun|GR|01.01.2017|
+41|Truttikon|ZH|01.01.1879|
+5730|Trélex|VD|01.09.2006|
+40|Trüllikon|ZH|01.01.1879|
+3669|Tschappina|GR|01.01.2017|
+501|Tschugg|BE|01.01.2010|
+1347|Tuggen|SZ|12.09.1848|
+3986|Tujetsch|GR|01.01.2017|
+228|Turbenthal|ZH|12.09.1848|
+6119|Turtmann-Unterems|VS|01.01.2013|
+756|Twann-Tüscherz|BE|01.01.2010|
+4077|Tägerig|AG|12.09.1848|
+4696|Tägerwilen|TG|01.01.2011|
+6295|Täsch|VS|12.09.1848|
+751|Täuffelen|BE|01.01.2010|
+5571|Tévenon|VD|01.07.2011|
+6296|Törbel|VS|12.09.1848|
+3218|Tübach|SG|01.01.2003|
+1067|Udligenswil|LU|01.01.2013|
+2308|Ueberstorf|FR|12.09.1848|
+943|Uebeschi|BE|01.01.2010|
+4286|Uerkheim|AG|12.09.1848|
+4616|Uesslingen-Buch|TG|01.01.2011|
+944|Uetendorf|BE|01.01.2010|
+159|Uetikon am See|ZH|10.03.1977|
+4078|Uezwil|AG|12.09.1848|
+1145|Ufhusen|LU|01.01.2013|
+248|Uitikon|ZH|01.01.1990|
+6201|Unterbäch|VS|12.09.1848|
+3219|Untereggen|SG|01.01.2003|
+249|Unterengstringen|ZH|01.01.1990|
+4013|Unterentfelden|AG|12.09.1848|
+1375|Unteriberg|SZ|01.01.1884|
+4146|Unterkulm|AG|12.09.1848|
+945|Unterlangenegg|BE|01.01.2010|
+4079|Unterlunkhofen|AG|12.09.1848|
+2463|Unterramsern|SO|12.09.1848|
+1219|Unterschächen|UR|12.09.1848|
+593|Unterseen|BE|01.01.2010|
+4044|Untersiggenthal|AG|12.09.1848|
+3946|Untervaz|GR|01.01.2017|
+1709|Unterägeri|ZG|12.09.1848|
+250|Urdorf|ZH|01.01.1990|
+3670|Urmein|GR|01.01.2017|
+3006|Urnäsch|AR|12.09.1848|
+344|Ursenbach|BE|01.01.2010|
+5932|Ursins|VD|01.09.2006|
+2102|Ursy|FR|01.01.2025|
+551|Urtenen-Schönbühl|BE|01.01.2010|
+198|Uster|ZH|12.09.1848|
+885|Uttigen|BE|01.01.2014|
+4451|Uttwil|TG|01.01.2011|
+552|Utzenstorf|BE|01.01.2010|
+3339|Uznach|SG|01.01.2003|
+3408|Uzwil|SG|01.01.2003|
+5268|Vacallo|TI|12.09.1848|
+6037|Val de Bagnes|VS|01.01.2021|
+5240|Val Mara|TI|10.04.2022|
+3847|Val Müstair|GR|01.01.2017|
+6730|Val Terbi|JU|01.01.2018|
+6157|Val-d'Illiez|VS|12.09.1848|
+2163|Val-de-Charmey|FR|01.01.2014|
+6487|Val-de-Ruz|NE|01.01.2018|
+6512|Val-de-Travers|NE|01.01.2018|
+717|Valbirse|BE|01.01.2015|
+5831|Valbroye|VD|01.07.2011|
+5933|Valeyres-sous-Montagny|VD|01.09.2006|
+5763|Valeyres-sous-Rances|VD|01.09.2006|
+5934|Valeyres-sous-Ursins|VD|01.09.2006|
+2045|Vallon|FR|12.09.1848|
+5764|Vallorbe|VD|01.09.2006|
+3603|Vals|GR|01.01.2017|
+3764|Valsot|GR|01.01.2017|
+6642|Vandoeuvres|GE|12.09.1848|
+6116|Varen|VS|12.09.1848|
+5765|Vaulion|VD|01.09.2006|
+2155|Vaulruz|FR|12.09.1848|
+5650|Vaux-sur-Morges|VD|01.09.2006|
+3506|Vaz/Obervaz|GR|01.01.2017|Vaz,Obervaz
+359|Vechigen|BE|01.01.2010|
+4120|Veltheim (AG)|AG|12.09.1848|
+6806|Vendlincourt|JU|01.01.1979|
+5230|Vernate|TI|12.09.1848|
+6219|Vernayaz|VS|01.01.1913|
+6643|Vernier|GE|12.09.1848|
+6644|Versoix|GE|12.09.1848|
+5399|Verzasca|TI|18.10.2020|
+5890|Vevey|VD|01.09.2006|
+6089|Vex|VS|12.09.1848|
+6645|Veyrier|GE|12.09.1848|
+6267|Veysonnaz|VS|12.09.1848|
+5891|Veytaux|VD|01.09.2006|
+5231|Vezia|TI|12.09.1848|
+5732|Vich|VD|01.09.2006|
+5233|Vico Morcote|TI|12.09.1848|
+5935|Villars-Epeney|VD|01.09.2006|
+5690|Villars-le-Comte|VD|01.09.2006|
+5537|Villars-le-Terroir|VD|01.09.2006|
+5651|Villars-Sainte-Croix|VD|01.09.2006|
+5652|Villars-sous-Yens|VD|01.09.2006|
+2228|Villars-sur-Glâne|FR|12.09.1848|
+2230|Villarsel-sur-Marly|FR|12.09.1848|
+5830|Villarzel|VD|01.09.2006|
+2117|Villaz|FR|01.01.2020|
+5414|Villeneuve (VD)|VD|01.09.2006|
+448|Villeret|BE|01.01.2010|
+4121|Villigen|AG|01.01.2006|
+4080|Villmergen|AG|01.01.2010|
+2114|Villorsonnens|FR|01.01.2001|
+3297|Vilters-Wangs|SG|01.01.2003|
+502|Vinelz|BE|01.01.2010|
+5863|Vinzel|VD|01.09.2006|
+6158|Vionnaz|VS|12.09.1848|
+6297|Visp|VS|01.10.1972|
+6298|Visperterminen|VS|12.09.1848|
+1068|Vitznau|LU|01.01.2013|
+43|Volken|ZH|12.09.1848|
+199|Volketswil|ZH|12.09.1848|
+4287|Vordemwald|AG|12.09.1848|
+1348|Vorderthal|SZ|12.09.1848|
+6159|Vouvry|VS|12.09.1848|
+2160|Vuadens|FR|12.09.1848|
+5539|Vuarrens|VD|01.09.2006|
+5692|Vucherens|VD|01.09.2006|
+5503|Vufflens-la-Ville|VD|01.09.2006|
+5653|Vufflens-le-Château|VD|01.09.2006|
+5937|Vugelles-La Mothe|VD|01.09.2006|
+2113|Vuisternens-devant-Romont|FR|01.01.2004|
+5766|Vuiteboeuf|VD|01.09.2006|
+5803|Vulliens|VD|01.09.2006|
+5654|Vullierens|VD|01.09.2006|
+5464|Vully-les-Lacs|VD|01.07.2011|
+6220|Vérossaz|VS|12.09.1848|
+6025|Vétroz|VS|01.01.1880|
+946|Wachseldorn|BE|01.01.2010|
+4871|Wagenhausen|TG|01.01.2011|
+2792|Wahlen|BL|01.01.1994|
+1710|Walchwil|ZG|12.09.1848|
+3036|Wald (AR)|AR|12.09.1848|
+888|Wald (BE)|BE|01.01.2010|
+120|Wald (ZH)|ZH|12.09.1848|
+2895|Waldenburg|BL|01.01.1994|
+3444|Waldkirch|SG|01.01.2003|
+3007|Waldstatt|AR|12.09.1848|
+3298|Walenstadt|SG|01.01.2003|
+626|Walkringen|BE|01.01.2010|
+4261|Wallbach|AG|12.09.1848|
+69|Wallisellen|ZH|01.01.1916|
+990|Walliswil bei Niederbipp|BE|01.01.2010|
+991|Walliswil bei Wangen|BE|01.01.2010|
+754|Walperswil|BE|01.01.2010|
+4240|Waltenschwil|AG|01.01.1940|
+959|Walterswil (BE)|BE|01.01.2010|
+2585|Walterswil (SO)|SO|12.09.1848|
+3037|Walzenhausen|AR|12.09.1848|
+1349|Wangen (SZ)|SZ|12.09.1848|
+992|Wangen an der Aare|BE|01.01.2024|
+2586|Wangen bei Olten|SO|12.09.1848|
+200|Wangen-Brüttisellen|ZH|01.01.1976|
+3276|Wartau|SG|01.01.2003|
+4621|Warth-Weiningen|TG|01.01.2011|
+1220|Wassen|UR|01.01.1875|
+70|Wasterkingen|ZH|12.09.1848|
+886|Wattenwil|BE|01.01.2010|
+3379|Wattwil|SG|01.01.2013|
+1146|Wauwil|LU|01.01.2013|
+3316|Weesen|SG|01.01.2003|
+4262|Wegenstetten|AG|12.09.1848|
+1069|Weggis|LU|01.01.2013|
+102|Weiach|ZH|12.09.1848|
+4946|Weinfelden|TG|01.01.2011|
+251|Weiningen (ZH)|ZH|01.01.1990|
+180|Weisslingen|ZH|12.09.1848|
+2430|Welschenrohr-Gänsbrunnen|SO|01.01.2021|
+394|Wengi|BE|01.01.2010|
+2865|Wenslingen|BL|01.01.1994|
+1009|Werthenstein|LU|01.01.2013|
+4045|Wettingen|AG|12.09.1848|
+14|Wettswil am Albis|ZH|15.11.1976|
+121|Wetzikon (ZH)|ZH|12.09.1848|
+632|Wichtrach|BE|01.01.2010|
+4081|Widen|AG|12.09.1848|
+3238|Widnau|SG|01.01.2003|
+995|Wiedlisbach|BE|01.01.2010|
+298|Wiesendangen|ZH|01.01.2014|
+553|Wiggiswil|BE|01.01.2010|
+4951|Wigoltingen|TG|01.01.2011|
+1147|Wikon|LU|01.01.2013|
+3427|Wil (SG)|SG|01.01.2013|
+71|Wil (ZH)|ZH|12.09.1848|
+181|Wila|ZH|12.09.1848|
+2974|Wilchingen|SH|01.01.2005|
+182|Wildberg|ZH|12.09.1848|
+594|Wilderswil|BE|01.01.2010|
+3359|Wildhaus-Alt St. Johann|SG|01.01.2010|
+4786|Wilen (TG)|TG|01.01.2011|
+6202|Wiler (Lötschen)|VS|12.09.1848|
+554|Wiler bei Utzenstorf|BE|01.01.2010|
+671|Wileroltigen|BE|01.01.2010|
+4288|Wiliberg|AG|12.09.1848|
+423|Willadingen|BE|01.01.2010|
+1151|Willisau|LU|01.01.2021|
+769|Wimmis|BE|01.01.2010|
+4123|Windisch|AG|12.09.1848|
+72|Winkel|ZH|01.04.1917|
+2866|Wintersingen|BL|01.01.1994|
+230|Winterthur|ZH|01.01.1922|
+2501|Winznau|SO|12.09.1848|
+2502|Wisen (SO)|SO|12.09.1848|
+3204|Wittenbach|SG|01.01.2003|
+2481|Witterswil|SO|12.09.1848|
+2867|Wittinsburg|BL|01.01.1994|
+4181|Wittnau|AG|12.09.1848|
+4082|Wohlen (AG)|AG|01.01.1914|
+360|Wohlen bei Bern|BE|01.01.2010|
+4046|Wohlenschwil|AG|01.01.1906|
+1511|Wolfenschiessen|NW|01.01.1850|
+3038|Wolfhalden|AR|12.09.1848|
+2408|Wolfwil|SO|01.01.1991|
+1107|Wolhusen|LU|01.01.2013|
+1323|Wollerau|SZ|12.09.1848|
+627|Worb|BE|01.01.2010|
+755|Worben|BE|01.01.2010|
+4791|Wuppenau|TG|01.01.2011|
+345|Wynau|BE|01.01.2010|
+424|Wynigen|BE|01.01.2010|
+960|Wyssachen|BE|01.01.2010|
+293|Wädenswil|ZH|01.01.2019|
+4701|Wäldi|TG|01.01.2011|
+4781|Wängi|TG|01.01.2011|
+4182|Wölflinswil|AG|12.09.1848|
+2309|Wünnewil-Flamatt|FR|01.01.1974|
+4047|Würenlingen|AG|12.09.1848|
+4048|Würenlos|AG|01.01.1900|
+5655|Yens|VD|01.09.2006|
+5938|Yverdon-les-Bains|VD|01.07.2011|
+5939|Yvonand|VD|01.09.2006|
+5415|Yvorne|VD|01.09.2006|
+2868|Zeglingen|BL|01.01.1994|
+4183|Zeihen|AG|01.01.1853|
+4263|Zeiningen|AG|12.09.1848|
+1150|Zell (LU)|LU|01.01.2013|
+231|Zell (ZH)|ZH|12.09.1848|
+6299|Zeneggen|VS|12.09.1848|
+6300|Zermatt|VS|12.09.1848|
+3746|Zernez|GR|01.01.2017|
+4147|Zetzwil|AG|12.09.1848|
+2834|Ziefen|BL|01.01.1994|
+556|Zielebach|BE|01.01.2010|
+4511|Zihlschlacht-Sitterdorf|TG|01.01.2011|
+3712|Zillis-Reischen|GR|01.01.2017|
+3947|Zizers|GR|01.01.2017|
+4289|Zofingen|AG|01.01.2002|
+361|Zollikofen|BE|01.01.2010|
+161|Zollikon|ZH|01.01.1986|
+2534|Zuchwil|SO|01.01.1991|
+4083|Zufikon|AG|12.09.1848|
+1711|Zug|ZG|12.09.1848|
+2622|Zullwil|SO|12.09.1848|
+160|Zumikon|ZH|12.09.1848|
+2869|Zunzgen|BL|01.01.1994|
+3791|Zuoz|GR|01.01.2017|
+4324|Zurzach|AG|01.01.2022|
+4264|Zuzgen|AG|12.09.1848|
+557|Zuzwil (BE)|BE|01.01.2010|
+3426|Zuzwil (SG)|SG|01.01.2003|
+794|Zweisimmen|BE|01.01.2010|
+2793|Zwingen|BL|01.01.1994|
+6011|Zwischbergen|VS|12.09.1848|
+628|Zäziwil|BE|01.01.2010|
+261|Zürich|ZH|01.01.1990|

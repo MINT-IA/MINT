@@ -166,3 +166,7 @@ apps/mobile/build
 
 # Transient Codex review outputs (remediation phase) — keep local, do not commit
 .planning/phases/remediation-audit-2026-07/codex-reviews/
+
+# Reçu de vérification complète — local, jamais versionné (il porte
+# l'identifiant de l'arbre vérifié sur CETTE machine).
+.planning/.verify/

@@ -2212,7 +2212,9 @@
   "financialSummaryBalanceAsOf": "Saldo per {date}",
   "@financialSummaryBalanceAsOf": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryBalanceDateUnknown": "Saldodatum zu bestätigen",
@@ -2228,14 +2230,18 @@
   "financialSummary3aPlannedAnnualOwner": "{name} · geplanter Jahresbeitrag",
   "@financialSummary3aPlannedAnnualOwner": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryDateUnknown": "Datum zu bestätigen",
   "financialSummaryUpdatedOn": "Aktualisiert am {date}",
   "@financialSummaryUpdatedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryNComptes": "{n} Konto(s)",
@@ -12093,11 +12099,26 @@
   "housingSavedTitle": "Was MINT über dein Zuhause weiss",
   "housingSavedBody": "Auf diesem Gerät gespeichert. Du kannst diese Angaben jederzeit korrigieren oder löschen.",
   "housingSavedProvenance": "Quelle: {source} · aktualisiert am {date}.",
-  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "@housingSavedProvenance": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "housingSavedSourceHousingFlow": "von dir in MINT eingegeben",
   "housingSavedSourceUnknown": "zu prüfen",
   "housingSavedPeriod": "Abrechnungszeitraum: {year}.",
-  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "@housingSavedPeriod": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "housingSavedEdit": "Korrigieren",
   "housingSavedDelete": "Diese Angaben löschen",
   "housingSavedDeleteTitle": "Wohnangaben löschen?",
@@ -12105,16 +12126,21 @@
   "housingSavedDeleteCancel": "Behalten",
   "housingSavedDeleteConfirm": "Löschen",
   "mintNextDomicileTitle": "Dein Steuerwohnsitz",
-  "mintNextDomicileQuestion": "Wo wohnst du?",
-  "mintNextDomicileWhy": "Dein Kanton und deine Gemeinde bestimmen, wie deine Steuern berechnet werden.",
-  "mintNextDomicileCantonLabel": "Kanton",
-  "mintNextDomicileCommuneLabel": "Gemeinde",
-  "mintNextDomicileCommuneHint": "Der Name deiner Gemeinde",
+  "mintNextDomicileQuestion": "In welcher Gemeinde wirst du besteuert?",
+  "mintNextDomicileWhy": "In der Regel die Gemeinde, in der du offiziell wohnst.",
+  "mintNextDomicileCommuneLabel": "Steuergemeinde",
+  "mintNextDomicileCommuneHint": "Tippe den Namen der Gemeinde",
   "mintNextDomicileContinue": "Weiter",
   "mintNextDomicileBack": "Zurück",
   "mintNextDomicileReviewTitle": "MINT merkt sich",
   "mintNextDomicileReviewSource": "Von dir angegeben am {date}",
-  "@mintNextDomicileReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextDomicileReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextDomicileConfirm": "Speichern",
   "mintNextDomicileSavedTitle": "Wohnsitz gespeichert",
   "mintNextDomicileEdit": "Bearbeiten",
@@ -12124,7 +12150,7 @@
   "mintNextDomicileDeleteCancel": "Behalten",
   "mintNextDomicileDeleteConfirm": "Löschen",
   "mintNextDomicileSafeExit": "Ohne Speichern verlassen",
-  "mintNextDomicileErrorMissing": "Wähle deinen Kanton und gib deine Gemeinde an, um fortzufahren.",
+  "mintNextDomicileErrorMissing": "Wähle deine Gemeinde aus der Liste, um fortzufahren.",
   "mintNextDomicileSaveFailed": "Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.",
   "mintNextEtatCivilTitle": "Dein Zivilstand",
   "mintNextEtatCivilQuestion": "Wie ist deine Situation?",
@@ -12139,7 +12165,13 @@
   "mintNextEtatCivilBack": "Zurück",
   "mintNextEtatCivilReviewTitle": "MINT wird sich merken",
   "mintNextEtatCivilReviewSource": "Von dir angegeben am {date}",
-  "@mintNextEtatCivilReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextEtatCivilReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextEtatCivilConfirm": "Speichern",
   "mintNextEtatCivilSavedTitle": "Zivilstand gespeichert",
   "mintNextEtatCivilEdit": "Bearbeiten",
@@ -12162,7 +12194,13 @@
   "mintNextRevenuBack": "Zurück",
   "mintNextRevenuReviewTitle": "MINT wird sich merken",
   "mintNextRevenuReviewSource": "Von dir angegeben am {date}",
-  "@mintNextRevenuReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextRevenuReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextRevenuConfirm": "Speichern",
   "mintNextRevenuSavedTitle": "Einkommen gespeichert",
   "mintNextRevenuEdit": "Bearbeiten",
@@ -12185,7 +12223,13 @@
   "mintNextLppAffiliationBack": "Zurück",
   "mintNextLppAffiliationReviewTitle": "MINT wird sich merken",
   "mintNextLppAffiliationReviewSource": "Von dir angegeben am {date}",
-  "@mintNextLppAffiliationReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextLppAffiliationReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextLppAffiliationConfirm": "Speichern",
   "mintNextLppAffiliationSavedTitle": "Pensionskasse gespeichert",
   "mintNextLppAffiliationEdit": "Bearbeiten",
@@ -12200,7 +12244,16 @@
   "mintNextVersements3aTitle": "Deine 3a-Einzahlungen",
   "mintNextVersements3aListTitle": "Deine erfassten Einzahlungen",
   "mintNextVersements3aYearTotal": "{year} · Total {total}",
-  "@mintNextVersements3aYearTotal": {"placeholders": {"year": {"type": "String"}, "total": {"type": "String"}}},
+  "@mintNextVersements3aYearTotal": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aQuestion": "Diese Einzahlung erfassen",
   "mintNextVersements3aHint": "Betrag und Gutschriftsdatum, wie sie auf deinem 3a-Konto erscheinen.",
   "mintNextVersements3aAmountLabel": "Betrag (CHF)",
@@ -12214,9 +12267,21 @@
   "mintNextVersements3aBackToList": "Zurück zur Liste",
   "mintNextVersements3aReviewTitle": "MINT wird sich merken",
   "mintNextVersements3aReviewTaxYear": "Gezählt für das Steuerjahr {year}",
-  "@mintNextVersements3aReviewTaxYear": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVersements3aReviewTaxYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aEntryCredited": "Gutgeschrieben am {date}",
-  "@mintNextVersements3aEntryCredited": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVersements3aEntryCredited": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aConfirm": "Speichern",
   "mintNextVersements3aAdd": "Einzahlung hinzufügen",
   "mintNextVersements3aEdit": "Bearbeiten",
@@ -12229,52 +12294,184 @@
   "mintNextVersements3aErrorMissing": "Gib Betrag und Gutschriftsdatum ein, um fortzufahren.",
   "mintNextVersements3aSaveFailed": "Das Speichern war nicht erfolgreich. Deine Daten sind unverändert. Versuch es erneut.",
   "mintNextVersements3aReviewSource": "Von dir angegeben am {date}",
-  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVersements3aReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aManage": "Meine Einzahlungen verwalten",
   "mintNextVersements3aDeleteAll": "Alle löschen",
   "mintNextVersements3aDeleteAllTitle": "Alle deine Einzahlungen löschen?",
   "mintNextVersements3aDeleteAllBody": "MINT vergisst die ganze Liste. Deine anderen Angaben ändern sich nicht.",
   "mintNextMarge3aVerseRow": "Einbezahlt {year}",
-  "@mintNextMarge3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aVerseRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aPlafondRow": "Höchstbetrag {year}",
-  "@mintNextMarge3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aPlafondRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aMargeRow": "Verbleibender Spielraum",
   "mintNextMarge3aDepasse": "Höchstbetrag um {amount} überschritten",
-  "@mintNextMarge3aDepasse": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextMarge3aDepasse": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aProvenance": "BVV3 Art. 7 · Höchstbetrag {year} · Satz {version}",
-  "@mintNextMarge3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "@mintNextMarge3aProvenance": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aStateLppUnknown": "Gib an, ob du einer Pensionskasse angeschlossen bist, um deinen 3a-Höchstbetrag zu sehen.",
   "mintNextMarge3aStateIncomeMissing": "Gib dein Einkommen an, um deinen 3a-Höchstbetrag ohne Pensionskasse zu berechnen.",
   "mintNextMarge3aStateContributionsMissing": "Erfasse deine Einzahlungen, um deinen 3a-Spielraum zu sehen.",
   "mintNextMarge3aStateUnattested": "Der Höchstbetrag {year} ist in MINT noch nicht attestiert.",
-  "@mintNextMarge3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aStateUnattested": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aTitle": "Deine 3a",
   "mintNextVertical3aEntryTitle": "Deine 3a",
   "mintNextVertical3aEntrySubtitle": "Einbezahlt, Höchstbetrag und Spielraum des Jahres — attestiert.",
   "mintNextVertical3aReadFailure": "MINT konnte deine Daten nicht erneut lesen. Schliesse die App und öffne sie erneut.",
   "mintNextVertical3aFreshness": "Fakten per {date}",
-  "@mintNextVertical3aFreshness": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVertical3aFreshness": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aEyebrow": "Steuerjahr {year}",
-  "@mintNextVertical3aEyebrow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aEyebrow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aHeadlineRoom": "Dir bleiben {amount} Spielraum.",
-  "@mintNextVertical3aHeadlineRoom": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextVertical3aHeadlineRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aHeadlineOver": "Höchstbetrag um {amount} überschritten.",
-  "@mintNextVertical3aHeadlineOver": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextVertical3aHeadlineOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aVerseRow": "Einbezahlt {year}",
-  "@mintNextVertical3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aVerseRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aPlafondRow": "Höchstbetrag {year}",
-  "@mintNextVertical3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aPlafondRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aProvenance": "BVV3 Art. 7 · Höchstbetrag {year} · Satz {version}",
-  "@mintNextVertical3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "@mintNextVertical3aProvenance": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aStateLppUnknown": "MINT weiss noch nicht, ob du einer Pensionskasse angeschlossen bist.",
   "mintNextVertical3aStateIncomeMissing": "Ohne Pensionskasse wird dein 3a-Höchstbetrag aus deinem Einkommen berechnet.",
   "mintNextVertical3aStateContributionsMissing": "Noch keine 3a-Einzahlung erfasst.",
   "mintNextVertical3aStateUnattested": "Der Höchstbetrag {year} ist in MINT noch nicht attestiert.",
-  "@mintNextVertical3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aStateUnattested": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aCtaLpp": "Pensionskassen-Frage beantworten",
   "mintNextVertical3aCtaRevenu": "Mein Einkommen angeben",
   "mintNextVertical3aCtaVersements": "Einzahlung erfassen",
   "mintNext3aDomicileKnown": "Wohnsitz: {commune} ({canton})",
-  "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
-  "mintNext3aDomicileMissing": "Wohnsitz: noch nicht angegeben"
+  "@mintNext3aDomicileKnown": {
+    "placeholders": {
+      "commune": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNext3aDomicileMissing": "Wohnsitz: noch nicht angegeben",
+  "mintNextDomicileNoMatch": "Gemeinde nicht gefunden. Versuche den Namen der politischen Gemeinde statt des Quartiers oder Weilers.",
+  "mintNextDomicileCantonDerived": "Gemeinde gefunden, im Kanton {canton}.",
+  "mintNextDomicileChangeCommune": "Andere Gemeinde wählen",
+  "mintNextDomicileRegistrySource": "Gemeinde im Bundesregister geprüft, Stand {date}.",
+  "mintNextDomicileBackToToday": "Heute ansehen",
+  "mintNextDomicileSuggestionA11y": "{commune}, Kanton {canton}",
+  "@mintNextDomicileCantonDerived": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "@mintNextDomicileRegistrySource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@mintNextDomicileSuggestionA11y": {
+    "placeholders": {
+      "commune": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNextDomicileRegistryLoading": "Das Gemeindeverzeichnis wird gelesen…",
+  "mintNextDomicileRegistryFailed": "Das Gemeindeverzeichnis konnte nicht gelesen werden. Es geht nichts verloren.",
+  "mintNextDomicileRegistryRetry": "Erneut versuchen"
 }

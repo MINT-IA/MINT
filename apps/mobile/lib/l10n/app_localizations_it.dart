@@ -25897,20 +25897,17 @@ class SIt extends S {
   String get mintNextDomicileTitle => 'Il tuo domicilio fiscale';
 
   @override
-  String get mintNextDomicileQuestion => 'Dove abiti?';
+  String get mintNextDomicileQuestion => 'In quale comune sei tassato?';
 
   @override
   String get mintNextDomicileWhy =>
-      'Il tuo cantone e il tuo comune determinano come vengono calcolate le tue imposte.';
+      'Di regola il comune in cui abiti ufficialmente.';
 
   @override
-  String get mintNextDomicileCantonLabel => 'Cantone';
+  String get mintNextDomicileCommuneLabel => 'Comune fiscale';
 
   @override
-  String get mintNextDomicileCommuneLabel => 'Comune';
-
-  @override
-  String get mintNextDomicileCommuneHint => 'Il nome del tuo comune';
+  String get mintNextDomicileCommuneHint => 'Scrivi il nome del comune';
 
   @override
   String get mintNextDomicileContinue => 'Continua';
@@ -25956,7 +25953,7 @@ class SIt extends S {
 
   @override
   String get mintNextDomicileErrorMissing =>
-      'Scegli il tuo cantone e indica il tuo comune per continuare.';
+      'Scegli il tuo comune dall\'elenco per continuare.';
 
   @override
   String get mintNextDomicileSaveFailed =>
@@ -26425,4 +26422,40 @@ class SIt extends S {
 
   @override
   String get mintNext3aDomicileMissing => 'Domicilio: non ancora indicato';
+
+  @override
+  String get mintNextDomicileNoMatch =>
+      'Comune non trovato. Prova con il nome del comune politico, non del quartiere o della frazione.';
+
+  @override
+  String mintNextDomicileCantonDerived(String canton) {
+    return 'Comune trovato, nel cantone $canton.';
+  }
+
+  @override
+  String get mintNextDomicileChangeCommune => 'Scegliere un altro comune';
+
+  @override
+  String mintNextDomicileRegistrySource(String date) {
+    return 'Comune verificato nel registro federale, aggiornato il $date.';
+  }
+
+  @override
+  String get mintNextDomicileBackToToday => 'Vedere Oggi';
+
+  @override
+  String mintNextDomicileSuggestionA11y(String commune, String canton) {
+    return '$commune, cantone $canton';
+  }
+
+  @override
+  String get mintNextDomicileRegistryLoading =>
+      'Lettura del registro dei comuni…';
+
+  @override
+  String get mintNextDomicileRegistryFailed =>
+      'Il registro dei comuni non ha potuto essere letto. Nulla è perduto.';
+
+  @override
+  String get mintNextDomicileRegistryRetry => 'Riprovare';
 }

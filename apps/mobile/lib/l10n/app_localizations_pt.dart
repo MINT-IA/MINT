@@ -25841,20 +25841,17 @@ class SPt extends S {
   String get mintNextDomicileTitle => 'O teu domicílio fiscal';
 
   @override
-  String get mintNextDomicileQuestion => 'Onde moras?';
+  String get mintNextDomicileQuestion => 'Em que município és tributado?';
 
   @override
   String get mintNextDomicileWhy =>
-      'O teu cantão e a tua comuna determinam como os teus impostos são calculados.';
+      'Normalmente o município onde vives oficialmente.';
 
   @override
-  String get mintNextDomicileCantonLabel => 'Cantão';
+  String get mintNextDomicileCommuneLabel => 'Município fiscal';
 
   @override
-  String get mintNextDomicileCommuneLabel => 'Comuna';
-
-  @override
-  String get mintNextDomicileCommuneHint => 'O nome da tua comuna';
+  String get mintNextDomicileCommuneHint => 'Escreve o nome do município';
 
   @override
   String get mintNextDomicileContinue => 'Continuar';
@@ -25900,7 +25897,7 @@ class SPt extends S {
 
   @override
   String get mintNextDomicileErrorMissing =>
-      'Escolhe o teu cantão e indica a tua comuna para continuar.';
+      'Escolhe o teu município na lista para continuar.';
 
   @override
   String get mintNextDomicileSaveFailed =>
@@ -26368,4 +26365,40 @@ class SPt extends S {
 
   @override
   String get mintNext3aDomicileMissing => 'Domicílio: ainda não indicado';
+
+  @override
+  String get mintNextDomicileNoMatch =>
+      'Município não encontrado. Tenta o nome do município político, em vez do bairro ou da aldeia.';
+
+  @override
+  String mintNextDomicileCantonDerived(String canton) {
+    return 'Município encontrado, no cantão $canton.';
+  }
+
+  @override
+  String get mintNextDomicileChangeCommune => 'Escolher outro município';
+
+  @override
+  String mintNextDomicileRegistrySource(String date) {
+    return 'Município verificado no registo federal, atualizado a $date.';
+  }
+
+  @override
+  String get mintNextDomicileBackToToday => 'Ver Hoje';
+
+  @override
+  String mintNextDomicileSuggestionA11y(String commune, String canton) {
+    return '$commune, cantão $canton';
+  }
+
+  @override
+  String get mintNextDomicileRegistryLoading =>
+      'A ler o registo dos municípios…';
+
+  @override
+  String get mintNextDomicileRegistryFailed =>
+      'Não foi possível ler o registo dos municípios. Nada se perdeu.';
+
+  @override
+  String get mintNextDomicileRegistryRetry => 'Tentar novamente';
 }

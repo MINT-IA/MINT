@@ -4,7 +4,7 @@
   "goal": {
     "id": "domicile_fiscal_lego1",
     "title": "Dire où je vis — et que MINT s'en souvienne",
-    "promise": "Le domicile fiscal traverse le cycle canonique complet : sauvegardé, retrouvé après relance, visible dans Ma situation, corrigeable, supprimable, réutilisé hors de son écran de collecte."
+    "promise": "Le domicile fiscal traverse le cycle canonique complet : sauvegardé, retrouvé après relance, visible dans Ma situation, corrigeable, supprimable, réutilisé hors de son écran de collecte. AMENDEMENT 2026-08-13 (arbitrage produit Julien ; deux axes Codex ont d'abord rejeté la version naïve, ces conditions sont les leurs) : le parcours ne demande plus qu'UNE information, la commune. Une commune suisse appartient à un et un seul canton — demander les deux était une saisie redondante. Le canton est DÉRIVÉ de la commune choisie, jamais saisi. Ce qui est enregistré est l'identité fédérale (numéro OFS), pas un nom tapé : un nom change, fusionne, se traduit ; le numéro est la clé qui survit. Rien ne s'enregistre sans sélection dans le registre — un texte libre n'est pas une identité communale. Pour les homonymes, la levée d'ambiguïté est celle du registre fédéral lui-même (suffixe cantonal dans le nom officiel : « Rickenbach (LU) »), complétée à l'écran par le canton en toutes lettres, deux initiales ne parlant pas à tout le monde. Mesuré sur l'instantané du 2026-08-13 : 2110 communes, 35 noms partagés par 77 communes, ZÉRO cas où le suffixe officiel ne suffit pas. Le registre porte sa date de validité : ce qu'il décrit est vrai à cette date, pas éternellement (Moutier : BE 700 jusqu'au 31.12.2025, JU 6831 depuis). REVUE COPIE 2026-08-13 (axe Codex, REJET puis correctifs) : l'écran demande « Quelle est ta commune fiscale ? » et non « où habites-tu ? » — il crée un fait de domicile FISCAL, que quelqu'un venant de déménager ne confond pas avec son adresse. La mention de provenance quitte l'écran de saisie, où elle n'aide personne à choisir, pour la relecture, où l'on vérifie ce que MINT va retenir. Le canton porte sa préposition française (« canton d'Argovie », jamais « canton de Argovie » — la faute qui signe une phrase assemblée par une machine). L'échec de recherche n'accuse plus l'orthographe : il oriente vers le nom de la commune politique."
   },
   "generated_at": "2026-08-11",
   "authority": {
@@ -18,12 +18,30 @@
       "story": "Une seule décision : où j'habite — canton et commune ensemble (le SPEC interdit le questionnaire un-champ-par-écran). Rien n'est enregistré tant que je n'ai pas confirmé explicitement. [Amendé en review finale : la v1 du beat disait canton puis commune ; une localisation est une décision cognitive unique.]",
       "code": "apps/mobile/lib/screens/mint_next_domicile/mint_next_domicile_screen.dart",
       "tests": [
-        "collect shows canton choices and commune entry as one decision and nothing persists before confirm",
-        "safe exit before confirmation writes nothing"
+        "collect asks for the commune alone and nothing persists before confirm",
+        "safe exit before confirmation writes nothing",
+        "no canton is ever asked — one field carries the whole decision and the canton is shown as its consequence",
+        "homonymous communes are offered as distinct entries carrying the official suffix and the canton spelled out",
+        "typed text that matches nothing cannot be saved and says so",
+        "editing the query after a selection drops that selection rather than saving a commune no longer shown",
+        "the review step states that the commune was checked against the federal register — the collect step does not",
+        "the canton is derived from the federal identity, never from a string",
+        "a French speaker finds Murten by typing Morat, and the official name is what comes back",
+        "a name written with a period is found without it",
+        "apostrophes, hyphens and slashes are all just separators",
+        "the real embedded asset parses with the real parser, covers the country and keeps every homonym distinguishable",
+        "a truncated line is a corruption, not a line to skip",
+        "nothing is published when parsing fails",
+        "while the register is being read, nothing can be typed and the wait is stated",
+        "a missing register says so and offers to try again rather than leaving a dead field",
+        "a corrupted register is refused, not half-loaded",
+        "trying again after a failure loads the register",
+        "leaving the screen while the register is still loading does not blow up"
       ],
       "test_files": [
         "apps/mobile/test/screens/mint_next_domicile/mint_next_domicile_screen_test.dart",
-        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart"
+        "apps/mobile/test/screens/mint_next_versements_3a/mint_next_versements_3a_screen_test.dart",
+        "apps/mobile/test/data/commune_registry_test.dart"
       ]
     },
     {
@@ -32,11 +50,16 @@
       "code": "apps/mobile/lib/providers/coach_profile_provider.dart#saveDomicileFact",
       "tests": [
         "confirm persists the domicile bundle atomically through mergeAnswers",
-        "revision fingerprint is the UTC assertion instant"
+        "revision fingerprint is the UTC assertion instant",
+        "confirm persists the fact and the saved summary offers edit and delete",
+        "the saved summary offers a way onward, not only data management",
+        "a legacy fact saved without a federal number is not given an invented one",
+        "the review step refuses a bare pop and sends it back to the commune field, like the button says"
       ],
       "test_files": [
         "apps/mobile/test/models/mint_next_civil_status_fact_test.dart",
-        "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart"
+        "apps/mobile/test/providers/coach_profile_provider_domicile_fact_test.dart",
+        "apps/mobile/test/screens/mint_next_domicile/mint_next_domicile_screen_test.dart"
       ]
     },
     {

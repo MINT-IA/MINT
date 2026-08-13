@@ -2250,7 +2250,9 @@
   "financialSummaryBalanceAsOf": "Solde au {date}",
   "@financialSummaryBalanceAsOf": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryBalanceDateUnknown": "Date du solde à confirmer",
@@ -2266,14 +2268,18 @@
   "financialSummary3aPlannedAnnualOwner": "{name} · versement annuel planifié",
   "@financialSummary3aPlannedAnnualOwner": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryDateUnknown": "Date à confirmer",
   "financialSummaryUpdatedOn": "Mis à jour le {date}",
   "@financialSummaryUpdatedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryNComptes": "{n} compte(s)",
@@ -13806,11 +13812,26 @@
   "housingSavedTitle": "Ce que MINT sait de ton logement",
   "housingSavedBody": "Enregistré sur cet appareil. Tu peux corriger ou supprimer ces informations à tout moment.",
   "housingSavedProvenance": "Source : {source} · mise à jour le {date}.",
-  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "@housingSavedProvenance": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "housingSavedSourceHousingFlow": "saisi par toi dans MINT",
   "housingSavedSourceUnknown": "à vérifier",
   "housingSavedPeriod": "Période du relevé : {year}.",
-  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "@housingSavedPeriod": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "housingSavedEdit": "Corriger",
   "housingSavedDelete": "Supprimer ces informations",
   "housingSavedDeleteTitle": "Supprimer les informations logement ?",
@@ -13818,16 +13839,21 @@
   "housingSavedDeleteCancel": "Garder",
   "housingSavedDeleteConfirm": "Supprimer",
   "mintNextDomicileTitle": "Ton domicile fiscal",
-  "mintNextDomicileQuestion": "Où habites-tu ?",
-  "mintNextDomicileWhy": "Ton canton et ta commune déterminent comment tes impôts sont calculés.",
-  "mintNextDomicileCantonLabel": "Canton",
-  "mintNextDomicileCommuneLabel": "Commune",
-  "mintNextDomicileCommuneHint": "Le nom de ta commune",
+  "mintNextDomicileQuestion": "Quelle est ta commune fiscale ?",
+  "mintNextDomicileWhy": "En général, c'est la commune où tu habites officiellement.",
+  "mintNextDomicileCommuneLabel": "Commune fiscale",
+  "mintNextDomicileCommuneHint": "Tape le nom de la commune",
   "mintNextDomicileContinue": "Continuer",
   "mintNextDomicileBack": "Retour",
   "mintNextDomicileReviewTitle": "MINT va retenir",
   "mintNextDomicileReviewSource": "Déclaré par toi, le {date}",
-  "@mintNextDomicileReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextDomicileReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextDomicileConfirm": "Enregistrer",
   "mintNextDomicileSavedTitle": "Domicile enregistré",
   "mintNextDomicileEdit": "Modifier",
@@ -13837,7 +13863,7 @@
   "mintNextDomicileDeleteCancel": "Garder",
   "mintNextDomicileDeleteConfirm": "Supprimer",
   "mintNextDomicileSafeExit": "Quitter sans enregistrer",
-  "mintNextDomicileErrorMissing": "Choisis ton canton et indique ta commune pour continuer.",
+  "mintNextDomicileErrorMissing": "Choisis ta commune dans la liste pour continuer.",
   "mintNextDomicileSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
   "mintNextEtatCivilTitle": "Ton état civil",
   "mintNextEtatCivilQuestion": "Quelle est ta situation ?",
@@ -13852,7 +13878,13 @@
   "mintNextEtatCivilBack": "Retour",
   "mintNextEtatCivilReviewTitle": "MINT va retenir",
   "mintNextEtatCivilReviewSource": "Déclaré par toi, le {date}",
-  "@mintNextEtatCivilReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextEtatCivilReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextEtatCivilConfirm": "Enregistrer",
   "mintNextEtatCivilSavedTitle": "État civil enregistré",
   "mintNextEtatCivilEdit": "Modifier",
@@ -13875,7 +13907,13 @@
   "mintNextRevenuBack": "Retour",
   "mintNextRevenuReviewTitle": "MINT va retenir",
   "mintNextRevenuReviewSource": "Déclaré par toi, le {date}",
-  "@mintNextRevenuReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextRevenuReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextRevenuConfirm": "Enregistrer",
   "mintNextRevenuSavedTitle": "Revenu enregistré",
   "mintNextRevenuEdit": "Modifier",
@@ -13898,7 +13936,13 @@
   "mintNextLppAffiliationBack": "Retour",
   "mintNextLppAffiliationReviewTitle": "MINT va retenir",
   "mintNextLppAffiliationReviewSource": "Déclaré par toi, le {date}",
-  "@mintNextLppAffiliationReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextLppAffiliationReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextLppAffiliationConfirm": "Enregistrer",
   "mintNextLppAffiliationSavedTitle": "Caisse de pension enregistrée",
   "mintNextLppAffiliationEdit": "Modifier",
@@ -13913,7 +13957,16 @@
   "mintNextVersements3aTitle": "Tes versements 3a",
   "mintNextVersements3aListTitle": "Tes versements enregistrés",
   "mintNextVersements3aYearTotal": "{year} · total {total}",
-  "@mintNextVersements3aYearTotal": {"placeholders": {"year": {"type": "String"}, "total": {"type": "String"}}},
+  "@mintNextVersements3aYearTotal": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aQuestion": "Enregistrer ce versement",
   "mintNextVersements3aHint": "Le montant et la date de crédit, tels qu'ils apparaissent sur ton compte 3a.",
   "mintNextVersements3aAmountLabel": "Montant (CHF)",
@@ -13927,9 +13980,21 @@
   "mintNextVersements3aBackToList": "Retour à la liste",
   "mintNextVersements3aReviewTitle": "MINT va retenir",
   "mintNextVersements3aReviewTaxYear": "Compté pour l'année fiscale {year}",
-  "@mintNextVersements3aReviewTaxYear": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVersements3aReviewTaxYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aEntryCredited": "Crédité le {date}",
-  "@mintNextVersements3aEntryCredited": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVersements3aEntryCredited": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aConfirm": "Enregistrer",
   "mintNextVersements3aAdd": "Ajouter un versement",
   "mintNextVersements3aEdit": "Modifier",
@@ -13942,52 +14007,184 @@
   "mintNextVersements3aErrorMissing": "Indique le montant et la date de crédit pour continuer.",
   "mintNextVersements3aSaveFailed": "L'enregistrement n'a pas abouti. Tes données n'ont pas changé. Réessaie.",
   "mintNextVersements3aReviewSource": "Déclaré par toi, le {date}",
-  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVersements3aReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aManage": "Gérer mes versements",
   "mintNextVersements3aDeleteAll": "Tout supprimer",
   "mintNextVersements3aDeleteAllTitle": "Supprimer tous tes versements ?",
   "mintNextVersements3aDeleteAllBody": "MINT oubliera toute la liste. Tes autres informations ne changent pas.",
   "mintNextMarge3aVerseRow": "Versé en {year}",
-  "@mintNextMarge3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aVerseRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aPlafondRow": "Plafond {year}",
-  "@mintNextMarge3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aPlafondRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aMargeRow": "Marge restante",
   "mintNextMarge3aDepasse": "Plafond dépassé de {amount}",
-  "@mintNextMarge3aDepasse": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextMarge3aDepasse": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aProvenance": "OPP3 art. 7 · plafond {year} · jeu {version}",
-  "@mintNextMarge3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "@mintNextMarge3aProvenance": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aStateLppUnknown": "Indique si tu es affilié·e à une caisse de pension pour voir ton plafond 3a.",
   "mintNextMarge3aStateIncomeMissing": "Indique ton revenu pour calculer ton plafond 3a sans caisse de pension.",
   "mintNextMarge3aStateContributionsMissing": "Enregistre tes versements pour voir ta marge 3a.",
   "mintNextMarge3aStateUnattested": "Le plafond {year} n'est pas encore attesté dans MINT.",
-  "@mintNextMarge3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aStateUnattested": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aTitle": "Ton 3a",
   "mintNextVertical3aEntryTitle": "Ton 3a",
   "mintNextVertical3aEntrySubtitle": "Versé, plafond et marge de l’année — attestés.",
   "mintNextVertical3aReadFailure": "MINT n'a pas pu relire tes données. Ferme et rouvre l'app pour réessayer.",
   "mintNextVertical3aFreshness": "Faits au {date}",
-  "@mintNextVertical3aFreshness": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVertical3aFreshness": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aEyebrow": "Année fiscale {year}",
-  "@mintNextVertical3aEyebrow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aEyebrow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aHeadlineRoom": "Il te reste {amount} de marge.",
-  "@mintNextVertical3aHeadlineRoom": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextVertical3aHeadlineRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aHeadlineOver": "Plafond dépassé de {amount}.",
-  "@mintNextVertical3aHeadlineOver": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextVertical3aHeadlineOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aVerseRow": "Versé en {year}",
-  "@mintNextVertical3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aVerseRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aPlafondRow": "Plafond {year}",
-  "@mintNextVertical3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aPlafondRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aProvenance": "OPP3 art. 7 · plafond {year} · jeu {version}",
-  "@mintNextVertical3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "@mintNextVertical3aProvenance": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aStateLppUnknown": "MINT ne sait pas encore si tu es affilié·e à une caisse de pension.",
   "mintNextVertical3aStateIncomeMissing": "Sans caisse de pension, ton plafond 3a se calcule depuis ton revenu.",
   "mintNextVertical3aStateContributionsMissing": "Aucun versement 3a enregistré pour l’instant.",
   "mintNextVertical3aStateUnattested": "Le plafond {year} n’est pas encore attesté dans MINT.",
-  "@mintNextVertical3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aStateUnattested": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aCtaLpp": "Répondre à la question caisse de pension",
   "mintNextVertical3aCtaRevenu": "Indiquer mon revenu",
   "mintNextVertical3aCtaVersements": "Enregistrer un versement",
   "mintNext3aDomicileKnown": "Domicile : {commune} ({canton})",
-  "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
-  "mintNext3aDomicileMissing": "Domicile : pas encore renseigné"
+  "@mintNext3aDomicileKnown": {
+    "placeholders": {
+      "commune": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNext3aDomicileMissing": "Domicile : pas encore renseigné",
+  "mintNextDomicileNoMatch": "Commune introuvable. Essaie le nom de la commune politique, plutôt que celui du quartier ou du hameau.",
+  "mintNextDomicileCantonDerived": "Commune trouvée, dans le canton {canton}.",
+  "mintNextDomicileChangeCommune": "Choisir une autre commune",
+  "mintNextDomicileRegistrySource": "Commune vérifiée dans le registre fédéral, mis à jour le {date}.",
+  "mintNextDomicileBackToToday": "Voir Aujourd'hui",
+  "mintNextDomicileSuggestionA11y": "{commune}, canton {canton}",
+  "@mintNextDomicileCantonDerived": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "@mintNextDomicileRegistrySource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@mintNextDomicileSuggestionA11y": {
+    "placeholders": {
+      "commune": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNextDomicileRegistryLoading": "Lecture du registre des communes…",
+  "mintNextDomicileRegistryFailed": "Le registre des communes n'a pas pu être lu. Rien n'est perdu.",
+  "mintNextDomicileRegistryRetry": "Réessayer"
 }

@@ -25690,20 +25690,17 @@ class SEn extends S {
   String get mintNextDomicileTitle => 'Your tax residence';
 
   @override
-  String get mintNextDomicileQuestion => 'Where do you live?';
+  String get mintNextDomicileQuestion => 'Which commune are you taxed in?';
 
   @override
   String get mintNextDomicileWhy =>
-      'Your canton and commune determine how your taxes are calculated.';
+      'Usually the commune where you officially live.';
 
   @override
-  String get mintNextDomicileCantonLabel => 'Canton';
+  String get mintNextDomicileCommuneLabel => 'Commune of taxation';
 
   @override
-  String get mintNextDomicileCommuneLabel => 'Commune';
-
-  @override
-  String get mintNextDomicileCommuneHint => 'The name of your commune';
+  String get mintNextDomicileCommuneHint => 'Type the name of the commune';
 
   @override
   String get mintNextDomicileContinue => 'Continue';
@@ -25749,7 +25746,7 @@ class SEn extends S {
 
   @override
   String get mintNextDomicileErrorMissing =>
-      'Choose your canton and enter your commune to continue.';
+      'Pick your commune from the list to continue.';
 
   @override
   String get mintNextDomicileSaveFailed =>
@@ -26216,4 +26213,40 @@ class SEn extends S {
 
   @override
   String get mintNext3aDomicileMissing => 'Residence: not provided yet';
+
+  @override
+  String get mintNextDomicileNoMatch =>
+      'Commune not found. Try the name of the political commune rather than the district or hamlet.';
+
+  @override
+  String mintNextDomicileCantonDerived(String canton) {
+    return 'Commune found, in canton $canton.';
+  }
+
+  @override
+  String get mintNextDomicileChangeCommune => 'Choose another commune';
+
+  @override
+  String mintNextDomicileRegistrySource(String date) {
+    return 'Commune checked against the federal register, updated $date.';
+  }
+
+  @override
+  String get mintNextDomicileBackToToday => 'See Today';
+
+  @override
+  String mintNextDomicileSuggestionA11y(String commune, String canton) {
+    return '$commune, canton $canton';
+  }
+
+  @override
+  String get mintNextDomicileRegistryLoading =>
+      'Reading the register of communes…';
+
+  @override
+  String get mintNextDomicileRegistryFailed =>
+      'The register of communes could not be read. Nothing is lost.';
+
+  @override
+  String get mintNextDomicileRegistryRetry => 'Try again';
 }

@@ -2212,7 +2212,9 @@
   "financialSummaryBalanceAsOf": "Balance as of {date}",
   "@financialSummaryBalanceAsOf": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryBalanceDateUnknown": "Balance date to confirm",
@@ -2228,14 +2230,18 @@
   "financialSummary3aPlannedAnnualOwner": "{name} · planned annual contribution",
   "@financialSummary3aPlannedAnnualOwner": {
     "placeholders": {
-      "name": {"type": "String"}
+      "name": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryDateUnknown": "Date to confirm",
   "financialSummaryUpdatedOn": "Updated on {date}",
   "@financialSummaryUpdatedOn": {
     "placeholders": {
-      "date": {"type": "String"}
+      "date": {
+        "type": "String"
+      }
     }
   },
   "financialSummaryNComptes": "{n} account(s)",
@@ -12113,11 +12119,26 @@
   "housingSavedTitle": "What MINT knows about your home",
   "housingSavedBody": "Saved on this device. You can correct or delete this information at any time.",
   "housingSavedProvenance": "Source: {source} · updated on {date}.",
-  "@housingSavedProvenance": {"placeholders": {"source": {"type": "String"}, "date": {"type": "String"}}},
+  "@housingSavedProvenance": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "housingSavedSourceHousingFlow": "entered by you in MINT",
   "housingSavedSourceUnknown": "to be checked",
   "housingSavedPeriod": "Statement period: {year}.",
-  "@housingSavedPeriod": {"placeholders": {"year": {"type": "int"}}},
+  "@housingSavedPeriod": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
   "housingSavedEdit": "Correct",
   "housingSavedDelete": "Delete this information",
   "housingSavedDeleteTitle": "Delete housing information?",
@@ -12125,16 +12146,21 @@
   "housingSavedDeleteCancel": "Keep",
   "housingSavedDeleteConfirm": "Delete",
   "mintNextDomicileTitle": "Your tax residence",
-  "mintNextDomicileQuestion": "Where do you live?",
-  "mintNextDomicileWhy": "Your canton and commune determine how your taxes are calculated.",
-  "mintNextDomicileCantonLabel": "Canton",
-  "mintNextDomicileCommuneLabel": "Commune",
-  "mintNextDomicileCommuneHint": "The name of your commune",
+  "mintNextDomicileQuestion": "Which commune are you taxed in?",
+  "mintNextDomicileWhy": "Usually the commune where you officially live.",
+  "mintNextDomicileCommuneLabel": "Commune of taxation",
+  "mintNextDomicileCommuneHint": "Type the name of the commune",
   "mintNextDomicileContinue": "Continue",
   "mintNextDomicileBack": "Back",
   "mintNextDomicileReviewTitle": "MINT will remember",
   "mintNextDomicileReviewSource": "Declared by you on {date}",
-  "@mintNextDomicileReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextDomicileReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextDomicileConfirm": "Save",
   "mintNextDomicileSavedTitle": "Residence saved",
   "mintNextDomicileEdit": "Edit",
@@ -12144,7 +12170,7 @@
   "mintNextDomicileDeleteCancel": "Keep",
   "mintNextDomicileDeleteConfirm": "Delete",
   "mintNextDomicileSafeExit": "Leave without saving",
-  "mintNextDomicileErrorMissing": "Choose your canton and enter your commune to continue.",
+  "mintNextDomicileErrorMissing": "Pick your commune from the list to continue.",
   "mintNextDomicileSaveFailed": "Saving did not complete. Your data has not changed. Try again.",
   "mintNextEtatCivilTitle": "Your civil status",
   "mintNextEtatCivilQuestion": "What is your situation?",
@@ -12159,7 +12185,13 @@
   "mintNextEtatCivilBack": "Back",
   "mintNextEtatCivilReviewTitle": "MINT will remember",
   "mintNextEtatCivilReviewSource": "Declared by you on {date}",
-  "@mintNextEtatCivilReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextEtatCivilReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextEtatCivilConfirm": "Save",
   "mintNextEtatCivilSavedTitle": "Civil status saved",
   "mintNextEtatCivilEdit": "Edit",
@@ -12182,7 +12214,13 @@
   "mintNextRevenuBack": "Back",
   "mintNextRevenuReviewTitle": "MINT will remember",
   "mintNextRevenuReviewSource": "Declared by you on {date}",
-  "@mintNextRevenuReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextRevenuReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextRevenuConfirm": "Save",
   "mintNextRevenuSavedTitle": "Income saved",
   "mintNextRevenuEdit": "Edit",
@@ -12205,7 +12243,13 @@
   "mintNextLppAffiliationBack": "Back",
   "mintNextLppAffiliationReviewTitle": "MINT will remember",
   "mintNextLppAffiliationReviewSource": "Declared by you on {date}",
-  "@mintNextLppAffiliationReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextLppAffiliationReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextLppAffiliationConfirm": "Save",
   "mintNextLppAffiliationSavedTitle": "Pension fund saved",
   "mintNextLppAffiliationEdit": "Edit",
@@ -12220,7 +12264,16 @@
   "mintNextVersements3aTitle": "Your 3a payments",
   "mintNextVersements3aListTitle": "Your recorded payments",
   "mintNextVersements3aYearTotal": "{year} · total {total}",
-  "@mintNextVersements3aYearTotal": {"placeholders": {"year": {"type": "String"}, "total": {"type": "String"}}},
+  "@mintNextVersements3aYearTotal": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aQuestion": "Record this payment",
   "mintNextVersements3aHint": "The amount and credit date, as they appear on your 3a account.",
   "mintNextVersements3aAmountLabel": "Amount (CHF)",
@@ -12234,9 +12287,21 @@
   "mintNextVersements3aBackToList": "Back to the list",
   "mintNextVersements3aReviewTitle": "MINT will remember",
   "mintNextVersements3aReviewTaxYear": "Counted for tax year {year}",
-  "@mintNextVersements3aReviewTaxYear": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVersements3aReviewTaxYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aEntryCredited": "Credited on {date}",
-  "@mintNextVersements3aEntryCredited": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVersements3aEntryCredited": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aConfirm": "Save",
   "mintNextVersements3aAdd": "Add a payment",
   "mintNextVersements3aEdit": "Edit",
@@ -12249,52 +12314,184 @@
   "mintNextVersements3aErrorMissing": "Enter the amount and the credit date to continue.",
   "mintNextVersements3aSaveFailed": "Saving did not complete. Your data has not changed. Try again.",
   "mintNextVersements3aReviewSource": "Declared by you on {date}",
-  "@mintNextVersements3aReviewSource": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVersements3aReviewSource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVersements3aManage": "Manage my payments",
   "mintNextVersements3aDeleteAll": "Delete all",
   "mintNextVersements3aDeleteAllTitle": "Delete all your payments?",
   "mintNextVersements3aDeleteAllBody": "MINT will forget the whole list. Your other information does not change.",
   "mintNextMarge3aVerseRow": "Paid in {year}",
-  "@mintNextMarge3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aVerseRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aPlafondRow": "{year} ceiling",
-  "@mintNextMarge3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aPlafondRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aMargeRow": "Remaining room",
   "mintNextMarge3aDepasse": "Ceiling exceeded by {amount}",
-  "@mintNextMarge3aDepasse": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextMarge3aDepasse": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aProvenance": "OPP3 art. 7 · {year} ceiling · set {version}",
-  "@mintNextMarge3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "@mintNextMarge3aProvenance": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextMarge3aStateLppUnknown": "Tell MINT whether you are affiliated with a pension fund to see your 3a ceiling.",
   "mintNextMarge3aStateIncomeMissing": "Add your income to compute your 3a ceiling without a pension fund.",
   "mintNextMarge3aStateContributionsMissing": "Record your payments to see your 3a room.",
   "mintNextMarge3aStateUnattested": "The {year} ceiling is not yet attested in MINT.",
-  "@mintNextMarge3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextMarge3aStateUnattested": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aTitle": "Your 3a",
   "mintNextVertical3aEntryTitle": "Your 3a",
   "mintNextVertical3aEntrySubtitle": "Paid, ceiling and room for the year — attested.",
   "mintNextVertical3aReadFailure": "MINT could not re-read your data. Close and reopen the app to retry.",
   "mintNextVertical3aFreshness": "Facts as of {date}",
-  "@mintNextVertical3aFreshness": {"placeholders": {"date": {"type": "String"}}},
+  "@mintNextVertical3aFreshness": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aEyebrow": "Tax year {year}",
-  "@mintNextVertical3aEyebrow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aEyebrow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aHeadlineRoom": "You have {amount} of room left.",
-  "@mintNextVertical3aHeadlineRoom": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextVertical3aHeadlineRoom": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aHeadlineOver": "Ceiling exceeded by {amount}.",
-  "@mintNextVertical3aHeadlineOver": {"placeholders": {"amount": {"type": "String"}}},
+  "@mintNextVertical3aHeadlineOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aVerseRow": "Paid in {year}",
-  "@mintNextVertical3aVerseRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aVerseRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aPlafondRow": "{year} ceiling",
-  "@mintNextVertical3aPlafondRow": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aPlafondRow": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aProvenance": "OPP3 art. 7 · {year} ceiling · set {version}",
-  "@mintNextVertical3aProvenance": {"placeholders": {"year": {"type": "String"}, "version": {"type": "String"}}},
+  "@mintNextVertical3aProvenance": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aStateLppUnknown": "MINT does not yet know whether you are affiliated with a pension fund.",
   "mintNextVertical3aStateIncomeMissing": "Without a pension fund, your 3a ceiling is computed from your income.",
   "mintNextVertical3aStateContributionsMissing": "No 3a payment recorded yet.",
   "mintNextVertical3aStateUnattested": "The {year} ceiling is not yet attested in MINT.",
-  "@mintNextVertical3aStateUnattested": {"placeholders": {"year": {"type": "String"}}},
+  "@mintNextVertical3aStateUnattested": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
   "mintNextVertical3aCtaLpp": "Answer the pension fund question",
   "mintNextVertical3aCtaRevenu": "Add my income",
   "mintNextVertical3aCtaVersements": "Record a payment",
   "mintNext3aDomicileKnown": "Residence: {commune} ({canton})",
-  "@mintNext3aDomicileKnown": {"placeholders": {"commune": {"type": "String"}, "canton": {"type": "String"}}},
-  "mintNext3aDomicileMissing": "Residence: not provided yet"
+  "@mintNext3aDomicileKnown": {
+    "placeholders": {
+      "commune": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNext3aDomicileMissing": "Residence: not provided yet",
+  "mintNextDomicileNoMatch": "Commune not found. Try the name of the political commune rather than the district or hamlet.",
+  "mintNextDomicileCantonDerived": "Commune found, in canton {canton}.",
+  "mintNextDomicileChangeCommune": "Choose another commune",
+  "mintNextDomicileRegistrySource": "Commune checked against the federal register, updated {date}.",
+  "mintNextDomicileBackToToday": "See Today",
+  "mintNextDomicileSuggestionA11y": "{commune}, canton {canton}",
+  "@mintNextDomicileCantonDerived": {
+    "placeholders": {
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "@mintNextDomicileRegistrySource": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@mintNextDomicileSuggestionA11y": {
+    "placeholders": {
+      "commune": {
+        "type": "String"
+      },
+      "canton": {
+        "type": "String"
+      }
+    }
+  },
+  "mintNextDomicileRegistryLoading": "Reading the register of communes…",
+  "mintNextDomicileRegistryFailed": "The register of communes could not be read. Nothing is lost.",
+  "mintNextDomicileRegistryRetry": "Try again"
 }

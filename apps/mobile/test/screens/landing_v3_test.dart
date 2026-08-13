@@ -116,7 +116,7 @@ void main() {
               'PANEL-VERDICT §4 decision 6: letterSpacing 2 (descended from 4).');
     });
 
-    testWidgets('Test 4: long-press wordmark navigates to /auth/login',
+    testWidgets('Test 4: the wordmark carries no hidden affordance',
         (tester) async {
       await tester.pumpWidget(_wrap());
       await tester.pumpAndSettle();
@@ -124,8 +124,11 @@ void main() {
       await tester.longPress(find.text('MINT'));
       await tester.pumpAndSettle();
 
-      expect(find.text('LOGIN_STUB'), findsOneWidget,
-          reason: 'D-12 long-press hidden affordance preserved.');
+      // Bascule 4 : un geste caché sur le logo n'est découvrable par
+      // personne et ne peut donc pas être la porte d'entrée d'un compte
+      // existant. Le lien de connexion visible la remplace (Test 5).
+      expect(find.text('LOGIN_STUB'), findsNothing,
+          reason: 'plus de raccourci invisible sur la première ouverture');
     });
 
     testWidgets('Test 5: tap login link navigates to /auth/login',
