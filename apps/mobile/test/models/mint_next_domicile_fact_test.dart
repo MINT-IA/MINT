@@ -61,4 +61,64 @@ void main() {
     );
     expect(corrected.revision, isNot(fact().revision));
   });
+
+  test(
+      'a free-text commune with no federal number never feeds a fiscal '
+      'context', () {
+    // Les faits écrits à l'époque du champ libre portent un nom tapé à la
+    // main, potentiellement mal orthographié ou ambigu, que rien ne rattache
+    // à une commune réelle. Le laisser alimenter un chiffre reviendrait à
+    // calculer sur une chaîne de caractères. Trouvé par la relecture : le
+    // commentaire de l'écran affirmait ce fait « non résolu » pendant que le
+    // modèle le confirmait.
+    final legacy = MintNextDomicileFact(
+      canton: 'AG',
+      communeName: 'Aarau',
+      assertedAt: DateTime.utc(2026, 8, 10),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+
+    expect(legacy.communeBfs, isNull);
+    expect(legacy.toConfirmedDomicileContext(), isNull,
+        reason: 'sans identité fédérale, le fait reste non résolu');
+  });
+
+  test('the same commune WITH its federal number does feed the context', () {
+    final resolved = MintNextDomicileFact(
+      canton: 'AG',
+      communeName: 'Aarau',
+      communeBfs: 4001,
+      registrySnapshot: '13-08-2026',
+      assertedAt: DateTime.utc(2026, 8, 10),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+
+    final context = resolved.toConfirmedDomicileContext();
+    expect(context, isNotNull);
+    expect(context!.communeBfs, 4001);
+  });
+
+  test('the registry edition that resolved the commune survives a round trip',
+      () {
+    final fact = MintNextDomicileFact(
+      canton: 'AG',
+      communeName: 'Aarau',
+      communeBfs: 4001,
+      registrySnapshot: '13-08-2026',
+      assertedAt: DateTime.utc(2026, 8, 10),
+      source: MintNextDomicileFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    );
+
+    final restored =
+        MintNextDomicileFact.fromWizardAnswers(fact.toWizardAnswers());
+    expect(restored?.registrySnapshot, '13-08-2026',
+        reason: 'savoir contre quelle édition le fait a été résolu, au lieu '
+            'de le découvrir quand la résolution échoue');
+  });
 }

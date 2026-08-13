@@ -26,6 +26,16 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
 
   static const communeNameKey = 'q_domicile_commune_name';
   static const communeBfsKey = 'q_domicile_commune_bfs';
+
+  /// Édition du registre fédéral qui a résolu cette commune.
+  ///
+  /// Un numéro OFS n'est pas éternel : il change lors d'un transfert de canton
+  /// (Moutier, BE 700 jusqu'au 31.12.2025, puis JU 6831). Le registre embarqué
+  /// ne contient que les communes actives à sa date d'instantané ; après
+  /// régénération, un numéro supprimé ne se retrouve plus. Enregistrer
+  /// l'édition qui a servi permet au moins de SAVOIR contre quoi le fait a été
+  /// résolu, au lieu de le découvrir quand la résolution échoue.
+  static const registrySnapshotKey = 'q_domicile_registre_instantane';
   static const assertedAtKey = 'q_domicile_fact_asserted_at';
   static const sourceKey = 'q_domicile_fact_source';
   static const schemaVersionKey = 'q_domicile_fact_schema_version';
@@ -37,6 +47,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
     hasSwissTaxDomicileKey,
     communeNameKey,
     communeBfsKey,
+    registrySnapshotKey,
     assertedAtKey,
     sourceKey,
     schemaVersionKey,
@@ -54,6 +65,10 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   final String? canton;
   final String? communeName;
   final int? communeBfs;
+
+  /// Date d'instantané du registre qui a résolu cette commune, format
+  /// JJ-MM-AAAA. Null pour un fait écrit avant que le registre existe.
+  final String? registrySnapshot;
   final DateTime assertedAt;
   final String source;
   final int schemaVersion;
@@ -70,13 +85,15 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   })  : hasSwissTaxDomicile = false,
         canton = null,
         communeName = null,
-        communeBfs = null;
+        communeBfs = null,
+        registrySnapshot = null;
 
   const MintNextDomicileFact({
     this.hasSwissTaxDomicile = true,
     this.canton,
     this.communeName,
     this.communeBfs,
+    this.registrySnapshot,
     required this.assertedAt,
     required this.source,
     required this.schemaVersion,
@@ -89,8 +106,20 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
   /// Null tant que le fait attend une confirmation : un domicile proposé
   /// n'est jamais « connu » pour un consommateur fiscal.
   @override
+  /// Null tant que le fait attend une confirmation, qu'il n'y a pas de
+  /// domicile suisse, ou que la commune n'a PAS D'IDENTITÉ FÉDÉRALE.
+  ///
+  /// Ce dernier cas est celui des faits écrits à l'époque du champ libre :
+  /// un nom tapé à la main, potentiellement mal orthographié ou ambigu, que
+  /// rien ne rattache à une commune réelle. Le laisser alimenter un chiffre
+  /// fiscal reviendrait à calculer sur une chaîne de caractères. Le contrat
+  /// du consommateur est explicite : null veut dire « fait manquant, montre-le
+  /// comme tel », jamais « devine ».
   MintNext3aDomicileContext? toConfirmedDomicileContext() =>
-      needsConfirmation || !hasSwissTaxDomicile || canton == null
+      needsConfirmation ||
+              !hasSwissTaxDomicile ||
+              canton == null ||
+              communeBfs == null
           ? null
           : MintNext3aDomicileContext(
               canton: canton!,
@@ -109,6 +138,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
         cantonKey: canton,
         communeNameKey: communeName,
         communeBfsKey: communeBfs,
+        registrySnapshotKey: registrySnapshot,
         assertedAtKey: assertedAt.toUtc().toIso8601String(),
         sourceKey: source,
         schemaVersionKey: schemaVersion,
@@ -163,6 +193,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
       canton: canton,
       communeName: communeName.trim(),
       communeBfs: _int(answers[communeBfsKey]),
+      registrySnapshot: answers[registrySnapshotKey] as String?,
       assertedAt: assertedAt.toUtc(),
       source: source,
       schemaVersion: schema,
@@ -195,6 +226,7 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
       canton == other.canton &&
       communeName == other.communeName &&
       communeBfs == other.communeBfs &&
+      registrySnapshot == other.registrySnapshot &&
       assertedAt == other.assertedAt &&
       source == other.source &&
       schemaVersion == other.schemaVersion &&
@@ -202,5 +234,6 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
 
   @override
   int get hashCode => Object.hash(hasSwissTaxDomicile, canton, communeName,
-      communeBfs, assertedAt, source, schemaVersion, needsConfirmation);
+      communeBfs, registrySnapshot, assertedAt, source, schemaVersion,
+      needsConfirmation);
 }

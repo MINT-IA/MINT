@@ -103,6 +103,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
         canton: _selected!.canton,
         communeName: _selected!.officialName,
         communeBfs: _selected!.bfs,
+        registrySnapshot: CommuneRegistry.snapshotDate,
         assertedAt: _now(),
         source: MintNextDomicileFact.userDeclarationSource,
         schemaVersion: 1,

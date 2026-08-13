@@ -60,9 +60,14 @@ void main() {
       needsConfirmation: true,
     );
     expect(MintNext3aDomicileContext.fromConfirmedFact(pending), isNull);
+    // Un fait confirmé porte désormais son identité fédérale : depuis la
+    // relecture, un nom de commune sans numéro OFS ne peut plus alimenter un
+    // contexte fiscal — ce serait calculer sur une chaîne de caractères.
     final confirmed = MintNextDomicileFact(
       canton: 'VD',
       communeName: 'Lausanne',
+      communeBfs: 5586,
+      registrySnapshot: '13-08-2026',
       assertedAt: DateTime.utc(2026, 8, 11),
       source: MintNextDomicileFact.userDeclarationSource,
       schemaVersion: 1,
