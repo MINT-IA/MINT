@@ -23975,28 +23975,26 @@ class SPt extends S {
   String get firstOpenEmptyEyebrow => 'Hoje';
 
   @override
-  String get firstOpenEmptyTitle => 'A tua situação começa aqui.';
+  String get firstOpenEmptyTitle => 'Primeiro, o teu cantão.';
 
   @override
-  String get firstOpenEmptyProof =>
-      'O MINT ainda não sabe nada das tuas finanças.';
+  String get firstOpenEmptyProof => 'O MINT ainda não conhece a tua situação.';
 
   @override
   String get firstOpenFirstFactRationale =>
-      'O teu cantão e o teu município mudam as regras e o que o MINT te pode mostrar.';
+      'Uma parte dos teus impostos varia consoante o cantão e o município.';
 
   @override
-  String get firstOpenAddFirstFact => 'Indicar o meu domicílio fiscal';
+  String get firstOpenAddFirstFact => 'Escolher o meu cantão';
 
   @override
-  String get firstOpenDeclineFirstFact => 'Agora não';
+  String get firstOpenDeclineFirstFact => 'Mais tarde';
 
   @override
-  String get firstOpenDeclinedNote =>
-      'Nenhuma referência adicionada por agora. Podes retomar quando quiseres.';
+  String get firstOpenDeclinedNote => 'Nada adicionado por agora.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Adicionar uma primeira referência';
+  String get firstOpenResumeFirstFact => 'Escolher o meu cantão';
 
   @override
   String get cleoLoopInsight => 'Insight recebido';

@@ -42,7 +42,7 @@ void main() {
     await pumpEmptyState(tester);
 
     expect(byIdentifier('status:today.no_financial_facts'), findsOneWidget);
-    expect(find.text('MINT ne sait encore rien de tes finances.'),
+    expect(find.text('MINT ne connaît pas encore ta situation.'),
         findsOneWidget);
     expect(byIdentifier('action:today.add_first_fact'), findsOneWidget,
         reason: 'exactement UNE action de collecte primaire');
@@ -69,11 +69,11 @@ void main() {
     await pumpEmptyState(tester);
     expect(byIdentifier('node:today.first_fact_rationale'), findsOneWidget);
     expect(
-        find.text('Ton canton et ta commune changent les règles et ce que '
-            'MINT peut te montrer.'),
+        find.text('Une partie de tes impôts varie selon le canton et la '
+            'commune.'),
         findsOneWidget,
         reason: 'la justification est AFFICHÉE, pas implicite');
-    expect(find.text('Indiquer mon domicile fiscal'), findsOneWidget,
+    expect(find.text('Choisir mon canton'), findsOneWidget,
         reason: 'action SPÉCIFIQUE, jamais « ajouter une information »');
   });
 

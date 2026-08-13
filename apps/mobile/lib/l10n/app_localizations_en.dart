@@ -23837,28 +23837,26 @@ class SEn extends S {
   String get firstOpenEmptyEyebrow => 'Today';
 
   @override
-  String get firstOpenEmptyTitle => 'Your situation starts here.';
+  String get firstOpenEmptyTitle => 'First, your canton.';
 
   @override
-  String get firstOpenEmptyProof =>
-      'MINT knows nothing about your finances yet.';
+  String get firstOpenEmptyProof => 'MINT does not know your situation yet.';
 
   @override
   String get firstOpenFirstFactRationale =>
-      'Your canton and municipality change the rules and what MINT can show you.';
+      'Part of your taxes varies by canton and municipality.';
 
   @override
-  String get firstOpenAddFirstFact => 'Set my tax residence';
+  String get firstOpenAddFirstFact => 'Choose my canton';
 
   @override
-  String get firstOpenDeclineFirstFact => 'Not now';
+  String get firstOpenDeclineFirstFact => 'Later';
 
   @override
-  String get firstOpenDeclinedNote =>
-      'No landmark added yet. You can pick this up whenever you want.';
+  String get firstOpenDeclinedNote => 'Nothing added for now.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Add a first landmark';
+  String get firstOpenResumeFirstFact => 'Choose my canton';
 
   @override
   String get cleoLoopInsight => 'Insight received';

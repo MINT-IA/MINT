@@ -23963,27 +23963,26 @@ class SFr extends S {
   String get firstOpenEmptyEyebrow => 'Aujourd\'hui';
 
   @override
-  String get firstOpenEmptyTitle => 'Ici commence ta situation.';
+  String get firstOpenEmptyTitle => 'D\'abord, ton canton.';
 
   @override
-  String get firstOpenEmptyProof => 'MINT ne sait encore rien de tes finances.';
+  String get firstOpenEmptyProof => 'MINT ne connaît pas encore ta situation.';
 
   @override
   String get firstOpenFirstFactRationale =>
-      'Ton canton et ta commune changent les règles et ce que MINT peut te montrer.';
+      'Une partie de tes impôts varie selon le canton et la commune.';
 
   @override
-  String get firstOpenAddFirstFact => 'Indiquer mon domicile fiscal';
+  String get firstOpenAddFirstFact => 'Choisir mon canton';
 
   @override
-  String get firstOpenDeclineFirstFact => 'Pas maintenant';
+  String get firstOpenDeclineFirstFact => 'Plus tard';
 
   @override
-  String get firstOpenDeclinedNote =>
-      'Aucun repère ajouté pour l\'instant. Tu peux reprendre ici quand tu veux.';
+  String get firstOpenDeclinedNote => 'Rien d\'ajouté pour le moment.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Ajouter un premier repère';
+  String get firstOpenResumeFirstFact => 'Choisir mon canton';
 
   @override
   String get cleoLoopInsight => 'Insight reçu';

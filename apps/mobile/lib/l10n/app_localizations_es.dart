@@ -23965,27 +23965,26 @@ class SEs extends S {
   String get firstOpenEmptyEyebrow => 'Hoy';
 
   @override
-  String get firstOpenEmptyTitle => 'Aquí empieza tu situación.';
+  String get firstOpenEmptyTitle => 'Primero, tu cantón.';
 
   @override
-  String get firstOpenEmptyProof => 'MINT aún no sabe nada de tus finanzas.';
+  String get firstOpenEmptyProof => 'MINT todavía no conoce tu situación.';
 
   @override
   String get firstOpenFirstFactRationale =>
-      'Tu cantón y tu municipio cambian las reglas y lo que MINT puede mostrarte.';
+      'Una parte de tus impuestos varía según el cantón y el municipio.';
 
   @override
-  String get firstOpenAddFirstFact => 'Indicar mi domicilio fiscal';
+  String get firstOpenAddFirstFact => 'Elegir mi cantón';
 
   @override
-  String get firstOpenDeclineFirstFact => 'Ahora no';
+  String get firstOpenDeclineFirstFact => 'Más tarde';
 
   @override
-  String get firstOpenDeclinedNote =>
-      'Ningún dato añadido por ahora. Puedes retomarlo cuando quieras.';
+  String get firstOpenDeclinedNote => 'Nada añadido por ahora.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Añadir un primer dato';
+  String get firstOpenResumeFirstFact => 'Elegir mi cantón';
 
   @override
   String get cleoLoopInsight => 'Insight recibido';

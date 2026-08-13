@@ -24030,28 +24030,27 @@ class SIt extends S {
   String get firstOpenEmptyEyebrow => 'Oggi';
 
   @override
-  String get firstOpenEmptyTitle => 'Qui inizia la tua situazione.';
+  String get firstOpenEmptyTitle => 'Prima, il tuo cantone.';
 
   @override
   String get firstOpenEmptyProof =>
-      'MINT non sa ancora nulla delle tue finanze.';
+      'MINT non conosce ancora la tua situazione.';
 
   @override
   String get firstOpenFirstFactRationale =>
-      'Il tuo cantone e il tuo comune cambiano le regole e ciò che MINT può mostrarti.';
+      'Una parte delle tue imposte varia secondo il cantone e il comune.';
 
   @override
-  String get firstOpenAddFirstFact => 'Indicare il mio domicilio fiscale';
+  String get firstOpenAddFirstFact => 'Scegliere il mio cantone';
 
   @override
-  String get firstOpenDeclineFirstFact => 'Non ora';
+  String get firstOpenDeclineFirstFact => 'Più tardi';
 
   @override
-  String get firstOpenDeclinedNote =>
-      'Nessun riferimento aggiunto per ora. Puoi riprendere quando vuoi.';
+  String get firstOpenDeclinedNote => 'Niente aggiunto per ora.';
 
   @override
-  String get firstOpenResumeFirstFact => 'Aggiungere un primo riferimento';
+  String get firstOpenResumeFirstFact => 'Scegliere il mio cantone';
 
   @override
   String get cleoLoopInsight => 'Insight ricevuto';

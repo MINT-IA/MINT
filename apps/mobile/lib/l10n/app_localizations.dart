@@ -41875,43 +41875,43 @@ abstract class S {
   /// No description provided for @firstOpenEmptyTitle.
   ///
   /// In fr, this message translates to:
-  /// **'Ici commence ta situation.'**
+  /// **'D\'abord, ton canton.'**
   String get firstOpenEmptyTitle;
 
   /// No description provided for @firstOpenEmptyProof.
   ///
   /// In fr, this message translates to:
-  /// **'MINT ne sait encore rien de tes finances.'**
+  /// **'MINT ne connaît pas encore ta situation.'**
   String get firstOpenEmptyProof;
 
   /// No description provided for @firstOpenFirstFactRationale.
   ///
   /// In fr, this message translates to:
-  /// **'Ton canton et ta commune changent les règles et ce que MINT peut te montrer.'**
+  /// **'Une partie de tes impôts varie selon le canton et la commune.'**
   String get firstOpenFirstFactRationale;
 
   /// No description provided for @firstOpenAddFirstFact.
   ///
   /// In fr, this message translates to:
-  /// **'Indiquer mon domicile fiscal'**
+  /// **'Choisir mon canton'**
   String get firstOpenAddFirstFact;
 
   /// No description provided for @firstOpenDeclineFirstFact.
   ///
   /// In fr, this message translates to:
-  /// **'Pas maintenant'**
+  /// **'Plus tard'**
   String get firstOpenDeclineFirstFact;
 
   /// No description provided for @firstOpenDeclinedNote.
   ///
   /// In fr, this message translates to:
-  /// **'Aucun repère ajouté pour l\'instant. Tu peux reprendre ici quand tu veux.'**
+  /// **'Rien d\'ajouté pour le moment.'**
   String get firstOpenDeclinedNote;
 
   /// No description provided for @firstOpenResumeFirstFact.
   ///
   /// In fr, this message translates to:
-  /// **'Ajouter un premier repère'**
+  /// **'Choisir mon canton'**
   String get firstOpenResumeFirstFact;
 
   /// Cleo loop indicator — insight position.
