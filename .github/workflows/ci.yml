@@ -74,6 +74,10 @@ jobs:
         run: python3 tools/checks/ci_test_coverage_gate.py --self-test
       - name: Aucun repertoire de tests hors CI
         run: python3 tools/checks/ci_test_coverage_gate.py
+      - name: Self-test du garde d'ecriture du jumeau
+        run: python3 tools/checks/twin_write_discipline.py --self-test
+      - name: Aucune ecriture directe NOUVELLE dans la projection
+        run: python3 tools/checks/twin_write_discipline.py
 
   contracts-drift:
     name: Contracts drift

@@ -661,6 +661,10 @@ ALLOW = {
     # reservee du meme objet que sa projection, donc une seule ecriture.
     "apps/mobile/lib/services/twin/answers_twin_backend.dart",
     "apps/mobile/test/services/twin/answers_twin_backend_test.dart",
+    # F3 — la regle rendue mecanique : plus aucune ECRITURE DIRECTE nouvelle
+    # dans la projection. Cliquet sur les 28 sites herites.
+    "tools/checks/twin_write_discipline.py",
+    "tools/checks/_baseline_twin_direct_writes.txt",
     ".planning/reports/SESSION-2026-07-26-p2-gate-dur.html",
     ".planning/reports/SESSION-2026-07-26-etat-des-lieux.html",
     ".planning/reports/SESSION-2026-07-28-plan-de-fusion.html",
