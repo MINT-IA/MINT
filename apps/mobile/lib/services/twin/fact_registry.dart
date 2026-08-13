@@ -208,15 +208,15 @@ class FactRegistry {
 
     for (final v in loaded) {
       if (!seenVersionIds.add(v.versionId)) {
-        throw FormatException('version « \${v.versionId} » en double');  // lint-ignore
+        throw FormatException('version « ${v.versionId} » en double');  // lint-ignore
       }
       if (!seenSequences.add(v.sequence)) {
-        throw FormatException('rang \${v.sequence} en double');  // lint-ignore
+        throw FormatException('rang ${v.sequence} en double');  // lint-ignore
       }
       final knownType = typePerFact[v.factId];
       if (knownType != null && knownType != v.factType) {
         throw FormatException(
-            'le fait « \${v.factId} » change de type');  // lint-ignore
+            'le fait « ${v.factId} » change de type');  // lint-ignore
       }
       typePerFact[v.factId] = v.factType;
       if (v.isCurrent) {
@@ -227,7 +227,7 @@ class FactRegistry {
     for (final entry in currentPerFact.entries) {
       if (entry.value > 1) {
         throw FormatException(
-            'le fait « \${entry.key} » a \${entry.value} versions courantes');  // lint-ignore
+            'le fait « ${entry.key} » a ${entry.value} versions courantes');  // lint-ignore
       }
     }
 
@@ -235,7 +235,7 @@ class FactRegistry {
       final supersedes = v.supersedesVersionId;
       if (supersedes != null && !seenVersionIds.contains(supersedes)) {
         throw FormatException(
-            'chaîne rompue : \${v.versionId} remplace une version absente');  // lint-ignore
+            'chaîne rompue : ${v.versionId} remplace une version absente');  // lint-ignore
       }
     }
   }

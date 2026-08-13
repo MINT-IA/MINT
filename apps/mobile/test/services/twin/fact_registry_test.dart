@@ -386,4 +386,27 @@ void main() {
       expect(() => registry.decode(backwards), throwsFormatException);
     });
   });
+
+  test('a refusal message names the offending value, not the source code', () {
+    // Les messages de diagnostic portaient un dollar ÉCHAPPÉ : ils auraient
+    // affiché « version « ${v.versionId} » en double » au lieu de la valeur.
+    // Le gate d'analyse statique l'a signalé sous forme d'avertissement de
+    // performance — le vrai défaut était ailleurs, dans ce que la personne qui
+    // débogue aurait lu.
+    const duplicate = '[{"sequence":0,"factId":"d","versionId":"CONFLIT",'
+        '"factType":"domicile","payload":{},'
+        '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+        '"source":"userDeclaration","status":"confirmed","schemaVersion":1,'
+        '"effectiveTo":"2026-09-01T00:00:00Z"},'
+        '{"sequence":1,"factId":"d","versionId":"CONFLIT",'
+        '"factType":"domicile","payload":{},'
+        '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+        '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
+
+    expect(
+        () => registry.decode(duplicate),
+        throwsA(isA<FormatException>().having(
+            (e) => e.message, 'message', contains('CONFLIT'))),
+        reason: 'le message doit nommer la version fautive');
+  });
 }

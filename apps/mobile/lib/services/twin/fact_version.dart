@@ -261,7 +261,7 @@ class FactVersion {
       final value = entry.value;
       if (value is Map || value is List) {
         throw FormatException(
-            'payload « \${entry.key} » : scalaire attendu', json.toString());  // lint-ignore
+            'payload « ${entry.key} » : scalaire attendu', json.toString());  // lint-ignore
       }
     }
 
