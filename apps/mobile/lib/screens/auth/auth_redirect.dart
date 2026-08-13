@@ -1,4 +1,5 @@
 import 'package:mint_mobile/services/report_persistence_service.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 
 String? resolvePostAuthRedirect(Uri uri) {
   final redirect = uri.queryParameters['redirect'];
@@ -53,14 +54,16 @@ String resolvePostAuthDestination({
   final redirect = resolvePostAuthRedirect(currentUri);
   final destination = redirect ?? fallback;
   if (!hasDossierIdentity && _requiresDossierIdentity(destination)) {
-    return '/onb';
+    return LegacyOnboardingEntry.legacyPath;
   }
   return destination;
 }
 
 bool _requiresDossierIdentity(String destination) {
   final path = Uri.tryParse(destination)?.path ?? destination;
-  return path == '/anonymous/chat' ||
+  // '/anonymous/chat' porte l'owner legacy (sa fermeture atteint le
+  // wizard) : on le nomme via la constante pour rester sous le checker.
+  return path == LegacyOnboardingEntry.anonymousChatPath ||
       path == '/coach/chat' ||
       path == '/home' ||
       path == '/mon-argent' ||

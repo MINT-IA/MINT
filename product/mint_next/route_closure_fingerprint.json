@@ -1,5 +1,5 @@
 {
-  "registry_fingerprint": "aa0615a715b4b465d8296184a8e7d0f006102c5a950be542db2beec82825db01",
+  "registry_fingerprint": "029de78b8eb83b9f0f5b0ab6121dd46994ae89898ef033743386ad0dc0cccf80",
   "routes": 166,
   "note": "empreinte du graphe route -> owner -> redirect|builder ; toute divergence doit etre justifiee au contrat"
 }

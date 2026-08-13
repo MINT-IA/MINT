@@ -12,6 +12,7 @@
 library;
 
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/navigation/readiness_result.dart';
 
@@ -370,7 +371,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['netIncome'],
     optionalFields: ['depenses'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -395,7 +396,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age'],
     optionalFields: ['canton', 'avoirLpp', 'rachatMaximum'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
     customGate: gateRenteVsCapital,
@@ -407,7 +408,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'rachatMaximum', 'civilStatus'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -420,7 +421,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'rachatMaximum'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -431,7 +432,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'canton'],
     optionalFields: ['age', 'employmentStatus'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -442,7 +443,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['age', 'canton'],
     optionalFields: ['salaireBrut'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -463,7 +464,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['rachatMaximum', 'avoirLpp'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -488,7 +489,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -542,7 +543,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['salaireBrut', 'age', 'canton'],
     optionalFields: ['avoirLpp', 'epargne3a'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
   );
@@ -765,7 +766,7 @@ class MintScreenRegistry extends ScreenRegistry {
     behavior: ScreenBehavior.decisionCanvas,
     requiredFields: ['netIncome'],
     optionalFields: ['salaireBrut'],
-    fallbackRoute: '/onb',
+    fallbackRoute: LegacyOnboardingEntry.legacyPath,
     preferFromChat: true,
     prefillFromProfile: true,
     customGate: gateBudgetSousTension,
@@ -1384,7 +1385,7 @@ class MintScreenRegistry extends ScreenRegistry {
   );
 
   static const ScreenEntry _onboardingQuick = ScreenEntry(
-    route: '/onb',
+    route: LegacyOnboardingEntry.legacyPath,
     intentTag: 'onboarding_quick',
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],
@@ -1393,8 +1394,8 @@ class MintScreenRegistry extends ScreenRegistry {
     prefillFromProfile: false,
   );
 
-  static const ScreenEntry _onboardingPremierEclairage = ScreenEntry(
-    route: '/onboarding/premier-eclairage',
+  static final ScreenEntry _onboardingPremierEclairage = ScreenEntry(
+    route: LegacyOnboardingEntry.premierEclairagePath,
     intentTag: 'onboarding_premier_eclairage',
     behavior: ScreenBehavior.captureUtility,
     requiredFields: [],

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -78,7 +79,9 @@ class _LoginScreenState extends State<LoginScreen> {
     context.go(resolvePostAuthDestination(
       currentUri: GoRouterState.of(context).uri,
       hasDossierIdentity: hasDossierIdentity,
-      fallback: completed ? '/coach/chat' : '/onb',
+      fallback: completed
+          ? '/coach/chat'
+          : LegacyOnboardingEntry.legacyPath,
     ));
   }
 

@@ -20,6 +20,7 @@
 library;
 
 import 'package:mint_mobile/models/coach_profile.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 import 'package:mint_mobile/screens/coach/coach_archetype_guard.dart';
 import 'package:mint_mobile/services/feature_flags.dart';
 
@@ -31,10 +32,9 @@ import 'package:mint_mobile/services/feature_flags.dart';
 /// gate only ever fires on the `authenticated`-scope prévoyance surfaces
 /// (`/home`, `/mon-argent`, `/profile/*`, `/explore/*`, `/coach/*`, `/scan/impact`
 /// is reachable as it lives under `/scan`).
-const List<String> _gateExemptPrefixes = <String>[
+final List<String> _gateExemptPrefixes = <String>[
   '/waitlist',
-  '/onb',
-  '/onboarding',
+  ...LegacyOnboardingEntry.legacyPathPrefixes,
   '/scan',
   '/settings',
   '/auth',

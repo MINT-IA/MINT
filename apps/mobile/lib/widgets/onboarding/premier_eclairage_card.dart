@@ -13,6 +13,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -134,7 +135,8 @@ class _PremierEclairageCardState extends State<PremierEclairageCard>
           const SizedBox(height: MintSpacing.md),
           _CtaButton(
             label: l10n.premierEclairageCardCtaPersonalize,
-            onTap: () => widget.onNavigate('/onb'),
+            onTap: () =>
+                widget.onNavigate(LegacyOnboardingEntry.legacyPath),
           ),
           const SizedBox(height: MintSpacing.sm),
           _DisclaimerText(text: l10n.premierEclairageDisclaimer),

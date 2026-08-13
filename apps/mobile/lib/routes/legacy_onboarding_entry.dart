@@ -14,13 +14,30 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'package:mint_mobile/providers/auth_provider.dart';
+import 'package:mint_mobile/routes/route_metadata.dart';
 import 'package:mint_mobile/services/preview_shell_policy.dart';
 
 class LegacyOnboardingEntry {
   const LegacyOnboardingEntry._();
 
   /// Destination legacy historique (hors préversion uniquement).
+  /// Les autres fichiers la RÉFÉRENCENT au lieu de la réécrire : un
+  /// littéral dispersé échappe au checker de fermeture (review T1 #2).
   static const String legacyPath = '/onb';
+
+  /// Alias legacy DÉRIVÉ du registre plutôt que redéclaré : le registre
+  /// est la source de vérité des chemins, le dupliquer ici créerait une
+  /// seconde déclaration à maintenir.
+  static final String premierEclairagePath = kRouteRegistry.keys.firstWhere(
+    (path) => path.startsWith('/onboarding/premier-'),
+  );
+
+  /// Alias historique dont la fermeture atteint le wizard.
+  static const String anonymousChatPath = '/anonymous/chat';
+
+  /// Préfixes des alias legacy — pour les gates qui raisonnent par
+  /// préfixe plutôt que par chemin exact.
+  static const List<String> legacyPathPrefixes = ['/onb', '/onboarding'];
 
   /// Entrée canonique de la préversion — la coque du jumeau.
   static const String previewPath = '/home';

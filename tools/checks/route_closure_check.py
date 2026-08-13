@@ -52,7 +52,13 @@ AUTHORIZED_SHELL_REFERENCES = {
 # L'entrée CANONIQUE : le seul fichier produit autorisé à nommer un
 # chemin legacy — tous les écrans passent par elle (intention explicite au
 # point d'appel, pas seulement au redirect global).
-CANONICAL_ENTRY_FILES = {"apps/mobile/lib/routes/legacy_onboarding_entry.dart"}
+CANONICAL_ENTRY_FILES = {
+    "apps/mobile/lib/routes/legacy_onboarding_entry.dart",
+    # Le registre DÉCLARE les chemins : les y nommer est sa fonction même,
+    # pas un contournement. Exclusion STRUCTURELLE (un seul fichier, la
+    # source de vérité), pas une allowlist de call-sites.
+    "apps/mobile/lib/routes/route_metadata.dart",
+}
 
 # Répertoires exclus par CHEMIN (jamais du code produit).
 EXCLUDED_PATH_PARTS = ("/test/", "/tests/", "/fixtures/", "/.dart_tool/")
@@ -69,7 +75,7 @@ WIZARD_INTERNAL_PREFIX = "apps/mobile/lib/screens/onboarding/"
 class RouteNode:
     path: str
     builder: str | None = None
-    redirect_target: str | None = None
+    redirect_targets: list[str] = field(default_factory=list)
     owner: str | None = None
 
 
@@ -102,7 +108,7 @@ def parse_registry(source: str) -> dict[str, str]:
     return owners
 
 
-def _extract_redirect(window: str) -> str | None:
+def _extract_redirect(window: str) -> list[str]:
     """Cible littérale d'un redirect — flèche OU corps de bloc.
 
     Trois formes réellement présentes dans app.dart :
@@ -114,19 +120,22 @@ def _extract_redirect(window: str) -> str | None:
     """
     arrow = re.search(r"redirect:\s*\([^)]*\)\s*=>\s*'([^']+)'", window)
     if arrow:
-        return arrow.group(1)
+        return [arrow.group(1)]
     ternary = re.search(
         r"redirect:\s*\([^)]*\)\s*=>\s*\n?\s*\w[^;]*?\?\s*null\s*:\s*'([^']+)'",
         window,
     )
     if ternary:
-        return ternary.group(1)
+        return [ternary.group(1)]
     block = re.search(r"redirect:\s*\([^)]*\)\s*\{(.*?)\n?\s*\}", window, re.S)
     if block:
-        returned = re.search(r"return\s+'([^']+)'\s*;", block.group(1))
+        # TOUTES les branches comptent : `if (x) return '/home'; return
+        # '/onb';` atteint le wizard par sa seconde branche. Ne garder que
+        # le premier return rendait cette porte invisible (P1 review #2).
+        returned = re.findall(r"return\s+'([^']+)'\s*;", block.group(1))
         if returned:
-            return returned.group(1)
-    return None
+            return returned
+    return []
 
 
 def parse_router(source: str) -> list[RouteNode]:
@@ -146,7 +155,7 @@ def parse_router(source: str) -> list[RouteNode]:
             RouteNode(
                 path=path,
                 builder=builder.group(1) if builder else None,
-                redirect_target=redirect,
+                redirect_targets=redirect,
             )
         )
     return nodes
@@ -164,7 +173,9 @@ def build_closure(app_source: str, registry_source: str) -> ClosureReport:
             report.nodes[node.path] = node
         else:
             existing.builder = existing.builder or node.builder
-            existing.redirect_target = existing.redirect_target or node.redirect_target
+            for target in node.redirect_targets:
+                if target not in existing.redirect_targets:
+                    existing.redirect_targets.append(target)
 
     # ── Fermeture transitive : quels chemins atteignent le shell legacy ──
     def reaches_legacy(path: str, seen: set[str]) -> bool:
@@ -177,9 +188,10 @@ def build_closure(app_source: str, registry_source: str) -> ClosureReport:
             return False
         if node.builder == LEGACY_SHELL_SYMBOL:
             return True
-        if node.redirect_target:
-            return reaches_legacy(node.redirect_target, seen)
-        return False
+        return any(
+            reaches_legacy(target, set(seen))
+            for target in node.redirect_targets
+        )
 
     for path, node in report.nodes.items():
         if reaches_legacy(path, set()):
@@ -218,9 +230,12 @@ def check_legacy_navigations(legacy_paths: set[str]) -> list[str]:
     routeur) et par SYNTAXE (commentaires).
     """
     errors: list[str] = []
-    nav = re.compile(
-        r"(?:context\.(?:go|push|replace)|Navigator\.[\w.]+)\(\s*'([^']+)'"
-    )
+    # Tout LITTÉRAL de chemin legacy, quelle que soit sa forme d'usage :
+    # `context.go('/onb')`, `onNavigate('/onb')`, `return '/onb';`,
+    # `fallback: '/onb'`… Se limiter aux appels de navigation connus
+    # laissait passer des callbacks et des valeurs de retour (P1 review
+    # T1 #2) : l'entrée canonique restait contournable.
+    literal = re.compile(r"'([^']+)'")
     for dart in MOBILE_LIB.rglob("*.dart"):
         rel = str(dart.relative_to(ROOT))
         if any(part in f"/{rel}" for part in EXCLUDED_PATH_PARTS):
@@ -230,11 +245,12 @@ def check_legacy_navigations(legacy_paths: set[str]) -> list[str]:
         if rel.startswith(WIZARD_INTERNAL_PREFIX) or rel == "apps/mobile/lib/app.dart":
             continue
         source = _strip_comments(dart.read_text(encoding="utf-8"))
-        for match in nav.finditer(source):
+        for match in literal.finditer(source):
             if match.group(1).split("?")[0] in legacy_paths:
+                line = source[: match.start()].count("\n") + 1
                 errors.append(
-                    f"{rel} navigates literally to legacy path "
-                    f"{match.group(1)} — route it through the preview entry"
+                    f"{rel}:{line} names the legacy path {match.group(1)} — "
+                    "route it through LegacyOnboardingEntry"
                 )
     return errors
 
@@ -282,7 +298,7 @@ def check_unregistered_navigations(registered: set[str]) -> list[str]:
 def fingerprint(report: ClosureReport) -> str:
     """sha256 du graphe NORMALISÉ path → owner → redirectTarget|builder."""
     normalized = sorted(
-        f"{n.path}|{n.owner}|{n.redirect_target or n.builder or ''}"
+        f"{n.path}|{n.owner}|{','.join(sorted(n.redirect_targets)) or n.builder or ''}"
         for n in report.nodes.values()
     )
     return hashlib.sha256("\n".join(normalized).encode()).hexdigest()
@@ -372,6 +388,29 @@ def self_test() -> int:
     blk = build_closure(block_body, registry)
     assert any("/onboarding/legacy-alias" in e for e in blk.errors), (
         "a block-bodied redirect reaching the shell must FAIL", blk.errors)
+
+    ternary_router = """
+    GoRoute(
+      path: '/onboarding/ternary-alias',
+      redirect: (_, __) => FeatureFlags.x ? null : '/legit',
+    ),
+""" + good_router
+    tern = build_closure(ternary_router, registry)
+    assert any("/onboarding/ternary-alias" in e for e in tern.errors), (
+        "a ternary redirect reaching the shell must FAIL", tern.errors)
+
+    multi_branch = """
+    GoRoute(
+      path: '/onboarding/multi-alias',
+      redirect: (_, state) {
+        if (state.uri.queryParameters.isEmpty) return '/home';
+        return '/legit';
+      },
+    ),
+""" + good_router
+    multi = build_closure(multi_branch, registry)
+    assert any("/onboarding/multi-alias" in e for e in multi.errors), (
+        "a multi-branch redirect reaching the shell must FAIL", multi.errors)
 
     cyclic = """
     GoRoute(path: '/a', redirect: (_, __) => '/b'),

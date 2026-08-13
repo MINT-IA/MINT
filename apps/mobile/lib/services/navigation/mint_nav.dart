@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:mint_mobile/routes/legacy_onboarding_entry.dart';
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/models/auth_lifecycle_state.dart';
@@ -13,7 +14,7 @@ class MintNav {
   MintNav._();
 
   static const shellFallbackRoute = '/home';
-  static const onboardingFallbackRoute = '/onb';
+  static const onboardingFallbackRoute = LegacyOnboardingEntry.legacyPath;
   static const _shellBranchRoots = {
     '/home',
     '/mon-argent',
