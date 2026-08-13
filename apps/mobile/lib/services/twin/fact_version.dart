@@ -49,6 +49,7 @@ enum FactStatus { confirmed, estimated }
 /// déménagement, une augmentation, un mariage.
 class FactVersion {
   const FactVersion({
+    required this.sequence,
     required this.factId,
     required this.versionId,
     required this.factType,
@@ -66,6 +67,13 @@ class FactVersion {
     this.supersedesVersionId,
     this.consentRef,
   });
+
+  /// Rang d'écriture, strictement croissant sur tout le registre.
+  ///
+  /// Deux écritures peuvent partager la même horloge — au millième de seconde,
+  /// ou parce qu'un test fige le temps. L'horodatage ne suffit donc pas à
+  /// ordonner l'histoire ; ce rang si.
+  final int sequence;
 
   /// Identité du fait, stable dans le temps.
   final String factId;
@@ -124,16 +132,30 @@ class FactVersion {
 
   /// Cette version peut-elle parler de cette année fiscale ?
   ///
-  /// Sans date d'effet, la seule réponse honnête part de l'année de la
-  /// déclaration : quelqu'un ayant déménagé n'habitait pas forcément là
-  /// l'an dernier.
+  /// **Sans année fiscale NI date d'effet, la réponse est NON** — pas
+  /// « probablement ». La première version de ce code partait de l'année de
+  /// déclaration : un domicile déclaré le 31 décembre 2026 « couvrait » alors
+  /// toute l'année 2026, y compris un calcul de janvier, puis 2027, 2028, et
+  /// ainsi de suite. Le commentaire disait « on ne sait pas » pendant que le
+  /// code répondait « oui ». Défaut trouvé par la relecture adversariale.
+  ///
+  /// Conséquence assumée : tant que MINT ne demande pas depuis quand la
+  /// personne habite là, ses faits ne répondent à aucune question par année.
+  /// C'est une dégradation explicite, et c'est ce qui rendra la collecte de la
+  /// date d'effet nécessaire plutôt que décorative.
   bool coversFiscalYear(int year) {
     if (fiscalYear != null) return fiscalYear == year;
-    final from = effectiveFrom ?? assertedAt;
+    final from = effectiveFrom;
+    if (from == null) return false;
     if (year < from.toUtc().year) return false;
     final to = effectiveTo;
     return to == null || year <= to.toUtc().year;
   }
+
+  /// Vrai quand la question « de quelle année parles-tu ? » n'a pas de
+  /// réponse. À distinguer d'un « non » : l'un appelle une collecte, l'autre
+  /// est une réponse.
+  bool get fiscalCoverageUnknown => fiscalYear == null && effectiveFrom == null;
 
   /// Périmée à cette date ?
   bool isStaleAt(DateTime moment) {
@@ -142,6 +164,7 @@ class FactVersion {
   }
 
   FactVersion supersededBy(String nextVersionId, DateTime at) => FactVersion(
+        sequence: sequence,
         factId: factId,
         versionId: versionId,
         factType: factType,
@@ -161,6 +184,7 @@ class FactVersion {
       );
 
   Map<String, Object?> toJson() => {
+        'sequence': sequence,
         'factId': factId,
         'versionId': versionId,
         'factType': factType,
@@ -213,16 +237,58 @@ class FactVersion {
       throw FormatException('payload absent', json.toString());  // lint-ignore
     }
 
+    final sequence = json['sequence'];
+    if (sequence is! int || sequence < 0) {
+      throw FormatException('rang d\'écriture absent ou invalide', json.toString());  // lint-ignore
+    }
+
+    // Schéma FERMÉ : un champ inconnu est une version écrite par un autre
+    // logiciel, ou une corruption. Dans les deux cas on ne devine pas.
+    const known = {
+      'sequence', 'factId', 'versionId', 'factType', 'payload',
+      'effectiveFrom', 'effectiveTo', 'fiscalYear', 'assertedAt', 'recordedAt',
+      'source', 'status', 'validUntil', 'needsConfirmation',
+      'supersedesVersionId', 'schemaVersion', 'consentRef',
+    };
+    final unknown = json.keys.where((k) => !known.contains(k)).toList();
+    if (unknown.isNotEmpty) {
+      throw FormatException('champs inconnus : \$unknown', json.toString());  // lint-ignore
+    }
+
+    // « Scalaires uniquement » etait une promesse de commentaire ; c'est
+    // desormais une regle.
+    for (final entry in Map<String, Object?>.from(payload).entries) {
+      final value = entry.value;
+      if (value is Map || value is List) {
+        throw FormatException(
+            'payload « \${entry.key} » : scalaire attendu', json.toString());  // lint-ignore
+      }
+    }
+
+    final from = optionalDate('effectiveFrom');
+    final to = optionalDate('effectiveTo');
+    if (from != null && to != null && to.isBefore(from)) {
+      throw FormatException('intervalle inverse', json.toString());  // lint-ignore
+    }
+
+    final asserted = requiredDate('assertedAt');
+    final recorded = requiredDate('recordedAt');
+    if (asserted.isAfter(recorded)) {
+      throw FormatException(
+          'declaration posterieure a son enregistrement', json.toString());  // lint-ignore
+    }
+
     return FactVersion(
+      sequence: sequence,
       factId: required('factId'),
       versionId: required('versionId'),
       factType: required('factType'),
       payload: Map<String, Object?>.from(payload),
-      effectiveFrom: optionalDate('effectiveFrom'),
-      effectiveTo: optionalDate('effectiveTo'),
+      effectiveFrom: from,
+      effectiveTo: to,
       fiscalYear: json['fiscalYear'] is int ? json['fiscalYear'] as int : null,
-      assertedAt: requiredDate('assertedAt'),
-      recordedAt: requiredDate('recordedAt'),
+      assertedAt: asserted,
+      recordedAt: recorded,
       source: FactSource.values.firstWhere(
         (s) => s.name == json['source'],
         orElse: () => throw FormatException(

@@ -38,6 +38,12 @@ class FactRegistry {
 
   final List<FactVersion> _versions = [];
 
+  /// Rang de la prochaine écriture. L'horodatage ne suffit pas à ordonner
+  /// l'histoire : deux écritures peuvent partager la même horloge.
+  int _nextSequence = 0;
+
+  DateTime? _lastRecordedAt;
+
   /// Toutes les versions, dans l'ordre d'écriture.
   List<FactVersion> get versions => List.unmodifiable(_versions);
 
@@ -62,10 +68,25 @@ class FactRegistry {
     String? consentRef,
   }) {
     final recordedAt = _now().toUtc();
+
+    // L'histoire ne recule pas. Une horloge qui régresse produirait une
+    // version close AVANT d'avoir été ouverte.
+    final last = _lastRecordedAt;
+    if (last != null && recordedAt.isBefore(last)) {
+      throw StateError(
+          'horloge en régression : \$recordedAt après \$last');  // lint-ignore
+    }
+    // Et MINT n'enregistre pas aujourd'hui une déclaration faite demain.
+    if (assertedAt.toUtc().isAfter(recordedAt)) {
+      throw StateError(
+          'déclaration postérieure à son enregistrement');  // lint-ignore
+    }
+
     final previousIndex = _currentIndexOf(factId);
     final previous = previousIndex == null ? null : _versions[previousIndex];
 
     final version = FactVersion(
+      sequence: _nextSequence++,
       factId: factId,
       versionId: _newId(),
       factType: factType,
@@ -88,6 +109,7 @@ class FactRegistry {
           previous!.supersededBy(version.versionId, recordedAt);
     }
     _versions.add(version);
+    _lastRecordedAt = recordedAt;
     return AppendOutcome._(version, previous);
   }
 
@@ -109,6 +131,10 @@ class FactRegistry {
   ///
   /// C'est la question qui justifie tout le dispositif : sans elle, un
   /// historique n'est qu'un tas de lignes.
+  ///
+  /// À horodatage ÉGAL, c'est le rang d'écriture qui départage — la dernière
+  /// version écrite à cet instant. Sans cette règle, deux écritures à la même
+  /// seconde rendaient la réponse ambiguë, et une troisième la réécrivait.
   FactVersion? asOf(String factId, DateTime moment) {
     final instant = moment.toUtc();
     FactVersion? found;
@@ -116,8 +142,10 @@ class FactRegistry {
       if (version.factId != factId) continue;
       if (version.recordedAt.isAfter(instant)) continue;
       final ended = version.effectiveTo;
+      // Une version close À l'instant demandé n'est plus celle en vigueur ;
+      // sa remplaçante, écrite au même instant, l'est.
       if (ended != null && !ended.isAfter(instant)) continue;
-      found = version;
+      if (found == null || version.sequence > found.sequence) found = version;
     }
     return found;
   }
@@ -151,10 +179,65 @@ class FactRegistry {
       }
       loaded.add(FactVersion.fromJson(Map<String, Object?>.from(entry)));
     }
-    // Publication atomique : le registre n'est remplacé qu'une fois tout lu.
+    _assertCoherent(loaded);
+
+    // Publication atomique : le registre n'est remplacé qu'une fois tout lu
+    // ET tout validé. Publier atomiquement un registre corrompu ne vaut pas
+    // mieux que le publier morceau par morceau.
     _versions
       ..clear()
       ..addAll(loaded);
+    _nextSequence =
+        loaded.isEmpty ? 0 : loaded.map((v) => v.sequence).reduce(_max) + 1;
+    _lastRecordedAt = loaded.isEmpty
+        ? null
+        : loaded.map((v) => v.recordedAt).reduce(_latest);
+  }
+
+  static int _max(int a, int b) => a > b ? a : b;
+  static DateTime _latest(DateTime a, DateTime b) => a.isAfter(b) ? a : b;
+
+  /// Contrôles portant sur l'ENSEMBLE, que la lecture ligne à ligne ne peut
+  /// pas faire. Chacun correspond à un registre qui passait alors qu'il était
+  /// incohérent.
+  static void _assertCoherent(List<FactVersion> loaded) {
+    final seenVersionIds = <String>{};
+    final seenSequences = <int>{};
+    final currentPerFact = <String, int>{};
+    final typePerFact = <String, String>{};
+
+    for (final v in loaded) {
+      if (!seenVersionIds.add(v.versionId)) {
+        throw FormatException('version « \${v.versionId} » en double');  // lint-ignore
+      }
+      if (!seenSequences.add(v.sequence)) {
+        throw FormatException('rang \${v.sequence} en double');  // lint-ignore
+      }
+      final knownType = typePerFact[v.factId];
+      if (knownType != null && knownType != v.factType) {
+        throw FormatException(
+            'le fait « \${v.factId} » change de type');  // lint-ignore
+      }
+      typePerFact[v.factId] = v.factType;
+      if (v.isCurrent) {
+        currentPerFact[v.factId] = (currentPerFact[v.factId] ?? 0) + 1;
+      }
+    }
+
+    for (final entry in currentPerFact.entries) {
+      if (entry.value > 1) {
+        throw FormatException(
+            'le fait « \${entry.key} » a \${entry.value} versions courantes');  // lint-ignore
+      }
+    }
+
+    for (final v in loaded) {
+      final supersedes = v.supersedesVersionId;
+      if (supersedes != null && !seenVersionIds.contains(supersedes)) {
+        throw FormatException(
+            'chaîne rompue : \${v.versionId} remplace une version absente');  // lint-ignore
+      }
+    }
   }
 
   void debugClear() => _versions.clear();

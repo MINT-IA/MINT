@@ -94,23 +94,55 @@ void main() {
     final current = registry.currentVersions();
     expect(current.length, 2, reason: 'deux faits, pas trois versions');
     expect(current.map((v) => v.factId).toSet(), {'domicile', 'revenu'});
+    // La relecture a trouvé ce test trompeur : il comptait les versions sans
+    // vérifier LAQUELLE était courante. Il passait avec Aarau comme version
+    // en vigueur, tant que le compte et les identifiants restaient bons.
+    expect(
+        current.firstWhere((v) => v.factId == 'domicile').payload['commune'],
+        'Lausanne');
+    expect(current.firstWhere((v) => v.factId == 'revenu').payload['monthly'],
+        7000);
   });
 
   group('le contexte porté par une version', () {
-    test('without an effective date, a version speaks from its assertion year',
-        () {
+    test('without an effective date, a version covers NO year at all', () {
+      // Première version de ce code : la couverture partait de l'année de
+      // déclaration. Un domicile déclaré le 31 décembre « couvrait » alors
+      // toute l'année écoulée, y compris un calcul de janvier — puis l'année
+      // suivante, et la suivante. Le commentaire disait « on ne sait pas »
+      // pendant que le code répondait « oui ». Trouvé par la relecture.
+      // L'invariant temporel interdit d'enregistrer une déclaration future :
+      // on avance donc l'horloge avec elle.
+      clock = DateTime.utc(2026, 12, 31);
       final version = registry.append(
         factId: 'domicile',
         factType: 'domicile',
         payload: {'commune': 'Lausanne'},
-        assertedAt: DateTime.utc(2026, 8, 13),
+        assertedAt: DateTime.utc(2026, 12, 31),
         source: FactSource.userDeclaration,
       ).version;
 
-      expect(version.coversFiscalYear(2024), isFalse,
-          reason: 'quelqu\'un ayant déménagé n\'habitait pas là en 2024');
+      expect(version.coversFiscalYear(2026), isFalse,
+          reason: 'déclarer le 31 décembre ne dit rien de janvier');
+      expect(version.coversFiscalYear(2027), isFalse);
+      expect(version.fiscalCoverageUnknown, isTrue,
+          reason: 'ne pas savoir se distingue de répondre non');
+    });
+
+    test('an explicit effective date does give coverage', () {
+      final version = registry.append(
+        factId: 'domicile',
+        factType: 'domicile',
+        payload: {'commune': 'Lausanne'},
+        assertedAt: clock,
+        source: FactSource.userDeclaration,
+        effectiveFrom: DateTime.utc(2025, 3, 1),
+      ).version;
+
+      expect(version.coversFiscalYear(2024), isFalse);
+      expect(version.coversFiscalYear(2025), isTrue);
       expect(version.coversFiscalYear(2026), isTrue);
-      expect(version.coversFiscalYear(2027), isTrue);
+      expect(version.fiscalCoverageUnknown, isFalse);
     });
 
     test('a fiscal year, when known, is the only year covered', () {
@@ -243,6 +275,115 @@ void main() {
       expect(receipt.consumed('inconnue'), isFalse);
       expect(receipt.rulesetVersion, 'estv-2026',
           reason: 'un même intrant donne deux résultats si le barème change');
+    });
+  });
+
+  group('invariants temporels', () {
+    test('a clock going backwards is refused, not recorded', () {
+      appendDomicile('Aarau');
+      clock = DateTime.utc(2026, 8, 13, 9);
+      expect(() => appendDomicile('Lausanne'), throwsStateError,
+          reason: 'une version close avant son ouverture est impossible');
+    });
+
+    test('a declaration made tomorrow is refused', () {
+      expect(
+          () => appendDomicile('Aarau',
+              assertedAt: DateTime.utc(2026, 8, 14)),
+          throwsStateError,
+          reason: "MINT n'enregistre pas aujourd'hui ce qui sera dit demain");
+    });
+
+    test('two writes at the same instant stay ordered by rank', () {
+      // L'horodatage ne suffit pas : au millième de seconde, ou dans un test
+      // qui fige le temps, deux écritures partagent la même horloge.
+      final first = appendDomicile('Aarau');
+      final second = appendDomicile('Lausanne');
+
+      expect(second.sequence, greaterThan(first.sequence));
+      expect(registry.asOf('domicile', clock)!.payload['commune'], 'Lausanne',
+          reason: 'à instant égal, la dernière écrite fait foi');
+    });
+  });
+
+  group('un registre incoherent ne se charge pas', () {
+    String entry({
+      int sequence = 0,
+      String versionId = 'v1',
+      String factId = 'domicile',
+      String factType = 'domicile',
+      String? effectiveTo,
+      String? supersedes,
+    }) =>
+        '{"sequence":$sequence,"factId":"$factId","versionId":"$versionId",'
+        '"factType":"$factType","payload":{"commune":"Aarau"},'
+        '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+        '"source":"userDeclaration","status":"confirmed","schemaVersion":1'
+        '${effectiveTo == null ? '' : ',"effectiveTo":"$effectiveTo"'}'
+        '${supersedes == null ? '' : ',"supersedesVersionId":"$supersedes"'}}';
+
+    test('two current versions of the same fact are refused', () {
+      expect(
+          () => registry.decode(
+              '[${entry(sequence: 0, versionId: 'v1')},'
+              '${entry(sequence: 1, versionId: 'v2')}]'),
+          throwsFormatException);
+    });
+
+    test('a duplicated version identifier is refused', () {
+      expect(
+          () => registry.decode('[${entry(sequence: 0, versionId: 'v1', effectiveTo: '2026-09-01T00:00:00Z')},'
+              '${entry(sequence: 1, versionId: 'v1')}]'),
+          throwsFormatException);
+    });
+
+    test('a broken succession chain is refused', () {
+      expect(
+          () => registry.decode('[${entry(supersedes: 'fantome')}]'),
+          throwsFormatException,
+          reason: 'remplacer une version absente rend l\'histoire illisible');
+    });
+
+    test('a fact changing its type is refused', () {
+      expect(
+          () => registry.decode(
+              '[${entry(sequence: 0, versionId: 'v1', effectiveTo: '2026-09-01T00:00:00Z')},'
+              '${entry(sequence: 1, versionId: 'v2', factType: 'revenu')}]'),
+          throwsFormatException);
+    });
+
+    test('an unknown field is refused rather than ignored', () {
+      const withExtra = '[{"sequence":0,"factId":"d","versionId":"v1",'
+          '"factType":"domicile","payload":{},"inconnu":1,'
+          '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+          '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
+      expect(() => registry.decode(withExtra), throwsFormatException,
+          reason: "un champ inconnu vient d'un autre logiciel ou d'une corruption");
+    });
+
+    test('a nested payload is refused — scalars only was a promise', () {
+      const nested = '[{"sequence":0,"factId":"d","versionId":"v1",'
+          '"factType":"domicile","payload":{"adresse":{"rue":"x"}},'
+          '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+          '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
+      expect(() => registry.decode(nested), throwsFormatException);
+    });
+
+    test('an inverted interval is refused', () {
+      const inverted = '[{"sequence":0,"factId":"d","versionId":"v1",'
+          '"factType":"domicile","payload":{},'
+          '"effectiveFrom":"2026-09-01T00:00:00Z","effectiveTo":"2026-08-01T00:00:00Z",'
+          '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+          '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
+      expect(() => registry.decode(inverted), throwsFormatException);
+    });
+
+    test('a declaration recorded before it was made is refused', () {
+      const backwards = '[{"sequence":0,"factId":"d","versionId":"v1",'
+          '"factType":"domicile","payload":{},'
+          '"assertedAt":"2026-09-01T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
+          '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
+      expect(() => registry.decode(backwards), throwsFormatException);
     });
   });
 }
