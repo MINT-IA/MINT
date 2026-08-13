@@ -170,6 +170,14 @@ class MintNextDomicileFact implements ConfirmedDomicileSource {
     );
   }
 
+  /// Lecture de l'état depuis les réponses brutes, pour les consommateurs
+  /// historiques qui ne connaissent pas ce modèle.
+  ///
+  /// Clé absente = vrai : un profil écrit avant l'existence de cet état
+  /// portait forcément un domicile suisse. On ne suppose jamais l'inverse.
+  static bool hasSwissTaxDomicileIn(Map<String, dynamic> answers) =>
+      answers[hasSwissTaxDomicileKey] != false;
+
   static int? _int(dynamic value) {
     if (value is int) return value;
     if (value is num) {

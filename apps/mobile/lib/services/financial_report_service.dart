@@ -1,5 +1,6 @@
 import 'dart:math' show pow;
 
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
@@ -250,7 +251,11 @@ class FinancialReportService {
     return UserProfile(
       firstName: answers['q_firstname'] as String?,
       birthYear: birthYear,
-      canton: answers['q_canton'] as String? ?? 'ZH',
+      // Un canton absent ne devient PAS Zurich. Sans domicile fiscal
+      // suisse, il n'y a pas de canton : une chaîne vide dit l'absence
+      // là où « ZH » fabriquerait un domicile que personne n'a déclaré.
+      canton: answers['q_canton'] as String? ??
+          (MintNextDomicileFact.hasSwissTaxDomicileIn(answers) ? 'ZH' : ''),
       civilStatus: answers['q_civil_status'] as String? ?? 'single',
       childrenCount: _parseInt(answers['q_children']) ?? 0,
       employmentStatus: employmentStatus,

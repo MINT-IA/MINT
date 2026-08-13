@@ -100,10 +100,19 @@ fi
 
 mkdir -p "$OUT_DIR"
 DIFF_FILE="$OUT_DIR/diff.patch"
-# Le diff seul, pas le dépôt : ce qu'on perd en contexte lointain, on le
-# regagne en pouvoir d'en lancer plusieurs. Les axes qui ont besoin de lire un
-# fichier entier le font eux-mêmes, le bac à sable est en lecture.
 git diff "$BASE...HEAD" > "$DIFF_FILE"
+DIFF_BYTES="$(wc -c < "$DIFF_FILE" | tr -d ' ')"
+
+# PLAFOND ET TRONCATURE — la première version coupait le diff à 120 000 octets
+# SANS LE DIRE. Sur un lot de 71 fichiers et 510 Ko, neuf fichiers arrivaient
+# aux relecteurs, et le fichier au coeur du travail n'en faisait pas partie.
+# Les verdicts portaient donc sur autre chose que ce que j'annonçais.
+#
+# Correctif : on n'envoie plus le diff en bloc. On envoie l'INVENTAIRE COMPLET
+# des fichiers touchés — rien n'est invisible — et le diff n'est joint que
+# s'il tient entier. Le bac à sable étant en lecture, chaque axe lit lui-même
+# les fichiers dont il a besoin, ce qui coûte moins de jetons ET couvre tout.
+DIFF_BUDGET=100000
 
 for axis in "${AXES[@]}"; do
   prompt="$PROMPTS/$axis.md"
@@ -113,9 +122,24 @@ for axis in "${AXES[@]}"; do
   fi
   {
     cat "$prompt"
-    printf '\n\n---\nDIFF À RELIRE (base %s) :\n\n```diff\n' "$BASE"
-    head -c 120000 "$DIFF_FILE"
-    printf '\n```\n'
+    printf '\n\n---\n## Ce qui a changé (base %s)\n\n' "$BASE"
+    printf 'Le bac à sable est en LECTURE : ouvre toi-même les fichiers dont tu\n'
+    printf 'as besoin. Ne te contente pas de ce qui est reproduit ci-dessous.\n\n'
+    printf 'INVENTAIRE COMPLET — %s fichier(s) :\n\n```\n' \
+      "$(echo "$FILES" | wc -l | tr -d ' ')"
+    git diff --stat "$BASE...HEAD"
+    printf '```\n\n'
+    if [ "$DIFF_BYTES" -le "$DIFF_BUDGET" ]; then
+      printf 'DIFF INTÉGRAL (%s octets) :\n\n```diff\n' "$DIFF_BYTES"
+      cat "$DIFF_FILE"
+      printf '\n```\n'
+    else
+      printf 'DIFF NON JOINT : %s octets, au-delà du plafond de %s. Aucun\n' \
+        "$DIFF_BYTES" "$DIFF_BUDGET"
+      printf 'extrait tronqué ne t'"'"'est servi — un diff coupé en son milieu\n'
+      printf 'donnerait un verdict sur autre chose que le travail. Lis les\n'
+      printf 'fichiers de l'"'"'inventaire ci-dessus, ils sont tous accessibles.\n'
+    fi
   } > "$OUT_DIR/$axis.prompt.md"
   (codex exec --sandbox read-only -C "$REPO" - \
       < "$OUT_DIR/$axis.prompt.md" > "$OUT_DIR/$axis.out.txt" 2>&1) &

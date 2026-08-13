@@ -1,3 +1,4 @@
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/coach_profile.dart';
 import 'package:mint_mobile/services/financial_core/tax_calculator.dart';
 import 'package:mint_mobile/services/tax_estimator_service.dart';
@@ -332,17 +333,23 @@ class BudgetInputs {
     final canton = map['q_canton'] as String? ?? 'CH';
     final children = _parseChildrenCount(map['q_children']);
 
+    // Sans domicile fiscal suisse, il n'y a pas de canton — et le repli sur
+    // le pseudo-canton « CH » fabriquerait un impôt suisse pour quelqu'un qui
+    // vient précisément de déclarer ne pas en avoir. On ne retient alors que
+    // ce que la personne a elle-même indiqué.
     final estimatedTax = taxProvisionRaw ??
-        TaxEstimatorService.estimateMonthlyProvision(
-          TaxEstimatorService.estimateAnnualTax(
-            netMonthlyIncome: netIncome,
-            cantonCode: canton,
-            civilStatus: civilStatus,
-            childrenCount: children,
-            age: 35,
-            isSourceTaxed: false,
-          ),
-        );
+        (MintNextDomicileFact.hasSwissTaxDomicileIn(map)
+            ? TaxEstimatorService.estimateMonthlyProvision(
+                TaxEstimatorService.estimateAnnualTax(
+                  netMonthlyIncome: netIncome,
+                  cantonCode: canton,
+                  civilStatus: civilStatus,
+                  childrenCount: children,
+                  age: 35,
+                  isSourceTaxed: false,
+                ),
+              )
+            : 0.0);
 
     final estimatedLamal = lamalRaw ??
         _estimateLamalPremium(canton, map['q_household_type'] as String?);

@@ -1635,6 +1635,14 @@ ALLOW = {
     "tools/codex_prompts/ux.md",
     "tools/codex_prompts/copie.md",
     "tools/codex_prompts/donnees.md",
+    # L'aval fabriquait encore un canton pour quelqu'un qui vient de déclarer
+    # ne pas en avoir : « ZH » dans le rapport, le pseudo-canton « CH » dans le
+    # budget et l'impact fiscal 3a. Le fait avait cessé de mentir, pas ses
+    # lecteurs. Trouvé par la relecture, converti en oracles.
+    "apps/mobile/lib/domain/budget/budget_inputs.dart",
+    "apps/mobile/lib/services/financial_report_service.dart",
+    "apps/mobile/lib/services/report/report_builder.dart",
+    "apps/mobile/test/domain/no_swiss_domicile_downstream_test.dart",
     "lefthook.yml",
     ".gitignore",
 }

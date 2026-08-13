@@ -1,3 +1,4 @@
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/constants/social_insurance.dart';
 import 'package:mint_mobile/domain/budget/budget_inputs.dart';
 import 'package:mint_mobile/domain/budget/budget_service.dart';
@@ -33,12 +34,19 @@ class ReportBuilder {
     final isSafeModeActive = WizardService.isSafeModeActive(answers);
 
     // === EXPERTISE SUISSE : CALCUL FISCAL ===
+    final hasSwissDomicile =
+        MintNextDomicileFact.hasSwissTaxDomicileIn(answers);
     final cantonCode = answers['q_canton'] ?? 'CH';
     final estimatedTaxMonthly = budgetInputs.taxProvision;
-    final first3aTaxImpact = _estimateRemaining3aTaxImpact(
-      budgetInputs: budgetInputs,
-      cantonCode: cantonCode.toString(),
-    );
+    // L'économie d'impôt d'un versement 3a se calcule sur un barème
+    // cantonal. Sans canton, il n'y a pas de barème — et un chiffre produit
+    // sur le pseudo-canton « CH » serait faux tout en ayant l'air vrai.
+    final first3aTaxImpact = hasSwissDomicile
+        ? _estimateRemaining3aTaxImpact(
+            budgetInputs: budgetInputs,
+            cantonCode: cantonCode.toString(),
+          )
+        : 0.0;
 
     // === RECOMMANDATIONS ===
     final recommendations = <Recommendation>[];
