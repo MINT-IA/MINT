@@ -108,34 +108,72 @@ def parse_registry(source: str) -> dict[str, str]:
     return owners
 
 
-def _extract_redirect(window: str) -> list[str]:
-    """Cible littérale d'un redirect — flèche OU corps de bloc.
+def _balanced_extent(source: str, open_at: int) -> int:
+    """Fin de l'expression ouverte à `open_at` — accolades/parenthèses
+    équilibrées. Une regex non-gourmande tronquait un bloc à sa première
+    `}`, ratant les returns situés après un `if { ... }` (P1 review #3)."""
+    depth = 0
+    index = open_at
+    while index < len(source):
+        char = source[index]
+        if char in "{(":
+            depth += 1
+        elif char in "})":
+            depth -= 1
+            if depth == 0:
+                return index + 1
+        index += 1
+    return len(source)
 
-    Trois formes réellement présentes dans app.dart :
-      redirect: (_, __) => '/x',
-      redirect: (_, __) => cond ? null : '/x',
-      redirect: (_, state) { ...; return '/x'; },
-    Ignorer la troisième rendait invisible toute une famille d'alias
-    /onboarding/* qui atteignent le wizard (P1 review T1).
+
+# Un littéral de chemin, quel que soit le style de guillemets : Dart
+# accepte les deux et n'en voir qu'un laissait passer `"/onb"` (P1 #3).
+_PATH_LITERAL = re.compile(r"""['"](/[^'"]*)['"]""")
+
+
+def _extract_redirect(window: str) -> list[str]:
+    """TOUTES les cibles littérales d'un redirect, quelle que soit sa forme.
+
+    Flèche simple, ternaire (les DEUX branches), bloc à plusieurs returns
+    ou à branches imbriquées : on délimite l'expression par équilibrage
+    puis on en extrait chaque littéral de chemin. Sur-approximer est SÛR
+    ici — une cible en trop rend la fermeture plus conservatrice, jamais
+    plus permissive.
     """
-    arrow = re.search(r"redirect:\s*\([^)]*\)\s*=>\s*'([^']+)'", window)
-    if arrow:
-        return [arrow.group(1)]
-    ternary = re.search(
-        r"redirect:\s*\([^)]*\)\s*=>\s*\n?\s*\w[^;]*?\?\s*null\s*:\s*'([^']+)'",
-        window,
-    )
-    if ternary:
-        return [ternary.group(1)]
-    block = re.search(r"redirect:\s*\([^)]*\)\s*\{(.*?)\n?\s*\}", window, re.S)
-    if block:
-        # TOUTES les branches comptent : `if (x) return '/home'; return
-        # '/onb';` atteint le wizard par sa seconde branche. Ne garder que
-        # le premier return rendait cette porte invisible (P1 review #2).
-        returned = re.findall(r"return\s+'([^']+)'\s*;", block.group(1))
-        if returned:
-            return returned
-    return []
+    match = re.search(r"redirect:\s*\([^)]*\)\s*(=>|\{)", window)
+    if match is None:
+        return []
+    if match.group(1) == "{":
+        body_start = window.index("{", match.end() - 1)
+        body = window[body_start : _balanced_extent(window, body_start)]
+        # Seules les valeurs RETOURNÉES sont des cibles : un littéral de
+        # condition (`if (state.uri.path == '/profile')`) n'en est pas une
+        # et créait un faux auto-cycle. Chaque expression retournée est
+        # scannée entière, donc `return f ? '/a' : '/b';` donne les deux.
+        returned = re.findall(r"return\s+([^;]*);", body)
+        targets: list[str] = []
+        for expression in returned:
+            targets.extend(_PATH_LITERAL.findall(expression))
+        return list(dict.fromkeys(targets))
+    else:
+        # Expression fléchée : jusqu'à la virgule de fin d'argument au
+        # niveau 0 (les parenthèses internes sont équilibrées).
+        rest = window[match.end() :]
+        depth = 0
+        cut = len(rest)
+        for index, char in enumerate(rest):
+            if char in "({[":
+                depth += 1
+            elif char in ")}]":
+                if depth == 0:
+                    cut = index
+                    break
+                depth -= 1
+            elif char == "," and depth == 0:
+                cut = index
+                break
+        body = rest[:cut]
+    return list(dict.fromkeys(_PATH_LITERAL.findall(body)))
 
 
 def parse_router(source: str) -> list[RouteNode]:
@@ -235,7 +273,7 @@ def check_legacy_navigations(legacy_paths: set[str]) -> list[str]:
     # `fallback: '/onb'`… Se limiter aux appels de navigation connus
     # laissait passer des callbacks et des valeurs de retour (P1 review
     # T1 #2) : l'entrée canonique restait contournable.
-    literal = re.compile(r"'([^']+)'")
+    literal = _PATH_LITERAL
     for dart in MOBILE_LIB.rglob("*.dart"):
         rel = str(dart.relative_to(ROOT))
         if any(part in f"/{rel}" for part in EXCLUDED_PATH_PARTS):
@@ -246,12 +284,19 @@ def check_legacy_navigations(legacy_paths: set[str]) -> list[str]:
             continue
         source = _strip_comments(dart.read_text(encoding="utf-8"))
         for match in literal.finditer(source):
-            if match.group(1).split("?")[0] in legacy_paths:
-                line = source[: match.start()].count("\n") + 1
-                errors.append(
-                    f"{rel}:{line} names the legacy path {match.group(1)} — "
-                    "route it through LegacyOnboardingEntry"
-                )
+            if match.group(1).split("?")[0] not in legacy_paths:
+                continue
+            # Un endpoint HTTP qui partage le nom d'une route n'est PAS
+            # une navigation : distinction SYNTAXIQUE par le verbe
+            # d'appel immédiat, jamais par une liste de fichiers.
+            before = source[max(0, match.start() - 24) : match.start()]
+            if re.search(r"\b(?:post|get|put|patch|delete)\(\s*$", before):
+                continue
+            line = source[: match.start()].count("\n") + 1
+            errors.append(
+                f"{rel}:{line} names the legacy path {match.group(1)} — "
+                "route it through LegacyOnboardingEntry"
+            )
     return errors
 
 
@@ -267,7 +312,9 @@ def check_unregistered_navigations(registered: set[str]) -> list[str]:
     `check_shell_references`.
     """
     errors: list[str] = []
-    nav = re.compile(r"context\.(?:go|push|replace)\(\s*'(/[^']*)'")
+    nav = re.compile(
+        r"""context\.(?:go|push|replace)\(\s*['"](/[^'"]*)['"]"""
+    )
     for dart in MOBILE_LIB.rglob("*.dart"):
         rel = str(dart.relative_to(ROOT))
         if any(part in f"/{rel}" for part in EXCLUDED_PATH_PARTS):
@@ -411,6 +458,41 @@ def self_test() -> int:
     multi = build_closure(multi_branch, registry)
     assert any("/onboarding/multi-alias" in e for e in multi.errors), (
         "a multi-branch redirect reaching the shell must FAIL", multi.errors)
+
+    ternary_both = """
+    GoRoute(
+      path: '/onboarding/ternary-both',
+      redirect: (_, __) => flag ? '/legit' : '/home',
+    ),
+""" + good_router
+    tb = build_closure(ternary_both, registry)
+    assert any("/onboarding/ternary-both" in e for e in tb.errors), (
+        "a ternary whose FIRST branch reaches the shell must FAIL", tb.errors)
+
+    double_quoted = """
+    GoRoute(
+      path: '/onboarding/double-quoted',
+      redirect: (_, __) => "/legit",
+    ),
+""" + good_router
+    dq = build_closure(double_quoted, registry)
+    assert any("/onboarding/double-quoted" in e for e in dq.errors), (
+        "a double-quoted redirect target must be seen", dq.errors)
+
+    nested_block = """
+    GoRoute(
+      path: '/onboarding/nested-block',
+      redirect: (_, state) {
+        if (state.uri.queryParameters.isEmpty) {
+          return '/home';
+        }
+        return '/legit';
+      },
+    ),
+""" + good_router
+    nb = build_closure(nested_block, registry)
+    assert any("/onboarding/nested-block" in e for e in nb.errors), (
+        "a return AFTER a nested if-block must be seen", nb.errors)
 
     cyclic = """
     GoRoute(path: '/a', redirect: (_, __) => '/b'),
