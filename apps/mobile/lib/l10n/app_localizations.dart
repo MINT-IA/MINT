@@ -42334,6 +42334,72 @@ abstract class S {
   /// **'HISTORIQUE'**
   String get privacyCenterSectionHistory;
 
+  /// No description provided for @previewResetSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préversion'**
+  String get previewResetSection;
+
+  /// No description provided for @previewResetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repartir à zéro sur cet appareil ?'**
+  String get previewResetTitle;
+
+  /// No description provided for @previewResetBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'MINT effacera ta situation financière et ton historique enregistrés sur cet appareil. Ton compte, ta connexion et tes consentements restent inchangés. Les données déjà enregistrées sur nos serveurs ne seront pas supprimées.'**
+  String get previewResetBody;
+
+  /// No description provided for @previewResetCta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l\'état local'**
+  String get previewResetCta;
+
+  /// No description provided for @previewResetConfirmHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écris REPARTIR À ZÉRO pour confirmer'**
+  String get previewResetConfirmHint;
+
+  /// No description provided for @previewResetConfirmWord.
+  ///
+  /// In fr, this message translates to:
+  /// **'REPARTIR À ZÉRO'**
+  String get previewResetConfirmWord;
+
+  /// No description provided for @previewResetDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'État local effacé.'**
+  String get previewResetDone;
+
+  /// No description provided for @previewResetFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'effacement n\'a pas abouti. Il sera retenté au prochain démarrage.'**
+  String get previewResetFailed;
+
+  /// No description provided for @accountDeleteNoAccountTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte'**
+  String get accountDeleteNoAccountTitle;
+
+  /// No description provided for @accountDeleteNoAccountBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte connecté sur cet appareil — il n\'y a pas de compte à supprimer.'**
+  String get accountDeleteNoAccountBody;
+
+  /// No description provided for @accountDeleteNoAccountBodyPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun compte connecté sur cet appareil — il n\'y a pas de compte à supprimer. Pour repartir à zéro, utilise « Effacer l\'état local » dans la section Préversion ci-dessus.'**
+  String get accountDeleteNoAccountBodyPreview;
+
   /// No description provided for @privacyCenterEmpty.
   ///
   /// In fr, this message translates to:

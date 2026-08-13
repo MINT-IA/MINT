@@ -100,10 +100,15 @@ class _DefaultError extends StatelessWidget {
       debugPrint('[FutureBuilderSafe] error rendered: $error');
     }
 
+    // SingleChildScrollView : dans un espace contraint (p.ex. sous des
+    // sections locales fixes), la carte d'erreur défile au lieu de
+    // déborder ; plein écran, le Center la garde centrée.
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
+        child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
@@ -131,6 +136,7 @@ class _DefaultError extends StatelessWidget {
               ),
             ],
           ],
+        ),
         ),
       ),
     );

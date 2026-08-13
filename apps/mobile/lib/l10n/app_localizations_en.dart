@@ -24117,6 +24117,43 @@ class SEn extends S {
   String get privacyCenterSectionHistory => 'HISTORY';
 
   @override
+  String get previewResetSection => 'Preview';
+
+  @override
+  String get previewResetTitle => 'Start over on this device?';
+
+  @override
+  String get previewResetBody =>
+      'MINT will erase your financial situation and history stored on this device. Your account, sign-in and consents stay unchanged. Data already stored on our servers will not be deleted.';
+
+  @override
+  String get previewResetCta => 'Erase local state';
+
+  @override
+  String get previewResetConfirmHint => 'Type START OVER to confirm';
+
+  @override
+  String get previewResetConfirmWord => 'START OVER';
+
+  @override
+  String get previewResetDone => 'Local state erased.';
+
+  @override
+  String get previewResetFailed =>
+      'The erase did not complete. It will be retried at next launch.';
+
+  @override
+  String get accountDeleteNoAccountTitle => 'Account';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'No account is signed in on this device — there is no account to delete.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'No account is signed in on this device — there is no account to delete. To start over, use “Erase local state” in the Preview section above.';
+
+  @override
   String get privacyCenterEmpty => 'No active consent yet.';
 
   @override

@@ -24245,6 +24245,44 @@ class SEs extends S {
   String get privacyCenterSectionHistory => 'HISTORIAL';
 
   @override
+  String get previewResetSection => 'Vista previa';
+
+  @override
+  String get previewResetTitle => '¿Empezar de cero en este dispositivo?';
+
+  @override
+  String get previewResetBody =>
+      'MINT borrará tu situación financiera y tu historial guardados en este dispositivo. Tu cuenta, tu sesión y tus consentimientos no cambian. Los datos ya guardados en nuestros servidores no se eliminarán.';
+
+  @override
+  String get previewResetCta => 'Borrar el estado local';
+
+  @override
+  String get previewResetConfirmHint =>
+      'Escribe EMPEZAR DE CERO para confirmar';
+
+  @override
+  String get previewResetConfirmWord => 'EMPEZAR DE CERO';
+
+  @override
+  String get previewResetDone => 'Estado local borrado.';
+
+  @override
+  String get previewResetFailed =>
+      'El borrado no se completó. Se reintentará en el próximo inicio.';
+
+  @override
+  String get accountDeleteNoAccountTitle => 'Cuenta';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'No hay ninguna cuenta conectada en este dispositivo: no hay cuenta que eliminar.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'No hay ninguna cuenta conectada en este dispositivo: no hay cuenta que eliminar. Para empezar de cero, usa «Borrar el estado local» en la sección Vista previa de arriba.';
+
+  @override
   String get privacyCenterEmpty => 'Aún no hay consentimientos activos.';
 
   @override

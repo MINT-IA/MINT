@@ -137,14 +137,21 @@ class ProfileDrawer extends StatelessWidget {
             Builder(
               builder: (context) {
                 final auth = context.watch<AuthProvider>();
-                if (auth.isLoggedIn) {
+                // B3a — autorité canonique : un isLoggedIn périmé ne doit
+                // jamais exposer l'entrée de suppression ici non plus.
+                if (auth.authLifecycle.hasAccountSession) {
                   return Column(
                     children: [
                       _buildSection(
                         context,
                         icon: Icons.delete_outline,
                         title: l10n.profileDeleteCloudAccount,
-                        onTap: () => _confirmDeleteAccount(context, l10n),
+                        // B3a — entrypoint UNIQUE : le centre de
+                        // confidentialité porte la seule confirmation.
+                        onTap: () {
+                          Navigator.of(context).pop();
+                          context.go('/profile/privacy');
+                        },
                         textColor: MintColors.error,
                       ),
                       _buildSection(
@@ -183,50 +190,6 @@ class ProfileDrawer extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _confirmDeleteAccount(BuildContext context, S l10n) async {
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: Text(l10n.profileDeleteAccountTitle),
-          content: Text(l10n.profileDeleteAccountContent),
-          actions: [
-            TextButton(
-              // lint-ignore: prefer_mint_cta
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: Text(l10n.profileDeleteCancel),
-            ),
-            TextButton(
-              // lint-ignore: prefer_mint_cta
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: Text(
-                l10n.profileDeleteConfirm,
-                style: const TextStyle(color: MintColors.error),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-
-    if (shouldDelete != true || !context.mounted) return;
-
-    final authProvider = context.read<AuthProvider>();
-    final deleted = await authProvider.deleteAccount();
-    if (!context.mounted) return;
-
-    if (deleted) {
-      Navigator.of(context).pop();
-      if (context.mounted) {
-        context.go('/');
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(l10n.profileDeleteAccountError)),
-      );
-    }
   }
 
   Widget _buildProfileHeader(

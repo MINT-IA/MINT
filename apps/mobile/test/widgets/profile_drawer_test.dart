@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/widgets/profile_drawer.dart';
@@ -9,6 +10,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class _FakeAuthProvider extends ChangeNotifier implements AuthProvider {
+  @override
+  AuthLifecycleState get authLifecycle =>
+      AuthLifecycleState.cloudSyncOnAccount(userId: 'test-user');
+
   @override
   bool isLoggedIn = true;
 
@@ -39,6 +44,11 @@ Widget _buildDrawerApp({
   final scaffoldKey = GlobalKey<ScaffoldState>();
   final router = GoRouter(
     routes: [
+      GoRoute(
+        path: '/profile/privacy',
+        builder: (_, __) =>
+            const Scaffold(body: Text('privacy-center-stub')),
+      ),
       GoRoute(
         path: '/',
         builder: (context, state) {
@@ -102,8 +112,9 @@ void main() {
     expect(find.text('Supprimer mon compte'), findsOneWidget);
   });
 
-  testWidgets('account deletion confirmation calls auth provider',
-      (tester) async {
+  testWidgets(
+      'the drawer account deletion entry navigates to the privacy center '
+      'and owns no confirmation of its own', (tester) async {
     tester.view.physicalSize = const Size(1170, 2532);
     tester.view.devicePixelRatio = 3;
 
@@ -117,12 +128,13 @@ void main() {
     await tester.tap(find.text('Supprimer mon compte'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Supprimer le compte ?'), findsOneWidget);
-    expect(find.text('Supprimer'), findsOneWidget);
-
-    await tester.tap(find.text('Supprimer'));
-    await tester.pumpAndSettle();
-
-    expect(authProvider.deleteAccountCalled, isTrue);
+    // B3a — entrypoint UNIQUE : aucune confirmation au drawer, navigation
+    // vers le centre de confidentialité qui porte l'unique flux.
+    expect(find.text('Supprimer le compte ?'), findsNothing,
+        reason: 'la confirmation divergente du drawer a disparu');
+    expect(authProvider.deleteAccountCalled, isFalse,
+        reason: 'le drawer ne supprime JAMAIS lui-même');
+    expect(find.text('privacy-center-stub'), findsOneWidget,
+        reason: 'navigation vers /profile/privacy');
   });
 }

@@ -1,0 +1,118 @@
+Running on Mint Reset Proof-bf3895c77-15045 - iOS 26.2 - 101EE897-4F2A-4745-B8AA-3291D8BD04AD
+ > Flow flow_mint_next_local_reset_lifecycle
+Launch app "ch.mint.app" with clear state... COMPLETED
+Run flow when "Je comprends, on y va" is visible...
+  Tap on "Je comprends, on y va"... COMPLETED
+  Wait for animation to end... COMPLETED
+Run flow when "Je comprends, on y va" is visible... COMPLETED
+Open mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready... COMPLETED
+Run flow when "Ouvrir" is visible...
+  Tap on "Ouvrir"... COMPLETED
+Run flow when "Ouvrir" is visible... COMPLETED
+Assert that id: e2e_profile_fixture_applied is visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run flow when "Continuer sans compte" is visible...
+Run flow when "Continuer sans compte" is visible... SKIPPED
+Open mintapp:///home... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///home... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Run flow when "Continuer sans compte" is visible...
+Run flow when "Continuer sans compte" is visible... SKIPPED
+Assert that id: nav_tab_aujourdhui is visible... COMPLETED
+Scrolling DOWN until id: action:vertical_3a.entry is visible with speed 40, visibility percentage 100%, timeout 20000 ms, with centering disabled... COMPLETED
+Tap on id: action:vertical_3a.entry... COMPLETED
+Assert that id: mint_next_vertical_3a_state_lppAffiliationUnknown is visible... COMPLETED
+Tap on id: action:vertical_3a.fix_fact... COMPLETED
+Assert that id: node:lpp_affiliation.collect is visible... COMPLETED
+Tap on id: input:lpp_affiliation.yes... COMPLETED
+Scrolling DOWN until id: action:lpp_affiliation.continue is visible with speed 40, visibility percentage 100%, timeout 20000 ms, with centering disabled... COMPLETED
+Run flow when id: node:lpp_affiliation.review is not visible...
+  Tap on id: action:lpp_affiliation.continue... COMPLETED
+Run flow when id: node:lpp_affiliation.review is not visible... COMPLETED
+Assert that id: node:lpp_affiliation.review is visible... COMPLETED
+Tap on id: action:lpp_affiliation.confirm... COMPLETED
+Assert that id: node:lpp_affiliation.saved is visible... COMPLETED
+Open mintapp:///mint-next/vertical-3a... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Assert that id: mint_next_vertical_3a_state_contributionsMissing is visible... COMPLETED
+Tap on id: action:vertical_3a.fix_fact... COMPLETED
+Assert that id: node:versements_3a.collect is visible... COMPLETED
+Tap on id: input:versements_3a.amount... COMPLETED
+Input text 3500... COMPLETED
+Hide Keyboard... WARNED
+
+
+ Warning: Couldn't hide the keyboard. This can happen if the app uses a
+ custom input or doesn't expose a standard dismiss action.
+Tap on id: input:versements_3a.credit_date... COMPLETED
+Input text 15.03.2026... COMPLETED
+Run flow when id: node:versements_3a.review is not visible...
+  Scrolling UP until "Enregistrer ce versement" is visible with speed 40, visibility percentage 100%, timeout 20000 ms, with centering disabled... COMPLETED
+  Tap on "Enregistrer ce versement"... COMPLETED
+  Wait for animation to end within 3000 ms... COMPLETED
+  Scrolling DOWN until id: action:versements_3a.continue is visible with speed 40, visibility percentage 100%, timeout 20000 ms, with centering disabled... COMPLETED
+  Tap on id: action:versements_3a.continue... COMPLETED
+Run flow when id: node:versements_3a.review is not visible... COMPLETED
+Assert that id: node:versements_3a.review is visible... COMPLETED
+Tap on id: action:versements_3a.confirm... COMPLETED
+Assert that id: node:versements_3a.list is visible... COMPLETED
+Open mintapp:///mint-next/vertical-3a... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Assert that id: mint_next_vertical_3a_marge_375800 is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/01-etat-charge... COMPLETED
+Open mintapp:///profile/privacy... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Scrolling DOWN until id: action:preview_reset.open is visible with speed 40, visibility percentage 100%, timeout 20000 ms, with centering disabled... COMPLETED
+Assert that "Préversion" is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/02-preversion-section... COMPLETED
+Tap on id: action:preview_reset.open... COMPLETED
+Assert that "Écris REPARTIR À ZÉRO pour confirmer" is visible... COMPLETED
+Tap on "Écris REPARTIR À ZÉRO pour confirmer"... COMPLETED
+Input text REPARTIR A ZERO... COMPLETED
+Take screenshot ${OUTPUT_DIR}/03-confirmation-forte... COMPLETED
+Tap on "Effacer l'état local"... COMPLETED
+Assert that "État local effacé." is visible... COMPLETED
+Assert that "Un premier aperçu suisse." is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/04-coque-vierge... COMPLETED
+Open mintapp:///mint-next/vertical-3a... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Open mintapp:///mint-next/vertical-3a... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Assert that id: mint_next_vertical_3a_state_lppAffiliationUnknown is visible... COMPLETED
+Assert that id: mint_next_vertical_3a_marge_375800 is not visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Assert that "Je comprends, on y va" is not visible... COMPLETED
+Open mintapp:///mint-next/vertical-3a... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Open mintapp:///mint-next/vertical-3a... COMPLETED
+Wait for animation to end within 4000 ms... COMPLETED
+Assert that id: mint_next_vertical_3a_state_lppAffiliationUnknown is visible... COMPLETED
+Assert that id: mint_next_vertical_3a_marge_375800 is not visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/05-relance-vierge... COMPLETED
+Open mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready... COMPLETED
+Run flow when "Ouvrir" is visible...
+Run flow when "Ouvrir" is visible... SKIPPED
+Assert that id: e2e_profile_fixture_applied is visible... COMPLETED
+Stop ch.mint.app... COMPLETED
+Launch app "ch.mint.app"... COMPLETED
+Wait for animation to end within 10000 ms... COMPLETED
+Run flow when "Continuer sans compte" is visible...
+Run flow when "Continuer sans compte" is visible... SKIPPED
+Open mintapp:///profile/privacy... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Open mintapp:///profile/privacy... COMPLETED
+Wait for animation to end within 5000 ms... COMPLETED
+Scrolling DOWN until id: action:preview_reset.open is visible with speed 40, visibility percentage 100%, timeout 20000 ms, with centering disabled... COMPLETED
+Tap on id: action:preview_reset.open... COMPLETED
+Assert that "Écris REPARTIR À ZÉRO pour confirmer" is visible... COMPLETED
+Tap on "Écris REPARTIR À ZÉRO pour confirmer"... COMPLETED
+Input text REPARTIR A ZERO... COMPLETED
+Tap on "Effacer l'état local"... COMPLETED
+Assert that "État local effacé." is visible... COMPLETED
+Assert that "Un premier aperçu suisse." is visible... COMPLETED
+Take screenshot ${OUTPUT_DIR}/06-idempotence... COMPLETED

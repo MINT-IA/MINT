@@ -24310,6 +24310,44 @@ class SIt extends S {
   String get privacyCenterSectionHistory => 'CRONOLOGIA';
 
   @override
+  String get previewResetSection => 'Anteprima';
+
+  @override
+  String get previewResetTitle => 'Ricominciare da zero su questo dispositivo?';
+
+  @override
+  String get previewResetBody =>
+      'MINT cancellerà la tua situazione finanziaria e la cronologia salvate su questo dispositivo. Il tuo account, il tuo accesso e i tuoi consensi restano invariati. I dati già salvati sui nostri server non saranno eliminati.';
+
+  @override
+  String get previewResetCta => 'Cancella lo stato locale';
+
+  @override
+  String get previewResetConfirmHint =>
+      'Scrivi RICOMINCIA DA ZERO per confermare';
+
+  @override
+  String get previewResetConfirmWord => 'RICOMINCIA DA ZERO';
+
+  @override
+  String get previewResetDone => 'Stato locale cancellato.';
+
+  @override
+  String get previewResetFailed =>
+      'La cancellazione non è andata a buon fine. Verrà ritentata al prossimo avvio.';
+
+  @override
+  String get accountDeleteNoAccountTitle => 'Account';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'Nessun account collegato su questo dispositivo: non c’è alcun account da eliminare.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'Nessun account collegato su questo dispositivo: non c’è alcun account da eliminare. Per ricominciare da zero, usa «Cancella lo stato locale» nella sezione Anteprima qui sopra.';
+
+  @override
   String get privacyCenterEmpty => 'Nessun consenso attivo al momento.';
 
   @override

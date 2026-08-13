@@ -15,6 +15,7 @@ import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
+import 'package:mint_mobile/services/local_preview_reset_service.dart';
 import 'package:mint_mobile/services/api_service.dart';
 import 'package:mint_mobile/services/auth_service.dart';
 import 'package:mint_mobile/services/document_parser/document_models.dart';
@@ -630,10 +631,27 @@ class CoachProfileProvider extends ChangeNotifier {
   /// factKind = `'profile_sync'` as the coarse category since we cannot
   /// know which individual factKind was written server-side without a
   /// dedicated response header (deferred to Phase 31-02 backend work).
+  /// Témoin de test : vrai si le dernier syncFromBackend a été refusé par
+  /// la quarantaine post-reset (bascule 2).
+  @visibleForTesting
+  static bool debugLastSyncSkippedByQuarantine = false;
+
   Future<void> syncFromBackend() async {
     try {
       final isLoggedIn = await AuthService.isLoggedIn();
       if (!isLoggedIn) return;
+      // Bascule 2 — quarantaine post-reset : après « repartir à zéro »,
+      // aucune hydratation serveur automatique ne repeuple le profil
+      // (sinon le reset serait mensonger). Levée future par une action
+      // explicite « Restaurer les données du compte ».
+      final userId = await AuthService.getUserId();
+      if (userId != null &&
+          await LocalPreviewResetService.isQuarantined(userId)) {
+        debugLastSyncSkippedByQuarantine = true;
+        debugPrint('[CoachProfile] syncFromBackend skipped: quarantined');
+        return;
+      }
+      debugLastSyncSkippedByQuarantine = false;
       final remoteData = await ApiService.get('/profiles/me');
       mergeFromRemoteProfile(remoteData);
       // Also merge financial fields that the basic merge doesn't cover.

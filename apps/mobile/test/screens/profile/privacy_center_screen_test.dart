@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart';
+import 'package:mint_mobile/models/auth_lifecycle_state.dart';
 import 'package:mint_mobile/providers/auth_provider.dart';
 import 'package:mint_mobile/screens/profile/privacy_center_screen.dart';
 import 'package:mint_mobile/services/api_service.dart';
@@ -16,6 +17,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 class _FakeAuthProvider extends ChangeNotifier implements AuthProvider {
   @override
   bool isLoggedIn = true;
+
+  @override
+  AuthLifecycleState get authLifecycle =>
+      AuthLifecycleState.cloudSyncOnAccount(userId: 'test-user');
 
   bool deleteAccountCalled = false;
 

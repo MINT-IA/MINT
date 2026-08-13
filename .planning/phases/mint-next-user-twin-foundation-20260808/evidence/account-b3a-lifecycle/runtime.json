@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "runtime_commit": "b00650ebd4b94ab707fe2a057420935f33df2c15",
+  "git_dirty": false,
+  "flow": "tools/simulator/flows/maestro-perfect-set/flow_mint_next_account_b3a_lifecycle.yaml",
+  "flow_sha256": "8cc826a005cee487fc43b5bbfd3f108538b966771819e031a9e64d67422283ea",
+  "app_sha256": "cf5cb472c573e5a4934ea198db30ff64dbcd7d751369f179d7ab358cec20cf71",
+  "app_signature": "adhoc",
+  "app_cdhash": "02eaaa5390f8a3c3cd26f8eac60a049d27fc4426",
+  "device_udid": "D5D52358-6741-4380-9E70-BE0951FB4FFB",
+  "device_name": "Mint B3a Proof-b00650ebd-14224",
+  "device_type": "com.apple.CoreSimulator.SimDeviceType.iPhone-16e",
+  "runtime_identifier": "com.apple.CoreSimulator.SimRuntime.iOS-26-2",
+  "runtime_version": "26.2",
+  "locale": "fr_CH",
+  "maestro_version": "2.5.1",
+  "seal_fallback": "MINT_E2E_SEAL_FALLBACK actif : stash tmp/ du container app (debug-only, kReleaseMode-stripped)",
+  "proof_scope": "cycle UI + cache wizard + stash fallback ; le scellement keychain réel n'est PAS exercé (build CLI simulateur linker-signed sans entitlements, -34018)",
+  "command": "bash tools/runtime/mint_next_account_b3a_lifecycle.sh --runtime-commit b00650ebd4b94ab707fe2a057420935f33df2c15 --capture-evidence",
+  "captured_at": "2026-08-13T02:13:17Z",
+  "ordered_outcomes": [
+    "centre de confidentialite anonyme : section Compte avec 'Aucun compte connecte' visible, 'Supprimer mon compte' ABSENT",
+    "variante preversion : pointeur vers 'Effacer l'etat local' (renvoi B2, meme page)",
+    "drawer ANONYME honnete : action:profile.open_drawer -> 'Se connecter' visible, 'Supprimer mon compte' ABSENT (l'entree n'existe qu'avec un compte canonique)",
+    "renvoi B2 EXECUTE depuis l'etat anonyme : reset complet -> 'Etat local efface.' -> entree onboarding (etat zero)",
+    "zero transmission (frontiere HTTP observee, REQBODY)"
+  ],
+  "non_runtime_proofs": "flag isLoggedIn perime (a2), chemin connecte intact (a5) et TAP drawer->centre avec compte (a4, profile_drawer_test) : tests widget — le runtime anonyme n'a pas de compte (l'entree drawer y est structurellement ABSENTE, prouve au screenshot 03) et un flag perime ne s'injecte pas au runtime",
+  "dependent_invalidation_tests": [
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: correcting an entry keeps its stable id and bumps only its bucket",
+    "apps/mobile/test/models/mint_next_versements_3a_fact_test.dart :: moving an entry across tax years bumps both buckets",
+    "apps/mobile/test/services/mint_next_3a_tax_boundary_test.dart :: versements context carries the aggregate and its bucket revision — and never any marge nor CHF plafond"
+  ],
+  "zero_transmission_check": {
+    "boundary": "MintHttpClient.shared — client HTTP unifié process-wide ; chaque requête sortante est journalisée vers OSLog ch.mint.http, BODY DE REQUÊTE inclus en debug (REQBODY) ; un type de requête au body illisible est marqué unobserved et fait échouer le run",
+    "http_boundary_lines_observed": 41,
+    "request_body_lines_observed": 0,
+    "unobserved_request_bodies": 0,
+    "boundary_scan": "aucune ligne ch.mint.http ne contient de donnée versements (run avorté sinon)",
+    "console_pattern": "q_versements_3a.*(https?://|railway)|(https?://|railway).*q_versements_3a",
+    "static_guard": "journey_os_check _storyboard_traceability_errors : les modules versements (modèle + écran) n'importent aucun client HTTP — FAIL au commit sinon",
+    "residual_limitation": "trafic hors client unifié non journalisé par ce canal : upload PDF document_service (chemin jamais atteint par ce flow) et SDKs tiers (Sentry, couvert par sentry-privacy-guard)",
+    "result": "no match (mechanical, run aborted on match)"
+  },
+  "screenshots": {
+    "01-compte-anonyme-honnete.png": {
+      "sha256": "866e4cec5f04312b87b717366b0ed7e38823c6c1b08ca2e574cd37c0fc9e852c",
+      "bytes": 194606
+    },
+    "02-pointeur-preversion.png": {
+      "sha256": "866e4cec5f04312b87b717366b0ed7e38823c6c1b08ca2e574cd37c0fc9e852c",
+      "bytes": 194606
+    },
+    "03-drawer-anonyme-honnete.png": {
+      "sha256": "a6057afa31e5d821efc02d2a0c0adbe14f00e981749e7598df9c0dc2704542a3",
+      "bytes": 164573
+    },
+    "04-renvoi-b2-execute.png": {
+      "sha256": "3c261792f1759f763f5fcbb68ef385cfa4503a0a05371e56e49f73e762475f56",
+      "bytes": 143974
+    }
+  },
+  "maestro_log_sha256": "db2cc7290c4990325d7e451c6a891a4986244e390043f90061bc4a88b7f89681"
+}

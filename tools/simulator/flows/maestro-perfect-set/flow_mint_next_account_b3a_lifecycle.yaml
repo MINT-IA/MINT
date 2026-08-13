@@ -1,0 +1,112 @@
+appId: ch.mint.app
+tags:
+  - mint-next-account-b3a
+  - runtime-proof
+---
+- launchApp:
+    clearState: true
+- runFlow:
+    when:
+      visible: "Je comprends, on y va"
+    commands:
+      - tapOn: "Je comprends, on y va"
+      - waitForAnimationToEnd
+- openLink: "mintapp:///__e2e/row23-independent-no-lpp-profile?slug=cadre_salarie_lpp_suisse_ready"
+- runFlow:
+    when:
+      visible: "Ouvrir"
+    commands:
+      - tapOn: "Ouvrir"
+- extendedWaitUntil:
+    visible:
+      id: "e2e_profile_fixture_applied"
+    timeout: 15000
+- stopApp
+- launchApp:
+    clearState: false
+- waitForAnimationToEnd:
+    timeout: 10000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///home"
+- waitForAnimationToEnd:
+    timeout: 5000
+- runFlow:
+    when:
+      visible: "Continuer sans compte"
+    commands:
+      - tapOn: "Continuer sans compte"
+      - waitForAnimationToEnd:
+          timeout: 8000
+- extendedWaitUntil:
+    visible:
+      id: "nav_tab_aujourdhui"
+    timeout: 15000
+# ─── Centre de confidentialité anonyme : état compte HONNÊTE ───
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "Compte"
+    timeout: 15000
+- assertVisible: "Aucun compte connecté sur cet appareil.*"
+- assertNotVisible: "Supprimer mon compte"
+- takeScreenshot: "${OUTPUT_DIR}/01-compte-anonyme-honnete"
+# ─── Variante préversion : pointeur vers le reset local (renvoi B2) ───
+- assertVisible: ".*Effacer l'état local.*"
+- assertVisible: "Préversion"
+- takeScreenshot: "${OUTPUT_DIR}/02-pointeur-preversion"
+# ─── Câblage drawer → centre : l'entrée compte NAVIGUE (aucune confirmation) ───
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- openLink: "mintapp:///mon-argent"
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: "action:profile.open_drawer"
+- waitForAnimationToEnd:
+    timeout: 4000
+- extendedWaitUntil:
+    visible: "Se connecter"
+    timeout: 10000
+- assertNotVisible: "Supprimer mon compte"
+- takeScreenshot: "${OUTPUT_DIR}/03-drawer-anonyme-honnete"
+# Fermer le drawer (tap hors du panneau) puis retour au centre.
+- tapOn:
+    point: "10%,50%"
+- waitForAnimationToEnd:
+    timeout: 3000
+- openLink: "mintapp:///profile/privacy"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "Ma vie privée"
+    timeout: 10000
+# ─── Renvoi B2 EXÉCUTÉ depuis l'état anonyme : reset complet → état zéro ───
+- tapOn:
+    id: "action:preview_reset.open"
+- extendedWaitUntil:
+    visible: "Écris REPARTIR À ZÉRO pour confirmer"
+    timeout: 5000
+- tapOn: "Écris REPARTIR À ZÉRO pour confirmer"
+- inputText: "REPARTIR A ZERO"
+- tapOn: "Effacer l'état local"
+- extendedWaitUntil:
+    visible: "État local effacé."
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "Un premier aperçu suisse."
+    timeout: 15000
+- takeScreenshot: "${OUTPUT_DIR}/04-renvoi-b2-execute"

@@ -386,6 +386,10 @@ class SecureWizardStore {
   static const _nonSensitiveKeys = {
     'q_canton',
     '_coach_3a_accounts_revision_v1',
+    // Marqueur de provenance (« document_scan »), pas une donnée : exclu du
+    // routage scellé depuis toujours (cf. _isSensitiveKey), classé ici pour
+    // que classificationForKey ne retourne jamais unknown sur une clé connue.
+    '_coach_tax_source',
   };
 
   static const _productPreferenceKeys = {

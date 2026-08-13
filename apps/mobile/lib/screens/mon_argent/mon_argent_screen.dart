@@ -202,9 +202,13 @@ class _MonArgentScreenState extends State<MonArgentScreen> {
             style: MintTextStyles.headlineMedium(color: MintColors.textPrimary),
           ),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.person_outline),
-              onPressed: () => MintShell.openDrawer(context),
+            Semantics(
+              identifier: 'action:profile.open_drawer',
+              button: true,
+              child: IconButton(
+                icon: const Icon(Icons.person_outline),
+                onPressed: () => MintShell.openDrawer(context),
+              ),
             ),
           ],
         ),

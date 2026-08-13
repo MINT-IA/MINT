@@ -24254,6 +24254,44 @@ class SPt extends S {
   String get privacyCenterSectionHistory => 'HISTÓRICO';
 
   @override
+  String get previewResetSection => 'Pré-visualização';
+
+  @override
+  String get previewResetTitle => 'Recomeçar do zero neste aparelho?';
+
+  @override
+  String get previewResetBody =>
+      'O MINT apagará a tua situação financeira e o histórico guardados neste aparelho. A tua conta, o teu início de sessão e os teus consentimentos permanecem inalterados. Os dados já guardados nos nossos servidores não serão eliminados.';
+
+  @override
+  String get previewResetCta => 'Apagar o estado local';
+
+  @override
+  String get previewResetConfirmHint =>
+      'Escreve RECOMEÇAR DO ZERO para confirmar';
+
+  @override
+  String get previewResetConfirmWord => 'RECOMEÇAR DO ZERO';
+
+  @override
+  String get previewResetDone => 'Estado local apagado.';
+
+  @override
+  String get previewResetFailed =>
+      'A eliminação não foi concluída. Será repetida no próximo arranque.';
+
+  @override
+  String get accountDeleteNoAccountTitle => 'Conta';
+
+  @override
+  String get accountDeleteNoAccountBody =>
+      'Nenhuma conta ligada neste aparelho — não há conta para eliminar.';
+
+  @override
+  String get accountDeleteNoAccountBodyPreview =>
+      'Nenhuma conta ligada neste aparelho — não há conta para eliminar. Para recomeçar do zero, usa «Apagar o estado local» na secção Pré-visualização acima.';
+
+  @override
   String get privacyCenterEmpty => 'Ainda sem consentimentos ativos.';
 
   @override
