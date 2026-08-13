@@ -46,6 +46,7 @@ REQUIRED_GATES = {
     "garde Journey OS",
     "lint du wiki",
     "intégrité du registre des communes",
+    "couverture des tests par la CI",
     "auto-test du garde de reçu",
     "parité des 6 fichiers de langue",
 }

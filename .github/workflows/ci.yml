@@ -58,6 +58,23 @@ jobs:
   # ─── Contracts drift guard (VoiceCursorContract codegen) ─────
   # Regenerates Dart + Python contract consumers from tools/contracts/voice_cursor.json
   # and fails the build if anything drifted. Runs BEFORE backend/flutter for fail-fast.
+  # Aucun repertoire de tests ne peut disparaitre des shards en silence.
+  # Constat qui a motive ce job : 15 repertoires et 18 fichiers racine — 70
+  # fichiers de test au total — ne s'executaient jamais en CI, dont ceux ou
+  # vivaient les 9 echecs livres le 2026-08-13.
+  ci-test-coverage:
+    name: CI test coverage
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Self-test du garde
+        run: python3 tools/checks/ci_test_coverage_gate.py --self-test
+      - name: Aucun repertoire de tests hors CI
+        run: python3 tools/checks/ci_test_coverage_gate.py
+
   contracts-drift:
     name: Contracts drift
     runs-on: ubuntu-latest
@@ -481,6 +498,24 @@ jobs:
             run_analyze: false
           - shard: screens
             test_dirs: "test/screens/ test/golden/ test/auth/ test/modules/ test/journeys/ test/accessibility/ test/i18n/"
+            run_analyze: false
+          # Quatrieme shard ne : les trois premiers enumeraient 15 repertoires
+          # alors que le depot en compte 32. Quinze repertoires et 18 fichiers
+          # poses a la racine de test/ ne s'executaient JAMAIS en integration
+          # continue — 70 fichiers de test au total, dont test/architecture/,
+          # test/goldens/ et test/integration/. Les 9 echecs livres le
+          # 2026-08-13 vivaient precisement la : la CI ne les aurait pas vus.
+          #
+          # Piege de nommage a retenir : le shard screens liste test/golden/ au
+          # SINGULIER, tandis que les references visuelles vivent dans
+          # test/goldens/ au PLURIEL. Deux repertoires distincts, un seul
+          # couvert, aucun message.
+          #
+          # `tools/checks/ci_test_coverage_gate.py` compare desormais cette
+          # enumeration a l'arbre reel et echoue sur tout repertoire omis :
+          # l'oubli redevient impossible en silence.
+          - shard: rest
+            test_dirs: "test/architecture/ test/coach/ test/constants/ test/data/ test/design/ test/design_system/ test/goldens/ test/integration/ test/l10n/ test/l10n_regional/ test/navigation/ test/personas/ test/router/ test/routes/ test/theme/ test/*_test.dart"
             run_analyze: false
     defaults:
       run:

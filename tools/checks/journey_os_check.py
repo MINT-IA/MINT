@@ -1643,6 +1643,13 @@ ALLOW = {
     "apps/mobile/lib/services/financial_report_service.dart",
     "apps/mobile/lib/services/report/report_builder.dart",
     "apps/mobile/test/domain/no_swiss_domicile_downstream_test.dart",
+    # La barriere serveur portait le meme defaut que l'agent : un perimetre
+    # enumere a la main qui omet en silence. 15 repertoires et 18 fichiers
+    # racine — 70 fichiers de test — ne tournaient jamais en CI, dont ceux ou
+    # vivaient les 9 echecs du 2026-08-13. Quatrieme shard + garde qui compare
+    # l'enumeration a l'arbre reel.
+    ".github/workflows/ci.yml",
+    "tools/checks/ci_test_coverage_gate.py",
     "lefthook.yml",
     ".gitignore",
 }

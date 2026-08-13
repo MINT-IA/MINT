@@ -110,6 +110,8 @@ run_gate "garde Journey OS"             python3 tools/checks/journey_os_check.py
 run_gate "lint du wiki"                 python3 tools/checks/wiki_lint.py
 run_gate "intégrité du registre des communes" \
          python3 tools/data/build_commune_registry.py --check
+run_gate "couverture des tests par la CI" \
+         python3 tools/checks/ci_test_coverage_gate.py
 run_gate "auto-test du garde de reçu" \
          python3 tools/checks/verify_receipt_gate.py --self-test
 run_gate "parité des 6 fichiers de langue" python3 - <<'PY'
