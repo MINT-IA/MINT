@@ -94,6 +94,22 @@ Vérifié, pas déclaré. Chaque ligne porte son commit.
 
 ---
 
+## La fondation est posée — ce qu'elle permet maintenant
+
+Les cinq chantiers F1 à F4 sont faits. Concrètement, cela veut dire :
+
+- écrire un fait n'efface plus le précédent, et l'on peut demander « qu'est-ce
+  que MINT savait le 3 mars ? » ;
+- chaque valeur porte d'où elle vient, quand elle a été dite, si elle est
+  confirmée ou estimée, et jusqu'à quand elle vaut probablement ;
+- supprimer laisse une trace au lieu d'effacer, et disparaît quand même des
+  écrans ;
+- un chiffre affiché peut dire de quoi il est fait, par son reçu de calcul ;
+- et un écran qui écrirait à côté du jumeau fait échouer l'intégration.
+
+Ce qui n'est PAS fait : les 28 écritures héritées, qui court-circuitent encore
+le registre. Elles sont nommées, sous cliquet, et seront reprises une par une.
+
 ## Les mini-plans, quand leur tour viendra
 
 Forme minimale visée, à ne pas dépasser au premier essai : **un objectif, une
