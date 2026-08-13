@@ -74,7 +74,7 @@ WIZARD_INTERNAL_PREFIX = "apps/mobile/lib/screens/onboarding/"
 @dataclass
 class RouteNode:
     path: str
-    builder: str | None = None
+    builders: set[str] = field(default_factory=set)
     redirect_targets: list[str] = field(default_factory=list)
     owner: str | None = None
 
@@ -197,6 +197,42 @@ def _extract_redirect(window: str) -> list[str]:
     return list(dict.fromkeys(_PATH_LITERAL.findall(body)))
 
 
+# Un identifiant de widget : PascalCase. On les sur-approxime dans le
+# corps du builder plutôt que de parier sur sa forme — un `builder:
+# (...) { return const OnboardingShellScreen(); }` donnait « return »
+# avec une regex positionnelle (P1 review #5).
+_WIDGET_SYMBOL = re.compile(r"\b([A-Z][A-Za-z0-9_]*)\b")
+
+
+def _extract_builders(window: str) -> set[str]:
+    """Tous les symboles de widget cités par le builder, flèche ou bloc."""
+    masked = _mask_strings(window)
+    match = re.search(r"builder:\s*\([^)]*\)\s*(=>|\{)", masked)
+    if match is None:
+        return set()
+    if match.group(1) == "{":
+        start = masked.index("{", match.end() - 1)
+        body = window[start : _balanced_extent(window, start)]
+    else:
+        rest = window[match.end() :]
+        masked_rest = _mask_strings(rest)
+        depth = 0
+        cut = len(rest)
+        for index, char in enumerate(masked_rest):
+            if char in "({[":
+                depth += 1
+            elif char in ")}]":
+                if depth == 0:
+                    cut = index
+                    break
+                depth -= 1
+            elif char == "," and depth == 0:
+                cut = index
+                break
+        body = rest[:cut]
+    return set(_WIDGET_SYMBOL.findall(body))
+
+
 def parse_router(source: str) -> list[RouteNode]:
     """Extraction STRUCTURELLE des routes : path, builder, redirect."""
     clean = _strip_comments(source)
@@ -211,12 +247,12 @@ def parse_router(source: str) -> list[RouteNode]:
     for index, (offset, path) in enumerate(starts):
         end = starts[index + 1][0] if index + 1 < len(starts) else len(clean)
         window = clean[offset:end]
-        builder = re.search(r"builder:\s*\([^)]*\)\s*(?:=>|\{)\s*(?:const\s+)?(\w+)", window)
+        builders = _extract_builders(window)
         redirect = _extract_redirect(window)
         nodes.append(
             RouteNode(
                 path=path,
-                builder=builder.group(1) if builder else None,
+                builders=builders,
                 redirect_targets=redirect,
             )
         )
@@ -234,7 +270,7 @@ def build_closure(app_source: str, registry_source: str) -> ClosureReport:
         if existing is None:
             report.nodes[node.path] = node
         else:
-            existing.builder = existing.builder or node.builder
+            existing.builders |= node.builders
             for target in node.redirect_targets:
                 if target not in existing.redirect_targets:
                     existing.redirect_targets.append(target)
@@ -248,7 +284,7 @@ def build_closure(app_source: str, registry_source: str) -> ClosureReport:
         node = report.nodes.get(path)
         if node is None:
             return False
-        if node.builder == LEGACY_SHELL_SYMBOL:
+        if LEGACY_SHELL_SYMBOL in node.builders:
             return True
         return any(
             reaches_legacy(target, set(seen))
@@ -369,7 +405,8 @@ def check_unregistered_navigations(registered: set[str]) -> list[str]:
 def fingerprint(report: ClosureReport) -> str:
     """sha256 du graphe NORMALISÉ path → owner → redirectTarget|builder."""
     normalized = sorted(
-        f"{n.path}|{n.owner}|{','.join(sorted(n.redirect_targets)) or n.builder or ''}"
+        f"{n.path}|{n.owner}|{','.join(sorted(n.redirect_targets))}|"
+        f"{','.join(sorted(n.builders))}"
         for n in report.nodes.values()
     )
     return hashlib.sha256("\n".join(normalized).encode()).hexdigest()
@@ -540,6 +577,18 @@ def self_test() -> int:
     dqp = build_closure(double_quoted_path, registry)
     assert any("/onboarding/double-path" in e for e in dqp.errors), (
         "a double-quoted route path must be parsed", dqp.errors)
+
+    block_builder = """
+    GoRoute(
+      path: '/sneaky',
+      builder: (context, state) {
+        return const OnboardingShellScreen();
+      },
+    ),
+"""
+    bb = build_closure(block_builder, registry)
+    assert any("/sneaky" in e for e in bb.errors), (
+        "a block-bodied builder returning the shell must FAIL", bb.errors)
 
     cyclic = """
     GoRoute(path: '/a', redirect: (_, __) => '/b'),
