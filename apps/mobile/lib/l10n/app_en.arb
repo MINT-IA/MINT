@@ -789,6 +789,7 @@
   "heroFactUncertaintyNote": "Indicative range — refine with your real data",
   "heroFactEmploymentAssumption": "assumption: employee",
   "onboardingSceneFullCareerAssumption": "assumption: full career",
+  "onboardingSceneSecondPillarUnknown": "2nd pillar not counted: we don't know it yet",
   "liquidityEstimatedNote": "Estimated reserve — enter your real savings",
   "budgetAvailable": "Available",
   "budgetEnvelopeFuture": "🔒 Future (Savings, Projects)",

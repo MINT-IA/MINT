@@ -1724,6 +1724,10 @@ class SFr extends S {
       'hypothèse : carrière complète';
 
   @override
+  String get onboardingSceneSecondPillarUnknown =>
+      '2e pilier pas compté : on ne le connaît pas encore';
+
+  @override
   String get liquidityEstimatedNote =>
       'Réserve estimée — saisis ton épargne réelle';
 

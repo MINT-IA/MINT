@@ -36,6 +36,7 @@ class MintSceneRenteTrouee extends StatefulWidget {
     required this.isRange,
     this.arrivalAge,
     this.lacunes = 0,
+    this.isSalaried = true,
   });
 
   final int currentAge;
@@ -50,6 +51,30 @@ class MintSceneRenteTrouee extends StatefulWidget {
   /// Années manquantes au sens AVS (lacunes — LAVS art. 29). Réduisent la
   /// composante AVS de la rente projetée.
   final int lacunes;
+
+  /// La personne est salariée.
+  ///
+  /// LE DÉFAUT QUE CE CHAMP EXISTE POUR FERMER (2026-08-14)
+  ///
+  /// La scène ne recevait PAS le statut d'emploi, alors que le fournisseur
+  /// l'écrit deux écrans plus tôt : `q_has_pension_fund = false` pour un
+  /// indépendant ou une personne sans activité, en citant la règle « un
+  /// non-salarié n'est PAS présumé avoir un 2e pilier ». La scène projetait
+  /// donc un deuxième pilier que MINT savait non présumé. MINT savait, et
+  /// l'écran ne consultait pas.
+  ///
+  /// Deux conséquences chiffrées :
+  ///   · le facteur brut/net salarié était appliqué à un indépendant ;
+  ///   · une composante LPP était projetée sans aucune base.
+  ///
+  /// ET CE QU'IL NE FAUT SURTOUT PAS EN CONCLURE
+  ///
+  /// `false` veut dire « non présumée », PAS « prouvée absente ». Un
+  /// indépendant peut adhérer volontairement à la LPP (LPP art. 4), et il
+  /// peut détenir un avoir de libre passage d'un emploi salarié antérieur.
+  /// Mettre la composante à zéro affirmerait une absence — aussi faux que de
+  /// la projeter. L'écran dit donc « inconnu », et ne compte rien.
+  final bool isSalaried;
 
   @override
   State<MintSceneRenteTrouee> createState() => _MintSceneRenteTroueeState();
@@ -75,10 +100,29 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
       (widget.arrivalAge == null || widget.arrivalAge! <= 20) &&
       widget.currentAge < avsAgeReferenceHomme;
 
-  ({double low, double high}) _computeRenteRange() {
-    // Revenu brut annuel dérivé (salarié, facteur 1.17).
-    final grossAnnual =
-        IncomeConverter.netMonthlyToGrossAnnual(widget.netMonthly);
+  /// Les deux piliers SÉPARÉMENT, et non fondus en un seul chiffre.
+  ///
+  /// POURQUOI LA SÉPARATION EST NÉCESSAIRE, ET PAS COSMÉTIQUE
+  ///
+  /// Elle ne sert pas la propreté du code : elle sert trois vérités que le
+  /// total rendait indicibles.
+  ///   · La 13e rente ne concerne QUE l'AVS (LAVS art. 34ter). Un cumul
+  ///     calculé sur le total à douze mois amputait une mensualité par an.
+  ///   · La fourchette 1,5–3,5 % concerne QUE la LPP. Annoncée sur le total,
+  ///     elle laissait croire que l'AVS aussi dépend d'un rendement.
+  ///   · Une composante peut être INCONNUE pendant que l'autre est estimée.
+  ///     Fondues, une donnée manquante devient un zéro invisible.
+  ///
+  /// `lpp` vaut null quand la personne n'est pas salariée : inconnu, pas nul.
+  ({double avsMonthly, double? lppMonthlyLow, double? lppMonthlyHigh})
+      _computeRentePillars() {
+    // Le facteur brut/net DIFFÈRE selon le statut. La scène l'appelait sans le
+    // dire, donc toujours au facteur salarié — y compris pour un indépendant,
+    // dont toute la rente découlait ensuite d'un brut faux.
+    final grossAnnual = IncomeConverter.netMonthlyToGrossAnnual(
+      widget.netMonthly,
+      isSalaried: widget.isSalaried,
+    );
 
     // AVS brute mensuelle via la source canonique AVEC arrivalAge/lacunes :
     // la scène s'appelle « rente trouée », elle DOIT refléter le trou de
@@ -91,6 +135,19 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
       lacunes: widget.lacunes,
       grossAnnualSalary: grossAnnual,
     );
+
+    // Non salarié : on ne projette RIEN, et on n'affirme rien non plus.
+    // `q_has_pension_fund = false` veut dire « non présumé », pas « prouvé
+    // absent » — l'adhésion volontaire (LPP art. 4) et l'avoir de libre
+    // passage d'un emploi antérieur restent possibles. Zéro serait une
+    // affirmation ; null est un aveu.
+    if (!widget.isSalaried) {
+      return (
+        avsMonthly: avsMonthly,
+        lppMonthlyLow: null,
+        lppMonthlyHigh: null,
+      );
+    }
 
     // LPP estimation via la source canonique LppCalculator.projectToRetirement
     // (accumulation salaire-pondérée dès 25 ans, taux conv. min 6.8% LPP art.
@@ -112,20 +169,28 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
       caisseReturn: 0.035, // rendement haut 3.5%
       conversionRate: lppTauxConversionMinDecimal,
     );
-    final lppMonthlyLow = lppAnnualLow / 12;
-    final lppMonthlyHigh = lppAnnualHigh / 12;
+    return (
+      avsMonthly: avsMonthly,
+      lppMonthlyLow: lppAnnualLow / 12,
+      lppMonthlyHigh: lppAnnualHigh / 12,
+    );
+  }
 
-    // Total mensuel : AVS (peu de variance, fixée par LPP) + LPP range.
-    // On applique aussi un facteur longévité : plus tu vis, plus le
-    // capital se dilue (le panel demande un slider qui joue sur l'âge
-    // d'espérance). Ici l'impact sur la rente mensuelle est nul
-    // (rente = viagère), mais on renvoie le total cumulé dans la
-    // phrase de recul. Pour le chiffre héros on reste sur le mensuel.
-    //
-    // Marge de confidence:medium sur revenu ±8% (doctrine fourchette).
+  /// La fourchette affichée, marge de saisie comprise.
+  ///
+  /// RÉSERVE ASSUMÉE, notée le 2026-08-14 et NON corrigée dans ce lot.
+  /// Le ±8 % est appliqué multiplicativement au total et mélange trois
+  /// incertitudes distinctes : imprécision du revenu saisi, données
+  /// manquantes, et projection à trente ans. Sur la LPP il se cumule à la
+  /// fourchette 1,5–3,5 %, donc la compte deux fois ; sur l'AVS, plafonnée
+  /// et déterminée une fois le RAMD fixé, il n'a pas de justification.
+  /// Le corriger CHANGE le chiffre que tout le monde voit — c'est un choix
+  /// de modèle, pas un correctif de mensonge, et il se traite séparément.
+  ({double low, double high}) _computeRenteRange() {
+    final p = _computeRentePillars();
     final confFactor = widget.isRange ? 0.08 : 0.02;
-    final low = (avsMonthly + lppMonthlyLow) * (1 - confFactor);
-    final high = (avsMonthly + lppMonthlyHigh) * (1 + confFactor);
+    final low = (p.avsMonthly + (p.lppMonthlyLow ?? 0)) * (1 - confFactor);
+    final high = (p.avsMonthly + (p.lppMonthlyHigh ?? 0)) * (1 + confFactor);
     return (low: low, high: high);
   }
 
@@ -133,7 +198,25 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
   Widget build(BuildContext context) {
     final l10n = S.of(context)!;
     final r = _computeRenteRange();
-    final cumulTotal = ((r.low + r.high) / 2) * 12 * (_ageEsperance - 65);
+    final p = _computeRentePillars();
+    final annees = _ageEsperance - 65;
+
+    // LE CUMUL, PILIER PAR PILIER (corrigé le 2026-08-14).
+    //
+    // Il valait `total * 12 * années`. Or l'AVS verse TREIZE rentes par an
+    // depuis 2026 (LAVS art. 34ter) et la LPP douze. Multiplier le total par
+    // douze amputait donc une mensualité AVS chaque année — vingt mensualités
+    // absentes sur une retraite de 65 à 85 ans. L'écran SOUS-estimait.
+    //
+    // `AvsCalculator.annualRente` connaissait déjà la treizième ; personne ne
+    // l'appelait. C'est le même motif que le reste de cet écran : la capacité
+    // existe, l'appel manque.
+    final lppMoyenMensuel = p.lppMonthlyLow == null
+        ? 0.0
+        : (p.lppMonthlyLow! + p.lppMonthlyHigh!) / 2;
+    final cumulTotal =
+        (AvsCalculator.annualRente(p.avsMonthly) + lppMoyenMensuel * 12) *
+            annees;
     final currentAgeLabel = l10n.onboardingAdjustYearLabel(
       _ageEsperance.toInt(),
     );
@@ -172,6 +255,18 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
         // PROJETÉE, pas acquise. On l'étiquette pour ne pas vendre le chiffre
         // le plus career-certain au profil le plus career-contingent
         // (jeune_diplome-2). i18n : clé ARB ×6.
+        // Ce que la personne DOIT lire quand une composante manque. Sans
+        // cette ligne, un total amputé de son deuxième pilier ressemble à un
+        // total complet — une donnée manquante devient un zéro invisible.
+        if (p.lppMonthlyLow == null) ...[
+          const SizedBox(height: 8),
+          Text(
+            l10n.onboardingSceneSecondPillarUnknown,
+            style: MintTextStyles.labelSmall(
+              color: MintColors.corailDiscret,
+            ).copyWith(fontStyle: FontStyle.italic),
+          ),
+        ],
         if (_isFullCareerAssumption) ...[
           const SizedBox(height: 8),
           Text(

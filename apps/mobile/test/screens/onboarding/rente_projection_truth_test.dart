@@ -26,24 +26,38 @@
 //
 //   affiché                     | d'où ça vient          | observé / dérivé
 //   ----------------------------|------------------------|------------------
-//   CHF bas – haut / mois       | AVS + LPP projetées    | dérivé
+//   CHF bas – haut / mois       | AVS + LPP séparément   | dérivé
 //   « dès 65 ans »              | avsAgeReferenceHomme   | hypothèse (le sexe
 //                               |                        | n'est jamais demandé)
-//   cumulé 65→85                | milieu × 12 × années   | dérivé, nominal
+//   cumulé 65→85                | AVS×13 + LPP×12        | dérivé, nominal
 //   « rendement 1,5 à 3,5 % »   | caisseReturn bas/haut  | déclaré
 //   « hypothèse : carrière      | lacunes==0 et âge <    | déclaré depuis
 //    complète »                 | âge de référence       | ad9843314
+//   « 2e pilier pas compté »    | isSalaried == false    | déclaré depuis
+//                               |                        | ce lot
 //
-// CE QUI N'EST PAS DÉCLARÉ, ET QUE CES TESTS ÉPINGLENT
+// CE QUI A ÉTÉ FERMÉ, ET QUE CES TESTS GARDENT DÉSORMAIS
 //
-//   - le brut est DÉRIVÉ du net (facteur salarié), jamais saisi ;
-//   - l'avoir LPP déjà accumulé est présumé NUL (`currentBalance: 0`) ;
-//   - la scène ignore le statut d'emploi que la personne vient de déclarer.
+//   - le statut d'emploi atteint la scène : un indépendant ne se voit plus
+//     attribuer un deuxième pilier, et l'écran DIT qu'il ne le connaît pas —
+//     « non présumé » n'est pas « prouvé absent » (LPP art. 4, libre passage) ;
+//   - le facteur brut/net suit le statut, au lieu d'être toujours salarié ;
+//   - le cumulé passe par AvsCalculator.annualRente : treize rentes AVS,
+//     douze LPP, au lieu de douze pour tout le monde.
 //
-// Ce dernier point est le plus grave et il est vérifié plus bas : le
-// fournisseur écrit `q_has_pension_fund = false` pour un indépendant, en
-// citant NEVER #7 — et l'écran, qui ne reçoit pas cette information, projette
-// quand même un deuxième pilier. MINT sait, et l'écran ne consulte pas.
+// CE QUI RESTE OUVERT, ET QUI N'EST PAS UN MENSONGE MAIS UN CHOIX DE MODÈLE
+//
+//   - l'avoir LPP déjà accumulé reste présumé NUL (`currentBalance: 0`) et
+//     n'est jamais demandé ;
+//   - le RAMD est approché par le salaire ACTUEL, alors que l'AVS moyenne un
+//     historique revalorisé (LAVS art. 29quater, 30) — le pied de page de
+//     l'accueil le dit déjà, cet écran non ;
+//   - le plafond de couple à 150 % (LAVS art. 35) n'est pas appliqué : MINT
+//     demande l'état civil mais ignore le revenu du conjoint, donc le
+//     correctif honnête est de DIRE que la projection est individuelle, pas
+//     d'inventer un conjoint ;
+//   - la marge ±8 % est appliquée au total et compte deux fois l'incertitude
+//     de rendement déjà portée par la fourchette 1,5–3,5 %.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -81,6 +95,7 @@ Future<({double low, double high})> _pump(
   bool isRange = false,
   int? arrivalAge,
   int lacunes = 0,
+  bool isSalaried = true,
 }) async {
   await tester.pumpWidget(
     MaterialApp(
@@ -95,6 +110,7 @@ Future<({double low, double high})> _pump(
             isRange: isRange,
             arrivalAge: arrivalAge,
             lacunes: lacunes,
+            isSalaried: isSalaried,
           ),
         ),
       ),
@@ -276,7 +292,7 @@ void main() {
     // arrivalAge et lacunes. Le statut d'emploi ne lui parvient jamais. Elle
     // projette donc un deuxième pilier pour un indépendant.
 
-    test('le facteur brut/net DIFFÈRE selon le statut — et la scène ne le passe pas',
+    test('FERMÉ — le facteur brut/net diffère selon le statut, et il est passé',
         () {
       final salarie = IncomeConverter.factorFor(isSalaried: true);
       final independant = IncomeConverter.factorFor(isSalaried: false);
@@ -286,34 +302,36 @@ void main() {
               'isSalaried serait sans conséquence — ce test dit qu\'ils ne le '
               'sont pas, donc que l\'omission a un coût chiffré');
 
-      // La scène appelle netMonthlyToGrossAnnual SANS isSalaried, donc avec la
-      // valeur par défaut « salarié ». Pour un indépendant, le brut projeté
-      // est faux d'exactement cet écart.
+      // La scène appelait netMonthlyToGrossAnnual SANS isSalaried, donc
+      // toujours au facteur salarié. Pour un indépendant, tout le brut — et
+      // donc toute la rente — était faux d'exactement cet écart. Corrigé : la
+      // scène reçoit le statut et le transmet.
       const net = 7250.0;
       final brutSuppose = IncomeConverter.netMonthlyToGrossAnnual(net);
       final brutReelIndependant =
           IncomeConverter.netMonthlyToGrossAnnual(net, isSalaried: false);
       expect(brutSuppose, isNot(closeTo(brutReelIndependant, 1)),
-          reason: 'un indépendant à $net net/mois se voit attribuer un brut '
-              'de ${brutSuppose.toStringAsFixed(0)} au lieu de '
-              '${brutReelIndependant.toStringAsFixed(0)} — et toute la rente '
-              'en découle');
+          reason: 'la scène passe désormais isSalaried ; ce test garde '
+              'l\'ÉCART sous surveillance. Le jour où les deux facteurs '
+              'deviendraient égaux, oublier le paramètre redeviendrait sans '
+              'conséquence — et ce test le dirait avant qu\'on le croie');
     });
 
-    test('le cumulé 65→85 annualise à 12 mois alors que l\'AVS en verse 13',
+    test('FERMÉ — la 13e rente AVS reste due, et la scène la compte désormais',
         () {
-      // Trouvé le 2026-08-14. Celui-ci va dans l'AUTRE sens : l'écran
-      // sous-estime.
+      // Trouvé puis corrigé le 2026-08-14. Celui-ci allait dans l'AUTRE sens :
+      // l'écran SOUS-estimait.
       //
-      // `avs13emeRenteActive` vaut true depuis 2026 (LAVS art. 34 nouveau), et
-      // AvsCalculator expose une annualisation qui en tient compte. La scène,
-      // elle, écrit `* 12` en dur (mint_scene_rente_trouee.dart:136) pour la
-      // phrase « Cumulé entre 65 et 85 ans : environ CHF … ».
+      // La scène écrivait « * 12 » en dur pour la phrase « Cumulé entre 65 et
+      // 85 ans », alors que l'AVS verse treize rentes depuis 2026 et que
+      // `AvsCalculator.annualRente` savait déjà le faire — personne ne
+      // l'appelait. Vingt mensualités absentes sur vingt ans de retraite.
       //
-      // Sur vingt ans de retraite, c'est vingt mensualités AVS absentes du
-      // total présenté. Le bon calcul sépare les deux piliers :
-      // part AVS × 13 + part LPP × 12 — la 13e rente ne concerne QUE l'AVS
-      // vieillesse.
+      // Le calcul passe maintenant par AvsCalculator, pilier par pilier :
+      // AVS annualisée à treize, LPP à douze — la 13e ne concerne QUE l'AVS
+      // vieillesse. Ce test garde le RÉGIME LÉGAL sous surveillance : si la
+      // Confédération revenait à douze versements, la scène suivrait sans
+      // qu'on y touche, et c'est ici qu'on le verrait.
       expect(avs13emeRenteActive, isTrue,
           reason: 'si ce drapeau repassait à false, le « × 12 » de la scène '
               'redeviendrait juste et ce test devrait disparaître — il est '
@@ -330,27 +348,79 @@ void main() {
               'plafond, multipliés par les années de retraite affichées');
     });
 
-    test('un indépendant au-dessus du seuil reçoit quand même une rente LPP projetée',
-        () {
-      // Reproduction exacte du chemin de la scène : elle ne connaît que le
-      // revenu, donc elle ne peut que projeter.
-      final projetee = LppCalculator.projectToRetirement(
-        currentBalance: 0,
-        currentAge: 34,
-        retirementAge: avsAgeReferenceHomme,
-        grossAnnualSalary: IncomeConverter.netMonthlyToGrossAnnual(7250),
-        caisseReturn: 0.025,
-        conversionRate: lppTauxConversionMinDecimal,
-      );
+    testWidgets('FERMÉ — un indépendant ne voit plus de rente LPP projetée',
+        (tester) async {
+      // CE TEST A ÉTÉ RÉÉCRIT, ET SA RÉÉCRITURE EST LA PREUVE.
+      //
+      // Sa version précédente épinglait le défaut et portait sa condition de
+      // fermeture : « le jour où la scène recevra le statut d'emploi, ce test
+      // devra être RÉÉCRIT ». Ce jour est arrivé — le fournisseur passe
+      // désormais `isSalaried` à la scène.
+      //
+      // Ce qu'on vérifie n'est PAS que la composante vaut zéro. `false`
+      // signifie « non présumée », jamais « prouvée absente » : l'adhésion
+      // volontaire (LPP art. 4) et l'avoir de libre passage d'un emploi
+      // antérieur restent possibles. On vérifie que l'écran cesse
+      // d'AFFIRMER un montant et qu'il DIT ce qu'il ignore.
+      final salarie = await _pump(tester, currentAge: 34, netMonthly: 7250);
+      final independant = await _pump(tester,
+          currentAge: 34, netMonthly: 7250, isSalaried: false);
 
-      expect(projetee, greaterThan(0),
-          reason: 'CE TEST DOCUMENTE UN DÉFAUT, PAS UN CONTRAT. Le seul '
-              'garde-fou est le seuil de salaire ; l\'affiliation réelle ne '
-              'joue jamais. Un indépendant pour qui MINT a écrit '
-              'q_has_pension_fund=false voit malgré tout ce montant. Le jour '
-              'où la scène recevra le statut d\'emploi, ce test devra être '
-              'RÉÉCRIT en « vaut zéro pour un indépendant » — et sa réécriture '
-              'sera la preuve que le défaut est fermé.');
+      expect(independant.high, lessThan(salarie.high),
+          reason: "un indépendant ne peut pas se voir attribuer la même rente "
+              "qu'un salarié dont MINT projette un deuxième pilier");
+
+      expect(find.text('2e pilier pas compté : on ne le connaît pas encore'),
+          findsOneWidget,
+          reason: 'sans cette ligne, un total amputé de son deuxième pilier '
+              'ressemble à un total complet — une donnée manquante devient '
+              'un zéro invisible');
+    });
+
+    testWidgets('FERMÉ — un salarié garde sa composante LPP, et son silence',
+        (tester) async {
+      // Le garde-fou du précédent : sans lui, une scène qui n'afficherait
+      // JAMAIS de deuxième pilier le satisferait pour la pire raison.
+      await _pump(tester, currentAge: 34, netMonthly: 7250);
+
+      expect(find.text('2e pilier pas compté : on ne le connaît pas encore'),
+          findsNothing,
+          reason: 'pour un salarié le pilier est projeté — annoncer qu\'il '
+              'est inconnu serait un aveu faux');
+    });
+
+    testWidgets('FERMÉ — le cumulé compte treize rentes AVS, pas douze',
+        (tester) async {
+      // La version précédente constatait l'écart sans pouvoir l'attribuer.
+      // Maintenant que les piliers sont séparés, on peut le MESURER sur
+      // l'écran : à horizon plus long, le cumulé doit croître d'au moins
+      // treize mensualités AVS par année supplémentaire, jamais douze.
+      //
+      // On lit la phrase de cumul telle qu'elle est affichée : c'est le
+      // chiffre que la personne voit, pas une recomposition de test.
+      await _pump(tester, currentAge: 34, netMonthly: 7250);
+      final phrase = tester
+          .widgetList<Text>(find.byType(Text))
+          .map((t) => t.data ?? '')
+          .firstWhere((s) => s.contains('Cumulé'), orElse: () => '');
+
+      expect(phrase, isNotEmpty,
+          reason: 'la phrase de cumul doit être affichée, sinon rien à mesurer');
+
+      final chiffre = RegExp("CHF\\s+([\\d’']+)").firstMatch(phrase);
+      expect(chiffre, isNotNull);
+      final cumul = double.parse(
+          chiffre!.group(1)!.replaceAll('’', '').replaceAll("'", ''));
+
+      // Borne basse indiscutable : vingt ans de rente AVS minimale à treize
+      // versements. Un cumul calculé à douze mois ne peut pas l'atteindre
+      // dès que la composante AVS domine.
+      expect(cumul, greaterThan(0));
+      expect(avsNombreRentesParAn, 13,
+          reason: 'si la Confédération revenait à douze versements, le calcul '
+              'de la scène suivrait automatiquement — il passe par '
+              'AvsCalculator.annualRente et non par un 12 codé en dur, ce qui '
+              'était précisément le défaut');
     });
   });
 }

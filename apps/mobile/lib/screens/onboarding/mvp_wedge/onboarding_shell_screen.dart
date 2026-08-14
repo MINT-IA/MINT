@@ -1309,6 +1309,18 @@ class _SceneStep extends StatelessWidget {
           // désormais le trou de cotisation (arrivée tardive + lacunes).
           arrivalAge: provider.avsArrivalAge,
           lacunes: provider.avsGaps,
+          // LE GESTE QUI FERME LA CONTRADICTION (2026-08-14).
+          //
+          // Le fournisseur écrit `q_has_pension_fund = false` pour un
+          // indépendant ou une personne sans activité, en citant NEVER #7 —
+          // et la scène ne recevait pas l'information. MINT savait, l'écran
+          // ne consultait pas. Le défaut n'était pas dans le calcul mais
+          // dans cette liste d'arguments.
+          //
+          // Défaut à `salarie` comme le fournisseur, pour que le contrat
+          // d'archétype existant reste inchangé si la scène du statut a été
+          // sautée.
+          isSalaried: (provider.employmentStatus ?? 'salarie') == 'salarie',
         ),
       OnboardingIntent.achat => MintSceneCapaciteAchat(
           netMonthly: netMonthly,

@@ -789,6 +789,7 @@
   "heroFactUncertaintyNote": "Richtwert — verfeinere mit deinen echten Daten",
   "heroFactEmploymentAssumption": "Annahme: angestellt",
   "onboardingSceneFullCareerAssumption": "Annahme: vollständige Erwerbsbiografie",
+  "onboardingSceneSecondPillarUnknown": "2. Säule nicht mitgezählt: wir kennen sie noch nicht",
   "liquidityEstimatedNote": "Geschätzte Reserve — gib dein echtes Erspartes ein",
   "budgetAvailable": "Verfügbar",
   "budgetEnvelopeFuture": "🔒 Zukunft (Sparen, Projekte)",

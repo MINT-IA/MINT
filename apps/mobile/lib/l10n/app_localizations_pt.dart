@@ -1718,6 +1718,10 @@ class SPt extends S {
       'hipótese: carreira completa';
 
   @override
+  String get onboardingSceneSecondPillarUnknown =>
+      '2.º pilar não contabilizado: ainda não o conhecemos';
+
+  @override
   String get liquidityEstimatedNote =>
       'Reserva estimada — insere a tua poupança real';
 

@@ -3213,6 +3213,12 @@ abstract class S {
   /// **'hypothèse : carrière complète'**
   String get onboardingSceneFullCareerAssumption;
 
+  /// Shown instead of a projected 2nd-pillar amount when the person is not salaried. `q_has_pension_fund=false` means NOT PRESUMED, never PROVEN ABSENT — voluntary LPP affiliation (art. 4) and a vested-benefits account from earlier employment both remain possible. Zero would assert an absence; this states the gap.
+  ///
+  /// In fr, this message translates to:
+  /// **'2e pilier pas compté : on ne le connaît pas encore'**
+  String get onboardingSceneSecondPillarUnknown;
+
   /// Note on liquidity months when derived from an estimated savings value (jeune_diplome-5)
   ///
   /// In fr, this message translates to:

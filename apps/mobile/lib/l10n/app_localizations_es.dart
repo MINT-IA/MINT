@@ -1720,6 +1720,10 @@ class SEs extends S {
       'supuesto: carrera completa';
 
   @override
+  String get onboardingSceneSecondPillarUnknown =>
+      '2.º pilar no contabilizado: aún no lo conocemos';
+
+  @override
   String get liquidityEstimatedNote =>
       'Reserva estimada — introduce tu ahorro real';
 

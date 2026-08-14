@@ -789,6 +789,7 @@
   "heroFactUncertaintyNote": "Rango indicativo — afina con tus datos reales",
   "heroFactEmploymentAssumption": "supuesto: asalariado",
   "onboardingSceneFullCareerAssumption": "supuesto: carrera completa",
+  "onboardingSceneSecondPillarUnknown": "2.º pilar no contabilizado: aún no lo conocemos",
   "liquidityEstimatedNote": "Reserva estimada — introduce tu ahorro real",
   "budgetAvailable": "Disponible",
   "budgetEnvelopeFuture": "🔒 Futuro (Ahorro, Proyectos)",

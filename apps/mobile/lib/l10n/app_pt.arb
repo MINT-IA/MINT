@@ -789,6 +789,7 @@
   "heroFactUncertaintyNote": "Intervalo indicativo — afina com os teus dados reais",
   "heroFactEmploymentAssumption": "hipótese: assalariado",
   "onboardingSceneFullCareerAssumption": "hipótese: carreira completa",
+  "onboardingSceneSecondPillarUnknown": "2.º pilar não contabilizado: ainda não o conhecemos",
   "liquidityEstimatedNote": "Reserva estimada — insere a tua poupança real",
   "budgetAvailable": "Disponível",
   "budgetEnvelopeFuture": "🔒 Futuro (Poupança, Projetos)",

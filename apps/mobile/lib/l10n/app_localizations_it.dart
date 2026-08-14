@@ -1723,6 +1723,10 @@ class SIt extends S {
       'ipotesi: carriera completa';
 
   @override
+  String get onboardingSceneSecondPillarUnknown =>
+      '2° pilastro non conteggiato: non lo conosciamo ancora';
+
+  @override
   String get liquidityEstimatedNote =>
       'Riserva stimata — inserisci i tuoi risparmi reali';
 

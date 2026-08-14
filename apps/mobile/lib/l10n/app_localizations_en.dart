@@ -1715,6 +1715,10 @@ class SEn extends S {
   String get onboardingSceneFullCareerAssumption => 'assumption: full career';
 
   @override
+  String get onboardingSceneSecondPillarUnknown =>
+      '2nd pillar not counted: we don\'t know it yet';
+
+  @override
   String get liquidityEstimatedNote =>
       'Estimated reserve — enter your real savings';
 

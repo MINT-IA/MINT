@@ -1732,6 +1732,10 @@ class SDe extends S {
       'Annahme: vollständige Erwerbsbiografie';
 
   @override
+  String get onboardingSceneSecondPillarUnknown =>
+      '2. Säule nicht mitgezählt: wir kennen sie noch nicht';
+
+  @override
   String get liquidityEstimatedNote =>
       'Geschätzte Reserve — gib dein echtes Erspartes ein';
 
