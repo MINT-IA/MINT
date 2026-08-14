@@ -129,17 +129,41 @@ void main() {
               'toucher la même rente qu\'un cotisant de toujours');
     });
 
-    testWidgets('doubler le revenu ne double pas la rente — l\'AVS est plafonnée',
+    testWidgets('au-delà des plafonds, plus de revenu ne donne plus de rente',
         (tester) async {
-      final simple = await _pump(tester, currentAge: 34, netMonthly: 6000);
-      final double_ = await _pump(tester, currentAge: 34, netMonthly: 12000);
+      // CET INVARIANT A ÉTÉ RÉÉCRIT LE 2026-08-14, APRÈS DÉMOLITION.
+      //
+      // La première version disait « doubler le revenu ne double pas la
+      // rente », avec 6 000 et 12 000 net. Elle passait — et pour une mauvaise
+      // raison. Un axe adverse l'a cassée : PRÈS DU SEUIL, doubler le revenu
+      // peut plus que doubler la composante LPP, parce que la déduction de
+      // coordination est soustraite AVANT. À 30 000 brut le salaire coordonné
+      // vaut le plancher ; à 60 000 il vaut 33 540. C'est un facteur neuf, pas
+      // deux. Mon test ne tenait que parce que j'avais choisi une zone bénigne.
+      //
+      // L'invariant VRAI est celui du plafond, pas celui du doublement : les
+      // deux piliers sont bornés (AVS art. 34, salaire coordonné maximal LPP),
+      // donc au-delà, le revenu supplémentaire ne produit plus rien.
+      final tresHaut = await _pump(tester, currentAge: 34, netMonthly: 20000);
+      final encorePlusHaut =
+          await _pump(tester, currentAge: 34, netMonthly: 40000);
 
-      expect(double_.low, greaterThan(simple.low),
-          reason: 'plus de revenu doit donner plus de rente');
-      expect(double_.low, lessThan(simple.low * 2),
-          reason: 'la rente AVS est plafonnée (LAVS art. 34) : une projection '
-              'qui double proportionnellement promet à un haut revenu une '
-              'rente que la loi ne verse pas');
+      expect(encorePlusHaut.low, closeTo(tresHaut.low, 1),
+          reason: 'au-delà des plafonds AVS et du salaire coordonné maximal, '
+              'doubler encore le revenu ne change plus la rente — une '
+              'projection qui continuerait de monter promettrait à un très '
+              'haut revenu une rente que la loi ne verse pas');
+    });
+
+    testWidgets('en dessous des plafonds, plus de revenu donne plus de rente',
+        (tester) async {
+      // Le garde-fou du test précédent : sans lui, un calculateur qui rendrait
+      // toujours la même chose satisferait le plafond pour la pire raison.
+      final modeste = await _pump(tester, currentAge: 34, netMonthly: 4500);
+      final confortable = await _pump(tester, currentAge: 34, netMonthly: 8000);
+
+      expect(confortable.low, greaterThan(modeste.low),
+          reason: 'sous les plafonds, la rente doit suivre le revenu');
     });
 
     testWidgets('une fourchette de revenu élargit la fourchette de rente',
@@ -154,6 +178,15 @@ void main() {
           reason: "quelqu'un qui a donné une fourchette de 500 CHF sait moins "
               "précisément que quelqu'un qui a donné son chiffre — l'écran "
               'doit le montrer, sinon il rend la même certitude aux deux');
+
+      // RÉSERVE, notée le 2026-08-14 : c'est un invariant FAIBLE. `isRange`
+      // est un booléen, donc la largeur de sortie ne dépend pas de la largeur
+      // d'entrée — une fourchette de 500 CHF et une de 5 000 CHF donnent la
+      // même incertitude affichée (confFactor = 0.08 dans les deux cas).
+      // L'invariant fort serait « largeur d'entrée ↑ ⇒ largeur de sortie non
+      // décroissante », et il est INEXPRIMABLE tant que la scène ne reçoit
+      // qu'un booléen. Ce commentaire est la dette, écrite là où on la
+      // paiera.
     });
 
     testWidgets('vieillir sans cotiser davantage ne crée pas de rente',
@@ -173,8 +206,16 @@ void main() {
   });
 
   group('le seuil d\'entrée LPP est respecté', () {
-    test('sous le seuil, aucune composante de deuxième pilier n\'est projetée',
+    test('sous le seuil, aucune NOUVELLE bonification n\'est portée au compte',
         () {
+      // NOM CORRIGÉ LE 2026-08-14. Il disait « aucune composante de deuxième
+      // pilier n'est projetée » — trop large, et le test ne le prouvait pas :
+      // il passait parce que j'avais mis `currentBalance: 0`. Un avoir déjà
+      // acquis continue de produire une rente même si la personne passe sous
+      // le seuil (LPP art. 2 al. 1 règle l'assujettissement, pas le sort de
+      // l'avoir accumulé). Un oracle dont le nom promet plus que ce qu'il
+      // mesure est la même faute que le flot Maestro qui n'assure que
+      // l'absence de plantage.
       final seuil = lppSeuilEntree;
       final sousLeSeuil = LppCalculator.projectToRetirement(
         currentBalance: 0,
@@ -186,9 +227,24 @@ void main() {
       );
 
       expect(sousLeSeuil, 0,
-          reason: 'LPP art. 2 al. 1 : sous le seuil d\'entrée, pas '
-              'd\'assujettissement obligatoire. Projeter une rente LPP à '
-              'quelqu\'un qui n\'y a pas droit invente un pilier.');
+          reason: 'à avoir initial nul et salaire sous le seuil, rien ne '
+              's\'accumule : projeter une rente LPP inventerait un pilier');
+    });
+
+    test('sous le seuil MAIS avec un avoir déjà acquis, la rente subsiste', () {
+      final avecAvoir = LppCalculator.projectToRetirement(
+        currentBalance: 120000,
+        currentAge: 30,
+        retirementAge: avsAgeReferenceHomme,
+        grossAnnualSalary: lppSeuilEntree - 1000,
+        caisseReturn: 0.02,
+        conversionRate: lppTauxConversionMinDecimal,
+      );
+
+      expect(avecAvoir, greaterThan(0),
+          reason: 'le seuil règle l\'assujettissement, pas le sort du capital '
+              'déjà constitué — l\'effacer spolierait qui a cotisé puis '
+              'réduit son activité');
     });
 
     test('au-dessus du seuil, une composante existe', () {
