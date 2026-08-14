@@ -1204,9 +1204,24 @@ void main() {
               '(jeune_diplome-2)');
     });
 
+    // CE TEST DISAIT L'INVERSE, ET C'ÉTAIT UN TEST QUI GARDAIT UN MENSONGE.
+    //
+    // Il exigeait qu'à 48 ans l'étiquette « hypothèse : carrière complète »
+    // n'apparaisse PAS, au motif que « l'hypothèse n'est pertinente que pour
+    // les jeunes ». Elle l'est pour tout le monde : à 48 ans on a cotisé
+    // vingt-sept années sur quarante-quatre, et la projection en suppose
+    // dix-sept qui n'existent pas encore.
+    //
+    // Trouvé en marchant l'application le 2026-08-14 avec un profil né en
+    // 1992 (34 ans) : l'écran annonçait « CHF 4'108 – 5'524 / mois dès 65 ans »
+    // en déclarant une seule hypothèse — le rendement de caisse, 1,5 à 3,5 % —
+    // et en taisant celle qui pèse le plus. Le seuil `< 30` faisait disparaître
+    // l'avertissement exactement là où le chiffre devient crédible, donc là où
+    // il pèse.
     testWidgets(
-        'profil mûr (48 ans) sans lacune : pas d\'étiquette carrière complète '
-        '(l\'hypothèse n\'est pertinente que pour les jeunes)', (tester) async {
+        'profil mûr (48 ans) sans lacune : l\'étiquette carrière complète '
+        's\'affiche AUSSI — il lui reste dix-sept ans à cotiser',
+        (tester) async {
       await _pumpStandaloneScene(
         tester,
         const MintSceneRenteTrouee(
@@ -1216,8 +1231,27 @@ void main() {
         ),
       );
 
+      expect(find.text('hypothèse : carrière complète'), findsOneWidget,
+          reason: 'tant que la personne n\'a pas atteint l\'âge de référence, '
+              'la carrière complète est projetée et non acquise — le taire '
+              'vend un chiffre plus certain qu\'il ne l\'est (NEVER #9)');
+    });
+
+    testWidgets(
+        'à l\'âge de référence, l\'étiquette disparaît — la carrière n\'est '
+        'plus une hypothèse', (tester) async {
+      await _pumpStandaloneScene(
+        tester,
+        const MintSceneRenteTrouee(
+          currentAge: avsAgeReferenceHomme,
+          netMonthly: 7250,
+          isRange: false,
+        ),
+      );
+
       expect(find.text('hypothèse : carrière complète'), findsNothing,
-          reason: 'âge ≥ 30 : l\'étiquette ne s\'applique pas');
+          reason: 'sinon l\'avertissement deviendrait permanent, donc muet : '
+              'une étiquette qui ne disparaît jamais ne signale plus rien');
     });
   });
 }

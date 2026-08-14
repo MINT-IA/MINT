@@ -59,12 +59,21 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
   double _ageEsperance = 85;
 
   /// gapFactor==1.0 (carrière complète projetée) ⇔ aucune lacune ET pas
-  /// d'arrivée tardive. Pour un jeune (<30 ans) c'est une HYPOTHÈSE — il n'a
-  /// objectivement pas encore cotisé 44 ans — donc le chiffre est étiqueté.
+  /// d'arrivée tardive. Tant que la personne n'a pas atteint l'âge de
+  /// référence, elle n'a PAS cotisé 44 ans : le chiffre repose sur une
+  /// hypothèse, et il est étiqueté.
+  ///
+  /// POURQUOI CE SEUIL A CHANGÉ (2026-08-14, trouvé en marchant l'app)
+  ///
+  /// La condition était `currentAge < 30`, pensée pour le jeune diplômé. Mais
+  /// l'hypothèse ne se limite pas à lui : à 34 ans on a cotisé treize années
+  /// sur quarante-quatre, à 45 ans vingt-quatre. L'étiquette disparaissait
+  /// exactement là où le chiffre devenait crédible — donc là où il pesait le
+  /// plus. Le seuil ne mesurait pas l'incertitude, il mesurait la jeunesse.
   bool get _isFullCareerAssumption =>
       widget.lacunes == 0 &&
       (widget.arrivalAge == null || widget.arrivalAge! <= 20) &&
-      widget.currentAge < 30;
+      widget.currentAge < avsAgeReferenceHomme;
 
   ({double low, double high}) _computeRenteRange() {
     // Revenu brut annuel dérivé (salarié, facteur 1.17).

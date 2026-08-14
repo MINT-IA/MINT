@@ -71,21 +71,47 @@ perceptible, sans qu'on ait rien construit pour ça. Et l'écran rente/capital
 porte **déjà un reçu de calcul** (`mobile_l1_arbitrage_engine`, version
 `rvc-arbitra…`) : T2 a un précédent dans le produit.
 
-**Trois défauts que seule la marche pouvait montrer** :
+**Quatre défauts que seule la marche pouvait montrer**, dans l'ordre de gravité
+— un ordre que j'avais d'abord écrit faux, et qu'un axe Codex a démoli.
 
-1. **Le seul parcours praticable n'existe qu'en français.** ~53 chaînes en dur
-   sur 7 fichiers de `lib/screens/onboarding/mvp_wedge/`. MINT déclare six
-   langues ; la Suisse est majoritairement germanophone. Ce n'est pas de
-   l'hygiène i18n — **le produit n'existe pas pour la majorité de son marché**.
-2. **Le garde-fou des accents est une liste de 14 mots.**
-   `SCENE · TA RETRAITE PROJETEE` s'affiche, et `accent_lint_fr.py --file` rend
-   `EXIT=0`. Une liste de mots ne rattrape que ce que quelqu'un a déjà imaginé ;
-   ce qu'une personne lit n'est pas borné.
-3. **La revendication de localité n'est pas orpheline.**
+1. **L'application déclare l'hypothèse qu'elle a modélisée et tait celles qui
+   dominent.** L'écran affiche « CHF 4'108 – 5'524 / mois dès 65 ans » avec
+   « Hypothèse : rendement moyen 1,5 à 3,5 % » et deux articles de loi. Or dans
+   `mint_scene_rente_trouee.dart` : le brut est **dérivé** du net (facteur
+   1.17), l'avoir LPP déjà accumulé est présumé **nul** (`currentBalance: 0`),
+   l'affiliation LPP n'est **jamais vérifiée**, et la fourchette annoncée
+   mesure l'incertitude du **rendement de caisse** — pas celle de la carrière,
+   qui la dépasse d'un ordre de grandeur.
+   Une étiquette « carrière complète supposée » existe bien (ligne 166), mais
+   elle est **conditionnée à `currentAge < 30`**. Pour la personne née en 1992
+   que j'ai simulée — 34 ans — elle ne s'affiche pas, alors que supposer 44
+   années de cotisation à quelqu'un qui en a treize reste tout autant une
+   hypothèse. À 45 ou 55 ans, même silence.
+   C'est **NEVER #9** (projection sans indicateur de confiance) et la phrase
+   « voici ce qui arrive si tu ne bouges rien » est fausse : le calcul suppose
+   précisément que beaucoup de choses continueront d'une manière déterminée.
+2. **La revendication de localité n'est pas orpheline.**
    « Anonyme · conservé sur cet appareil »
-   (`diagnosticOnboardingTerminalAnonymousLocal`) s'affiche dans le parcours
-   principal. La feuille de route la classait « hors tranches, 6 clés
-   orphelines » — elle est vivante.
+   (`diagnosticOnboardingTerminalAnonymousLocal`) s'affiche au terminal du
+   parcours — après avoir collecté nationalité, état civil, naissance, canton
+   et revenu, et juste avant de proposer de créer un compte. Ce n'est pas une
+   maladresse de copie : c'est le moment exact où la personne décide, sur la
+   foi de cette phrase.
+3. **Le seul parcours praticable n'existe qu'en français.** ~53 chaînes en dur
+   sur 7 fichiers de `lib/screens/onboarding/mvp_wedge/`. MINT déclare six
+   langues ; la Suisse est majoritairement germanophone. Bloqueur de
+   distribution — mais un francophone peut s'en servir aujourd'hui, ce qui le
+   place après les deux ruptures de vérité.
+4. **Le garde-fou des accents est une liste de 14 mots.**
+   `SCENE · TA RETRAITE PROJETEE` s'affiche, et `accent_lint_fr.py --file` rend
+   `EXIT=0`. Une liste ne rattrape que ce que quelqu'un a déjà imaginé ; ce
+   qu'une personne lit n'est pas borné. Le défaut visible est mineur ; ce qu'il
+   révèle — aucun garde-fou généralisable — ne l'est pas.
+
+**Ce que ce classement m'apprend sur ma propre lecture** : j'avais mis
+l'i18n en tête parce qu'elle se compte (53 chaînes, 7 fichiers, 6 langues). Les
+deux défauts plus graves ne se comptent pas — ils se lisent. Une métrique
+disponible a chassé un jugement.
 
 **Et ce que la marche a corrigé dans ma propre analyse** : la coque de
 préversion **ne bloque pas** `/mint-next/vertical-3a` — son propriétaire est

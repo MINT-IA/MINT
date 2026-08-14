@@ -1146,6 +1146,13 @@ ALLOW = {
     "apps/mobile/lib/screens/mon_argent/mon_argent_screen.dart",
     "apps/mobile/lib/screens/onboarding/data_block_enrichment_screen.dart",
     "apps/mobile/lib/screens/onboarding/mvp_wedge/onboarding_shell_screen.dart",
+    # La scène rente du jalon « first experience rente-capital ». Son TEST
+    # était déjà autorisé (mvp_wedge_storyboard_test.dart, plus bas) alors que
+    # la scène qu'il vérifie ne l'était pas — une liste qui laisse modifier
+    # l'oracle mais pas ce qu'il mesure. Incohérence de la liste, pas
+    # frontière : ajoutée le 2026-08-14 en corrigeant l'étiquette d'hypothèse
+    # de carrière complète, trouvée en marchant l'application.
+    "apps/mobile/lib/screens/onboarding/mvp_wedge/scenes/mint_scene_rente_trouee.dart",
     "apps/mobile/lib/screens/coach/chat_as_verb_demo_screen.dart",
     "apps/mobile/lib/screens/coach/coach_chat_screen.dart",
     "apps/mobile/lib/screens/coach/retirement_dashboard_screen.dart",
