@@ -90,13 +90,23 @@ porte **déjà un reçu de calcul** (`mobile_l1_arbitrage_engine`, version
    C'est **NEVER #9** (projection sans indicateur de confiance) et la phrase
    « voici ce qui arrive si tu ne bouges rien » est fausse : le calcul suppose
    précisément que beaucoup de choses continueront d'une manière déterminée.
-2. **La revendication de localité n'est pas orpheline.**
+2. ~~**La revendication de localité est une rupture de consentement.**~~
+   **RETIRÉ le 2026-08-14, après vérification.** L'axe Codex classait
    « Anonyme · conservé sur cet appareil »
-   (`diagnosticOnboardingTerminalAnonymousLocal`) s'affiche au terminal du
-   parcours — après avoir collecté nationalité, état civil, naissance, canton
-   et revenu, et juste avant de proposer de créer un compte. Ce n'est pas une
-   maladresse de copie : c'est le moment exact où la personne décide, sur la
-   foi de cette phrase.
+   (`diagnosticOnboardingTerminalAnonymousLocal`) comme « matériellement
+   fausse ». Elle ne l'est pas : l'état vient d'un vrai drapeau
+   (`auth_provider.dart:583-593`, quatre états dont `cloudSyncOn`), et
+   `coach_profile_provider.dart:569-577` **saute effectivement** la poussée du
+   profil en mode local, avec trace `profile_sync_skipped` / `cloud_sync_off`.
+   Ce qui reste est une question de doctrine — MINT s'interdit les
+   revendications de localité parce que le backend est cloud — pas un mensonge
+   de l'application. Elle reste affichée au moment exact où la personne décide
+   de créer un compte, ce qui vaut arbitrage, pas correctif d'urgence.
+
+   **Et c'est la leçon la plus utile de ce lot** : j'ai vérifié la revendication
+   de MINT et pas celle de Codex. Un axe adverse qui démolit un classement
+   produit des affirmations aussi vérifiables que celles qu'il démolit. Le
+   0-trust est symétrique, ou il n'est rien.
 3. **Le seul parcours praticable n'existe qu'en français.** ~53 chaînes en dur
    sur 7 fichiers de `lib/screens/onboarding/mvp_wedge/`. MINT déclare six
    langues ; la Suisse est majoritairement germanophone. Bloqueur de
@@ -240,6 +250,12 @@ une décision qui tient. Prématuré avant T1.
 - **Nouvelle lacune, plus gênante** : le parcours a été marché en français
   seulement, sur un simulateur, par moi. Personne ne l'a marché en allemand —
   et pour cause, il n'existe pas en allemand.
+- **Lacune d'outillage, à ma charge** : la marche a été faite à l'`idb` brut,
+  alors que la règle maison dit que les preuves de simulateur passent par
+  Maestro (`tools/simulator/flows/`). Un parcours marché à la main ne se rejoue
+  pas, ne tourne pas en CI, et disparaît avec la session. Ce parcours doit
+  devenir un flot Maestro — sinon les quatre défauts trouvés aujourd'hui
+  peuvent revenir sans que rien ne le signale.
 - *« Le monolinguisme est de l'i18n, pas un défaut produit. »* C'est la lecture
   confortable. La lecture réaliste : un utilisateur zurichois qui ouvre MINT
   aujourd'hui ne peut pas s'en servir. Le classer en hygiène, c'est décider que
