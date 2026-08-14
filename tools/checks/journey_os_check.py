@@ -693,6 +693,13 @@ ALLOW = {
     # domicile, qui n'avait aucune canonicalisation, en recoit une : sans
     # elle il entrait au registre sans jamais atteindre l'ecran.
     "tools/checks/twin_every_fact_is_derived.py",
+    # F0g etape 2 — la FRONTIERE DE COMMANDE : les ecrans continuent d'appeler
+    # writeCanonicalHousing, et c'est elle qui fait entrer le fait au registre.
+    # Derriere un interrupteur eteint par defaut.
+    "apps/mobile/lib/services/twin/housing_twin_command.dart",
+    "apps/mobile/test/services/twin/housing_twin_command_test.dart",
+    "apps/mobile/lib/services/feature_flags.dart",
+    "apps/mobile/lib/main.dart",
     "tools/verify_full.sh",
     "apps/mobile/lib/services/report_persistence_service.dart",
     "apps/mobile/lib/services/twin/versements_3a_decomposition.dart",

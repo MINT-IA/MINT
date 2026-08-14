@@ -22,6 +22,7 @@ import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
+import 'package:mint_mobile/services/twin/housing_twin_command.dart';
 
 /// Point d'entrée de l'application MINT
 ///
@@ -30,6 +31,12 @@ import 'package:mint_mobile/services/snapshot_service.dart';
 Future<void> main() async {
   // Initialisation Flutter
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Branche la frontiere de commande du jumeau sur le coffre. Elle ne fait
+  // RIEN tant que `FeatureFlags.twinOwnsHousing` est eteint — mais elle doit
+  // etre posee avant la premiere ecriture, sinon une declaration faite tot
+  // n'entrerait jamais au registre.
+  HousingTwinCommand.install();
 
   // iOS Keychain can survive uninstall. Run the fresh-install purge before any
   // startup service writes SharedPreferences, otherwise cache writes can mask a

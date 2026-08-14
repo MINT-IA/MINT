@@ -19,6 +19,7 @@ import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
 import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/twin/twin_fact_lookup.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
@@ -804,7 +805,43 @@ class SecureWizardStore {
     }
   }
 
+  /// La FRONTIÈRE DE COMMANDE du logement.
+  ///
+  /// Les écrans continuent d'appeler cette fonction ; c'est elle qui fait
+  /// entrer le fait dans le jumeau. Recâbler dix parcours un par un aurait
+  /// multiplié les occasions d'en oublier un — et un écran oublié est
+  /// exactement le défaut que ce chantier combat.
+  ///
+  /// Derrière un interrupteur ÉTEINT par défaut. Tant qu'il l'est, rien ne
+  /// change : le jumeau reste vide, les canonicalisations retombent sur le
+  /// repli, et le comportement est celui d'hier.
+  ///
+  /// La branche « fait absent » de la canonicalisation appelle
+  /// [_writeCanonicalHousingRaw], JAMAIS cette fonction : réparer un magasin
+  /// pendant qu'on le lit n'est pas une commande de l'utilisateur, et ça n'a
+  /// rien à faire dans l'histoire du jumeau.
   static Future<bool> writeCanonicalHousing(MintNextHousingFact fact) async {
+    if (!await _writeCanonicalHousingRaw(fact)) return false;
+    if (!FeatureFlags.twinOwnsHousing) return true;
+    try {
+      await twinCommand(fact);
+    } on Exception {
+      // Le coffre canonique a bien reçu le fait ; le jumeau, non. Le repli
+      // reste donc la réponse — c'est exactement l'état « le jumeau ne connaît
+      // pas ce fait », qui est prévu et sûr. Échouer ici ferait perdre une
+      // déclaration que la personne vient de faire.
+    }
+    return true;
+  }
+
+  /// Injectable pour les oracles : le jumeau n'est pas visible d'ici.
+  static Future<void> Function(MintNextHousingFact fact) twinCommand =
+      _noTwinCommand;
+
+  static Future<void> _noTwinCommand(MintNextHousingFact fact) async {}
+
+  static Future<bool> _writeCanonicalHousingRaw(
+      MintNextHousingFact fact) async {
     try {
       await _storage.write(
         key: _canonicalHousingKey,
@@ -934,7 +971,7 @@ class SecureWizardStore {
       // missing-canonical branch may consult their per-key encrypted values.
       final restoredLegacy = await restoreSensitiveKeys(answers);
       final legacy = MintNextHousingFact.fromWizardAnswers(restoredLegacy);
-      if (legacy != null && await writeCanonicalHousing(legacy)) {
+      if (legacy != null && await _writeCanonicalHousingRaw(legacy)) {
         result.addAll(legacy.toWizardAnswers());
       }
     }

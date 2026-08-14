@@ -377,6 +377,33 @@ l'impose à l'écriture **et** au chargement.
   la deuxième étape : `writeCanonicalX` comme frontière de commande, logement
   seul, derrière un interrupteur.
 
+- **F0g (deuxième étape) — la FRONTIÈRE DE COMMANDE est posée.** ✅ Les écrans
+  continuent d'appeler `writeCanonicalHousing` ; c'est elle qui fait entrer le
+  fait au registre. Recâbler dix parcours un par un aurait multiplié les
+  occasions d'en oublier un — et un écran oublié est exactement le défaut que
+  ce chantier combat.
+
+  **Derrière un interrupteur ÉTEINT** (`FeatureFlags.twinOwnsHousing`). Tant
+  qu'il l'est, rien ne change : le registre reste vide, les canonicalisations
+  retombent sur le repli, le comportement est celui d'hier. Un oracle le
+  vérifie explicitement — c'est la garantie de non-régression.
+
+  La branche « fait absent » appelle désormais un helper brut, jamais la
+  frontière : réparer un magasin pendant qu'on le lit n'est pas une commande de
+  l'utilisateur et n'a rien à faire dans l'histoire du jumeau.
+
+  **Mon oracle central ne prouvait rien, et je l'ai vu en voulant le muter.**
+  Il vérifiait qu'après deux écritures la seconde valeur ressort — mais le
+  repli rendait la MÊME réponse que le jumeau, donc il serait passé sans
+  frontière de commande. Corrigé en faisant **diverger** les deux magasins :
+  le coffre repart en arrière, le jumeau garde la correction, et seul le jumeau
+  peut produire la bonne réponse. Vérifié par mutation — en débranchant la
+  frontière, trois oracles tombent.
+
+  Reste avant d'allumer : la migration au démarrage (le registre est encore
+  vide pour les installations existantes), et une preuve d'exécution
+  interrupteur allumé.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit

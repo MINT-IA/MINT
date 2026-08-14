@@ -71,6 +71,16 @@ class FeatureFlags {
   /// Guards SLM narrative attempts — if false, skip SLM entirely.
   static bool slmPluginReady = false;
 
+  /// Le jumeau devient l'autorite sur le fait LOGEMENT.
+  ///
+  /// Eteint : rien ne change — le registre reste vide, les canonicalisations
+  /// retombent sur le coffre, et le comportement est celui d'hier. Allume :
+  /// chaque ecriture d'ecran entre au jumeau, et c'est lui qui repond.
+  ///
+  /// Un seul fait pour commencer, parce qu'une bascule qui touche les six a la
+  /// fois ne se debogue pas.
+  static bool twinOwnsHousing = false;
+
   // ── P7: SafeMode degraded fallback ────────────────────────
 
   /// When true, narratives use templates-only degraded mode.
