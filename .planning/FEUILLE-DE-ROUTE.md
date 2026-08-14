@@ -122,12 +122,25 @@ taxation ne se reconstruit pas.
 sont pas une connaissance des lacunes : rien ne distingue « inconnu » de
 « confirmé absent », d'« inapplicable », de « périmé » ou d'« à confirmer ».
 
-**F0 — Le contrat canonique des faits** doit donc être écrit puis imposé
-AVANT d'ajouter ou de migrer un seul fait de plus : type, identité,
-cardinalité, intervalle métier, états de connaissance. Sans lui, chaque nouvel
-employeur, compte ou logement inventera son propre pseudo-identifiant, et la
-normalisation future devra désambiguïser des historiques devenus
-inattribuables.
+**F0 — Le contrat canonique des faits** est ✅ **fait** (`38e648876`, reçu
+`0e9bc3a496`). Trois comptes 3a coexistent désormais, chacun avec sa propre
+histoire ; mettre à jour l'un ne touche pas les autres. Le catalogue déclare
+pour chaque type sa cardinalité, la règle qui identifie un membre, le temps
+métier auquel il se rapporte, et ce qui le rend sans objet. Cinq états de
+connaissance remplacent le champ nul qui n'en distinguait aucun. Le registre
+l'impose à l'écriture **et** au chargement.
+
+**Reste de ce chantier**, et il n'est pas mince :
+
+- **F0b — la projection détruit encore l'enveloppe.** Provenance, statut,
+  année fiscale, péremption, identité de version disparaissent dès qu'une
+  valeur atteint le magasin plat. Seize champs écrits, un seul projeté.
+- **F0c — deux temps restent mélangés.** Début de validité métier, fin
+  d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
+  qui était vrai ». Une correction rétroactive après taxation ne se reconstruit
+  pas.
+- **F0d — les faits existants ne portent pas encore de clé de membre.** Le
+  contrat les déclare multiples ; la migration devra leur en donner une.
 
 ## La fondation est posée — ce qu'elle permet maintenant
 
