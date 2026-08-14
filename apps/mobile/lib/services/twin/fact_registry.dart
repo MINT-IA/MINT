@@ -77,6 +77,23 @@ class FactRegistry {
       throw StateError('contrat des faits : $violation');  // lint-ignore
     }
 
+    // La règle « scalaires uniquement » n'était appliquée qu'à la RELECTURE.
+    // L'écriture d'une liste réussissait donc, et c'est le chargement suivant
+    // qui levait — une exception qui remonte jusqu'au `catch` du magasin de
+    // réponses, lequel rend une carte VIDE. Autrement dit : une seule écriture
+    // mal formée faisait disparaître tout le profil visible, au lancement
+    // d'après, sans que rien ne désigne la cause.
+    //
+    // Refuser au moment de la faute plutôt qu'à la relecture, c'est la
+    // différence entre une erreur qu'on lit et un profil qui s'efface.
+    for (final entry in payload.entries) {
+      if (entry.value is Map || entry.value is List) {
+        throw StateError(
+            'payload « ${entry.key} » : scalaire attendu — un fait qui porte ' // lint-ignore
+            'une collection doit être décomposé en plusieurs membres'); // lint-ignore
+      }
+    }
+
     final recordedAt = _now().toUtc();
 
     // L'histoire ne recule pas. Une horloge qui régresse produirait une

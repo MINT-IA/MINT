@@ -855,13 +855,36 @@ class SecureWizardStore {
   /// La canonicalisation tourne AVANT la restauration des valeurs sensibles :
   /// à ce moment-là, la carte ne porte encore que le jeton. Il faut donc
   /// interroger le coffre directement.
-  static Future<TwinFactLookup> _twinLookup() async {
+  static Future<TwinFactLookup> _twinLookup(
+      Map<String, dynamic> answers) async {
     // Même littéral que `AnswersTwinBackend.registryKey`. Le coffre ne dépend
     // d'aucun service ; l'oracle `twin_registry_is_sealed_test.dart` relie les
     // deux et échoue s'ils divergent.
-    final serialised = await read('mint_twin_registry_v1');
+    const registryKey = 'mint_twin_registry_v1';
+    final serialised = await read(registryKey);
+    if (serialised == null && answers.containsKey(registryKey)) {
+      // Le magasin plat porte le jeton du registre : il EXISTE. Le coffre ne
+      // le rend pourtant pas — et il avale ses erreurs plutôt que de les
+      // lever. Conclure « absent » rendrait l'autorité au magasin canonique
+      // périmé, qui pourrait ressusciter une suppression.
+      return TwinFactLookup.unavailable;
+    }
     return TwinFactLookup.decode(serialised);
   }
+
+  /// Ce que le jumeau projette, quand son propre modèle sait le relire.
+  ///
+  /// La traduction passe TOUJOURS par le modèle du fait, jamais par une
+  /// recopie à la main : c'est lui qui connaît la forme exacte attendue par
+  /// les écrans, y compris les clés qu'il émet à null et ses alias hérités.
+  ///
+  /// Rend une carte VIDE quand le modèle ne sait pas relire la version — cas
+  /// de corruption. Retomber alors sur le magasin canonique ferait gagner une
+  /// valeur périmée ; ne rien projeter fait disparaître le chiffre de l'écran,
+  /// ce qui se remarque, plutôt que d'en afficher un faux, ce qui ne se
+  /// remarque pas.
+  static Map<String, dynamic> _twinProjection(Map<String, dynamic>? projected) =>
+      projected ?? const <String, dynamic>{};
 
   static Future<Map<String, dynamic>> canonicalizeHousingAnswers(
       Map<String, dynamic> answers) async {
@@ -870,28 +893,35 @@ class SecureWizardStore {
 
     // Le jumeau d'abord : c'est lui l'autorité. Le magasin canonique n'est
     // plus qu'un repli pour les faits qu'il n'a JAMAIS connus.
-    final twin = (await _twinLookup()).forFact('logement#residence_principale');
-    if (twin.isAlive) {
-      result.addAll(twin.wizardAnswers!);
-      return result;
+    final twin = (await _twinLookup(answers)).forFact('logement#residence_principale');
+    if (twin.isUnavailable) {
+      // Ni projection ni purge : la carte ressort telle qu'elle est entrée.
+      return answers;
     }
-    if (twin.isDeleted) {
-      // Aucun repli : le laisser retomber sur le magasin canonique
-      // ressusciterait un fait que la personne a supprimé.
-      await deleteKeys(MintNextHousingFact.wizardKeys);
+    if (twin.isAlive) {
+      result.addAll(_twinProjection(
+        MintNextHousingFact.fromWizardAnswers(twin.wizardAnswers!)
+            ?.toWizardAnswers(),
+      ));
       return result;
     }
 
     final canonical = await readCanonicalHousing();
-    if (canonical.status == CanonicalHousingStatus.present) {
+    // La pierre tombale du jumeau FORCE la branche « supprimé » ci-dessous,
+    // avec toutes ses purges, sans en recopier une ligne ici. C'est ce qui
+    // empêche le magasin canonique de ressusciter un fait supprimé, et ce qui
+    // évite de faire dériver deux fois la même logique d'effacement.
+    final status =
+        twin.isDeleted ? CanonicalHousingStatus.deleted : canonical.status;
+    if (status == CanonicalHousingStatus.present) {
       // The wizard cache still projects secure placeholders, so its per-key
       // encrypted values remain required while the canonical fact is present.
       result.addAll(canonical.fact!.toWizardAnswers());
-    } else if (canonical.status == CanonicalHousingStatus.deleted) {
+    } else if (status == CanonicalHousingStatus.deleted) {
       // Tombstone authority is independent of cleanup success. Retry obsolete
       // legacy PII removal on every load/save until secure storage cooperates.
       await deleteKeys(MintNextHousingFact.wizardKeys);
-    } else if (canonical.status == CanonicalHousingStatus.missing) {
+    } else if (status == CanonicalHousingStatus.missing) {
       try {
         if (await _storage.read(key: _canonicalHousingInitializedKey) != null) {
           return result;
@@ -1071,22 +1101,33 @@ class SecureWizardStore {
   /// liste périmée ne ressuscite) ; manquant → aucune migration implicite.
   static Future<Map<String, dynamic>> canonicalizeVersements3aAnswers(
       Map<String, dynamic> answers) async {
+    // PAS ENCORE LE JUMEAU — et ce n'est pas un oubli.
+    //
+    // La valeur canonique des versements 3a est une LISTE de comptes dans une
+    // seule clé. Le registre n'accepte que des scalaires, parce qu'un fait qui
+    // porte une collection doit être décomposé en membres — c'est exactement
+    // ce que son contrat déclare (« l'établissement et le compte »).
+    //
+    // Le brancher ici demanderait donc d'abord d'éclater la liste en un fait
+    // par compte. C'est un vrai chantier, pas une ligne de plus : tant qu'il
+    // n'est pas fait, ce fait reste sur le magasin canonique.
     final canonical = await readCanonicalVersements3a();
-    if (canonical.status == CanonicalHousingStatus.present) {
+    final status = canonical.status;
+    if (status == CanonicalHousingStatus.present) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
       result.addAll(canonical.fact!.toWizardAnswers());
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.deleted) {
+    if (status == CanonicalHousingStatus.deleted) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
       await deleteKeys(MintNextVersements3aFact.wizardKeys);
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.corrupt) {
+    if (status == CanonicalHousingStatus.corrupt) {
       return Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
@@ -1165,22 +1206,42 @@ class SecureWizardStore {
   /// jamais « non ») ; manquant → aucune migration implicite.
   static Future<Map<String, dynamic>> canonicalizeLppAffiliationAnswers(
       Map<String, dynamic> answers) async {
+    // Le jumeau d'abord : c'est lui l'autorité. Le magasin canonique n'est
+    // plus qu'un repli pour les faits qu'il n'a JAMAIS connus.
+    final twin = (await _twinLookup(answers)).forFact('lpp_affiliation#caisse_principale');
+    if (twin.isUnavailable) {
+      // Ni projection ni purge : la carte ressort telle qu'elle est entrée.
+      return answers;
+    }
+    if (twin.isAlive) {
+      final fait = MintNextLppAffiliationFact.fromWizardAnswers(twin.wizardAnswers!);
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere((key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
+      result.addAll(_twinProjection(fait?.toWizardAnswers()));
+      return result;
+    }
+
     final canonical = await readCanonicalLppAffiliation();
-    if (canonical.status == CanonicalHousingStatus.present) {
+    // La pierre tombale du jumeau FORCE la branche « supprimé » ci-dessous,
+    // avec toutes ses purges — elles diffèrent d'un fait à l'autre, et les
+    // recopier ici les ferait dériver.
+    final status =
+        twin.isDeleted ? CanonicalHousingStatus.deleted : canonical.status;
+    if (status == CanonicalHousingStatus.present) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
       result.addAll(canonical.fact!.toWizardAnswers());
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.deleted) {
+    if (status == CanonicalHousingStatus.deleted) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextLppAffiliationFact.wizardKeys.contains(key));
       await deleteKeys(MintNextLppAffiliationFact.wizardKeys);
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.corrupt) {
+    if (status == CanonicalHousingStatus.corrupt) {
       // Un enregistrement canonique corrompu masque le bundle du cache :
       // un ancien « non » ressusciterait sinon en confirmed_no et piloterait
       // un mauvais plafond (review Codex Lego 4 P1). `unavailable` (keychain
@@ -1269,8 +1330,37 @@ class SecureWizardStore {
   /// possédé). Manquant : aucune migration implicite.
   static Future<Map<String, dynamic>> canonicalizeRevenuAnswers(
       Map<String, dynamic> answers) async {
+    // Le jumeau d'abord : c'est lui l'autorité. Le magasin canonique n'est
+    // plus qu'un repli pour les faits qu'il n'a JAMAIS connus.
+    final twin = (await _twinLookup(answers)).forFact('revenu#principal');
+    if (twin.isUnavailable) {
+      // Ni projection ni purge : la carte ressort telle qu'elle est entrée.
+      return answers;
+    }
+    if (twin.isAlive) {
+      final fait = MintNextRevenuFact.fromWizardAnswers(twin.wizardAnswers!);
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere((key, _) => MintNextRevenuFact.wizardKeys.contains(key));
+      if (fait == null) {
+        // Version illisible : ne rien projeter NE SUFFIT PAS. Les deux clés
+        // héritées vivent hors du bundle possédé — les laisser continuerait
+        // d'afficher l'ancien revenu, sous l'autorité apparente du jumeau.
+        result.remove(MintNextRevenuFact.legacyAmountKey);
+        result.remove(MintNextRevenuFact.legacyFrequencyKey);
+        return result;
+      }
+      result.addAll(fait.toWizardAnswers());
+      result.addAll(fait.legacyProjectionAnswers());
+      return result;
+    }
+
     final canonical = await readCanonicalRevenu();
-    if (canonical.status == CanonicalHousingStatus.present) {
+    // La pierre tombale du jumeau FORCE la branche « supprimé » ci-dessous,
+    // avec toutes ses purges — elles diffèrent d'un fait à l'autre, et les
+    // recopier ici les ferait dériver.
+    final status =
+        twin.isDeleted ? CanonicalHousingStatus.deleted : canonical.status;
+    if (status == CanonicalHousingStatus.present) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
@@ -1278,12 +1368,16 @@ class SecureWizardStore {
       result.addAll(canonical.fact!.legacyProjectionAnswers());
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.deleted) {
+    if (status == CanonicalHousingStatus.deleted) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextRevenuFact.wizardKeys.contains(key));
       await deleteKeys(MintNextRevenuFact.wizardKeys);
-      if (!canonical.projectionPurged) {
+      // `projectionPurged` dit que le nettoyage de la tombe CANONIQUE a déjà
+      // eu lieu. Une tombe du JUMEAU est un événement plus récent, dont le
+      // nettoyage n'a pas eu lieu — lire le drapeau de l'autre laisserait
+      // survivre le revenu par sa clé héritée, donc pas supprimé du tout.
+      if (twin.isDeleted || !canonical.projectionPurged) {
         // Fenêtre d'échec (tombstone commis, nettoyage du cache raté) : la
         // projection périmée est purgée UNE fois, puis le drapeau bascule —
         // une écriture legacy postérieure à la suppression survit ensuite.
@@ -1300,7 +1394,7 @@ class SecureWizardStore {
       }
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.corrupt) {
+    if (status == CanonicalHousingStatus.corrupt) {
       // Canonique corrompu : le bundle possédé est masqué (le FAIT devient
       // absent) ; la projection legacy reste — les consommateurs legacy
       // gardent leur donnée, aucun fait périmé ne ressuscite.
@@ -1318,15 +1412,44 @@ class SecureWizardStore {
   /// n'existe qu'après confirmation explicite.
   static Future<Map<String, dynamic>> canonicalizeCivilStatusAnswers(
       Map<String, dynamic> answers) async {
+    // Le jumeau d'abord : c'est lui l'autorité. Le magasin canonique n'est
+    // plus qu'un repli pour les faits qu'il n'a JAMAIS connus.
+    final twin = (await _twinLookup(answers)).forFact('etat_civil');
+    if (twin.isUnavailable) {
+      // Ni projection ni purge : la carte ressort telle qu'elle est entrée.
+      return answers;
+    }
+    if (twin.isAlive) {
+      final fait =
+          MintNextCivilStatusFact.fromWizardAnswers(twin.wizardAnswers!);
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
+      if (fait == null) {
+        // Même défaut que pour le revenu : l'alias hérité vit hors du bundle
+        // possédé, et le laisser ressusciterait l'ancien état civil dans le
+        // profil du coach.
+        result.remove(MintNextCivilStatusFact.legacyChoiceKey);
+        return result;
+      }
+      result.addAll(fait.toWizardAnswers());
+      return result;
+    }
+
     final canonical = await readCanonicalCivilStatus();
-    if (canonical.status == CanonicalHousingStatus.present) {
+    // La pierre tombale du jumeau FORCE la branche « supprimé » ci-dessous,
+    // avec toutes ses purges — elles diffèrent d'un fait à l'autre, et les
+    // recopier ici les ferait dériver.
+    final status =
+        twin.isDeleted ? CanonicalHousingStatus.deleted : canonical.status;
+    if (status == CanonicalHousingStatus.present) {
       final result = Map<String, dynamic>.from(answers)
         ..removeWhere(
             (key, _) => MintNextCivilStatusFact.wizardKeys.contains(key));
       result.addAll(canonical.fact!.toWizardAnswers());
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.deleted) {
+    if (status == CanonicalHousingStatus.deleted) {
       // Le tombstone purge aussi l'alias legacy — sinon CoachProfile
       // ressuscite l'ancien état civil via q_civil_status_choice.
       const purged = {
@@ -1338,7 +1461,7 @@ class SecureWizardStore {
       await deleteKeys(purged);
       return result;
     }
-    if (canonical.status == CanonicalHousingStatus.corrupt) {
+    if (status == CanonicalHousingStatus.corrupt) {
       // Canonique corrompu : le bundle du cache est masqué (même règle que
       // l'affiliation LPP — un statut périmé ne ressuscite pas).
       return Map<String, dynamic>.from(answers)

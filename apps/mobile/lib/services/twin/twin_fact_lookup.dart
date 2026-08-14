@@ -33,6 +33,15 @@ enum TwinFactState {
   /// Le jumeau porte une pierre tombale. Le fait n'a plus cours, et
   /// AUCUN repli n'est autorisé — sinon la suppression serait annulée.
   deleted,
+
+  /// Le registre EXISTE mais le coffre ne le rend pas à cet instant.
+  ///
+  /// Ce n'est surtout pas `absent`. Le coffre avale ses erreurs et rend null :
+  /// une panne passagère ferait donc paraître le jumeau absent, le magasin
+  /// canonique périmé reprendrait l'autorité, et une suppression pourrait
+  /// ressusciter. Dans ce doute on ne projette RIEN et on ne purge RIEN : la
+  /// carte ressort telle qu'elle est entrée.
+  unavailable,
 }
 
 /// La réponse du registre pour un fait, prête à être projetée.
@@ -41,6 +50,9 @@ class TwinFactAnswer {
 
   const TwinFactAnswer.absent() : this._(TwinFactState.absent, null);
 
+  const TwinFactAnswer.unavailable()
+      : this._(TwinFactState.unavailable, null);
+
   final TwinFactState state;
 
   /// Les réponses à projeter, ou null hors de l'état `alive`.
@@ -48,17 +60,24 @@ class TwinFactAnswer {
 
   bool get isAlive => state == TwinFactState.alive;
   bool get isDeleted => state == TwinFactState.deleted;
+  bool get isUnavailable => state == TwinFactState.unavailable;
 }
 
 /// Le registre interrogé fait par fait.
 class TwinFactLookup {
-  const TwinFactLookup._(this._registry);
+  const TwinFactLookup._(this._registry, {this.absent = true});
 
   final FactRegistry? _registry;
+
+  /// Faux quand le registre existe mais n'a pas pu être lu.
+  final bool absent;
 
   /// Aucun registre : tous les faits sont `absent`, et rien ne change pour
   /// une installation qui n'a jamais eu de jumeau.
   static const TwinFactLookup empty = TwinFactLookup._(null);
+
+  /// Le registre existe, mais on n'a pas pu le lire maintenant.
+  static const TwinFactLookup unavailable = TwinFactLookup._(null, absent: false);
 
   /// Décode un registre sérialisé.
   ///
@@ -78,6 +97,7 @@ class TwinFactLookup {
   }
 
   TwinFactAnswer forFact(String factId) {
+    if (!absent) return const TwinFactAnswer.unavailable();
     final registry = _registry;
     if (registry == null) return const TwinFactAnswer.absent();
 

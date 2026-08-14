@@ -43,7 +43,14 @@ void main() {
     final report = run({});
 
     expect(report.migrated, isEmpty);
-    expect(report.skipped.length, 6, reason: 'les six faits sont absents');
+    expect(report.skipped.length, kMigratableFacts.length,
+        reason: 'tous les faits migrables sont absents');
+    // Et le compte se justifie plutôt que d'être constaté : six faits
+    // existent, un seul attend d'être décomposé en membres avant de pouvoir
+    // entrer au registre. Écrit ainsi, retirer un fait du catalogue sans le
+    // nommer fait échouer l'oracle.
+    expect(kMigratableFacts.length + kFactsAwaitingDecomposition.length, 6,
+        reason: 'un fait ne doit pas pouvoir disparaître entre les deux listes');
     expect(registry.length, 0);
   });
 

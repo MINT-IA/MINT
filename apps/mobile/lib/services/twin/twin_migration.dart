@@ -29,7 +29,6 @@ import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
-import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/services/twin/fact_contract.dart';
 import 'package:mint_mobile/services/twin/fact_registry.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
@@ -130,16 +129,22 @@ const List<MigratableFact> kMigratableFacts = [
     schemaVersionKey: MintNextLppAffiliationFact.schemaVersionKey,
     needsConfirmationKey: MintNextLppAffiliationFact.needsConfirmationKey,
   ),
-  MigratableFact(
-    factId: 'versements_3a',
-    projectionMember: 'portefeuille',
-    keys: MintNextVersements3aFact.wizardKeys,
-    assertedAtKey: MintNextVersements3aFact.assertedAtKey,
-    sourceKey: MintNextVersements3aFact.sourceKey,
-    schemaVersionKey: MintNextVersements3aFact.schemaVersionKey,
-    needsConfirmationKey: MintNextVersements3aFact.needsConfirmationKey,
-  ),
 ];
+
+/// Le fait déclaré au catalogue que la migration ne sait PAS envelopper, et
+/// pourquoi.
+///
+/// Les versements 3a portent une LISTE de comptes dans une seule clé du
+/// magasin plat. Le registre n'accepte que des scalaires — parce qu'un fait
+/// qui porte une collection doit être décomposé en membres, ce que son propre
+/// contrat déclare (« l'établissement et le compte »). L'envelopper tel quel
+/// écrirait un registre que la relecture refuserait.
+///
+/// Il est NOMMÉ ici plutôt qu'oublié : l'oracle
+/// `twin_migration_test.dart` vérifie que cette liste et le catalogue se
+/// recouvrent exactement, pour qu'un fait ne puisse pas disparaître en
+/// silence entre les deux.
+const Set<String> kFactsAwaitingDecomposition = {'versements_3a'};
 
 class TwinMigrationReport {
   const TwinMigrationReport({

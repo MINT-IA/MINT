@@ -218,17 +218,36 @@ l'impose à l'écriture **et** au chargement.
   Le nouvel oracle parcourt le catalogue au lieu d'en élire un, et la mutation
   confirme qu'il attrape le défaut. Latent, pas advenu — rien n'est branché.
 
-- **F0e (suite) — les QUATRE autres canonicalisations restent à brancher**, et
-  je m'arrête ici délibérément plutôt que de recopier. Chaque branche
-  « supprimé » a sa propre sémantique de purge : `revenu` efface deux clés
-  héritées **et** écrit un journal, `etat_civil` purge un alias sans lequel le
-  profil ressusciterait l'ancien statut. Dupliquer ces blocs pour le chemin du
-  jumeau fabriquerait exactement la dérive que ce chantier combat.
-  **La sortie est plus simple** : que la suppression par le jumeau marque AUSSI
-  le coffre supprimé. Alors « jumeau supprimé » implique toujours « coffre
-  supprimé », les branches existantes fonctionnent telles quelles, et il ne
-  reste à écrire que le chemin *vivant* — huit lignes par fait. C'est le
-  prochain lot.
+- **F0e (suite) — quatre canonicalisations sur cinq sont branchées.** ✅
+  Logement, état civil, revenu, affiliation LPP.
+  La sortie n'a PAS été la suppression bilatérale envisagée au lot précédent :
+  plus simple et plus sûr, la pierre tombale du jumeau **force** la branche
+  « supprimé » existante — avec ses purges propres — par une substitution de
+  variable. Rien n'est recopié, donc rien ne peut dériver.
+
+  **Trois défauts trouvés en branchant**, tous par des oracles, aucun par
+  relecture :
+
+  1. *Le registre n'appliquait la règle « scalaires uniquement » qu'à la
+     RELECTURE.* Écrire une liste réussissait ; c'est le chargement suivant qui
+     levait — et cette exception remonte jusqu'au `catch` du magasin de
+     réponses, lequel rend une carte **vide**. Une seule écriture mal formée
+     effaçait donc tout le profil visible, au lancement d'après, sans que rien
+     ne désigne la cause. La règle s'applique désormais à l'écriture : refuser
+     au moment de la faute, pas au prochain démarrage.
+  2. *Forcer la branche « supprimé » ne suffisait pas pour le revenu.* Elle lit
+     `projectionPurged`, qui dit que le nettoyage de la tombe **canonique** a
+     déjà eu lieu. Une tombe du **jumeau** est un événement plus récent, dont
+     le nettoyage n'a pas eu lieu : lire le drapeau de l'autre laissait le
+     revenu survivre par sa clé héritée — donc pas supprimé du tout.
+  3. *Les versements 3a ne peuvent pas être branchés du tout.* Leur valeur
+     canonique est une **liste de comptes dans une seule clé** — exactement la
+     forme que leur propre contrat veut remplacer par plusieurs membres. Ils
+     sortent donc du catalogue migrable, **nommés** dans
+     `kFactsAwaitingDecomposition`, avec un oracle vérifiant que les deux
+     listes se recouvrent : un fait ne peut pas disparaître en silence entre
+     elles. Les brancher demande d'abord d'éclater la liste en un fait par
+     compte — c'est F0d, un vrai chantier.
 
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
