@@ -461,11 +461,28 @@ l'impose à l'écriture **et** au chargement.
   (`FBSOpenApplicationServiceErrorDomain code=1`). État simulateur restauré par
   un build propre.
 
-  **Ce qu'il faudrait vraiment** : réactiver la signature pour les builds
-  simulateur avec une identité de développement, et régler le problème des
-  attributs étendus autrement — construire hors de `.nosync`, ou poser un
-  `xattr -cr` en phase de build. C'est une décision d'outillage qui touche le
-  walker, pas un correctif de code : **à trancher avec Julien**.
+  **TENTÉ sur feu vert de Julien, et le verrou n'est PAS dans le code.**
+  Trois voies mesurées :
+
+  1. *Signature ad-hoc après le build* — embarque bien les droits, mais signer
+     les frameworks imbriqués réintroduit les attributs étendus et l'app ne se
+     lance plus.
+  2. *`CODE_SIGNING_ALLOWED[sdk=iphonesimulator*] = YES` + identité `-`* —
+     `flutter build ios --simulator` échoue (`Command CodeSign failed`).
+  3. *`xcodebuild` direct avec la même configuration* — **réussit**, mais le
+     `.app` produit porte un dictionnaire de droits **VIDE** : en ad-hoc sans
+     équipe, Xcode écarte les droits qui exigent un profil. Il manque donc
+     toujours l'`application-identifier`, qui est ce que le trousseau réclame.
+
+  **Le verrou réel** : le projet est sur l'équipe `7F5UDGYS5H`, et les seuls
+  certificats de DÉVELOPPEMENT du trousseau sont pour `5LZYNVL6GD` (celle-ci
+  n'a qu'un certificat de *distribution*). Sans certificat de développement
+  pour l'équipe du projet, aucune signature simulateur ne portera les droits.
+
+  C'est du ressort du portail Apple, pas du dépôt — et la configuration de
+  signature est bloquante-release, donc à isoler dans son propre lot. La
+  configuration a été **restaurée** et le build simulateur revérifié
+  fonctionnel.
 
 - **F0c — les deux temps sont séparés.** ✅ Dernier trou nommé du registre.
 
