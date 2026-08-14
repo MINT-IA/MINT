@@ -8,6 +8,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
+import 'package:mint_mobile/services/twin/fact_registry.dart';
 import 'package:mint_mobile/services/twin/twin_store.dart';
 
 /// Support en mémoire, avec deux défauts injectables : l'échec d'écriture et
@@ -35,11 +36,8 @@ class _FakeBackend implements TwinBackend {
   Future<bool> compareAndSwap({
     required int expectedRevision,
     required String registry,
-    required Map<String, Object?> projection,
     required Map<String, Object?> metadata,
-    required Set<String> ownedKeys,
   }) async {
-    lastOwnedKeys = ownedKeys;
     lastMetadata = metadata;
     beforeSwap?.call();
     // La comparaison appartient au support : c'est ce qui la rend atomique.
@@ -53,7 +51,11 @@ class _FakeBackend implements TwinBackend {
       throw StateError('écriture impossible');
     }
     this.registry = registry;
-    this.projection = Map<String, Object?>.from(projection);
+    // La projection n'est plus transmise : elle se DERIVE du registre a chaque
+    // chargement. Ce faux support la recalcule donc comme le ferait un vrai.
+    final decoded = FactRegistry(newId: () => 'x');
+    decoded.decode(registry);
+    projection = TwinStore.projectionOf(decoded);
     revision = expectedRevision + 1;
     return true;
   }
@@ -314,20 +316,30 @@ void main() {
           reason: 'mais le fait n\'alimente plus ni écran ni calcul');
     });
 
-    test('a removed fact keeps its keys under the twin\'s charge', () async {
+    test('a removed fact disappears from the DERIVED projection', () async {
+      // Cet oracle verifiait que le support RECEVAIT la liste des cles « sous
+      // la charge » du jumeau, pour savoir lesquelles retirer. Il ne la recoit
+      // plus : la projection n'est plus ecrite, elle est DERIVEE a chaque
+      // chargement. La garantie ne change pas — une valeur supprimee ne survit
+      // pas a ce que lisent les ecrans — mais elle se verifie desormais sur la
+      // derivation plutot que sur l'ecriture.
       var snapshot = await store.read();
       await append(snapshot, 'Aarau');
       snapshot = await store.read();
+      expect(TwinStore.projectionOf(snapshot.registry),
+          contains('q_domicile_commune_name'));
+
       await store.remove(snapshot,
           factId: 'domicile',
           factType: 'domicile',
           assertedAt: clock,
           source: FactSource.userDeclaration);
+      snapshot = await store.read();
 
-      expect(backend.lastOwnedKeys, contains('q_domicile_commune_name'),
-          reason: 'le support doit savoir quelle valeur retirer — sinon elle '
-              'survivrait dans ce que lisent les écrans');
-      expect(backend.projection.containsKey('q_domicile_commune_name'), isFalse);
+      expect(TwinStore.projectionOf(snapshot.registry),
+          isNot(contains('q_domicile_commune_name')),
+          reason: 'sinon le fait serait supprime pour le registre et bien '
+              'present pour les ecrans');
     });
 
     test('a fact can be declared again after being removed', () async {

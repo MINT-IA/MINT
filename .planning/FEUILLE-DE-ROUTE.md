@@ -343,6 +343,40 @@ l'impose à l'écriture **et** au chargement.
   défaut, avec deux vérifications mécaniques — l'édition gagne après
   redémarrage, et le backend n'appelle jamais `loadAnswers`.
 
+- **F0g (première étape) — le support du jumeau est devenu INDÉPENDANT.** ✅
+  Il n'écrit plus jamais dans le magasin de réponses : le registre va dans le
+  coffre où il est scellé, la révision et l'enveloppe dans leurs propres
+  entrées. Plus aucune récurrence possible le jour où une écriture d'écran
+  appellera le jumeau — c'était le piège qui bloquait ce chantier.
+
+  **Ce qui a rendu ça possible, et qui n'était pas vrai il y a deux lots** : la
+  projection est désormais DÉRIVÉE à chaque chargement. Une divergence entre le
+  registre et le magasin plat se répare donc d'elle-même — il n'y a plus deux
+  vérités à tenir synchronisées, il y a une vérité et une vue. L'atomicité qui
+  justifiait de tout écrire dans le même objet n'avait plus d'objet.
+
+  **Et elle coûtait cher pour rien.** `saveAnswers` appelle lui aussi les cinq
+  canonicalisations, lesquelles lisent le registre. La projection écrite était
+  donc calculée à partir de l'ANCIEN registre — en retard d'une version, et
+  corrigée au chargement suivant. On payait un aller-retour complet pour
+  stocker une valeur périmée que personne ne lisait.
+
+  **Un fait orphelin découvert en retirant l'écriture.** Le domicile n'avait
+  AUCUNE canonicalisation : sa valeur n'atteignait les écrans que par la
+  projection qu'on venait de supprimer. Le défaut ne se voyait pas — le fait
+  entrait au registre, l'écriture réussissait, les oracles du registre
+  passaient, et l'écran restait vide. **Un fait qu'on enregistre et que
+  personne ne lit est pire qu'un fait absent : il donne l'impression d'avoir
+  été collecté.**
+
+  D'où un garde de plus, `twin_every_fact_is_derived.py` : tout type déclaré au
+  catalogue doit être consulté quelque part dans la canonicalisation. Vérifié
+  par mutation — en débranchant le domicile, il échoue en le nommant.
+
+  Neuf oracles décrivaient l'ancien rangement ; ils décrivent le nouveau. Reste
+  la deuxième étape : `writeCanonicalX` comme frontière de commande, logement
+  seul, derrière un interrupteur.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit

@@ -65,17 +65,18 @@ void main() {
     await const AnswersTwinBackend().compareAndSwap(
       expectedRevision: 0,
       registry: registry.encode(),
-      projection: const {},
       metadata: const {},
-      ownedKeys: const {},
     );
 
     final prefs = await SharedPreferences.getInstance();
-    final enClair = prefs.getString('wizard_answers_v2') ?? '';
-    expect(enClair.contains('divorce_en_cours'), isFalse,
-        reason: 'la valeur est visible en clair sur le disque');
-    expect(enClair.contains(AnswersTwinBackend.securePlaceholder), isTrue,
-        reason: 'les préférences doivent porter le jeton, pas la valeur');
+    for (final key in prefs.getKeys()) {
+      final value = prefs.get(key);
+      expect(value.toString().contains('divorce_en_cours'), isFalse,
+          reason: 'la valeur est visible en clair sous « $key »');
+    }
+    expect(prefs.getBool(AnswersTwinBackend.registryWrittenKey), isTrue,
+        reason: "les préférences gardent la TRACE qu'un registre existe, "
+            'jamais son contenu');
   });
 
   test('a sealed registry the vault cannot return is not an empty twin',
@@ -83,8 +84,7 @@ void main() {
     // Le pire des deux mondes serait de repartir de zéro : la première
     // écriture recouvrirait une histoire que le coffre finirait par rendre.
     SharedPreferences.setMockInitialValues({
-      'wizard_answers_v2':
-          '{"${AnswersTwinBackend.registryKey}":"__secure__"}',
+      AnswersTwinBackend.registryWrittenKey: true,
     });
 
     expect(() => const AnswersTwinBackend().read(),
@@ -102,16 +102,12 @@ void main() {
       backend.compareAndSwap(
         expectedRevision: 0,
         registry: _registryPortant('premier'),
-        projection: const {},
         metadata: const {},
-        ownedKeys: const {},
       ),
       backend.compareAndSwap(
         expectedRevision: 0,
         registry: _registryPortant('second'),
-        projection: const {},
         metadata: const {},
-        ownedKeys: const {},
       ),
     ]);
 
@@ -125,17 +121,15 @@ void main() {
     // Le refus vaut aussi à la porte de l'écriture : recouvrir une histoire
     // illisible la détruirait définitivement.
     SharedPreferences.setMockInitialValues({
-      'wizard_answers_v2': '{"${AnswersTwinBackend.registryKey}":"__secure__",'
-          '"${AnswersTwinBackend.revisionKey}":3}',
+      AnswersTwinBackend.registryWrittenKey: true,
+      AnswersTwinBackend.revisionKey: 3,
     });
 
     expect(
         () => const AnswersTwinBackend().compareAndSwap(
               expectedRevision: 3,
               registry: _registryPortant('ecrasement'),
-              projection: const {},
               metadata: const {},
-              ownedKeys: const {},
             ),
         throwsA(isA<TwinRegistryUnreadable>()));
   });
@@ -148,9 +142,7 @@ void main() {
     await const AnswersTwinBackend().compareAndSwap(
       expectedRevision: 0,
       registry: registry,
-      projection: const {},
       metadata: const {},
-      ownedKeys: const {},
     );
 
     final prefs = await SharedPreferences.getInstance();
@@ -198,9 +190,7 @@ void main() {
     await const AnswersTwinBackend().compareAndSwap(
       expectedRevision: 0,
       registry: registry.encode(),
-      projection: const {},
       metadata: const {},
-      ownedKeys: const {},
     );
 
     final relu = await const AnswersTwinBackend().read();

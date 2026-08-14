@@ -112,6 +112,8 @@ run_gate "intégrité du registre des communes" \
          python3 tools/data/build_commune_registry.py --check
 run_gate "discipline d'écriture du jumeau" \
          python3 tools/checks/twin_write_discipline.py
+run_gate "dérivation de chaque fait du jumeau" \
+         python3 tools/checks/twin_every_fact_is_derived.py
 run_gate "couverture des tests par la CI" \
          python3 tools/checks/ci_test_coverage_gate.py
 run_gate "auto-test du garde de reçu" \

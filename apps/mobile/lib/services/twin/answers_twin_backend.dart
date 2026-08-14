@@ -1,25 +1,43 @@
-// Le support réel du jumeau : le magasin de réponses déjà en place.
+// Le support du jumeau — INDÉPENDANT du magasin de réponses.
 //
-// POURQUOI CETTE FORME
+// POURQUOI CETTE FORME A CHANGÉ
 //
-// Le registre et sa projection doivent être écrits ENSEMBLE ou pas du tout.
-// La façon la plus simple d'y parvenir n'est pas d'inventer une transaction :
-// c'est de les mettre dans le MÊME objet, écrit par la même opération. Le
-// registre vit donc sous une clé réservée du magasin de réponses, aux côtés
-// des valeurs qu'il projette. Une écriture, un objet, aucune fenêtre pendant
-// laquelle les deux pourraient diverger.
+// La première version mettait le registre dans le MÊME objet que sa
+// projection, écrit par `saveAnswers`, pour qu'ils s'écrivent ensemble ou pas
+// du tout. Deux constats ont retiré sa raison d'être à ce choix.
 //
-// Ce choix a un corollaire : le magasin de réponses reste ce que lisent les
-// écrans, exactement comme avant. Rien ne casse pendant la transition — la
-// projection EST le magasin, simplement plus personne n'y écrit à la main.
+// D'ABORD, l'atomicité n'est plus nécessaire. Depuis que les canonicalisations
+// lisent le jumeau, la projection est RECALCULÉE à chaque chargement : une
+// divergence entre le registre et le magasin plat se répare d'elle-même au
+// chargement suivant. Il n'y a plus deux vérités à tenir synchronisées, il y a
+// une vérité et une vue.
+//
+// ENSUITE, elle coûtait cher. `saveAnswers` appelle lui aussi les cinq
+// canonicalisations — lesquelles lisent le registre. La projection écrite était
+// donc calculée à partir de l'ANCIEN registre, celui d'avant l'écriture en
+// cours : en retard d'une version, et corrigée au chargement suivant.
+// Autrement dit, on payait un aller-retour complet pour écrire une valeur
+// périmée que personne ne lisait.
+//
+// Et surtout, ce couplage FABRIQUAIT une récurrence. Le jour où
+// `writeCanonicalX` appellera le jumeau — c'est le prochain chantier — écrire
+// une version aurait déclenché `saveAnswers`, donc la canonicalisation, donc
+// sa branche « fait absent », donc `writeCanonicalX` à nouveau. Boucle infinie
+// au démarrage.
+//
+// Le jumeau écrit donc désormais ses propres clés, DIRECTEMENT :
+// le registre dans le coffre où il est scellé, la révision et l'enveloppe dans
+// leurs propres entrées de préférences. Il ne lit ni n'écrit plus jamais le
+// magasin de réponses. Le garde `twin_backend_is_not_reentrant.py` l'exige.
 //
 // ADR : .planning/decisions/2026-08-13-jumeau-financier-faits-versionnes.md
 
 import 'dart:async';
+import 'dart:convert';
 
-import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/twin/twin_store.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Le registre a été scellé, et le coffre ne le rend plus.
 ///
@@ -27,9 +45,6 @@ import 'package:mint_mobile/services/twin/twin_store.dart';
 /// qu'on ne sait plus lire. Les confondre serait le pire des deux mondes —
 /// le jumeau repartirait de zéro et la première écriture recouvrirait
 /// définitivement ce que le coffre finirait peut-être par rendre.
-///
-/// D'où une exception plutôt qu'un retour vide : celui qui branchera le
-/// jumeau devra décider quoi faire, consciemment.
 class TwinRegistryUnreadable implements Exception {
   const TwinRegistryUnreadable();
 
@@ -42,22 +57,18 @@ class TwinRegistryUnreadable implements Exception {
 class AnswersTwinBackend implements TwinBackend {
   const AnswersTwinBackend();
 
-  /// Le registre des versions, sérialisé. Préfixe réservé : aucune réponse
-  /// utilisateur ne porte ce nom, et la migration le compte parmi les clés
-  /// qu'aucun fait ne revendique — d'où son exclusion explicite plus bas.
+  /// Le registre des versions, sérialisé. Scellé dans le coffre, parce qu'il
+  /// porte les mêmes valeurs sensibles que les faits qu'il enveloppe.
   static const registryKey = 'mint_twin_registry_v1';
 
-  /// La révision, pour l'échange comparé. Elle vit dans le même objet que ce
-  /// qu'elle protège : une révision écrite ailleurs pourrait survivre à une
-  /// écriture perdue.
+  /// La révision, pour l'échange comparé.
   static const revisionKey = 'mint_twin_revision_v1';
 
   /// Ce que la projection nue ne dit pas : d'où vient chaque valeur, pour
   /// quelle année, si elle est confirmée, jusqu'à quand elle vaut.
   ///
-  /// Sans cette table, un lecteur du magasin voyait CHF 4 250 sans savoir
-  /// qu'il s'agissait de l'exercice 2025, extrait d'un document, et encore en
-  /// attente de confirmation.
+  /// Elle reste EN CLAIR : elle ne porte aucune valeur, seulement des noms de
+  /// clés qui figurent déjà dans les préférences sous forme de jetons.
   static const metadataKey = 'mint_twin_meta_v1';
 
   /// Les clés du jumeau lui-même, qui ne sont ni des faits ni des réponses.
@@ -66,43 +77,30 @@ class AnswersTwinBackend implements TwinBackend {
   /// Ce que les préférences en clair portent à la place d'une valeur scellée.
   static const securePlaceholder = '__secure__';
 
+  /// Marque qu'un registre a existé, même quand le coffre ne le rend pas.
+  ///
+  /// Sans elle, une panne du coffre serait indiscernable d'une installation
+  /// neuve — et l'écriture suivante recouvrirait une histoire intacte.
+  static const registryWrittenKey = 'mint_twin_registry_written_v1';
+
   @override
   Future<({String? registry, int revision})> read() async {
-    final answers = await ReportPersistenceService.loadAnswers();
-    return (
-      registry: await _registryFrom(answers),
-      revision: answers[revisionKey] is int ? answers[revisionKey] as int : 0,
-    );
-  }
-
-  /// Le registre, lu là où il est réellement scellé.
-  ///
-  /// POURQUOI PASSER PAR LE COFFRE PLUTÔT QUE PAR LE MAGASIN
-  ///
-  /// Le magasin de réponses sait échouer en silence : quand son JSON ne se
-  /// décode pas, il rend une carte VIDE plutôt qu'une erreur. Le registre,
-  /// lui, est scellé dans le coffre et survit à cette panne. Le lire par le
-  /// détour du magasin, c'était donc conclure « pas de jumeau » alors que
-  /// l'histoire était intacte à côté — et l'écriture suivante l'aurait
-  /// recouverte. Interroger le coffre d'abord transforme cette perte en
-  /// simple récupération.
-  ///
-  /// Rend null quand il n'y a rien à lire, et LÈVE quand il y a quelque
-  /// chose qu'on ne sait plus lire. Les confondre serait le pire des deux
-  /// mondes.
-  Future<String?> _registryFrom(Map<String, dynamic> answers) async {
+    final prefs = await SharedPreferences.getInstance();
     final sealed = await SecureWizardStore.read(registryKey);
-    if (sealed != null && sealed.isNotEmpty) return sealed;
 
-    // Le coffre ne rend rien. Reste à savoir s'il n'a jamais rien eu.
-    final projected = answers[registryKey];
-    // Si la clé cessait un jour d'être classée sensible, la restauration la
-    // sauterait et le jeton arriverait tel quel jusqu'ici.
-    if (projected == securePlaceholder) throw const TwinRegistryUnreadable();
-    // Sinon : clé PRÉSENTE avec une valeur nulle = elle a été scellée et le
-    // coffre l'a perdue. Clé ABSENTE = ce jumeau n'a jamais existé.
-    if (answers.containsKey(registryKey)) throw const TwinRegistryUnreadable();
-    return null;
+    if (sealed == null || sealed.isEmpty) {
+      // Le coffre ne rend rien. Reste à savoir s'il n'a jamais rien eu.
+      if (prefs.getBool(registryWrittenKey) == true) {
+        throw const TwinRegistryUnreadable();
+      }
+      return (registry: null, revision: 0);
+    }
+    if (sealed == securePlaceholder) {
+      // Si la clé cessait d'être classée sensible, le jeton arriverait tel
+      // quel jusqu'ici.
+      throw const TwinRegistryUnreadable();
+    }
+    return (registry: sealed, revision: prefs.getInt(revisionKey) ?? 0);
   }
 
   /// La file d'attente des écritures.
@@ -118,9 +116,7 @@ class AnswersTwinBackend implements TwinBackend {
   Future<bool> compareAndSwap({
     required int expectedRevision,
     required String registry,
-    required Map<String, Object?> projection,
     required Map<String, Object?> metadata,
-    required Set<String> ownedKeys,
   }) {
     final previous = _queue;
     final done = Completer<void>();
@@ -130,9 +126,7 @@ class AnswersTwinBackend implements TwinBackend {
         return await _swap(
           expectedRevision: expectedRevision,
           registry: registry,
-          projection: projection,
           metadata: metadata,
-          ownedKeys: ownedKeys,
         );
       } finally {
         done.complete();
@@ -143,32 +137,28 @@ class AnswersTwinBackend implements TwinBackend {
   Future<bool> _swap({
     required int expectedRevision,
     required String registry,
-    required Map<String, Object?> projection,
     required Map<String, Object?> metadata,
-    required Set<String> ownedKeys,
   }) async {
-    final current = await ReportPersistenceService.loadAnswers();
+    final prefs = await SharedPreferences.getInstance();
+
     // Écrire par-dessus une histoire qu'on ne sait pas lire la détruirait
     // définitivement. La même règle qu'à la lecture, à la porte de l'écriture.
-    await _registryFrom(current);
-    final actual = current[revisionKey] is int ? current[revisionKey] as int : 0;
-    if (actual != expectedRevision) return false;
+    final sealed = await SecureWizardStore.read(registryKey);
+    if ((sealed == null || sealed.isEmpty) &&
+        prefs.getBool(registryWrittenKey) == true) {
+      throw const TwinRegistryUnreadable();
+    }
 
-    // Les clés dont le jumeau a la charge sont retirées puis réécrites depuis
-    // la projection. Celle d'un fait SUPPRIMÉ n'y figure plus : sans ce
-    // retrait, une pierre tombale laisserait sa valeur visible — le fait
-    // serait supprimé pour le registre et bien présent pour les écrans.
-    //
-    // Tout le reste est CONSERVÉ. Le magasin porte encore des réponses
-    // qu'aucun fait ne revendique ; les effacer au passage du jumeau
-    // détruirait des données que personne n'a demandé de supprimer.
-    final next = Map<String, dynamic>.from(current)
-      ..removeWhere((key, _) => ownedKeys.contains(key))
-      ..addAll(projection)
-      ..[registryKey] = registry
-      ..[metadataKey] = metadata
-      ..[revisionKey] = expectedRevision + 1;
+    if ((prefs.getInt(revisionKey) ?? 0) != expectedRevision) return false;
 
-    return ReportPersistenceService.saveAnswers(next);
+    // Le registre d'abord : c'est lui qui porte l'histoire. Si l'écriture des
+    // préférences échouait ensuite, la révision resterait en arrière et la
+    // version suivante réécrirait par-dessus — rien ne se perd. L'ordre
+    // inverse perdrait une version à chaque panne.
+    if (!await SecureWizardStore.write(registryKey, registry)) return false;
+    await prefs.setBool(registryWrittenKey, true);
+    await prefs.setString(metadataKey, json.encode(metadata));
+    await prefs.setInt(revisionKey, expectedRevision + 1);
+    return true;
   }
 }

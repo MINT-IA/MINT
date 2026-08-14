@@ -83,6 +83,7 @@ class ReportPersistenceService {
   /// SEC-10: Sensitive financial keys are stored in encrypted storage.
   static Future<bool> saveAnswers(Map<String, dynamic> answers) async {
     final prefs = await SharedPreferences.getInstance();
+    answers = await SecureWizardStore.canonicalizeDomicileAnswers(answers);
     answers = await SecureWizardStore.canonicalizeHousingAnswers(answers);
     answers = await SecureWizardStore.canonicalizeCivilStatusAnswers(answers);
     answers = await SecureWizardStore.canonicalizeRevenuAnswers(answers);
@@ -143,7 +144,8 @@ class ReportPersistenceService {
               await SecureWizardStore.canonicalizeRevenuAnswers(
                   await SecureWizardStore.canonicalizeCivilStatusAnswers(
                       await SecureWizardStore.canonicalizeHousingAnswers(
-                          {})))));
+                          await SecureWizardStore
+                              .canonicalizeDomicileAnswers({}))))));
     }
 
     try {
@@ -153,7 +155,9 @@ class ReportPersistenceService {
           await SecureWizardStore.canonicalizeRevenuAnswers(
             await SecureWizardStore.canonicalizeCivilStatusAnswers(
               await SecureWizardStore.canonicalizeHousingAnswers(
-                Map<String, dynamic>.from(json.decode(jsonString)),
+                await SecureWizardStore.canonicalizeDomicileAnswers(
+                  Map<String, dynamic>.from(json.decode(jsonString)),
+                ),
               ),
             ),
           ),

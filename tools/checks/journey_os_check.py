@@ -687,6 +687,14 @@ ALLOW = {
     # deux tests qui PROTEGEAIENT les phrases fausses gardent la phrase vraie.
     "apps/mobile/lib/widgets/settings_sheet.dart",
     "apps/mobile/test/screens/lpp_deep_screens_smoke_test.dart",
+    # F0g — le support du jumeau devient INDEPENDANT du magasin de reponses :
+    # plus de projection ecrite (elle est derivee), donc plus de recurrence
+    # possible le jour ou une ecriture d'ecran appellera le jumeau. Et le
+    # domicile, qui n'avait aucune canonicalisation, en recoit une : sans
+    # elle il entrait au registre sans jamais atteindre l'ecran.
+    "tools/checks/twin_every_fact_is_derived.py",
+    "tools/verify_full.sh",
+    "apps/mobile/lib/services/report_persistence_service.dart",
     "apps/mobile/lib/services/twin/versements_3a_decomposition.dart",
     "apps/mobile/test/services/twin/versements_3a_decomposition_test.dart",
     "apps/mobile/test/services/twin/twin_is_the_authority_test.dart",

@@ -5,6 +5,8 @@
 // et la valeur d'un fait supprimé doit DISPARAÎTRE de ce que lisent les
 // écrans.
 
+import 'dart:convert';
+
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
@@ -101,14 +103,22 @@ void main() {
     expect(reloaded.registry.current('domicile')!.isTombstone, isTrue);
   });
 
-  test('the registry and its revision live in the same object as the values',
-      () async {
+  test('the twin never writes into the answers store', () async {
+    // Cet oracle affirmait l'inverse : registre et revision vivaient dans le
+    // MEME objet que les valeurs, pour qu'ils s'ecrivent ensemble ou pas du
+    // tout. Deux constats ont retire sa raison d'etre a ce choix — la
+    // projection est desormais DERIVEE a chaque chargement, donc une
+    // divergence se repare seule ; et ce couplage aurait fabrique une
+    // recurrence le jour ou une ecriture d'ecran appellera le jumeau.
     await appendCommune('Aarau');
 
     final answers = await ReportPersistenceService.loadAnswers();
-    expect(answers[AnswersTwinBackend.registryKey], isA<String>(),
-        reason: 'une écriture, un objet — aucune fenêtre de divergence');
-    expect(answers[AnswersTwinBackend.revisionKey], 1);
+    expect(answers.containsKey(AnswersTwinBackend.registryKey), isFalse,
+        reason: 'le registre vit dans le coffre, pas dans les reponses');
+    expect(answers.containsKey(AnswersTwinBackend.revisionKey), isFalse,
+        reason: 'la revision a sa propre entree de preferences');
+    expect(answers['q_domicile_commune_name'], 'Aarau',
+        reason: 'et la valeur atteint quand meme les ecrans — par derivation');
   });
 
   test('a second writer on a stale read is refused by the real store',
@@ -144,13 +154,7 @@ void main() {
     expect(snapshot.revision, 0);
   });
 
-  test('the envelope reaches the real store alongside the value', () async {
-    // NOTE — la clé employée ici n'est PAS celle du fait logement, et c'est
-    // délibéré : `saveAnswers` retire toutes les clés des six faits canoniques
-    // et les réécrit depuis le coffre sécurisé. Une valeur que le jumeau y
-    // projette est donc écrasée. Constat porté à la feuille de route (F0e) —
-    // deux autorités coexistent, et ce test le contourne au lieu de le
-    // masquer.
+  test('the envelope survives in its own entry, beside the value', () async {
     final snapshot = await store.read();
     await store.append(
       snapshot,
@@ -167,7 +171,8 @@ void main() {
     expect(answers['q_domicile_commune_name'], 'Aarau',
         reason: 'les écrans lisent la valeur exactement comme avant');
 
-    final meta = (answers[AnswersTwinBackend.metadataKey]
+    final prefs = await SharedPreferences.getInstance();
+    final meta = (json.decode(prefs.getString(AnswersTwinBackend.metadataKey)!)
         as Map)['q_domicile_commune_name'] as Map;
     expect(meta['source'], 'document', reason: 'la provenance survit');
     expect(meta['status'], 'estimated', reason: 'la confiance survit');

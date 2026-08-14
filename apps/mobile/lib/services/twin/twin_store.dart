@@ -69,19 +69,21 @@ abstract interface class TwinBackend {
   ///
   /// Rend `true` si l'écriture a eu lieu, `false` si la révision avait bougé.
   /// Doit être atomique : après un échec, le support garde son état précédent.
+  /// La PROJECTION n'est plus transmise, et c'est un retrait, pas un oubli.
+  ///
+  /// Elle l'était tant que le magasin plat faisait autorité. Depuis que les
+  /// canonicalisations lisent le registre, elle est RECALCULÉE à chaque
+  /// chargement : l'écrire revenait à stocker une vue que personne ne lit et
+  /// qui se corrige seule. C'est ce couplage qui obligeait le support à
+  /// passer par le magasin de réponses, et qui aurait fabriqué une récurrence
+  /// le jour où une écriture d'écran appellera le jumeau.
   Future<bool> compareAndSwap({
     required int expectedRevision,
     required String registry,
-    required Map<String, Object?> projection,
 
     /// Ce que la projection nue ne dit pas : provenance, statut, année
     /// fiscale, péremption, identité de version — clé par clé.
     required Map<String, Object?> metadata,
-
-    /// Les clés dont le jumeau a la charge — y compris celles d'un fait
-    /// supprimé, qui doivent DISPARAÎTRE de la projection. Sans elles, une
-    /// pierre tombale laisserait sa valeur visible aux écrans.
-    required Set<String> ownedKeys,
   });
 }
 
@@ -176,9 +178,7 @@ class TwinStore {
     final written = await _backend.compareAndSwap(
       expectedRevision: snapshot.revision,
       registry: draft.encode(),
-      projection: projectionOf(draft),
       metadata: metadataOf(draft),
-      ownedKeys: draft.ownedKeys(),
     );
     if (!written) {
       // L'état a bougé. L'instantané de l'appelant n'a PAS été touché : il

@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/models/mint_next_domicile_fact.dart';
 import 'package:mint_mobile/services/twin/twin_fact_lookup.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
@@ -1099,6 +1100,35 @@ class SecureWizardStore {
   /// Présent → le bundle possédé domine ; supprimé → purge (la liste
   /// disparaît, faits atomiques compris) ; corrompu → bundle masqué (aucune
   /// liste périmée ne ressuscite) ; manquant → aucune migration implicite.
+  /// Le domicile, projeté depuis le jumeau.
+  ///
+  /// POURQUOI CETTE FONCTION EXISTE, ET POURQUOI SI TARD
+  ///
+  /// Le domicile n'a jamais eu de magasin canonique chiffré : ses valeurs
+  /// vivent directement dans les réponses. Il n'avait donc pas de
+  /// canonicalisation — et sa valeur n'atteignait les écrans que parce que le
+  /// jumeau ÉCRIVAIT sa projection.
+  ///
+  /// En retirant cette écriture, le domicile serait devenu un fait qui entre
+  /// au registre et n'arrive jamais à l'écran. D'où l'invariant que ce lot a
+  /// mis au jour : tout fait que le jumeau possède doit avoir un chemin de
+  /// DÉRIVATION. `twin_every_fact_is_derived_test.dart` le vérifie.
+  ///
+  /// Ici, le repli n'est pas un coffre mais les réponses elles-mêmes : quand
+  /// le jumeau ne connaît pas le domicile, la carte ressort telle quelle.
+  static Future<Map<String, dynamic>> canonicalizeDomicileAnswers(
+      Map<String, dynamic> answers) async {
+    final twin = (await _twinLookup(answers)).forFact('domicile');
+    if (twin.isUnavailable || twin.state == TwinFactState.absent) {
+      return answers;
+    }
+    final result = Map<String, dynamic>.from(answers)
+      ..removeWhere((key, _) => MintNextDomicileFact.ownedKeys.contains(key));
+    if (twin.isDeleted) return result;
+    result.addAll(twin.wizardAnswers!);
+    return result;
+  }
+
   static Future<Map<String, dynamic>> canonicalizeVersements3aAnswers(
       Map<String, dynamic> answers) async {
     // Le jumeau d'abord. Ce fait ne se consulte PAS membre par membre : il se
