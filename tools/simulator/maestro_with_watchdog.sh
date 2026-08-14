@@ -44,6 +44,10 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 MAESTRO_ENV="$SCRIPT_DIR/maestro_env.sh"
+if [ "${MINT_PRUNE_RUNTIME_ARTIFACTS:-0}" = "1" ]; then
+  python3 "$SCRIPT_DIR/prune_runtime_artifacts.py" \
+    --days "${MINT_ARTIFACT_RETENTION_DAYS:-14}" --apply
+fi
 # Many .sh files in this repo are committed `100644` (non-executable).
 # Rather than depend on the exec bit, we invoke via `bash` explicitly —
 # matches walker_persona.sh's historical pattern + survives a fresh

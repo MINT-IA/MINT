@@ -5,7 +5,8 @@ Parses `git log --since='7 days ago'` (or `--days N`), classifies each
 commit as `claude-agent` when its body contains `Co-Authored-By: Claude`,
 then re-runs `tools/checks/accent_lint_fr.py` and
 `tools/checks/no_hardcoded_fr.py` on each Claude commit's currently-existing
-changed files. Violations are upserted into the `violations` table.
+changed files. One concrete violation per commit/lint/file is upserted into
+the `violations` table; additional matches do not change the drift-rate metric.
 
 Per D-11 (a): drift rate = % claude-agent commits (last 7d) with >=1 violation.
 """
@@ -24,6 +25,24 @@ LINTS: list[tuple[str, Path]] = [
     ("accent_lint_fr", REPO_ROOT / "tools" / "checks" / "accent_lint_fr.py"),
     ("no_hardcoded_fr", REPO_ROOT / "tools" / "checks" / "no_hardcoded_fr.py"),
 ]
+
+
+def ensure_compact_violation_schema(conn: sqlite3.Connection) -> None:
+    """Migrate pre-fix databases once, then enforce idempotent ingestion."""
+    index = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='index' "
+        "AND name='violations_commit_lint_file'"
+    ).fetchone()
+    if index is not None:
+        return
+    conn.execute(
+        "DELETE FROM violations WHERE id NOT IN ("
+        "SELECT MIN(id) FROM violations GROUP BY sha, lint, file_path)"
+    )
+    conn.execute(
+        "CREATE UNIQUE INDEX violations_commit_lint_file "
+        "ON violations(sha, lint, file_path)"
+    )
 
 
 def parse_git_log(days: int = 7) -> list[tuple[str, str, int, str]]:
@@ -126,6 +145,7 @@ def main(days: int = 7, db_path: Path = DB_PATH) -> int:
         return 0
     conn = sqlite3.connect(db_path)
     try:
+        ensure_compact_violation_schema(conn)
         detected_at = int(datetime.now(timezone.utc).timestamp())
         commits = parse_git_log(days=days)
         for sha, author, ct, subject in commits:
@@ -133,16 +153,19 @@ def main(days: int = 7, db_path: Path = DB_PATH) -> int:
                 "INSERT OR REPLACE INTO commits (sha, author, committed_at, subject) VALUES (?, ?, ?, ?)",
                 (sha, author, ct, subject[:500]),
             )
+            conn.execute("DELETE FROM violations WHERE sha = ?", (sha,))
             if author != "claude-agent":
                 continue
             for f in files_changed(sha):
                 for lint_name, lint_path in LINTS:
                     if not lint_path.exists():
                         continue
-                    for lineno, snippet in run_lint_on_file(lint_path, f):
+                    violations = run_lint_on_file(lint_path, f)
+                    if violations:
+                        lineno, snippet = violations[0]
                         conn.execute(
                             """
-                            INSERT INTO violations
+                            INSERT OR REPLACE INTO violations
                               (sha, lint, file_path, line_number, snippet, detected_at)
                             VALUES (?, ?, ?, ?, ?, ?)
                             """,

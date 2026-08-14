@@ -30,6 +30,11 @@ CREATE TABLE IF NOT EXISTS violations (
   FOREIGN KEY (sha) REFERENCES commits(sha)
 );
 
+-- The drift-rate metric asks whether a commit has a violation. One concrete
+-- example per commit/lint/file is sufficient.
+CREATE UNIQUE INDEX IF NOT EXISTS violations_commit_lint_file
+  ON violations(sha, lint, file_path);
+
 CREATE TABLE IF NOT EXISTS context_hits (
   id           INTEGER PRIMARY KEY AUTOINCREMENT,
   session_id   TEXT NOT NULL,

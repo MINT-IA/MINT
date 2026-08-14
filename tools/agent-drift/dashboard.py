@@ -30,7 +30,12 @@ from pathlib import Path
 
 # Repo-root resolution — dashboard.py lives at tools/agent-drift/dashboard.py
 REPO_ROOT = Path(__file__).resolve().parents[2]
-DB_PATH = REPO_ROOT / ".planning" / "agent-drift" / "drift.db"
+DB_PATH = Path(
+    os.environ.get(
+        "MINT_AGENT_DRIFT_DB",
+        REPO_ROOT / ".planning" / "agent-drift" / "drift.db",
+    )
+)
 SCHEMA_PATH = Path(__file__).resolve().parent / "schema.sql"
 BASELINE_MD = REPO_ROOT / ".planning" / "agent-drift" / "baseline-J0.md"
 BASELINE_LOCK = REPO_ROOT / ".planning" / "agent-drift" / ".baseline-lock"
@@ -56,7 +61,11 @@ def cmd_init(args: argparse.Namespace) -> int:
         conn.commit()
     finally:
         conn.close()
-    print(f"init: drift.db ready at {DB_PATH.relative_to(REPO_ROOT)}")
+    try:
+        display_path = DB_PATH.relative_to(REPO_ROOT)
+    except ValueError:
+        display_path = DB_PATH
+    print(f"init: drift.db ready at {display_path}")
     return 0
 
 

@@ -9,6 +9,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+if [ "${MINT_PRUNE_RUNTIME_ARTIFACTS:-0}" = "1" ]; then
+  python3 "$SCRIPT_DIR/prune_runtime_artifacts.py" \
+    --days "${MINT_ARTIFACT_RETENTION_DAYS:-14}" --apply
+fi
 
 DEVICE_NAME="MINT iPhone 13 mini RvC"
 BUNDLE_ID="ch.mint.app"

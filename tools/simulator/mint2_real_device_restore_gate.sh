@@ -9,6 +9,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+if [ "${MINT_PRUNE_RUNTIME_ARTIFACTS:-0}" = "1" ]; then
+  python3 "$SCRIPT_DIR/prune_runtime_artifacts.py" \
+    --days "${MINT_ARTIFACT_RETENTION_DAYS:-14}" --apply
+fi
 
 TARGET_DEVICE_NAME="${MINT2_DEVICE_NAME:-Jul}"
 RUN_ID="$(date -u +%Y%m%dT%H%M%SZ)"

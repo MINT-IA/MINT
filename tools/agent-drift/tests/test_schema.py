@@ -6,6 +6,7 @@ violations, context_hits, golden_runs) from schema.sql (verbatim per
 """
 from __future__ import annotations
 
+import os
 import sqlite3
 import subprocess
 import sys
@@ -13,37 +14,26 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 DASHBOARD = REPO_ROOT / "tools" / "agent-drift" / "dashboard.py"
-DB = REPO_ROOT / ".planning" / "agent-drift" / "drift.db"
-
 EXPECTED_TABLES = {"sessions", "commits", "violations", "context_hits", "golden_runs"}
 
 
-def _run(*args: str) -> subprocess.CompletedProcess:
+def _run(db: Path, *args: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         [sys.executable, str(DASHBOARD), *args],
         capture_output=True,
         text=True,
         cwd=str(REPO_ROOT),
         check=True,
+        env={**os.environ, "MINT_AGENT_DRIFT_DB": str(db)},
     )
 
 
-def _reset_db() -> None:
-    if DB.exists():
-        DB.unlink()
-    # Clean sqlite journal / shm / wal siblings if present
-    for suffix in ("-journal", "-shm", "-wal"):
-        sib = DB.with_name(DB.name + suffix)
-        if sib.exists():
-            sib.unlink()
-
-
-def test_schema_creates_5_tables() -> None:
+def test_schema_creates_5_tables(tmp_path: Path) -> None:
     """`dashboard.py init` creates drift.db with exactly 5 tables."""
-    _reset_db()
-    _run("init")
-    assert DB.exists(), f"drift.db was not created at {DB}"
-    conn = sqlite3.connect(DB)
+    db = tmp_path / "drift.db"
+    _run(db, "init")
+    assert db.exists(), f"drift.db was not created at {db}"
+    conn = sqlite3.connect(db)
     try:
         rows = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table'"
@@ -57,12 +47,12 @@ def test_schema_creates_5_tables() -> None:
     ), f"missing tables: {EXPECTED_TABLES - tables} (got {tables})"
 
 
-def test_schema_init_idempotent() -> None:
+def test_schema_init_idempotent(tmp_path: Path) -> None:
     """Running `init` twice must not fail and must not duplicate schema."""
-    _reset_db()
-    _run("init")
-    _run("init")  # second run must not raise
-    conn = sqlite3.connect(DB)
+    db = tmp_path / "drift.db"
+    _run(db, "init")
+    _run(db, "init")  # second run must not raise
+    conn = sqlite3.connect(db)
     try:
         rows = conn.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"

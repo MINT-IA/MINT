@@ -10,6 +10,7 @@ Validates:
 from __future__ import annotations
 
 import importlib
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -71,3 +72,41 @@ def test_drift_rate_counts_lint_violations(tmp_path: Path) -> None:
             fixture_dir.rmdir()
         except OSError:
             pass
+
+
+def test_ingest_is_idempotent_and_keeps_one_example_per_file_lint(
+    tmp_path: Path, monkeypatch
+) -> None:
+    ingest_git = importlib.import_module("ingest_git")
+    db = tmp_path / "drift.db"
+    conn = sqlite3.connect(db)
+    conn.executescript((AGENT_DRIFT_DIR / "schema.sql").read_text())
+    conn.close()
+
+    monkeypatch.setattr(
+        ingest_git,
+        "parse_git_log",
+        lambda days=7: [("abc", "claude-agent", 1, "subject")],
+    )
+    monkeypatch.setattr(ingest_git, "files_changed", lambda sha: ["one.dart"])
+    monkeypatch.setattr(
+        ingest_git,
+        "run_lint_on_file",
+        lambda lint, path: [(1, "first"), (2, "second")],
+    )
+    monkeypatch.setattr(
+        ingest_git,
+        "LINTS",
+        [("lint", tmp_path / "lint.py")],
+    )
+    (tmp_path / "lint.py").write_text("")
+
+    ingest_git.main(db_path=db)
+    ingest_git.main(db_path=db)
+
+    conn = sqlite3.connect(db)
+    rows = conn.execute(
+        "SELECT sha, lint, file_path, line_number, snippet FROM violations"
+    ).fetchall()
+    conn.close()
+    assert rows == [("abc", "lint", "one.dart", 1, "first")]

@@ -64,6 +64,10 @@
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+if [ "${MINT_PRUNE_RUNTIME_ARTIFACTS:-0}" = "1" ]; then
+  python3 "$REPO_ROOT/tools/simulator/prune_runtime_artifacts.py" \
+    --days "${MINT_ARTIFACT_RETENTION_DAYS:-14}" --apply
+fi
 ARCHETYPE_DIR="$REPO_ROOT/tools/simulator/archetypes"
 BBOXES_FILE="$REPO_ROOT/tools/simulator/hero_bboxes.json"
 GOLDEN_DIR="$REPO_ROOT/tools/simulator/goldens"
