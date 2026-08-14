@@ -1227,6 +1227,10 @@ ALLOW = {
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_chat_navigation_guard_test.dart",
     "apps/mobile/test/screens/onboarding/mvp_wedge/mint2_first_experience_signal_axes_test.dart",
     "apps/mobile/test/screens/onboarding/mvp_wedge_storyboard_test.dart",
+    # L'inventaire de vérité de l'écran de rente du jalon : invariants
+    # métamorphiques + trois écarts épinglés (statut d'emploi ignoré, facteur
+    # brut/net, cumulé annualisé à 12 mois quand l'AVS en verse 13).
+    "apps/mobile/test/screens/onboarding/rente_projection_truth_test.dart",
     "apps/mobile/test/screens/rente_vs_capital_prefill_test.dart",
     "apps/mobile/test/services/api_service_test.dart",
     "apps/mobile/test/services/check_in_notification_test.dart",
