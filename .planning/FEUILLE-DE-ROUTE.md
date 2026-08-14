@@ -443,9 +443,29 @@ l'impose à l'écriture **et** au chargement.
   Un vert qui ne prouve rien est exactement ce que ce fichier existe pour
   éviter.
 
-  **Conséquence pour la suite** : la preuve d'exécution interrupteur allumé ne
-  peut pas venir du simulateur. Il faut soit un appareil réel, soit corriger
-  l'outillage de build simulateur pour qu'il applique les droits. À trancher.
+  **CAUSE RACINE trouvée, et elle est délibérée.** `Debug.xcconfig` pose
+  `CODE_SIGNING_ALLOWED=NO`, et `tools/simulator/codesign_shim/codesign` est un
+  **no-op** qui rend `codesign` inopérant. Décision du 2026-05-05 (WALKC-09)
+  pour débloquer le walker sur des builds non signés — les attributs étendus de
+  provenance d'un dossier `.nosync` faisaient échouer la signature.
+
+  La conséquence n'avait pas été tirée à l'époque : **sans signature, aucun
+  droit ; sans droit, pas de trousseau ; sans trousseau, aucun fait financier
+  ne persiste**. Toutes les marches simulateur depuis mai sont donc aveugles au
+  stockage sécurisé.
+
+  **La correction naïve NE MARCHE PAS**, vérifié plutôt que supposé. Signer
+  l'app en ad-hoc après le build embarque bien les droits — mais signer les
+  frameworks imbriqués réintroduit les attributs étendus (« resource fork,
+  Finder information ») et l'app ne se lance plus
+  (`FBSOpenApplicationServiceErrorDomain code=1`). État simulateur restauré par
+  un build propre.
+
+  **Ce qu'il faudrait vraiment** : réactiver la signature pour les builds
+  simulateur avec une identité de développement, et régler le problème des
+  attributs étendus autrement — construire hors de `.nosync`, ou poser un
+  `xattr -cr` en phase de build. C'est une décision d'outillage qui touche le
+  walker, pas un correctif de code : **à trancher avec Julien**.
 
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
