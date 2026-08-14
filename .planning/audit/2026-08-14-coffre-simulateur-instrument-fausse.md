@@ -36,6 +36,21 @@ En conséquence, la question « la signature répare-t-elle le trousseau ? » re
 intermittent (`Command CodeSign failed`), soit une mesure faite avec la sonde
 faussée, soit une lecture de journal provenant d'une installation antérieure.
 
+## RE-MESURÉ le 2026-08-14 avec un instrument valide
+
+La sonde emploie désormais `mint_twin_registry_v1`, qui EST classée sensible.
+Et surtout, `write`/`read` **lèvent** maintenant sur une clé non sensible au
+lieu de rendre `false`/`null` : l'erreur qui m'a trompé ne peut plus se
+reproduire en silence.
+
+Verdict : sur la configuration actuelle (build simulateur non signé), le coffre
+est **réellement indisponible**. La conclusion d'origine tient — elle est
+maintenant établie, plus seulement plausible.
+
+Reste ouvert, et uniquement cela : **la signature répare-t-elle le trousseau ?**
+Les essais ont buté sur un échec intermittent de `Command CodeSign`, qui est
+exactement la raison de sa désactivation en mai. À traiter dans un lot dédié.
+
 ## Ce qu'il faut faire pour trancher
 
 1. Corriger l'aide : sonder une clé **classée sensible**.

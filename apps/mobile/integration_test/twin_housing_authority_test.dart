@@ -62,8 +62,14 @@ void main() {
   /// AUCUN fait sensible ne persiste — ni le registre, ni le coffre canonique.
   /// Toute marche de vérification impliquant un fait financier enregistré y
   /// teste une application vide.
+  /// La sonde emploie une cle REELLEMENT classee sensible.
+  ///
+  /// La premiere version sondait `_mint_sonde_coffre`, qui ne l'est pas — et
+  /// `write` rendait donc `false` quelle que soit la sante du trousseau. Elle
+  /// mesurait ma propre garde. Depuis, ce refus LEVE au lieu de rendre
+  /// `false`, donc l'erreur ne peut plus se reproduire en silence.
   Future<bool> coffreDisponible() async {
-    const temoin = '_mint_sonde_coffre';
+    const temoin = AnswersTwinBackend.registryKey;
     if (!await SecureWizardStore.write(temoin, 'sonde')) return false;
     return await SecureWizardStore.read(temoin) == 'sonde';
   }

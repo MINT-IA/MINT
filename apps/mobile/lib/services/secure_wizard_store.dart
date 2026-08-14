@@ -553,7 +553,17 @@ class SecureWizardStore {
   /// sealed (a later [read] returns null, the already-accepted degraded
   /// path) — the PII is NEVER demoted to plain SharedPreferences.
   static Future<bool> write(String key, String value) async {
-    if (!isSensitive(key)) return false;
+    // Une clé non sensible n'a rien à faire ici : c'est une ERREUR DE
+    // PROGRAMMATION, pas un échec de stockage. Rendre `false` confondait les
+    // deux — et m'a fait conclure pendant plusieurs tours qu'un trousseau était
+    // en panne alors que je sondais ma propre garde avec une clé non classée.
+    // Deux situations, une seule réponse : exactement le défaut que ce dépôt
+    // traque partout ailleurs.
+    if (!isSensitive(key)) {
+      throw ArgumentError(
+          'clé non sensible « $key » : elle n\'a pas sa place dans le coffre, ' // lint-ignore
+          'et ce refus n\'est pas un échec de stockage'); // lint-ignore
+    }
     final isStaticKey = _sensitiveKeys.contains(key);
     try {
       await _storage.write(key: key, value: value);
@@ -599,7 +609,13 @@ class SecureWizardStore {
   /// hydrated the profile at app launch (deep-walk root cause for the
   /// « opener re-appears after scan » regression).
   static Future<String?> read(String key) async {
-    if (!isSensitive(key)) return null;
+    // Même raison qu'à l'écriture : rendre null confondrait « cette clé n'a
+    // rien à faire ici » avec « le coffre ne porte rien ».
+    if (!isSensitive(key)) {
+      throw ArgumentError(
+          'clé non sensible « $key » : le coffre ne la porte pas, et ce n\'est ' // lint-ignore
+          'pas la même chose que « rien de stocké »'); // lint-ignore
+    }
     // E2E harness only (kReleaseMode-stripped): the in-memory fallback is the
     // authoritative store when active — a failed keychain read returns null
     // WITHOUT throwing (so a catch-only guard would silently lose the value),

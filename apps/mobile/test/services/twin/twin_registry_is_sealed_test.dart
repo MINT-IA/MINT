@@ -200,6 +200,37 @@ void main() {
         reason: 'le jumeau doit retrouver son histoire intacte');
     expect(relu.revision, 1);
   });
+
+  group('un refus de garde n\'est pas une panne de coffre', () {
+    // CE QUI M'A TROMPÉ, ET POURQUOI CE GROUPE EXISTE
+    //
+    // `write` rendait `false` À LA FOIS pour une clé non sensible et pour un
+    // échec du trousseau. J'ai construit une sonde avec une clé non classée,
+    // lu `false`, et conclu pendant plusieurs tours qu'un trousseau était en
+    // panne — alors que je mesurais ma propre garde.
+    //
+    // Deux situations, une seule réponse : exactement le défaut que ce dépôt
+    // traque partout ailleurs. Une erreur de PROGRAMMATION doit être bruyante.
+
+    test('writing a non-sensitive key is a programming error, not a failure',
+        () async {
+      expect(() => SecureWizardStore.write('q_une_cle_quelconque', 'x'),
+          throwsArgumentError,
+          reason: 'un « false » silencieux se confondrait avec une panne');
+    });
+
+    test('reading a non-sensitive key is refused just as loudly', () async {
+      expect(() => SecureWizardStore.read('q_une_cle_quelconque'),
+          throwsArgumentError,
+          reason: '« pas sa place ici » n\'est pas « rien de stocké »');
+    });
+
+    test('a genuinely sensitive key still goes through', () async {
+      expect(await SecureWizardStore.write(AnswersTwinBackend.registryKey, 'v'),
+          isTrue);
+      expect(await SecureWizardStore.read(AnswersTwinBackend.registryKey), 'v');
+    });
+  });
 }
 
 final _clock = DateTime.utc(2026, 8, 14, 10);
