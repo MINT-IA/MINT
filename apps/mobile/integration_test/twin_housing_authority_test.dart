@@ -32,6 +32,14 @@ void main() {
   setUp(() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    // Le TROUSSEAU survit aux reinstallations — vider les preferences ne le
+    // vide pas. Sans ce nettoyage, un registre laisse par une execution
+    // precedente contamine la suivante, et l'oracle echoue pour une raison qui
+    // n'a rien a voir avec ce qu'il teste.
+    await SecureWizardStore.deleteKeys({
+      AnswersTwinBackend.registryKey,
+      '_mint_sonde_coffre',
+    });
     TwinFactCommands.install();
   });
 
@@ -62,14 +70,18 @@ void main() {
   /// AUCUN fait sensible ne persiste — ni le registre, ni le coffre canonique.
   /// Toute marche de vérification impliquant un fait financier enregistré y
   /// teste une application vide.
-  /// La sonde emploie une cle REELLEMENT classee sensible.
+  /// La sonde emploie une clé RÉELLEMENT classée sensible, et DISTINCTE du
+  /// registre.
   ///
-  /// La premiere version sondait `_mint_sonde_coffre`, qui ne l'est pas — et
-  /// `write` rendait donc `false` quelle que soit la sante du trousseau. Elle
-  /// mesurait ma propre garde. Depuis, ce refus LEVE au lieu de rendre
-  /// `false`, donc l'erreur ne peut plus se reproduire en silence.
+  /// Deux erreurs successives ici, et chacune n'apparaissait qu'à l'exécution.
+  /// D'abord une clé non classée : `write` rendait `false` quelle que soit la
+  /// santé du trousseau — la sonde mesurait ma propre garde. Puis la clé du
+  /// REGISTRE : la sonde écrivait « sonde » dedans, et les oracles suivants
+  /// échouaient en tentant de le décoder.
+  ///
+  /// Une sonde qui casse ce qu'elle mesure ne mesure plus rien.
   Future<bool> coffreDisponible() async {
-    const temoin = AnswersTwinBackend.registryKey;
+    const temoin = '_mint_sonde_coffre';
     if (!await SecureWizardStore.write(temoin, 'sonde')) return false;
     return await SecureWizardStore.read(temoin) == 'sonde';
   }

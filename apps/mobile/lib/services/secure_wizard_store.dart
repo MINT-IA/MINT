@@ -401,6 +401,14 @@ class SecureWizardStore {
 
   /// Keys containing sensitive financial PII that must not be stored
   /// in plain SharedPreferences.
+  ///
+  /// `_mint_sonde_coffre` est une clé de SONDE, réservée aux vérifications
+  /// d'exécution : elle doit être classée sensible pour que [write] l'accepte,
+  /// et DISTINCTE du registre pour ne pas le corrompre — une sonde qui casse
+  /// ce qu'elle mesure ne mesure plus rien.
+  ///
+  /// NE PAS commenter à l'intérieur du littéral ci-dessous : le dictionnaire
+  /// des variables l'analyse, et un commentaire au milieu le fait dériver.
   static const _sensitiveKeys = {
     ..._classifiedSensitiveKeys,
     // Le registre du jumeau. Il porte les MÊMES valeurs que les faits
@@ -414,6 +422,7 @@ class SecureWizardStore {
     // dépend d'aucun service. L'oracle `twin_registry_is_sealed_test.dart`
     // relie les deux et échoue si elles divergent.
     'mint_twin_registry_v1',
+    '_mint_sonde_coffre',
     'q_firstname',
     'q_date_of_birth',
     'q_birth_year',

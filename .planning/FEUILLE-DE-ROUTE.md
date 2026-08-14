@@ -421,68 +421,29 @@ l'impose à l'écriture **et** au chargement.
   jamais reprise. Et une panne d'amorce n'empêche pas l'app de démarrer — le
   jumeau reste vide, le repli répond, le comportement est celui d'hier.
 
-- **⛔ LE SIMULATEUR NE PEUT PAS PROUVER LE JUMEAU — ni aucun fait sensible.**
-  Mesuré le 2026-08-14, pas supposé. Un test d'intégration lancé sur la VRAIE
-  pile (iPhone 17 Pro, iOS 26.2) montre que `SecureWizardStore.write` rend
-  **false** : le coffre refuse. `codesign -d --entitlements` sur le `.app`
-  produit ne rend rien — les builds simulateur iOS n'embarquent **aucun droit**,
-  donc le `keychain-access-groups` déclaré par l'app est absent et l'accès
-  échoue (`-34018`).
+- **✅ LE SIMULATEUR PEUT ENFIN PROUVER LE JUMEAU.** Résolu le 2026-08-14, et
+  la preuve d'exécution **interrupteur allumé** est passée : sur la vraie pile,
+  la correction du jumeau gagne sur le coffre après rechargement.
 
-  J'avais d'abord soupçonné mon propre `--no-codesign`. Vérifié : un build à la
-  manière de `walker.sh`, sans ce drapeau, ne porte pas plus de droits. Ce
-  n'est donc pas mon erreur d'invocation.
+  **Trois corrections, toutes nécessaires** — testées une à une, aucune ne
+  suffit seule :
+  1. Retirer `keychain-access-groups` de `Runner.entitlements`. Il valait
+     `$(AppIdentifierPrefix)ch.mint.app` ; sur simulateur le préfixe ne se
+     résout pas, et demander un groupe qu'on ne peut pas avoir faisait échouer
+     l'accès. Le code n'utilise aucun groupe partagé.
+  2. `CODE_SIGNING_ALLOWED[sdk=iphonesimulator*] = YES`. Sans signature, aucun
+     `application-identifier`, donc pas de trousseau.
+  3. Déplacer la phase « Strip xattrs before codesign » en **dernier**. Elle
+     existait déjà, mais tournait avant « Copy Pods Resources », qui recopie
+     des fichiers et réintroduit les attributs étendus.
 
-  **La portée dépasse largement le jumeau.** Sur ce simulateur, ni le registre
-  ni le **coffre canonique** ne persistent : aucun des six faits financiers n'y
-  survit. Toute marche de vérification impliquant un fait enregistré teste une
-  application vide — et rend un vert qui ne prouve rien.
+  **Ni changement d'équipe ni nouveau certificat** — vérifié avec l'équipe
+  d'origine. La piste du certificat était raisonnable ; la mesure l'a écartée.
 
-  Le test d'intégration le dit désormais lui-même : il sonde le coffre en
-  premier, et déclare les oracles dépendants **ignorés** plutôt que réussis.
-  Un vert qui ne prouve rien est exactement ce que ce fichier existe pour
-  éviter.
+  **Ce que ça débloque** : toute preuve d'exécution impliquant un fait persisté
+  redevient interprétable. Avant, une marche simulateur touchant un fait
+  financier testait une application vide.
 
-  **CAUSE RACINE trouvée, et elle est délibérée.** `Debug.xcconfig` pose
-  `CODE_SIGNING_ALLOWED=NO`, et `tools/simulator/codesign_shim/codesign` est un
-  **no-op** qui rend `codesign` inopérant. Décision du 2026-05-05 (WALKC-09)
-  pour débloquer le walker sur des builds non signés — les attributs étendus de
-  provenance d'un dossier `.nosync` faisaient échouer la signature.
-
-  La conséquence n'avait pas été tirée à l'époque : **sans signature, aucun
-  droit ; sans droit, pas de trousseau ; sans trousseau, aucun fait financier
-  ne persiste**. Toutes les marches simulateur depuis mai sont donc aveugles au
-  stockage sécurisé.
-
-  **La correction naïve NE MARCHE PAS**, vérifié plutôt que supposé. Signer
-  l'app en ad-hoc après le build embarque bien les droits — mais signer les
-  frameworks imbriqués réintroduit les attributs étendus (« resource fork,
-  Finder information ») et l'app ne se lance plus
-  (`FBSOpenApplicationServiceErrorDomain code=1`). État simulateur restauré par
-  un build propre.
-
-  **TENTÉ sur feu vert de Julien, et le verrou n'est PAS dans le code.**
-  Trois voies mesurées :
-
-  1. *Signature ad-hoc après le build* — embarque bien les droits, mais signer
-     les frameworks imbriqués réintroduit les attributs étendus et l'app ne se
-     lance plus.
-  2. *`CODE_SIGNING_ALLOWED[sdk=iphonesimulator*] = YES` + identité `-`* —
-     `flutter build ios --simulator` échoue (`Command CodeSign failed`).
-  3. *`xcodebuild` direct avec la même configuration* — **réussit**, mais le
-     `.app` produit porte un dictionnaire de droits **VIDE** : en ad-hoc sans
-     équipe, Xcode écarte les droits qui exigent un profil. Il manque donc
-     toujours l'`application-identifier`, qui est ce que le trousseau réclame.
-
-  **Le verrou réel** : le projet est sur l'équipe `7F5UDGYS5H`, et les seuls
-  certificats de DÉVELOPPEMENT du trousseau sont pour `5LZYNVL6GD` (celle-ci
-  n'a qu'un certificat de *distribution*). Sans certificat de développement
-  pour l'équipe du projet, aucune signature simulateur ne portera les droits.
-
-  C'est du ressort du portail Apple, pas du dépôt — et la configuration de
-  signature est bloquante-release, donc à isoler dans son propre lot. La
-  configuration a été **restaurée** et le build simulateur revérifié
-  fonctionnel.
 
 - **F0h — la frontière de commande couvre enfin la SUPPRESSION.** ✅ Et elle
   ferme un trou que j'avais laissé dans mon propre lot.

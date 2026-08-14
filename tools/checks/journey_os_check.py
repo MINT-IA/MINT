@@ -697,6 +697,12 @@ ALLOW = {
     # writeCanonicalHousing, et c'est elle qui fait entrer le fait au registre.
     # Derriere un interrupteur eteint par defaut.
     "apps/mobile/lib/services/twin/twin_fact_commands.dart",
+    # SENSIBLE RELEASE, isole dans son propre lot : le Keychain ne fonctionnait
+    # pas sur simulateur. Retrait du groupe keychain non resolvable + signature
+    # simulateur activee + purge xattr deplacee en dernier. Ni changement
+    # d'equipe ni nouveau certificat.
+    "apps/mobile/ios/Runner.xcodeproj/project.pbxproj",
+    "apps/mobile/ios/Runner/Runner.entitlements",
     # L'amorce : le moment ou le jumeau devient reel, une fois et une seule.
     # Elle ne migre QUE les faits dotes d'une frontiere de commande — migrer
     # un fait qu'on ne sait pas ecrire le gelerait.
