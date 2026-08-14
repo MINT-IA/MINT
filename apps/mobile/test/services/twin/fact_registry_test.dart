@@ -50,7 +50,13 @@ void main() {
     final second = appendDomicile('Lausanne');
 
     final closed = registry.history('domicile').first;
-    expect(closed.effectiveTo, isNotNull, reason: 'la précédente est close');
+    // « Close » au REGISTRE, pas dans le monde : cet oracle exigeait autrefois
+    // une `effectiveTo`, ce qui revenait a deduire une fin METIER d'un geste
+    // dans l'application.
+    expect(closed.supersededAt, isNotNull,
+        reason: 'la précédente ne fait plus foi');
+    expect(closed.effectiveTo, isNull,
+        reason: "et l'on ne sait toujours pas quand elle a cessé d'être vraie");
     expect(closed.isCurrent, isFalse);
     expect(second.supersedesVersionId, first.versionId,
         reason: 'chaque version dit ce qu\'elle remplace');
@@ -412,5 +418,109 @@ void main() {
         throwsA(isA<FormatException>().having(
             (e) => e.message, 'message', contains('CONFLIT'))),
         reason: 'le message doit nommer la version fautive');
+  });
+
+  group('deux temps, et pourquoi les confondre coûte cher', () {
+    // CE QUI ÉTAIT MÉLANGÉ
+    //
+    // `effectiveTo` — temps métier — recevait la date d'ENREGISTREMENT de la
+    // version suivante. Remplacer un domicile aujourd'hui faisait donc dire à
+    // l'ancienne version qu'elle avait cessé d'être vraie aujourd'hui : une
+    // affirmation sur le monde, déduite d'un geste dans l'application, que
+    // personne n'avait déclarée.
+    //
+    // Conséquence concrète : `asOf()` répondait à « que savait MINT », et RIEN
+    // ne répondait à « qu'est-ce qui était vrai ». Une correction rétroactive
+    // après taxation ne se reconstruisait pas.
+
+    test('a retroactive correction is true in the past, and known only later',
+        () {
+      // Le cas qui justifie tout : quelqu'un déclare en août avoir déménagé en
+      // mars. En avril il habitait DÉJÀ Lausanne — mais MINT ne le savait pas.
+      final registry = FactRegistry(
+          newId: () => 'v${++counter}',
+          now: () => DateTime.utc(2026, 1, 10));
+      registry.append(
+        factId: 'domicile',
+        factType: 'domicile',
+        payload: const {'q_domicile_commune_name': 'Aarau'},
+        assertedAt: DateTime.utc(2026, 1, 10),
+        source: FactSource.userDeclaration,
+        effectiveFrom: DateTime.utc(2025, 1, 1),
+      );
+
+      final tardif = FactRegistry(newId: () => 'v${++counter}',
+          now: () => DateTime.utc(2026, 8, 14));
+      tardif.decode(registry.encode());
+      tardif.append(
+        factId: 'domicile',
+        factType: 'domicile',
+        payload: const {'q_domicile_commune_name': 'Lausanne'},
+        assertedAt: DateTime.utc(2026, 8, 14),
+        source: FactSource.userDeclaration,
+        effectiveFrom: DateTime.utc(2026, 3, 1),
+      );
+
+      final enAvril = DateTime.utc(2026, 4, 1);
+      expect(tardif.trueAt('domicile', enAvril)!
+          .payload['q_domicile_commune_name'], 'Lausanne',
+          reason: "en avril, la personne habitait DÉJÀ Lausanne");
+      expect(tardif.asOf('domicile', enAvril)!
+          .payload['q_domicile_commune_name'], 'Aarau',
+          reason: "mais tout ce que MINT savait alors, c'était Aarau");
+    });
+
+    test('being replaced does not end a fact in the WORLD', () {
+      // Sans date d'effet sur la nouvelle version, la fin de l'ancienne reste
+      // INCONNUE. La déduire de la date de remplacement fabriquerait une
+      // affirmation sur le monde à partir d'un geste dans l'application.
+      final registry = FactRegistry(newId: () => 'v${++counter}');
+      registry.append(
+        factId: 'domicile',
+        factType: 'domicile',
+        payload: const {'q_domicile_commune_name': 'Aarau'},
+        assertedAt: DateTime.utc(2026, 1, 10),
+        source: FactSource.userDeclaration,
+        effectiveFrom: DateTime.utc(2025, 1, 1),
+      );
+      registry.append(
+        factId: 'domicile',
+        factType: 'domicile',
+        payload: const {'q_domicile_commune_name': 'Lausanne'},
+        assertedAt: DateTime.utc(2026, 8, 14),
+        source: FactSource.userDeclaration,
+      );
+
+      final ancienne = registry.history('domicile').first;
+      expect(ancienne.effectiveTo, isNull,
+          reason: "on ne sait pas quand elle a cessé d'être vraie");
+      expect(ancienne.supersededAt, isNotNull,
+          reason: 'mais on sait quand elle a cessé de faire foi au registre');
+      expect(ancienne.isCurrent, isFalse);
+      expect(ancienne.coversFiscalYear(2030), isTrue,
+          reason: "sans fin connue, la couverture ne s'arrête pas d'elle-même "
+              "— la borner à la date de remplacement aurait invente une fin");
+    });
+
+    test('a fact without an effective date answers no question about truth',
+        () {
+      // Dégradation explicite, cohérente avec `coversFiscalYear` : se taire
+      // plutôt que fabriquer une date.
+      final registry = FactRegistry(
+          newId: () => 'v${++counter}',
+          now: () => DateTime.utc(2026, 1, 10));
+      registry.append(
+        factId: 'domicile',
+        factType: 'domicile',
+        payload: const {'q_domicile_commune_name': 'Aarau'},
+        assertedAt: DateTime.utc(2026, 1, 10),
+        source: FactSource.userDeclaration,
+      );
+
+      expect(registry.trueAt('domicile', DateTime.utc(2026, 6, 1)), isNull);
+      expect(registry.asOf('domicile', DateTime.utc(2026, 6, 1)), isNotNull,
+          reason: "MINT savait bien quelque chose — il ne sait juste pas "
+              "depuis quand c'était vrai");
+    });
   });
 }

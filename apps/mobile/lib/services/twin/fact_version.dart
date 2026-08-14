@@ -67,6 +67,7 @@ class FactVersion {
     required this.schemaVersion,
     this.effectiveFrom,
     this.effectiveTo,
+    this.supersededAt,
     this.fiscalYear,
     this.validUntil,
     this.needsConfirmation = false,
@@ -101,7 +102,25 @@ class FactVersion {
   /// dégradation explicite, préférable à une date fabriquée.
   final DateTime? effectiveFrom;
 
+  /// Jusqu'à quand c'était vrai — temps MÉTIER, comme [effectiveFrom].
+  ///
+  /// Renseignée seulement quand on le SAIT : quand la version suivante dit
+  /// depuis quand elle vaut, l'ancienne a cessé d'être vraie à cet instant.
+  /// Null sinon — et null se lit « on ne sait pas », jamais « toujours vrai ».
+  ///
+  /// Elle recevait autrefois la date d'ENREGISTREMENT de la version suivante.
+  /// Les deux temps se mélangeaient donc : remplacer un domicile aujourd'hui
+  /// faisait dire à l'ancienne version qu'elle avait cessé d'être vraie
+  /// aujourd'hui — une affirmation sur le monde, déduite d'un geste dans
+  /// l'application, que personne n'avait déclarée.
   final DateTime? effectiveTo;
+
+  /// Quand cette version a cessé d'être celle en vigueur DANS LE REGISTRE.
+  ///
+  /// Temps d'enregistrement, à ne pas confondre avec [effectiveTo]. C'est lui
+  /// qui répond à « que savait MINT à cet instant » ; l'autre répond à
+  /// « qu'est-ce qui était vrai ».
+  final DateTime? supersededAt;
 
   /// Année fiscale à laquelle la valeur se rapporte, quand la question a un
   /// sens (intérêts hypothécaires, versements 3a).
@@ -134,7 +153,8 @@ class FactVersion {
   /// qu'il n'existe pas, ce champ est un vœu, et l'ADR le dit.
   final String? consentRef;
 
-  bool get isCurrent => effectiveTo == null;
+  /// En vigueur dans le REGISTRE — rien à voir avec « encore vrai ».
+  bool get isCurrent => supersededAt == null;
 
   /// Cette version dit que le fait n'a plus cours.
   bool get isTombstone => status == FactStatus.deleted;
@@ -172,14 +192,19 @@ class FactVersion {
     return limit != null && moment.toUtc().isAfter(limit.toUtc());
   }
 
-  FactVersion supersededBy(String nextVersionId, DateTime at) => FactVersion(
+  /// [effectiveUntil] : depuis quand la SUIVANTE est vraie, si on le sait.
+  /// C'est la seule façon honnête de savoir quand celle-ci a cessé de l'être.
+  FactVersion supersededBy(String nextVersionId, DateTime at,
+          {DateTime? effectiveUntil}) =>
+      FactVersion(
         sequence: sequence,
         factId: factId,
         versionId: versionId,
         factType: factType,
         payload: payload,
         effectiveFrom: effectiveFrom,
-        effectiveTo: at.toUtc(),
+        effectiveTo: effectiveUntil?.toUtc(),
+        supersededAt: at.toUtc(),
         fiscalYear: fiscalYear,
         assertedAt: assertedAt,
         recordedAt: recordedAt,
@@ -200,6 +225,7 @@ class FactVersion {
         'payload': payload,
         'effectiveFrom': effectiveFrom?.toUtc().toIso8601String(),
         'effectiveTo': effectiveTo?.toUtc().toIso8601String(),
+        'supersededAt': supersededAt?.toUtc().toIso8601String(),
         'fiscalYear': fiscalYear,
         'assertedAt': assertedAt.toUtc().toIso8601String(),
         'recordedAt': recordedAt.toUtc().toIso8601String(),
@@ -255,7 +281,8 @@ class FactVersion {
     // logiciel, ou une corruption. Dans les deux cas on ne devine pas.
     const known = {
       'sequence', 'factId', 'versionId', 'factType', 'payload',
-      'effectiveFrom', 'effectiveTo', 'fiscalYear', 'assertedAt', 'recordedAt',
+      'effectiveFrom', 'effectiveTo', 'supersededAt', 'fiscalYear',
+      'assertedAt', 'recordedAt',
       'source', 'status', 'validUntil', 'needsConfirmation',
       'supersedesVersionId', 'schemaVersion', 'consentRef',
     };
@@ -276,6 +303,7 @@ class FactVersion {
 
     final from = optionalDate('effectiveFrom');
     final to = optionalDate('effectiveTo');
+    final superseded = optionalDate('supersededAt');
     if (from != null && to != null && to.isBefore(from)) {
       throw FormatException('intervalle inverse', json.toString());  // lint-ignore
     }
@@ -295,6 +323,7 @@ class FactVersion {
       payload: Map<String, Object?>.from(payload),
       effectiveFrom: from,
       effectiveTo: to,
+      supersededAt: superseded,
       fiscalYear: json['fiscalYear'] is int ? json['fiscalYear'] as int : null,
       assertedAt: asserted,
       recordedAt: recorded,

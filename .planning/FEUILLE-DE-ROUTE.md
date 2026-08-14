@@ -467,7 +467,29 @@ l'impose à l'écriture **et** au chargement.
   `xattr -cr` en phase de build. C'est une décision d'outillage qui touche le
   walker, pas un correctif de code : **à trancher avec Julien**.
 
-- **F0c — deux temps restent mélangés.** Début de validité métier, fin
+- **F0c — les deux temps sont séparés.** ✅ Dernier trou nommé du registre.
+
+  `effectiveTo` — temps **métier** — recevait la date d'**enregistrement** de la
+  version suivante. Remplacer un domicile aujourd'hui faisait donc dire à
+  l'ancienne version qu'elle avait cessé d'être vraie aujourd'hui : une
+  affirmation sur le monde, déduite d'un geste dans l'application, que personne
+  n'avait déclarée. Et `coversFiscalYear` lisait ce champ — la couverture
+  fiscale d'un fait dépendait donc de la date à laquelle on l'avait remplacé.
+
+  Désormais : `supersededAt` porte le temps d'enregistrement, `effectiveTo` le
+  temps métier — renseigné **seulement quand la version suivante dit depuis
+  quand elle vaut**. Sinon la fin reste inconnue, et l'inventer serait pire.
+
+  Et `trueAt()` répond enfin à « qu'est-ce qui était **vrai** », à côté de
+  `asOf()` qui répond à « que **savait** MINT ». Quelqu'un qui déclare en août
+  avoir déménagé en mars : `trueAt(avril)` rend Lausanne — il y habitait déjà —
+  pendant que `asOf(avril)` rend Aarau, tout ce que MINT savait alors. C'est
+  cette distinction qui permet de reconstruire une déclaration fiscale après
+  coup sans réécrire l'histoire.
+
+  **Sans nouvelle table** : l'ADR du 2026-05-17 a rejeté le bitemporal SCD2 au
+  profit d'un journal d'événements. « Ce qui était vrai » se répond par une
+  seconde lecture du même journal, pas par un second schéma. Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit
   pas.

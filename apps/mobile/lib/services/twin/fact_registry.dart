@@ -132,8 +132,14 @@ class FactRegistry {
     );
 
     if (previousIndex != null) {
-      _versions[previousIndex] =
-          previous!.supersededBy(version.versionId, recordedAt);
+      // La précédente cesse d'être vraie quand la suivante commence à
+      // l'être — SI on sait quand. Sinon on ne fabrique pas la date : une fin
+      // inconnue reste inconnue.
+      _versions[previousIndex] = previous!.supersededBy(
+        version.versionId,
+        recordedAt,
+        effectiveUntil: effectiveFrom,
+      );
     }
     _versions.add(version);
     _lastRecordedAt = recordedAt;
@@ -154,6 +160,37 @@ class FactRegistry {
   List<FactVersion> history(String factId) =>
       _versions.where((v) => v.factId == factId).toList(growable: false);
 
+  /// Ce qui était VRAI de ce fait à cet instant — temps métier.
+  ///
+  /// À ne pas confondre avec [asOf], qui répond à « que savait MINT ». Les
+  /// deux divergent dès qu'une correction est rétroactive : quelqu'un qui
+  /// déclare en août avoir déménagé en mars rend `trueAt(avril)` égal à la
+  /// NOUVELLE version — elle était vraie en avril — pendant que `asOf(avril)`
+  /// rend l'ancienne, qui était tout ce que MINT savait alors.
+  ///
+  /// C'est cette distinction qui permet de reconstruire une déclaration
+  /// fiscale après coup sans réécrire l'histoire.
+  ///
+  /// Une version SANS date d'effet ne répond pas : elle ne dit pas depuis
+  /// quand elle vaut, et l'inventer serait pire que se taire. Elle est donc
+  /// ignorée ici — dégradation explicite, cohérente avec `coversFiscalYear`.
+  FactVersion? trueAt(String factId, DateTime moment) {
+    final instant = moment.toUtc();
+    FactVersion? found;
+    for (final version in _versions) {
+      if (version.factId != factId) continue;
+      final from = version.effectiveFrom;
+      if (from == null || from.isAfter(instant)) continue;
+      final until = version.effectiveTo;
+      if (until != null && !until.isAfter(instant)) continue;
+      // À période égale, la connaissance la PLUS RÉCENTE l'emporte : une
+      // correction postérieure décrit mieux le passé que la déclaration
+      // d'origine.
+      if (found == null || version.sequence > found.sequence) found = version;
+    }
+    return found;
+  }
+
   /// Ce que MINT savait de ce fait à cet instant.
   ///
   /// C'est la question qui justifie tout le dispositif : sans elle, un
@@ -168,7 +205,7 @@ class FactRegistry {
     for (final version in _versions) {
       if (version.factId != factId) continue;
       if (version.recordedAt.isAfter(instant)) continue;
-      final ended = version.effectiveTo;
+      final ended = version.supersededAt;
       // Une version close À l'instant demandé n'est plus celle en vigueur ;
       // sa remplaçante, écrite au même instant, l'est.
       if (ended != null && !ended.isAfter(instant)) continue;
