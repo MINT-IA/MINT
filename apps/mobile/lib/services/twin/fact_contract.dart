@@ -187,8 +187,14 @@ class FactContracts {
       factType: 'versements_3a',
       cardinality: FactCardinality.multiple,
       temporality: FactTemporality.fiscalYear,
-      identityRule: "l'établissement et le compte — un compte reste le même "
-          "quand son solde change",
+      // La règle disait « l'établissement et le compte ». La donnée, elle,
+      // porte des VERSEMENTS — chacun avec son identifiant stable opaque, son
+      // montant, sa date de crédit et son année fiscale épinglée. Le contrat
+      // décrivait donc un monde différent de celui qui existe, et l'écart
+      // n'est apparu qu'en tentant la décomposition.
+      identityRule: "l'identifiant stable du versement — c'est lui qui fait " // lint-ignore
+          "qu'une correction reste une correction, et ne devient jamais une " // lint-ignore
+          "suppression suivie d'un doublon", // lint-ignore
     ),
   ];
 

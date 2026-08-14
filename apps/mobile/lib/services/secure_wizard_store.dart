@@ -1101,16 +1101,23 @@ class SecureWizardStore {
   /// liste périmée ne ressuscite) ; manquant → aucune migration implicite.
   static Future<Map<String, dynamic>> canonicalizeVersements3aAnswers(
       Map<String, dynamic> answers) async {
-    // PAS ENCORE LE JUMEAU — et ce n'est pas un oubli.
-    //
-    // La valeur canonique des versements 3a est une LISTE de comptes dans une
-    // seule clé. Le registre n'accepte que des scalaires, parce qu'un fait qui
-    // porte une collection doit être décomposé en membres — c'est exactement
-    // ce que son contrat déclare (« l'établissement et le compte »).
-    //
-    // Le brancher ici demanderait donc d'abord d'éclater la liste en un fait
-    // par compte. C'est un vrai chantier, pas une ligne de plus : tant qu'il
-    // n'est pas fait, ce fait reste sur le magasin canonique.
+    // Le jumeau d'abord. Ce fait ne se consulte PAS membre par membre : il se
+    // reconstitue à partir de TOUS ses versements, chacun étant devenu un fait
+    // à part entière avec sa propre histoire.
+    final lookup = await _twinLookup(answers);
+    if (lookup.isUnavailable) return answers;
+    final duJumeau = lookup.versements3a(
+      source: MintNextVersements3aFact.userDeclarationSource,
+      schemaVersion: 1,
+    );
+    if (duJumeau != null) {
+      final result = Map<String, dynamic>.from(answers)
+        ..removeWhere(
+            (key, _) => MintNextVersements3aFact.wizardKeys.contains(key));
+      result.addAll(duJumeau.toWizardAnswers());
+      return result;
+    }
+
     final canonical = await readCanonicalVersements3a();
     final status = canonical.status;
     if (status == CanonicalHousingStatus.present) {

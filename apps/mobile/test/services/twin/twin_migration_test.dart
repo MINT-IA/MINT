@@ -43,14 +43,19 @@ void main() {
     final report = run({});
 
     expect(report.migrated, isEmpty);
-    expect(report.skipped.length, kMigratableFacts.length,
-        reason: 'tous les faits migrables sont absents');
+    expect(report.skipped.length,
+        kMigratableFacts.length + kDecomposedFacts.length,
+        reason: 'les six faits sont absents — ceux qui s\'enveloppent comme '
+            'celui qui se décompose');
     // Et le compte se justifie plutôt que d'être constaté : six faits
-    // existent, un seul attend d'être décomposé en membres avant de pouvoir
-    // entrer au registre. Écrit ainsi, retirer un fait du catalogue sans le
-    // nommer fait échouer l'oracle.
-    expect(kMigratableFacts.length + kFactsAwaitingDecomposition.length, 6,
+    // existent, cinq s'enveloppent et un se décompose en un fait par
+    // versement. Écrit ainsi, retirer un fait d'une liste sans le poser dans
+    // l'autre fait échouer l'oracle.
+    expect(kMigratableFacts.length + kDecomposedFacts.length, 6,
         reason: 'un fait ne doit pas pouvoir disparaître entre les deux listes');
+    expect(report.skipped, contains('versements_3a'),
+        reason: 'le fait décomposé compte lui aussi comme absent, pas comme '
+            'oublié');
     expect(registry.length, 0);
   });
 

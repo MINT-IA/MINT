@@ -673,6 +673,11 @@ ALLOW = {
     # AVANT le magasin canonique, qui n'est plus qu'un repli pour les faits
     # qu'il n'a jamais connus. Tri-etat : absent / vivant / supprime.
     "apps/mobile/lib/services/twin/twin_fact_lookup.dart",
+    # F0d — les versements 3a se DECOMPOSENT : un fait par versement, avec son
+    # identifiant stable. L'annee fiscale epinglee et la date de credit
+    # passent dans l'enveloppe ; la revision annuelle se derive des versions.
+    "apps/mobile/lib/services/twin/versements_3a_decomposition.dart",
+    "apps/mobile/test/services/twin/versements_3a_decomposition_test.dart",
     "apps/mobile/test/services/twin/twin_is_the_authority_test.dart",
     # F3 — la regle rendue mecanique : plus aucune ECRITURE DIRECTE nouvelle
     # dans la projection. Cliquet sur les 28 sites herites.

@@ -31,7 +31,9 @@ import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/services/twin/fact_contract.dart';
 import 'package:mint_mobile/services/twin/fact_registry.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
+import 'package:mint_mobile/services/twin/versements_3a_decomposition.dart';
 
 /// Un fait migrable : son identité, et les clés qu'il possède dans le magasin
 /// plat.
@@ -131,20 +133,19 @@ const List<MigratableFact> kMigratableFacts = [
   ),
 ];
 
-/// Le fait déclaré au catalogue que la migration ne sait PAS envelopper, et
-/// pourquoi.
+/// Le fait qui ne s'ENVELOPPE pas, mais se DÉCOMPOSE.
 ///
-/// Les versements 3a portent une LISTE de comptes dans une seule clé du
-/// magasin plat. Le registre n'accepte que des scalaires — parce qu'un fait
-/// qui porte une collection doit être décomposé en membres, ce que son propre
-/// contrat déclare (« l'établissement et le compte »). L'envelopper tel quel
-/// écrirait un registre que la relecture refuserait.
+/// Les versements 3a portent une liste de versements dans une seule clé du
+/// magasin plat. L'envelopper tel quel écrirait une collection dans une
+/// charge utile — ce que le registre refuse, parce qu'un fait qui porte une
+/// collection ne peut pas avoir d'historique : corriger un versement
+/// réécrirait la liste entière, et l'histoire des autres avec.
 ///
-/// Il est NOMMÉ ici plutôt qu'oublié : l'oracle
-/// `twin_migration_test.dart` vérifie que cette liste et le catalogue se
-/// recouvrent exactement, pour qu'un fait ne puisse pas disparaître en
-/// silence entre les deux.
-const Set<String> kFactsAwaitingDecomposition = {'versements_3a'};
+/// Il suit donc l'autre chemin, celui de `Versements3aDecomposition` : un
+/// fait par versement, chacun avec son identifiant stable. Il est NOMMÉ ici
+/// plutôt qu'oublié, et l'oracle de migration vérifie que les deux listes se
+/// recouvrent exactement — un fait ne peut pas disparaître entre elles.
+const Set<String> kDecomposedFacts = {'versements_3a'};
 
 class TwinMigrationReport {
   const TwinMigrationReport({
@@ -221,6 +222,26 @@ class TwinMigration {
         // déclaration serait une date fabriquée.
       );
       migrated.add(fact.registryId);
+    }
+
+    // Les versements 3a ne s'enveloppent pas : ils se DÉCOMPOSENT, un fait
+    // par versement. C'est le même geste que pour les autres — faire entrer
+    // l'existant dans le registre — mais il produit N versions au lieu d'une.
+    claimed.addAll(MintNextVersements3aFact.wizardKeys);
+    final versements = MintNextVersements3aFact.fromWizardAnswers(answers);
+    if (versements != null && versements.entries.isNotEmpty) {
+      Versements3aDecomposition.decompose(
+        versements,
+        registry: registry,
+        source: FactSource.migratedV1,
+        // Jamais une date postérieure à l'écriture, que le registre refuse.
+        assertedAt: versements.assertedAt.isAfter(migratedAt)
+            ? migratedAt
+            : versements.assertedAt,
+      );
+      migrated.add('versements_3a');
+    } else {
+      skipped.add('versements_3a');
     }
 
     final orphans = answers.keys

@@ -249,6 +249,39 @@ l'impose à l'écriture **et** au chargement.
      elles. Les brancher demande d'abord d'éclater la liste en un fait par
      compte — c'est F0d, un vrai chantier.
 
+- **F0d — les versements 3a sont décomposés : un fait par versement.** ✅ Et
+  c'est le lot où l'enveloppe des seize champs cesse d'être une promesse.
+
+  Chaque versement portait déjà, sans qu'on s'en serve, **tout ce qu'il
+  fallait** : un identifiant stable opaque — la clé de membre exacte que le
+  contrat réclame, et la raison pour laquelle « une correction ne devient
+  jamais suppression + doublon » ; une **année fiscale épinglée**, qui est
+  `fiscalYear` ; une **date de crédit**, qui est `effectiveFrom`. Deux des
+  quatre champs d'un versement appartenaient donc à l'enveloppe, pas à la
+  charge utile.
+
+  Ce que ça rend possible : « répartir plusieurs comptes 3a » — l'exemple même
+  de la doctrine — existe enfin. Corriger un versement allonge SON histoire et
+  n'écrit rien sur les autres, là où la liste les réécrivait tous.
+
+  **Et ça simplifie plus que ça n'ajoute.** La révision par année fiscale
+  servait à périmer le contexte d'une année sans toucher aux autres ; elle
+  était tenue à la main, bumpée à chaque mutation, avec un **compteur de
+  mutations** en renfort parce que deux mutations à la même seconde produisaient
+  le même horodatage. Elle se **dérive** désormais des identités de version de
+  l'année : elle change exactement quand cette année-là change, et jamais
+  autrement. Un invariant maintenu par construction plutôt que par discipline —
+  et le compteur devient un vestige.
+
+  Une distinction gagnée au passage : **supprimer tous ses versements est une
+  RÉPONSE**, pas un silence. Le fait existe et ne porte plus rien. Les
+  confondre relancerait quelqu'un qui a déjà répondu.
+
+  **Mon contrat décrivait un monde qui n'existe pas.** Il disait « l'établissement
+  et le compte » ; la donnée porte des **versements**. L'écart n'est apparu
+  qu'en tentant la décomposition — écrire la règle ne l'avait pas confrontée au
+  réel.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit

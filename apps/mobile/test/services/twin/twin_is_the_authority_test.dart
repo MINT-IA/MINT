@@ -29,7 +29,9 @@ import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/twin/answers_twin_backend.dart';
 import 'package:mint_mobile/services/twin/fact_registry.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/services/twin/twin_migration.dart';
+import 'package:mint_mobile/services/twin/versements_3a_decomposition.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -261,16 +263,54 @@ void main() {
               'parce que le coffre le croit encore');
     });
 
-    test('3a contributions are named as NOT wired, not silently forgotten',
-        () async {
-      // Leur valeur canonique est une LISTE de comptes dans une seule clé. Le
-      // registre n'accepte que des scalaires — un fait qui porte une
-      // collection doit être décomposé en membres, ce que son propre contrat
-      // déclare. Les brancher demanderait donc d'éclater la liste en un fait
-      // par compte : un vrai chantier, pas une ligne.
-      expect(kFactsAwaitingDecomposition, contains('versements_3a'));
-      expect(kMigratableFacts.any((f) => f.factId == 'versements_3a'), isFalse,
-          reason: 'ne pas déclarer migrable ce qui ne peut pas être migré');
+    test('3a contributions now reach the projection, decomposed', () async {
+      // Ce fait ne se consulte pas membre par membre : il se reconstitue à
+      // partir de TOUS ses versements, chacun devenu un fait a part entiere.
+      final registry = FactRegistry(newId: () => 'v${++_seq}', now: () => _horloge);
+      Versements3aDecomposition.decompose(
+        MintNextVersements3aFact(
+          entries: [
+            MintNextVersement3aEntry(
+              id: 'p1',
+              amountCents: 300000,
+              creditedAt: DateTime.utc(2025, 3, 15),
+              taxYear: 2025,
+            ),
+            MintNextVersement3aEntry(
+              id: 'p2',
+              amountCents: 200000,
+              creditedAt: DateTime.utc(2025, 9, 1),
+              taxYear: 2025,
+            ),
+          ],
+          bucketRevisions: const {},
+          assertedAt: _horloge,
+          source: MintNextVersements3aFact.userDeclarationSource,
+          schemaVersion: 1,
+          needsConfirmation: false,
+        ),
+        registry: registry,
+        source: FactSource.userDeclaration,
+      );
+      await SecureWizardStore.write(
+          AnswersTwinBackend.registryKey, registry.encode());
+
+      final projete =
+          await SecureWizardStore.canonicalizeVersements3aAnswers({});
+      final fait = MintNextVersements3aFact.fromWizardAnswers(projete);
+
+      expect(fait, isNotNull);
+      expect(fait!.entries.length, 2,
+          reason: 'les deux versements doivent atteindre la projection');
+      expect(fait.totalForYearCents(2025), 500000,
+          reason: "c'est ce total qui nourrit la deduction fiscale");
+    });
+
+    test('a fact that decomposes is named, never silently absent', () {
+      // Il ne s'enveloppe pas comme les autres : il suit l'autre chemin. Le
+      // nommer empeche qu'il disparaisse entre les deux listes.
+      expect(kDecomposedFacts, contains('versements_3a'));
+      expect(kMigratableFacts.any((f) => f.factId == 'versements_3a'), isFalse);
     });
 
     test('a payload carrying a collection is refused AT THE WRITE', () async {
@@ -398,3 +438,4 @@ void main() {
 }
 
 final _horloge = DateTime.utc(2026, 8, 14, 10);
+int _seq = 0;

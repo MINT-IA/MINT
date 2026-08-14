@@ -18,9 +18,11 @@
 //
 // ADR : .planning/decisions/2026-08-13-jumeau-financier-faits-versionnes.md
 
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/services/twin/fact_registry.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
 import 'package:mint_mobile/services/twin/twin_migration.dart';
+import 'package:mint_mobile/services/twin/versements_3a_decomposition.dart';
 
 /// Ce que le registre dit d'un fait.
 enum TwinFactState {
@@ -72,6 +74,10 @@ class TwinFactLookup {
   /// Faux quand le registre existe mais n'a pas pu être lu.
   final bool absent;
 
+  /// Le registre existe et n'a pas pu être lu maintenant. Dans ce doute on ne
+  /// projette rien et on ne purge rien.
+  bool get isUnavailable => !absent;
+
   /// Aucun registre : tous les faits sont `absent`, et rien ne change pour
   /// une installation qui n'a jamais eu de jumeau.
   static const TwinFactLookup empty = TwinFactLookup._(null);
@@ -112,6 +118,25 @@ class TwinFactLookup {
     return TwinFactAnswer._(
       TwinFactState.alive,
       _wizardAnswersOf(contract, version),
+    );
+  }
+
+  /// Le fait agrégé des versements 3a, reconstitué depuis SES versements.
+  ///
+  /// Il ne passe pas par [forFact] : ce fait n'a pas UN membre à projeter, il
+  /// les a TOUS. Rend null quand le registre n'en a jamais entendu parler —
+  /// et un fait sans versement quand la personne les a tous supprimés, ce qui
+  /// est une réponse et non un silence.
+  MintNextVersements3aFact? versements3a({
+    required String source,
+    required int schemaVersion,
+  }) {
+    final registry = _registry;
+    if (registry == null) return null;
+    return Versements3aDecomposition.recompose(
+      registry,
+      source: source,
+      schemaVersion: schemaVersion,
     );
   }
 
