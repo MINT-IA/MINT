@@ -56,6 +56,9 @@ void main() {
       TwinBootstrap.ensureMigrated(store: store, migratedAt: migratedAt);
 
   test('with the switch OFF, nothing is migrated at all', () async {
+    // EXPLICITE : ne pas dependre du defaut, qui a change le jour ou le jumeau
+    // est devenu l'autorite sur le logement.
+    FeatureFlags.twinOwnedFactTypes = <String>{};
     await ReportPersistenceService.saveAnswers(dossier());
 
     expect(await amorcer(), isNull);

@@ -64,6 +64,10 @@ void main() {
   test('with the switch OFF, nothing reaches the twin', () async {
     // La garantie de non-régression : tant que l'interrupteur est éteint, une
     // installation existante se comporte EXACTEMENT comme hier.
+    //
+    // EXPLICITE : ne pas dependre du defaut, qui a change le jour ou le jumeau
+    // est devenu l'autorite sur le logement.
+    FeatureFlags.twinOwnedFactTypes = <String>{};
     await SecureWizardStore.writeCanonicalHousing(logement(300000));
 
     final snapshot = await const AnswersTwinBackend().read();

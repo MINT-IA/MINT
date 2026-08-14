@@ -41,6 +41,27 @@ fondés sur des données qui s'écrasent.
 
 ---
 
+## ⚡ L'INTERRUPTEUR EST ALLUMÉ — le jumeau est l'autorité sur le LOGEMENT
+
+Depuis le 2026-08-14, `FeatureFlags.twinOwnedFactTypes` vaut `{'logement'}` par
+défaut. Concrètement, pour une personne qui utilise MINT :
+
+* son fait logement entre au registre une fois, à l'amorce ;
+* chaque modification d'écran y ajoute une **version**, sans écraser la
+  précédente ;
+* une suppression pose une **pierre tombale** — l'historique garde qu'elle
+  avait déclaré quelque chose ;
+* c'est le jumeau qui répond aux écrans et aux calculs, plus le coffre.
+
+**Ce qui l'a autorisé** : la suite complète passe avec l'interrupteur allumé —
+11 116 tests, dont ~11 000 écrits pour l'ancien comportement. Les deux seuls
+échecs étaient mes propres oracles « interrupteur éteint », qui dépendaient du
+défaut au lieu de le poser ; rendus explicites. Et surtout la preuve
+d'exécution sur la **vraie pile** : la correction gagne sur le coffre après
+rechargement.
+
+Les cinq autres faits gardent leur repli. La bascule reste fait par fait.
+
 ## Fondations — le jumeau financier
 
 Sans elles, tout écran construit au-dessus fabrique de la dette.
