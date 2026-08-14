@@ -282,6 +282,67 @@ l'impose à l'écriture **et** au chargement.
   qu'en tentant la décomposition — écrire la règle ne l'avait pas confrontée au
   réel.
 
+- **PREUVE D'EXÉCUTION — l'app a enfin été ouverte.** ✅ Build simulateur,
+  installation, lancement : l'app démarre et affiche son écran de bêta. Le
+  chemin de démarrage tient malgré la lecture du coffre ajoutée aujourd'hui
+  dans `loadAnswers` (cinq fois par chargement). Aucun blocage, aucune
+  exception applicative — les erreurs du journal sont du bruit de simulateur.
+
+  **Et la preuve a rapporté ce qu'aucun test ne pouvait dire.**
+
+  1. **Le build simulateur n'a AUCUN droit Keychain** (`-34018` à chaque
+     accès). Le coffre y échoue systématiquement. J'avais jugé ce chemin
+     dégradé « surtout théorique » en raisonnant sur le code — il est la
+     norme sur l'appareil où l'on teste. Conséquence directe : le jour où le
+     chemin d'écriture atterrira, le registre scellé sera illisible sur
+     simulateur, donc `indisponible`, donc la canonicalisation rendra la carte
+     inchangée — et le profil disparaîtra des écrans. Le quatrième état trouvé
+     par Codex n'était donc pas une précaution : c'est le cas NOMINAL en
+     développement. À traiter avant d'activer l'écriture.
+
+  2. **Une revendication de localité s'affiche sur le PREMIER écran** :
+     « Tes données restent sur ton appareil ». Elle est abolie depuis le
+     2026-08-05 — le backend est dans le cloud. Elle vit dans au moins quatre
+     clés (`askMintPrivacyBadge`, `landingLegalFooter`,
+     `consentSecurityMessage`, `authGatePrivacyNote`).
+     Le garde `no_false_privacy_attestation.py` **passe** : ses motifs ne
+     visent que des tournures étroites (« traitement intégralement sur ton
+     appareil ») et ratent la formulation simple. Un garde qui rassure en
+     manquant l'occurrence la plus visible est pire qu'un garde absent.
+     Hors de ce chantier, et la correction touche la copie de conformité dans
+     six langues : **signalé, pas corrigé unilatéralement**.
+
+- **F0g — le chemin d'ÉCRITURE, et le piège qui l'attendait.** Le jumeau est
+  désormais LU par les cinq canonicalisations, et ÉCRIT par personne : en
+  production le registre est vide, tout retombe sur le repli, le comportement
+  est rigoureusement inchangé.
+
+  Déclencher simplement la migration au démarrage **casserait l'édition** : le
+  registre deviendrait l'autorité pendant que les écrans continuent d'écrire
+  dans le coffre canonique. La personne modifierait son logement et ne verrait
+  rien changer — le problème des deux autorités, retourné.
+
+  Et la solution évidente — faire écrire le jumeau depuis `writeCanonicalX` —
+  est une **récurrence infinie** : ce writer est appelé depuis la branche
+  `missing` de la canonicalisation, que l'écriture du jumeau rappellerait.
+
+  **Voie retenue (axe Codex) — write-through centralisé, non réentrant.** Le
+  backend du jumeau lit et écrit son bloc **directement**, sans passer par
+  `loadAnswers` : c'est ça qui casse le cycle à la racine. `writeCanonicalX`
+  devient la frontière de commande — append dans le jumeau, puis mise à jour
+  du repli — et la branche `missing` appelle un helper legacy brut, jamais
+  `writeCanonicalX`.
+
+  **Ce que ça lève, et que je croyais dur.** Le registre vivait dans le MÊME
+  objet que sa projection pour qu'ils s'écrivent ensemble ou pas du tout.
+  Depuis que la canonicalisation projette le jumeau, la projection est
+  **recalculée à chaque lecture** : une divergence se répare d'elle-même.
+  L'atomicité qui justifiait ce choix n'a plus d'objet.
+
+  Première étape : **logement seul**, derrière un interrupteur désactivé par
+  défaut, avec deux vérifications mécaniques — l'édition gagne après
+  redémarrage, et le backend n'appelle jamais `loadAnswers`.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit
