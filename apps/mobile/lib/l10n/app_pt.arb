@@ -546,7 +546,7 @@
   "vaultDeleteTitle": "Eliminar o documento?",
   "vaultDeleteMessage": "Esta ação é irreversível.",
   "vaultDeleteButton": "Supprimer",
-  "vaultPrivacy": "Os teus documentos são analisados localmente e nunca são partilhados com terceiros.",
+  "vaultPrivacy": "Os teus documentos são lidos pelo Claude Vision (Anthropic, Estados Unidos) para extrair os valores. O texto extraído é guardado cifrado e podes apagá-lo a qualquer momento.",
   "vaultDisclaimer": "O MINT é uma ferramenta educativa. As informações jurídicas apresentadas são a título indicativo e não substituem aconselhamento profissional.",
   "soaDisclaimer1": "Esta é uma ferramenta educativa, não constitui aconselhamento financeiro (LSFin).",
   "soaDisclaimer2": "Os montantes baseiam-se nas informações declaradas.",
@@ -2613,7 +2613,7 @@
   "slmDownload": "Descarregar",
   "slmDelete": "Eliminar",
   "slmIaOnDevice": "IA no dispositivo",
-  "slmPrivacyMessage": "O modelo funciona 100% no teu dispositivo. Nenhum dado sai do teu telefone.",
+  "slmPrivacyMessage": "O modelo no dispositivo não está disponível nesta versão. O coach passa pelos nossos servidores.",
   "slmDownloadModelTitle": "Descarregar o modelo?",
   "slmDeleteModelTitle": "Eliminar o modelo?",
   "slmDeleteModelContent": "Isto libertará {size} de espaço. Podes voltar a descarregá-lo a qualquer momento.",
@@ -2930,7 +2930,7 @@
   "avsGuideTestDescription": "Não tens o teu extrato AVS à mão? Testa o fluxo com um extrato de exemplo.",
   "avsGuideTestButton": "Usar um exemplo",
   "avsGuideFreeNote": "O extrato AVS é gratuito e está disponível em 5 a 10 dias úteis. Também podes dirigir-te à tua caixa de compensação cantonal.",
-  "avsGuidePrivacyNote": "A imagem do teu extrato nunca é armazenada nem enviada. A extração é feita no teu dispositivo. Apenas os valores que confirmas são guardados no teu perfil.",
+  "avsGuidePrivacyNote": "A imagem do teu extrato é enviada ao Claude Vision (Anthropic, Estados Unidos) durante a leitura e depois não é guardada. Só os valores que confirmas entram no teu perfil.",
   "avsGuideSnackbarError": "Impossível abrir {url}. Copia o endereço e abre-o no teu navegador.",
   "@avsGuideSnackbarError": {
     "placeholders": {
@@ -3518,7 +3518,7 @@
   "docScanFromGallery": "Da galeria",
   "docScanPasteOcrText": "Colar texto OCR",
   "docScanUseExample": "Usar um exemplo de teste",
-  "docScanPrivacyNote": "A imagem é analisada localmente (OCR no dispositivo). Se usares a análise Vision IA, a imagem é enviada ao teu fornecedor IA pela tua própria chave API. Apenas os valores confirmados são guardados no teu perfil.",
+  "docScanPrivacyNote": "A imagem é enviada ao Claude Vision (Anthropic, Estados Unidos) para extrair os valores. Só os valores que confirmas ficam no teu perfil.",
   "docScanCameraError": "Impossível abrir a câmara. Usa a galeria.",
   "docScanEmptyTextFile": "O ficheiro de texto está vazio.",
   "docScanFileUnreadableTitle": "Ficheiro não utilizável",
@@ -3664,7 +3664,7 @@
   "authGateProfileMessage": "Quanto mais enriqueceres o teu perfil, mais precisas serão as tuas projeções. Protege os teus dados.",
   "authGateCreateAccount": "Criar a minha conta",
   "authGateLogin": "Já tenho uma conta",
-  "authGatePrivacyNote": "Os teus dados ficam no teu dispositivo e estão encriptados.",
+  "authGatePrivacyNote": "Os teus dados são cifrados e sincronizados nos nossos servidores assim que tens uma conta.",
   "authRegisterSubtitle": "Cria uma conta cifrada. A sincronização cloud está desativada por defeito; podes ativá-la em Definições › Privacidade.",
   "authWhyCreateAccount": "Porquê criar uma conta?",
   "authBenefitProjections": "Projeções financeiras adaptadas às tuas escolhas de vida (habitação, fiscalidade, previdência, família…)",
@@ -3679,7 +3679,7 @@
   "authConsentSection": "Consentimentos opcionais",
   "authConsentNotifications": "Notificações de coaching (lembretes 3a, prazos fiscais)",
   "authConsentAnalytics": "Dados anónimos para melhorar os benchmarks suíços",
-  "authPrivacyReassurance": "Os teus dados permanecem encriptados no teu dispositivo. Sem conexão bancária.",
+  "authPrivacyReassurance": "Os teus dados são cifrados e sincronizados nos nossos servidores. Sem ligação bancária.",
   "authContinueLocal": "Continuar em modo local",
   "authAppleSignIn": "Continuar com Apple",
   "authAppleDobNotice": "A Apple não partilha a tua data de nascimento. A Mint vai pedi-la depois para o teu dossiê AVS/LPP.",
@@ -5431,7 +5431,7 @@
   "librePassageSectionRecommandations": "Recomendações",
   "librePassageCentrale2eTitle": "Central do 2° pilar (sfbvg.ch)",
   "librePassageCentrale2eSubtitle": "Procurar capitais de livre passagem esquecidos",
-  "librePassagePrivacyNote": "Os teus dados ficam no teu dispositivo. Nenhuma informação é transmitida a terceiros. Conforme a nLPD.",
+  "librePassagePrivacyNote": "Os teus dados são cifrados e sincronizados nos nossos servidores. O coach de IA recebe um perfil pseudonimizado (Anthropic, Estados Unidos).",
   "providerComparatorAppBarTitle": "Comparador 3a",
   "providerComparatorPremierEclairageLabel": "Diferença em {duree} anos",
   "@providerComparatorPremierEclairageLabel": {
@@ -6454,7 +6454,7 @@
   "settingsConsentsTitle": "Consentimentos",
   "settingsConsentsSubtitle": "Privacidade e partilha de dados",
   "settingsSlmTitle": "IA no dispositivo",
-  "settingsSlmSubtitle": "Funciona no teu dispositivo, mesmo offline",
+  "settingsSlmSubtitle": "Modelo no dispositivo — indisponível nesta versão",
   "settingsByokTitle": "Chave IA pessoal",
   "settingsByokSubtitle": "Conecta o teu próprio modelo IA",
   "settingsLangueTitle": "Idioma",
@@ -10043,7 +10043,7 @@
   "dossierByokTitle": "Chave API (BYOK)",
   "dossierConsentsSubtitle": "Privacidade e partilha de dados",
   "dossierConsentsTitle": "Consentimentos",
-  "dossierSlmSubtitle": "IA integrada, funciona offline",
+  "dossierSlmSubtitle": "Modelo no dispositivo — indisponível nesta versão",
   "dossierSlmTitle": "Modelo local (SLM)",
   "nudgeAnniversaryAction": "Atualizar o meu perfil",
   "nudgeAnniversaryMessage": "Usas o MINT há um ano. É o momento ideal para atualizar o teu perfil e medir os teus progressos.",
@@ -11627,7 +11627,7 @@
       "level": "N1"
     }
   },
-  "betaDisclosureBulletNoBank": "Nenhum dado bancário é armazenado do nosso lado. Os teus dados permanecem no teu dispositivo salvo consentimento explícito.",
+  "betaDisclosureBulletNoBank": "Nenhum dado bancário guardado connosco. Os teus dados são cifrados; chegam aos nossos servidores quando crias uma conta.",
   "@betaDisclosureBulletNoBank": {
     "x-mint-meta": {
       "level": "N1"

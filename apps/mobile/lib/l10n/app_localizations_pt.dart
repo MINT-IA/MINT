@@ -1395,7 +1395,7 @@ class SPt extends S {
 
   @override
   String get vaultPrivacy =>
-      'Os teus documentos são analisados localmente e nunca são partilhados com terceiros.';
+      'Os teus documentos são lidos pelo Claude Vision (Anthropic, Estados Unidos) para extrair os valores. O texto extraído é guardado cifrado e podes apagá-lo a qualquer momento.';
 
   @override
   String get vaultDisclaimer =>
@@ -5656,7 +5656,7 @@ class SPt extends S {
 
   @override
   String get slmPrivacyMessage =>
-      'O modelo funciona 100% no teu dispositivo. Nenhum dado sai do teu telefone.';
+      'O modelo no dispositivo não está disponível nesta versão. O coach passa pelos nossos servidores.';
 
   @override
   String get slmDownloadModelTitle => 'Descarregar o modelo?';
@@ -6259,7 +6259,7 @@ class SPt extends S {
 
   @override
   String get avsGuidePrivacyNote =>
-      'A imagem do teu extrato nunca é armazenada nem enviada. A extração é feita no teu dispositivo. Apenas os valores que confirmas são guardados no teu perfil.';
+      'A imagem do teu extrato é enviada ao Claude Vision (Anthropic, Estados Unidos) durante a leitura e depois não é guardada. Só os valores que confirmas entram no teu perfil.';
 
   @override
   String avsGuideSnackbarError(String url) {
@@ -7614,7 +7614,7 @@ class SPt extends S {
 
   @override
   String get docScanPrivacyNote =>
-      'A imagem é analisada localmente (OCR no dispositivo). Se usares a análise Vision IA, a imagem é enviada ao teu fornecedor IA pela tua própria chave API. Apenas os valores confirmados são guardados no teu perfil.';
+      'A imagem é enviada ao Claude Vision (Anthropic, Estados Unidos) para extrair os valores. Só os valores que confirmas ficam no teu perfil.';
 
   @override
   String get docScanCameraError => 'Impossível abrir a câmara. Usa a galeria.';
@@ -8160,7 +8160,7 @@ class SPt extends S {
 
   @override
   String get authGatePrivacyNote =>
-      'Os teus dados ficam no teu dispositivo e estão encriptados.';
+      'Os teus dados são cifrados e sincronizados nos nossos servidores assim que tens uma conta.';
 
   @override
   String get budgetTaxProvisionNotProvided =>
@@ -8388,7 +8388,7 @@ class SPt extends S {
 
   @override
   String get authPrivacyReassurance =>
-      'Os teus dados permanecem encriptados no teu dispositivo. Sem conexão bancária.';
+      'Os teus dados são cifrados e sincronizados nos nossos servidores. Sem ligação bancária.';
 
   @override
   String get authContinueLocal => 'Continuar em modo local';
@@ -11664,7 +11664,7 @@ class SPt extends S {
 
   @override
   String get librePassagePrivacyNote =>
-      'Os teus dados ficam no teu dispositivo. Nenhuma informação é transmitida a terceiros. Conforme a nLPD.';
+      'Os teus dados são cifrados e sincronizados nos nossos servidores. O coach de IA recebe um perfil pseudonimizado (Anthropic, Estados Unidos).';
 
   @override
   String get providerComparatorAppBarTitle => 'Comparador 3a';
@@ -13980,7 +13980,7 @@ class SPt extends S {
 
   @override
   String get settingsSlmSubtitle =>
-      'Funciona no teu dispositivo, mesmo offline';
+      'Modelo no dispositivo — indisponível nesta versão';
 
   @override
   String get settingsByokTitle => 'Chave IA pessoal';
@@ -22055,7 +22055,8 @@ class SPt extends S {
   String get dossierConsentsTitle => 'Consentimentos';
 
   @override
-  String get dossierSlmSubtitle => 'IA integrada, funciona offline';
+  String get dossierSlmSubtitle =>
+      'Modelo no dispositivo — indisponível nesta versão';
 
   @override
   String get dossierSlmTitle => 'Modelo local (SLM)';
@@ -24750,7 +24751,7 @@ class SPt extends S {
 
   @override
   String get betaDisclosureBulletNoBank =>
-      'Nenhum dado bancário é armazenado do nosso lado. Os teus dados permanecem no teu dispositivo salvo consentimento explícito.';
+      'Nenhum dado bancário guardado connosco. Os teus dados são cifrados; chegam aos nossos servidores quando crias uma conta.';
 
   @override
   String get betaDisclosureBulletDataLocal =>

@@ -546,7 +546,7 @@
   "vaultDeleteTitle": "Dokument löschen?",
   "vaultDeleteMessage": "Diese Aktion kann nicht rückgängig gemacht werden.",
   "vaultDeleteButton": "Löschen",
-  "vaultPrivacy": "Deine Dokumente werden lokal analysiert und nie an Dritte weitergegeben. Du kannst sie jederzeit löschen.",
+  "vaultPrivacy": "Deine Dokumente werden von Claude Vision (Anthropic, USA) gelesen, um die Zahlen zu extrahieren. Der extrahierte Text wird verschlüsselt gespeichert und du kannst ihn jederzeit löschen.",
   "vaultDisclaimer": "MINT ist ein Bildungstool. Die rechtlichen Informationen dienen nur zu Informationszwecken und stellen keine personalisierte Rechtsberatung dar (FIDLEG, nDSG). Für spezifische Fragen konsultiere eine·n qualifizierte·n Spezialist·in.",
   "soaDisclaimer1": "Dies ist ein Bildungstool, keine Finanzberatung (FIDLEG).",
   "soaDisclaimer2": "Die Beträge basieren auf den angegebenen Informationen.",
@@ -2613,7 +2613,7 @@
   "slmDownload": "Herunterladen",
   "slmDelete": "Löschen",
   "slmIaOnDevice": "KI auf dem Gerät",
-  "slmPrivacyMessage": "Das Modell läuft 100% auf deinem Gerät. Keine Daten verlassen dein Telefon.",
+  "slmPrivacyMessage": "Das Modell auf dem Gerät ist in dieser Version nicht verfügbar. Der Coach läuft über unsere Server.",
   "slmDownloadModelTitle": "Modell herunterladen?",
   "slmDeleteModelTitle": "Modell löschen?",
   "slmDeleteModelContent": "Dies gibt {size} Speicherplatz frei. Du kannst es jederzeit erneut herunterladen.",
@@ -2930,7 +2930,7 @@
   "avsGuideTestDescription": "Keinen AHV-Auszug zur Hand? Teste den Ablauf mit einem Beispiel-Auszug.",
   "avsGuideTestButton": "Beispiel verwenden",
   "avsGuideFreeNote": "Der AHV-Auszug ist kostenlos und in 5 bis 10 Werktagen verfügbar. Du kannst auch deine kantonale Ausgleichskasse aufsuchen.",
-  "avsGuidePrivacyNote": "Dein Auszugsbild wird nie gespeichert oder gesendet. Die Extraktion erfolgt auf deinem Gerät. Nur die von dir bestätigten Werte werden in deinem Profil gespeichert.",
+  "avsGuidePrivacyNote": "Das Bild deines Auszugs wird für die Dauer der Auswertung an Claude Vision (Anthropic, USA) gesendet und danach nicht aufbewahrt. Nur die von dir bestätigten Werte kommen in dein Profil.",
   "avsGuideSnackbarError": "Kann {url} nicht öffnen. Kopiere die Adresse und öffne sie in deinem Browser.",
   "@avsGuideSnackbarError": {
     "placeholders": {
@@ -3518,7 +3518,7 @@
   "docScanFromGallery": "Aus der Galerie",
   "docScanPasteOcrText": "OCR-Text einfügen",
   "docScanUseExample": "Testbeispiel verwenden",
-  "docScanPrivacyNote": "Das Bild wird lokal analysiert (OCR auf dem Gerät). Wenn du Vision-KI verwendest, wird das Bild über deinen eigenen API-Schlüssel an deinen KI-Anbieter gesendet. Nur bestätigte Werte werden in deinem Profil gespeichert.",
+  "docScanPrivacyNote": "Das Bild wird an Claude Vision (Anthropic, USA) gesendet, um die Zahlen zu extrahieren. Nur die von dir bestätigten Werte bleiben in deinem Profil.",
   "docScanCameraError": "Kamera konnte nicht geöffnet werden. Verwende die Galerie.",
   "docScanEmptyTextFile": "Die Textdatei ist leer.",
   "docScanFileUnreadableTitle": "Datei nicht verwertbar",
@@ -3664,7 +3664,7 @@
   "authGateProfileMessage": "Je mehr du dein Profil bereicherst, desto genauer werden deine Prognosen. Sichere deine Daten.",
   "authGateCreateAccount": "Mein Konto erstellen",
   "authGateLogin": "Ich habe bereits ein Konto",
-  "authGatePrivacyNote": "Deine Daten bleiben auf deinem Gerät und sind verschlüsselt.",
+  "authGatePrivacyNote": "Deine Daten sind verschlüsselt und werden mit deinem Konto auf unsere Server synchronisiert.",
   "authRegisterSubtitle": "Erstelle ein verschlüsseltes Konto. Cloud-Synchronisation ist standardmässig aus; du kannst sie in Einstellungen › Datenschutz aktivieren.",
   "authWhyCreateAccount": "Warum ein Konto erstellen?",
   "authBenefitProjections": "Finanzielle Projektionen passend zu deinen Lebensentscheidungen (Wohnen, Steuern, Vorsorge, Familie…)",
@@ -3679,7 +3679,7 @@
   "authConsentSection": "Optionale Einwilligungen",
   "authConsentNotifications": "Coaching-Benachrichtigungen (3a-Erinnerungen, Steuerfristen)",
   "authConsentAnalytics": "Anonymisierte Daten zur Verbesserung der Schweizer Benchmarks",
-  "authPrivacyReassurance": "Deine Daten bleiben verschlüsselt auf deinem Gerät. Keine Bankverbindung.",
+  "authPrivacyReassurance": "Deine Daten sind verschlüsselt und werden auf unsere Server synchronisiert. Keine Bankverbindung.",
   "authContinueLocal": "Im lokalen Modus fortfahren",
   "authAppleSignIn": "Mit Apple fortfahren",
   "authAppleDobNotice": "Apple übermittelt dein Geburtsdatum nicht. Mint fragt es danach für dein AHV/BVG-Dossier ab.",
@@ -5431,7 +5431,7 @@
   "librePassageSectionRecommandations": "Empfehlungen",
   "librePassageCentrale2eTitle": "Zentralstelle 2. Säule (sfbvg.ch)",
   "librePassageCentrale2eSubtitle": "Vergessene Freizügigkeitsguthaben suchen",
-  "librePassagePrivacyNote": "Deine Daten bleiben auf deinem Gerät. Keine Informationen werden an Dritte übermittelt. Konform mit nDSG.",
+  "librePassagePrivacyNote": "Deine Daten sind verschlüsselt und werden auf unsere Server synchronisiert. Der KI-Coach erhält ein pseudonymisiertes Profil (Anthropic, USA).",
   "providerComparatorAppBarTitle": "3a-Vergleich",
   "providerComparatorPremierEclairageLabel": "Unterschied über {duree} Jahre",
   "@providerComparatorPremierEclairageLabel": {
@@ -6454,7 +6454,7 @@
   "settingsConsentsTitle": "Einwilligungen",
   "settingsConsentsSubtitle": "Datenschutz und Datenfreigabe",
   "settingsSlmTitle": "Geräte-KI",
-  "settingsSlmSubtitle": "Läuft auf deinem Gerät, auch offline",
+  "settingsSlmSubtitle": "Modell auf dem Gerät — in dieser Version nicht verfügbar",
   "settingsByokTitle": "Eigener KI-Schlüssel",
   "settingsByokSubtitle": "Verbinde dein eigenes KI-Modell",
   "settingsLangueTitle": "Sprache",
@@ -10043,7 +10043,7 @@
   "dossierByokTitle": "API-Schlüssel (BYOK)",
   "dossierConsentsSubtitle": "Datenschutz und Datenweitergabe",
   "dossierConsentsTitle": "Einwilligungen",
-  "dossierSlmSubtitle": "Eingebettete KI, funktioniert offline",
+  "dossierSlmSubtitle": "Modell auf dem Gerät — in dieser Version nicht verfügbar",
   "dossierSlmTitle": "Lokales Modell (SLM)",
   "nudgeAnniversaryAction": "Mein Profil aktualisieren",
   "nudgeAnniversaryMessage": "Du nutzt MINT seit einem Jahr. Das ist der ideale Zeitpunkt, dein Profil zu aktualisieren und deine Fortschritte zu messen.",
@@ -11627,7 +11627,7 @@
       "level": "N1"
     }
   },
-  "betaDisclosureBulletNoBank": "Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.",
+  "betaDisclosureBulletNoBank": "Keine Bankdaten bei uns gespeichert. Deine Daten sind verschlüsselt; sie gelangen auf unsere Server, sobald du ein Konto erstellst.",
   "@betaDisclosureBulletNoBank": {
     "x-mint-meta": {
       "level": "N1"

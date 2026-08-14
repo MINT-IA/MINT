@@ -133,7 +133,11 @@ void main() {
       expect(find.textContaining('Centrale'), findsWidgets);
     });
 
-    testWidgets('displays privacy note with nLPD', (tester) async {
+    testWidgets('displays a privacy note that says where the data goes',
+        (tester) async {
+      // L'oracle cherchait « nLPD » dans une phrase qui affirmait « Aucune
+      // information n'est transmise a des tiers » — faux, le coach IA en est
+      // un. Il cherche desormais le marqueur de la phrase VRAIE.
       await tester.pumpWidget(buildScreen());
       await tester.pumpAndSettle();
       // The nLPD privacy note lives near the bottom of the CustomScrollView,
@@ -142,7 +146,7 @@ void main() {
       // weren't enough on larger viewports — ensureVisible scrolls to the
       // target deterministically without guessing offsets.
       final privacyNote = find.byWidgetPredicate(
-        (w) => w is Text && (w.data?.contains('nLPD') ?? false),
+        (w) => w is Text && (w.data?.contains('Anthropic') ?? false),
       );
       await tester.dragUntilVisible(
         privacyNote,

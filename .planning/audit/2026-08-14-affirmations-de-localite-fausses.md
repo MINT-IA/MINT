@@ -73,6 +73,28 @@ justement celle qu'on emploie partout.
 **Un garde qui rassure en manquant l'occurrence la plus visible est pire qu'un
 garde absent** : il transforme une dette connue en dette invisible.
 
+## Ce qui a été corrigé le 2026-08-14
+
+Neuf affirmations réécrites sur six langues, alignées sur la politique
+canonique — **plus aucune affirmation de localité fausse ne s'affiche** :
+`vaultPrivacy`, `avsGuidePrivacyNote`, `docScanPrivacyNote`,
+`authGatePrivacyNote`, `authPrivacyReassurance`, `librePassagePrivacyNote`,
+`betaDisclosureBulletNoBank`, `slmPrivacyMessage`, `settingsSlmSubtitle` /
+`dossierSlmSubtitle`.
+
+L'entrée « Coach IA » des réglages passe derrière `FeatureFlags.slmPluginReady`
+— elle promettait une fonctionnalité absente depuis avril.
+
+**Deux tests protégeaient les mensonges** : l'un exigeait le mot
+« localement » dans le pied de page des documents, l'autre cherchait « nLPD »
+dans une phrase affirmant qu'aucune information n'est transmise à des tiers.
+Un test qui garde une phrase fausse la rend plus difficile à corriger que s'il
+n'existait pas. Ils gardent désormais la phrase vraie.
+
+Le cliquet mesure la baisse : **16 → 6**. Les six restantes sont des clés
+ORPHELINES — vérifié, aucun fichier Dart ne les référence. Elles restent
+nommées pour qu'un futur écran ne les ressuscite pas.
+
 ## Contre-arguments
 
 - *« Pour un utilisateur anonyme qui ne crée jamais de compte, les données

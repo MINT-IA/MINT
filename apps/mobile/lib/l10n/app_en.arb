@@ -546,7 +546,7 @@
   "vaultDeleteTitle": "Delete this document?",
   "vaultDeleteMessage": "This action cannot be undone.",
   "vaultDeleteButton": "Delete",
-  "vaultPrivacy": "Your documents are analyzed locally and never shared with third parties. You can delete them at any time.",
+  "vaultPrivacy": "Your documents are read by Claude Vision (Anthropic, United States) to extract the figures. The extracted text is stored encrypted and you can delete it at any time.",
   "vaultDisclaimer": "MINT is an educational tool. Legal information is provided for informational purposes only and does not constitute personalized legal advice (FinSA, nFADP). For specific questions, consult a qualified professional.",
   "soaDisclaimer1": "This is an educational tool, not financial advice (FinSA).",
   "soaDisclaimer2": "Amounts are based on the information you provided.",
@@ -2613,7 +2613,7 @@
   "slmDownload": "Download",
   "slmDelete": "Delete",
   "slmIaOnDevice": "On-device AI",
-  "slmPrivacyMessage": "The model runs 100% on your device. No data leaves your phone.",
+  "slmPrivacyMessage": "The on-device model is not available in this version. The coach runs through our servers.",
   "slmDownloadModelTitle": "Download the model?",
   "slmDeleteModelTitle": "Delete the model?",
   "slmDeleteModelContent": "This will free up {size} of space. You can re-download it at any time.",
@@ -2930,7 +2930,7 @@
   "avsGuideTestDescription": "Don't have your AVS statement handy? Test the flow with a sample statement.",
   "avsGuideTestButton": "Use an example",
   "avsGuideFreeNote": "The AVS statement is free and available in 5 to 10 business days. You can also visit your cantonal compensation office.",
-  "avsGuidePrivacyNote": "Your statement image is never stored or sent. Extraction happens on your device. Only values you confirm are saved to your profile.",
+  "avsGuidePrivacyNote": "The image of your statement is sent to Claude Vision (Anthropic, United States) for the time of the reading, then not kept. Only the values you confirm reach your profile.",
   "avsGuideSnackbarError": "Unable to open {url}. Copy the address and open it in your browser.",
   "@avsGuideSnackbarError": {
     "placeholders": {
@@ -3518,7 +3518,7 @@
   "docScanFromGallery": "From gallery",
   "docScanPasteOcrText": "Paste OCR text",
   "docScanUseExample": "Use a test example",
-  "docScanPrivacyNote": "The image is analyzed locally (on-device OCR). If you use Vision AI analysis, the image is sent to your AI provider via your own API key. Only confirmed values are saved to your profile.",
+  "docScanPrivacyNote": "The image is sent to Claude Vision (Anthropic, United States) to extract the figures. Only the values you confirm are kept in your profile.",
   "docScanCameraError": "Unable to open the camera. Use the gallery.",
   "docScanEmptyTextFile": "The text file is empty.",
   "docScanFileUnreadableTitle": "File not usable",
@@ -3664,7 +3664,7 @@
   "authGateProfileMessage": "The more you enrich your profile, the more accurate your projections. Secure your data.",
   "authGateCreateAccount": "Create my account",
   "authGateLogin": "I already have an account",
-  "authGatePrivacyNote": "Your data stays on your device and is encrypted.",
+  "authGatePrivacyNote": "Your data is encrypted, and synced to our servers once you have an account.",
   "authRegisterSubtitle": "Create an encrypted account. Cloud sync is off by default; you can turn it on in Settings › Privacy.",
   "authWhyCreateAccount": "Why create an account?",
   "authBenefitProjections": "Financial projections adapted to your life choices (housing, tax, pension, family…)",
@@ -3679,7 +3679,7 @@
   "authConsentSection": "Optional consents",
   "authConsentNotifications": "Coaching notifications (3a reminders, tax deadlines)",
   "authConsentAnalytics": "Anonymous data to improve Swiss benchmarks",
-  "authPrivacyReassurance": "Your data stays encrypted on your device. No bank connection.",
+  "authPrivacyReassurance": "Your data is encrypted and synced to our servers. No bank connection.",
   "authContinueLocal": "Continue in local mode",
   "authAppleSignIn": "Continue with Apple",
   "authAppleDobNotice": "Apple does not share your date of birth. Mint will ask for it next for your AVS/LPP dossier.",
@@ -5431,7 +5431,7 @@
   "librePassageSectionRecommandations": "Recommendations",
   "librePassageCentrale2eTitle": "2nd pillar central office (sfbvg.ch)",
   "librePassageCentrale2eSubtitle": "Search for forgotten vested benefits",
-  "librePassagePrivacyNote": "Your data stays on your device. No information is transmitted to third parties. Compliant with nDPA.",
+  "librePassagePrivacyNote": "Your data is encrypted and synced to our servers. The AI coach receives a pseudonymised profile (Anthropic, United States).",
   "providerComparatorAppBarTitle": "3a Comparator",
   "providerComparatorPremierEclairageLabel": "Difference over {duree} years",
   "@providerComparatorPremierEclairageLabel": {
@@ -6454,7 +6454,7 @@
   "settingsConsentsTitle": "Consents",
   "settingsConsentsSubtitle": "Privacy and data sharing",
   "settingsSlmTitle": "On-device AI",
-  "settingsSlmSubtitle": "Runs on your device, even offline",
+  "settingsSlmSubtitle": "On-device model — unavailable in this version",
   "settingsByokTitle": "Personal AI key",
   "settingsByokSubtitle": "Connect your own AI model",
   "settingsLangueTitle": "Language",
@@ -10043,7 +10043,7 @@
   "dossierByokTitle": "API Key (BYOK)",
   "dossierConsentsSubtitle": "Privacy and data sharing",
   "dossierConsentsTitle": "Consents",
-  "dossierSlmSubtitle": "On-device AI, works offline",
+  "dossierSlmSubtitle": "On-device model — unavailable in this version",
   "dossierSlmTitle": "Local model (SLM)",
   "nudgeAnniversaryAction": "Update my profile",
   "nudgeAnniversaryMessage": "You have been using MINT for a year. This is the perfect time to update your profile and measure your progress.",
@@ -11647,7 +11647,7 @@
       "level": "N1"
     }
   },
-  "betaDisclosureBulletNoBank": "No banking data is stored on our side. Your data stays on this device unless you explicitly opt in.",
+  "betaDisclosureBulletNoBank": "No banking data stored with us. Your data is encrypted; it reaches our servers when you create an account.",
   "@betaDisclosureBulletNoBank": {
     "x-mint-meta": {
       "level": "N1"

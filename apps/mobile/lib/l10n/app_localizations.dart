@@ -2658,7 +2658,7 @@ abstract class S {
   /// No description provided for @vaultPrivacy.
   ///
   /// In fr, this message translates to:
-  /// **'Tes documents sont analysés localement et ne sont jamais partagés avec des tiers. Tu peux les supprimer à tout moment.'**
+  /// **'Tes documents sont lus par Claude Vision (Anthropic, États-Unis) pour en extraire les chiffres. Le texte extrait est conservé chiffré et tu peux le supprimer à tout moment.'**
   String get vaultPrivacy;
 
   /// No description provided for @vaultDisclaimer.
@@ -10183,7 +10183,7 @@ abstract class S {
   /// No description provided for @slmPrivacyMessage.
   ///
   /// In fr, this message translates to:
-  /// **'Le modèle fonctionne 100 % sur ton appareil. Aucune donnée ne quitte ton téléphone.'**
+  /// **'Le modèle embarqué n\'est pas disponible dans cette version. Le coach passe par nos serveurs.'**
   String get slmPrivacyMessage;
 
   /// No description provided for @slmDownloadModelTitle.
@@ -11235,7 +11235,7 @@ abstract class S {
   /// No description provided for @avsGuidePrivacyNote.
   ///
   /// In fr, this message translates to:
-  /// **'L\'image de ton extrait n\'est jamais stockée ni envoyée. L\'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.'**
+  /// **'L\'image de ton extrait est envoyée à Claude Vision (Anthropic, États-Unis) le temps de la lecture, puis n\'est pas conservée. Seules les valeurs que tu confirmes rejoignent ton profil.'**
   String get avsGuidePrivacyNote;
 
   /// No description provided for @avsGuideSnackbarError.
@@ -13575,7 +13575,7 @@ abstract class S {
   /// No description provided for @docScanPrivacyNote.
   ///
   /// In fr, this message translates to:
-  /// **'L\'image est analysée localement (OCR sur l\'appareil). Si tu utilises l\'analyse Vision IA, l\'image est envoyée à ton fournisseur IA via ta propre clé API. Seules les valeurs confirmées sont conservées dans ton profil.'**
+  /// **'L\'image est envoyée à Claude Vision (Anthropic, États-Unis) pour en extraire les chiffres. Seules les valeurs que tu confirmes sont conservées dans ton profil.'**
   String get docScanPrivacyNote;
 
   /// No description provided for @docScanCameraError.
@@ -14451,7 +14451,7 @@ abstract class S {
   /// No description provided for @authGatePrivacyNote.
   ///
   /// In fr, this message translates to:
-  /// **'Tes données restent sur ton appareil et sont chiffrées.'**
+  /// **'Tes données sont chiffrées, et synchronisées sur nos serveurs dès que tu as un compte.'**
   String get authGatePrivacyNote;
 
   /// No description provided for @budgetTaxProvisionNotProvided.
@@ -14853,7 +14853,7 @@ abstract class S {
   /// No description provided for @authPrivacyReassurance.
   ///
   /// In fr, this message translates to:
-  /// **'Tes données restent chiffrées sur ton appareil. Aucune connexion bancaire.'**
+  /// **'Tes données sont chiffrées et synchronisées sur nos serveurs. Aucune connexion bancaire.'**
   String get authPrivacyReassurance;
 
   /// No description provided for @authContinueLocal.
@@ -20560,7 +20560,7 @@ abstract class S {
   /// No description provided for @librePassagePrivacyNote.
   ///
   /// In fr, this message translates to:
-  /// **'Tes données restent sur ton appareil. Aucune information n’est transmise à des tiers. Conforme à la nLPD.'**
+  /// **'Tes données sont chiffrées et synchronisées sur nos serveurs. Le coach IA reçoit un profil pseudonymisé (Anthropic, États-Unis).'**
   String get librePassagePrivacyNote;
 
   /// No description provided for @providerComparatorAppBarTitle.
@@ -24676,7 +24676,7 @@ abstract class S {
   /// No description provided for @settingsSlmSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tourne sur ton appareil, même hors ligne'**
+  /// **'Modèle embarqué — indisponible dans cette version'**
   String get settingsSlmSubtitle;
 
   /// No description provided for @settingsByokTitle.
@@ -38611,7 +38611,7 @@ abstract class S {
   /// No description provided for @dossierSlmSubtitle.
   ///
   /// In fr, this message translates to:
-  /// **'Tourne sur ton appareil, même hors ligne'**
+  /// **'Modèle embarqué — indisponible dans cette version'**
   String get dossierSlmSubtitle;
 
   /// No description provided for @dossierSlmTitle.
@@ -43183,7 +43183,7 @@ abstract class S {
   /// Beta disclosure sheet — second bullet (data sovereignty / nLPD).
   ///
   /// In fr, this message translates to:
-  /// **'Aucune donnée bancaire stockée chez nous. Les données restent sur ton appareil sauf opt-in explicite.'**
+  /// **'Aucune donnée bancaire stockée chez nous. Tes données sont chiffrées ; elles rejoignent nos serveurs quand tu crées un compte.'**
   String get betaDisclosureBulletNoBank;
 
   /// Beta disclosure sheet — third bullet (feedback loop).

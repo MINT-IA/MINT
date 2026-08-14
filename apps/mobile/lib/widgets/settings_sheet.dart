@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mint_mobile/l10n/app_localizations.dart' show S;
+import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/theme/colors.dart';
 import 'package:mint_mobile/theme/mint_spacing.dart';
 import 'package:mint_mobile/theme/mint_text_styles.dart';
@@ -34,12 +35,19 @@ class SettingsSheet extends StatelessWidget {
         subtitle: s.settingsConsentsSubtitle,
         route: '/profile/privacy-control',
       ),
-      _SettingsItem(
-        icon: Icons.smart_toy_outlined,
-        title: s.settingsSlmTitle,
-        subtitle: s.settingsSlmSubtitle,
-        route: '/profile/slm',
-      ),
+      // Le modele embarque n'existe pas : `SlmEngine` est un stub depuis le
+      // 2026-04-17 et `slmPluginReady` vaut false. Cette entree s'affichait
+      // pourtant sans condition, sous-titree « Tourne sur ton appareil, meme
+      // hors ligne », et menait a un ecran promettant « 100 % sur ton
+      // appareil ». Promettre une fonctionnalite absente est pire qu'une
+      // fonctionnalite manquante.
+      if (FeatureFlags.slmPluginReady)
+        _SettingsItem(
+          icon: Icons.smart_toy_outlined,
+          title: s.settingsSlmTitle,
+          subtitle: s.settingsSlmSubtitle,
+          route: '/profile/slm',
+        ),
       _SettingsItem(
         icon: Icons.vpn_key_outlined,
         title: s.settingsByokTitle,

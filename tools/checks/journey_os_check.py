@@ -682,6 +682,11 @@ ALLOW = {
     ".planning/audit/2026-08-14-affirmations-de-localite-fausses.md",
     "tools/checks/no_false_privacy_attestation.py",
     "tools/checks/_baseline_false_locality_claims.txt",
+    # Retrait des affirmations affichees : l'entree « Coach IA » passe derriere
+    # son drapeau (elle promettait une fonctionnalite absente depuis avril), et
+    # deux tests qui PROTEGEAIENT les phrases fausses gardent la phrase vraie.
+    "apps/mobile/lib/widgets/settings_sheet.dart",
+    "apps/mobile/test/screens/lpp_deep_screens_smoke_test.dart",
     "apps/mobile/lib/services/twin/versements_3a_decomposition.dart",
     "apps/mobile/test/services/twin/versements_3a_decomposition_test.dart",
     "apps/mobile/test/services/twin/twin_is_the_authority_test.dart",

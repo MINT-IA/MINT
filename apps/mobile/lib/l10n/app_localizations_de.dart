@@ -1407,7 +1407,7 @@ class SDe extends S {
 
   @override
   String get vaultPrivacy =>
-      'Deine Dokumente werden lokal analysiert und nie an Dritte weitergegeben. Du kannst sie jederzeit löschen.';
+      'Deine Dokumente werden von Claude Vision (Anthropic, USA) gelesen, um die Zahlen zu extrahieren. Der extrahierte Text wird verschlüsselt gespeichert und du kannst ihn jederzeit löschen.';
 
   @override
   String get vaultDisclaimer =>
@@ -5661,7 +5661,7 @@ class SDe extends S {
 
   @override
   String get slmPrivacyMessage =>
-      'Das Modell läuft 100% auf deinem Gerät. Keine Daten verlassen dein Telefon.';
+      'Das Modell auf dem Gerät ist in dieser Version nicht verfügbar. Der Coach läuft über unsere Server.';
 
   @override
   String get slmDownloadModelTitle => 'Modell herunterladen?';
@@ -6267,7 +6267,7 @@ class SDe extends S {
 
   @override
   String get avsGuidePrivacyNote =>
-      'Dein Auszugsbild wird nie gespeichert oder gesendet. Die Extraktion erfolgt auf deinem Gerät. Nur die von dir bestätigten Werte werden in deinem Profil gespeichert.';
+      'Das Bild deines Auszugs wird für die Dauer der Auswertung an Claude Vision (Anthropic, USA) gesendet und danach nicht aufbewahrt. Nur die von dir bestätigten Werte kommen in dein Profil.';
 
   @override
   String avsGuideSnackbarError(String url) {
@@ -7627,7 +7627,7 @@ class SDe extends S {
 
   @override
   String get docScanPrivacyNote =>
-      'Das Bild wird lokal analysiert (OCR auf dem Gerät). Wenn du Vision-KI verwendest, wird das Bild über deinen eigenen API-Schlüssel an deinen KI-Anbieter gesendet. Nur bestätigte Werte werden in deinem Profil gespeichert.';
+      'Das Bild wird an Claude Vision (Anthropic, USA) gesendet, um die Zahlen zu extrahieren. Nur die von dir bestätigten Werte bleiben in deinem Profil.';
 
   @override
   String get docScanCameraError =>
@@ -8176,7 +8176,7 @@ class SDe extends S {
 
   @override
   String get authGatePrivacyNote =>
-      'Deine Daten bleiben auf deinem Gerät und sind verschlüsselt.';
+      'Deine Daten sind verschlüsselt und werden mit deinem Konto auf unsere Server synchronisiert.';
 
   @override
   String get budgetTaxProvisionNotProvided =>
@@ -8404,7 +8404,7 @@ class SDe extends S {
 
   @override
   String get authPrivacyReassurance =>
-      'Deine Daten bleiben verschlüsselt auf deinem Gerät. Keine Bankverbindung.';
+      'Deine Daten sind verschlüsselt und werden auf unsere Server synchronisiert. Keine Bankverbindung.';
 
   @override
   String get authContinueLocal => 'Im lokalen Modus fortfahren';
@@ -11690,7 +11690,7 @@ class SDe extends S {
 
   @override
   String get librePassagePrivacyNote =>
-      'Deine Daten bleiben auf deinem Gerät. Keine Informationen werden an Dritte übermittelt. Konform mit nDSG.';
+      'Deine Daten sind verschlüsselt und werden auf unsere Server synchronisiert. Der KI-Coach erhält ein pseudonymisiertes Profil (Anthropic, USA).';
 
   @override
   String get providerComparatorAppBarTitle => '3a-Vergleich';
@@ -14010,7 +14010,8 @@ class SDe extends S {
   String get settingsSlmTitle => 'Geräte-KI';
 
   @override
-  String get settingsSlmSubtitle => 'Läuft auf deinem Gerät, auch offline';
+  String get settingsSlmSubtitle =>
+      'Modell auf dem Gerät — in dieser Version nicht verfügbar';
 
   @override
   String get settingsByokTitle => 'Eigener KI-Schlüssel';
@@ -22086,7 +22087,8 @@ class SDe extends S {
   String get dossierConsentsTitle => 'Einwilligungen';
 
   @override
-  String get dossierSlmSubtitle => 'Eingebettete KI, funktioniert offline';
+  String get dossierSlmSubtitle =>
+      'Modell auf dem Gerät — in dieser Version nicht verfügbar';
 
   @override
   String get dossierSlmTitle => 'Lokales Modell (SLM)';
@@ -24786,7 +24788,7 @@ class SDe extends S {
 
   @override
   String get betaDisclosureBulletNoBank =>
-      'Keine Bankdaten werden bei uns gespeichert. Deine Daten bleiben auf deinem Gerät, ausser du stimmst ausdrücklich zu.';
+      'Keine Bankdaten bei uns gespeichert. Deine Daten sind verschlüsselt; sie gelangen auf unsere Server, sobald du ein Konto erstellst.';
 
   @override
   String get betaDisclosureBulletDataLocal =>

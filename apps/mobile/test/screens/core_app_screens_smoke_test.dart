@@ -134,12 +134,20 @@ void main() {
       expect(find.textContaining('transactions'), findsWidgets);
     });
 
-    testWidgets('shows privacy footer', (tester) async {
+    testWidgets('the privacy footer says where the documents actually go',
+        (tester) async {
+      // Cet oracle affirmait « localement » — il GARDAIT donc une phrase
+      // fausse : l'OCR local a ete supprime le 2026-04-17 et les documents
+      // partent chez Claude Vision (Anthropic, Etats-Unis). Un test qui
+      // protege un mensonge le rend plus dur a corriger que s'il n'existait
+      // pas. Il garde desormais la phrase vraie.
       await tester.pumpWidget(buildTestableScreen(const DocumentsScreen()));
       await tester.pumpAndSettle(const Duration(seconds: 5));
 
       expect(find.byIcon(Icons.lock_outline), findsWidgets);
-      expect(find.textContaining('localement'), findsOneWidget);
+      expect(find.textContaining('Claude Vision'), findsOneWidget);
+      expect(find.textContaining('localement'), findsNothing,
+          reason: 'aucun document n\'est analyse localement depuis avril 2026');
     });
   });
 

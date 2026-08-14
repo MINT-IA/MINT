@@ -1401,7 +1401,7 @@ class SFr extends S {
 
   @override
   String get vaultPrivacy =>
-      'Tes documents sont analysés localement et ne sont jamais partagés avec des tiers. Tu peux les supprimer à tout moment.';
+      'Tes documents sont lus par Claude Vision (Anthropic, États-Unis) pour en extraire les chiffres. Le texte extrait est conservé chiffré et tu peux le supprimer à tout moment.';
 
   @override
   String get vaultDisclaimer =>
@@ -5662,7 +5662,7 @@ class SFr extends S {
 
   @override
   String get slmPrivacyMessage =>
-      'Le modèle fonctionne 100 % sur ton appareil. Aucune donnée ne quitte ton téléphone.';
+      'Le modèle embarqué n\'est pas disponible dans cette version. Le coach passe par nos serveurs.';
 
   @override
   String get slmDownloadModelTitle => 'Télécharger le modèle ?';
@@ -6269,7 +6269,7 @@ class SFr extends S {
 
   @override
   String get avsGuidePrivacyNote =>
-      'L\'image de ton extrait n\'est jamais stockée ni envoyée. L\'extraction se fait sur ton appareil. Seules les valeurs que tu confirmes sont conservées dans ton profil.';
+      'L\'image de ton extrait est envoyée à Claude Vision (Anthropic, États-Unis) le temps de la lecture, puis n\'est pas conservée. Seules les valeurs que tu confirmes rejoignent ton profil.';
 
   @override
   String avsGuideSnackbarError(String url) {
@@ -7617,7 +7617,7 @@ class SFr extends S {
 
   @override
   String get docScanPrivacyNote =>
-      'L\'image est analysée localement (OCR sur l\'appareil). Si tu utilises l\'analyse Vision IA, l\'image est envoyée à ton fournisseur IA via ta propre clé API. Seules les valeurs confirmées sont conservées dans ton profil.';
+      'L\'image est envoyée à Claude Vision (Anthropic, États-Unis) pour en extraire les chiffres. Seules les valeurs que tu confirmes sont conservées dans ton profil.';
 
   @override
   String get docScanCameraError =>
@@ -8164,7 +8164,7 @@ class SFr extends S {
 
   @override
   String get authGatePrivacyNote =>
-      'Tes données restent sur ton appareil et sont chiffrées.';
+      'Tes données sont chiffrées, et synchronisées sur nos serveurs dès que tu as un compte.';
 
   @override
   String get budgetTaxProvisionNotProvided =>
@@ -8392,7 +8392,7 @@ class SFr extends S {
 
   @override
   String get authPrivacyReassurance =>
-      'Tes données restent chiffrées sur ton appareil. Aucune connexion bancaire.';
+      'Tes données sont chiffrées et synchronisées sur nos serveurs. Aucune connexion bancaire.';
 
   @override
   String get authContinueLocal => 'Continuer en mode local';
@@ -11671,7 +11671,7 @@ class SFr extends S {
 
   @override
   String get librePassagePrivacyNote =>
-      'Tes données restent sur ton appareil. Aucune information n’est transmise à des tiers. Conforme à la nLPD.';
+      'Tes données sont chiffrées et synchronisées sur nos serveurs. Le coach IA reçoit un profil pseudonymisé (Anthropic, États-Unis).';
 
   @override
   String get providerComparatorAppBarTitle => 'Comparateur 3a';
@@ -13986,7 +13986,8 @@ class SFr extends S {
   String get settingsSlmTitle => 'IA embarquée';
 
   @override
-  String get settingsSlmSubtitle => 'Tourne sur ton appareil, même hors ligne';
+  String get settingsSlmSubtitle =>
+      'Modèle embarqué — indisponible dans cette version';
 
   @override
   String get settingsByokTitle => 'Clé IA perso';
@@ -22040,7 +22041,8 @@ class SFr extends S {
   String get dossierConsentsTitle => 'Consentements';
 
   @override
-  String get dossierSlmSubtitle => 'Tourne sur ton appareil, même hors ligne';
+  String get dossierSlmSubtitle =>
+      'Modèle embarqué — indisponible dans cette version';
 
   @override
   String get dossierSlmTitle => 'IA embarquée';
@@ -24734,7 +24736,7 @@ class SFr extends S {
 
   @override
   String get betaDisclosureBulletNoBank =>
-      'Aucune donnée bancaire stockée chez nous. Les données restent sur ton appareil sauf opt-in explicite.';
+      'Aucune donnée bancaire stockée chez nous. Tes données sont chiffrées ; elles rejoignent nos serveurs quand tu crées un compte.';
 
   @override
   String get betaDisclosureBulletDataLocal =>

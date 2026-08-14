@@ -1394,7 +1394,7 @@ class SEn extends S {
 
   @override
   String get vaultPrivacy =>
-      'Your documents are analyzed locally and never shared with third parties. You can delete them at any time.';
+      'Your documents are read by Claude Vision (Anthropic, United States) to extract the figures. The extracted text is stored encrypted and you can delete it at any time.';
 
   @override
   String get vaultDisclaimer =>
@@ -5615,7 +5615,7 @@ class SEn extends S {
 
   @override
   String get slmPrivacyMessage =>
-      'The model runs 100% on your device. No data leaves your phone.';
+      'The on-device model is not available in this version. The coach runs through our servers.';
 
   @override
   String get slmDownloadModelTitle => 'Download the model?';
@@ -6215,7 +6215,7 @@ class SEn extends S {
 
   @override
   String get avsGuidePrivacyNote =>
-      'Your statement image is never stored or sent. Extraction happens on your device. Only values you confirm are saved to your profile.';
+      'The image of your statement is sent to Claude Vision (Anthropic, United States) for the time of the reading, then not kept. Only the values you confirm reach your profile.';
 
   @override
   String avsGuideSnackbarError(String url) {
@@ -7559,7 +7559,7 @@ class SEn extends S {
 
   @override
   String get docScanPrivacyNote =>
-      'The image is analyzed locally (on-device OCR). If you use Vision AI analysis, the image is sent to your AI provider via your own API key. Only confirmed values are saved to your profile.';
+      'The image is sent to Claude Vision (Anthropic, United States) to extract the figures. Only the values you confirm are kept in your profile.';
 
   @override
   String get docScanCameraError =>
@@ -8103,7 +8103,7 @@ class SEn extends S {
 
   @override
   String get authGatePrivacyNote =>
-      'Your data stays on your device and is encrypted.';
+      'Your data is encrypted, and synced to our servers once you have an account.';
 
   @override
   String get budgetTaxProvisionNotProvided => 'Tax provision (not provided)';
@@ -8329,7 +8329,7 @@ class SEn extends S {
 
   @override
   String get authPrivacyReassurance =>
-      'Your data stays encrypted on your device. No bank connection.';
+      'Your data is encrypted and synced to our servers. No bank connection.';
 
   @override
   String get authContinueLocal => 'Continue in local mode';
@@ -11597,7 +11597,7 @@ class SEn extends S {
 
   @override
   String get librePassagePrivacyNote =>
-      'Your data stays on your device. No information is transmitted to third parties. Compliant with nDPA.';
+      'Your data is encrypted and synced to our servers. The AI coach receives a pseudonymised profile (Anthropic, United States).';
 
   @override
   String get providerComparatorAppBarTitle => '3a Comparator';
@@ -13904,7 +13904,8 @@ class SEn extends S {
   String get settingsSlmTitle => 'On-device AI';
 
   @override
-  String get settingsSlmSubtitle => 'Runs on your device, even offline';
+  String get settingsSlmSubtitle =>
+      'On-device model — unavailable in this version';
 
   @override
   String get settingsByokTitle => 'Personal AI key';
@@ -21923,7 +21924,8 @@ class SEn extends S {
   String get dossierConsentsTitle => 'Consents';
 
   @override
-  String get dossierSlmSubtitle => 'On-device AI, works offline';
+  String get dossierSlmSubtitle =>
+      'On-device model — unavailable in this version';
 
   @override
   String get dossierSlmTitle => 'Local model (SLM)';
@@ -24605,7 +24607,7 @@ class SEn extends S {
 
   @override
   String get betaDisclosureBulletNoBank =>
-      'No banking data is stored on our side. Your data stays on this device unless you explicitly opt in.';
+      'No banking data stored with us. Your data is encrypted; it reaches our servers when you create an account.';
 
   @override
   String get betaDisclosureBulletDataLocal =>
