@@ -56,7 +56,8 @@
     {
       "id": "b4_legacy_data_isolation",
       "etat": "ouvert",
-      "preuve": null
+      "preuve": null,
+      "note": "BLOQUÉ SUR CETTE BRANCHE, PAS SUR dev. TwinBootstrap.ensureMigrated() (main.dart:50, absent de dev) appelle loadAnswers() au démarrage ; secure_wizard_store.dart:1039-1045 écrit alors la donnée wizard legacy dans le magasin canonique, et TwinMigration en fait une version migratedV1. C'est la promotion silencieuse que le cadrage interdit. Reconstruit depuis dev, ce beat est un beat de PREUVE. Le Lego « fondation du jumeau » devra porter la contrainte : pas de promotion sans acte explicite."
     },
     {
       "id": "b4_cold_start_receipt",
@@ -100,5 +101,9 @@
   "budget_par_beat_tokens": 80000,
   "base_sha": "18c7dce862fe92c2f6e471b89a075a7c14b2b64a",
   "branche": "codex/journey-os-bascule4-first-open-20260813",
-  "maj": "2026-08-14"
+  "maj": "2026-08-14",
+  "contraintes_croisees": [
+    "Lego fondation du jumeau : la migration ne doit PAS promouvoir les données wizard legacy en silence — contrainte issue du cadrage bascule 4, trouvée le 2026-08-14.",
+    "Conserver wizard_answers_v2 textuellement ne suffit pas : SecureWizardStore.deleteAll() peut vider les valeurs Keychain qu'il référence. Conservation textuelle ≠ fonctionnelle."
+  ]
 }
