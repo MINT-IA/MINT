@@ -656,6 +656,10 @@ ALLOW = {
     # F1c — la migration des six faits deja ecrits : enveloppes en v1, sans
     # jamais deduire de date d'effet ni d'annee fiscale.
     "apps/mobile/lib/services/twin/twin_migration.dart",
+    # F0 — le contrat canonique : cardinalite, identite, temps metier, etats
+    # de connaissance. Les faits multiples etaient IMPOSSIBLES avant lui.
+    "apps/mobile/lib/services/twin/fact_contract.dart",
+    "apps/mobile/test/services/twin/fact_contract_test.dart",
     "apps/mobile/test/services/twin/twin_migration_test.dart",
     # F2b — le branchement sur le magasin reel : le registre vit sous une cle
     # reservee du meme objet que sa projection, donc une seule ecriture.

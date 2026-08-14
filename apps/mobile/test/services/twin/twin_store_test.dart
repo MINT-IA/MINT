@@ -274,7 +274,7 @@ void main() {
     snapshot = await store.read();
     await store.append(
       snapshot,
-      factId: 'revenu',
+      factId: 'revenu#employeur_principal',
       factType: 'revenu',
       payload: {'q_net_income_monthly': 7000},
       assertedAt: clock,
@@ -355,8 +355,8 @@ void main() {
     await expectLater(
         store.append(
           snapshot,
-          factId: 'autre_fait',
-          factType: 'autre',
+          factId: 'revenu#employeur_secondaire',
+          factType: 'revenu',
           payload: {'q_domicile_commune_name': 'Genève'},
           assertedAt: clock,
           source: FactSource.userDeclaration,

@@ -14,6 +14,7 @@
 
 import 'dart:convert';
 
+import 'package:mint_mobile/services/twin/fact_contract.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
 
 /// Résultat d'une tentative d'ajout.
@@ -67,6 +68,15 @@ class FactRegistry {
     int schemaVersion = 1,
     String? consentRef,
   }) {
+    // Le contrat d'abord : un type absent du catalogue, ou une cardinalité
+    // violée, n'entre pas. C'est ce qui empêche chaque nouvel écran
+    // d'inventer son propre pseudo-identifiant — et la normalisation future
+    // de devoir désambiguïser des historiques devenus inattribuables.
+    final violation = FactContracts.violation(factId);
+    if (violation != null) {
+      throw StateError('contrat des faits : $violation');  // lint-ignore
+    }
+
     final recordedAt = _now().toUtc();
 
     // L'histoire ne recule pas. Une horloge qui régresse produirait une
@@ -207,6 +217,10 @@ class FactRegistry {
     final typePerFact = <String, String>{};
 
     for (final v in loaded) {
+      final violation = FactContracts.violation(v.factId);
+      if (violation != null) {
+        throw FormatException('contrat des faits : $violation');  // lint-ignore
+      }
       if (!seenVersionIds.add(v.versionId)) {
         throw FormatException('version « ${v.versionId} » en double');  // lint-ignore
       }

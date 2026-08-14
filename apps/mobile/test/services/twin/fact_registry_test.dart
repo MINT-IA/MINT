@@ -74,15 +74,15 @@ void main() {
   });
 
   test('an unknown fact has no current version and no history', () {
-    expect(registry.current('revenu'), isNull);
-    expect(registry.history('revenu'), isEmpty);
-    expect(registry.asOf('revenu', clock), isNull);
+    expect(registry.current('revenu#employeur_principal'), isNull);
+    expect(registry.history('revenu#employeur_principal'), isEmpty);
+    expect(registry.asOf('revenu#employeur_principal', clock), isNull);
   });
 
   test('the current projection holds one version per fact', () {
     appendDomicile('Aarau');
     registry.append(
-      factId: 'revenu',
+      factId: 'revenu#employeur_principal',
       factType: 'revenu',
       payload: {'monthly': 7000},
       assertedAt: clock,
@@ -93,14 +93,18 @@ void main() {
 
     final current = registry.currentVersions();
     expect(current.length, 2, reason: 'deux faits, pas trois versions');
-    expect(current.map((v) => v.factId).toSet(), {'domicile', 'revenu'});
+    expect(current.map((v) => v.factId).toSet(),
+        {'domicile', 'revenu#employeur_principal'});
     // La relecture a trouvé ce test trompeur : il comptait les versions sans
     // vérifier LAQUELLE était courante. Il passait avec Aarau comme version
     // en vigueur, tant que le compte et les identifiants restaient bons.
     expect(
         current.firstWhere((v) => v.factId == 'domicile').payload['commune'],
         'Lausanne');
-    expect(current.firstWhere((v) => v.factId == 'revenu').payload['monthly'],
+    expect(
+        current
+            .firstWhere((v) => v.factId == 'revenu#employeur_principal')
+            .payload['monthly'],
         7000);
   });
 
@@ -147,8 +151,8 @@ void main() {
 
     test('a fiscal year, when known, is the only year covered', () {
       final version = registry.append(
-        factId: 'housing.interest',
-        factType: 'housing',
+        factId: 'logement#residence_principale',
+        factType: 'logement',
         payload: {'interestCents': 425000},
         assertedAt: clock,
         source: FactSource.document,
@@ -162,7 +166,7 @@ void main() {
 
     test('a version past its validity says so instead of being recomputed', () {
       final version = registry.append(
-        factId: 'revenu',
+        factId: 'revenu#employeur_principal',
         factType: 'revenu',
         payload: {'monthly': 7000},
         assertedAt: clock,
@@ -208,7 +212,7 @@ void main() {
     test('nothing is published when the load fails', () {
       appendDomicile('Aarau');
       try {
-        registry.decode('[{"factId":"x"}]');
+        registry.decode('[{"factId":"domicile"}]');
       } on FormatException {
         // attendu
       }
@@ -218,7 +222,7 @@ void main() {
     });
 
     test('an unknown provenance is refused, not defaulted', () {
-      const wrongSource = '[{"factId":"d","versionId":"v1","factType":"domicile",'
+      const wrongSource = '[{"factId":"domicile","versionId":"v1","factType":"domicile",'
           '"payload":{},"assertedAt":"2026-08-13T00:00:00Z",'
           '"recordedAt":"2026-08-13T00:00:00Z","source":"telepathie",'
           '"status":"confirmed","schemaVersion":1}]';
@@ -254,7 +258,7 @@ void main() {
     test('a receipt names the exact versions it consumed', () {
       final domicile = appendDomicile('Aarau');
       final revenu = registry.append(
-        factId: 'revenu',
+        factId: 'revenu#employeur_principal',
         factType: 'revenu',
         payload: {'monthly': 7000},
         assertedAt: clock,
@@ -353,7 +357,7 @@ void main() {
     });
 
     test('an unknown field is refused rather than ignored', () {
-      const withExtra = '[{"sequence":0,"factId":"d","versionId":"v1",'
+      const withExtra = '[{"sequence":0,"factId":"domicile","versionId":"v1",'
           '"factType":"domicile","payload":{},"inconnu":1,'
           '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
           '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
@@ -362,7 +366,7 @@ void main() {
     });
 
     test('a nested payload is refused — scalars only was a promise', () {
-      const nested = '[{"sequence":0,"factId":"d","versionId":"v1",'
+      const nested = '[{"sequence":0,"factId":"domicile","versionId":"v1",'
           '"factType":"domicile","payload":{"adresse":{"rue":"x"}},'
           '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
           '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
@@ -370,7 +374,7 @@ void main() {
     });
 
     test('an inverted interval is refused', () {
-      const inverted = '[{"sequence":0,"factId":"d","versionId":"v1",'
+      const inverted = '[{"sequence":0,"factId":"domicile","versionId":"v1",'
           '"factType":"domicile","payload":{},'
           '"effectiveFrom":"2026-09-01T00:00:00Z","effectiveTo":"2026-08-01T00:00:00Z",'
           '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
@@ -379,7 +383,7 @@ void main() {
     });
 
     test('a declaration recorded before it was made is refused', () {
-      const backwards = '[{"sequence":0,"factId":"d","versionId":"v1",'
+      const backwards = '[{"sequence":0,"factId":"domicile","versionId":"v1",'
           '"factType":"domicile","payload":{},'
           '"assertedAt":"2026-09-01T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
           '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
@@ -393,12 +397,12 @@ void main() {
     // Le gate d'analyse statique l'a signalé sous forme d'avertissement de
     // performance — le vrai défaut était ailleurs, dans ce que la personne qui
     // débogue aurait lu.
-    const duplicate = '[{"sequence":0,"factId":"d","versionId":"CONFLIT",'
+    const duplicate = '[{"sequence":0,"factId":"domicile","versionId":"CONFLIT",'
         '"factType":"domicile","payload":{},'
         '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
         '"source":"userDeclaration","status":"confirmed","schemaVersion":1,'
         '"effectiveTo":"2026-09-01T00:00:00Z"},'
-        '{"sequence":1,"factId":"d","versionId":"CONFLIT",'
+        '{"sequence":1,"factId":"domicile","versionId":"CONFLIT",'
         '"factType":"domicile","payload":{},'
         '"assertedAt":"2026-08-13T00:00:00Z","recordedAt":"2026-08-13T00:00:00Z",'
         '"source":"userDeclaration","status":"confirmed","schemaVersion":1}]';
