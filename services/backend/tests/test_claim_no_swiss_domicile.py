@@ -101,6 +101,62 @@ def test_an_unanswered_question_erases_nothing():
     assert fusionne["commune"] == "Lausanne"
 
 
+def test_a_MODIFIED_value_actually_overwrites_the_stored_one():
+    """Le bug le plus large de la famille : les corrections ne s'appliquaient pas.
+
+    La fusion n'écrivait que si le champ était ABSENT ou NUL côté serveur. Une
+    valeur modifiée n'écrasait donc jamais l'ancienne — quelqu'un qui déménage
+    de Vaud à Genève voyait son envoi accepté par la porte temporelle, et son
+    canton rester VD. Indéfiniment, et sans que rien ne le signale.
+    """
+    claim = _Claim(_wizard(q_canton="GE"))
+    stocke = {"canton": "VD", "birthYear": 1988}
+
+    fusionne = _merge_claim_fields(
+        stocke,
+        _profile_fields_from_claim(claim),
+        _fields_cleared_by_claim(claim),
+    )
+
+    assert fusionne["canton"] == "GE", "le déménagement doit s'appliquer"
+    assert fusionne["birthYear"] == 1988, "et ce qui n'a pas bougé reste"
+
+
+def test_a_field_the_device_does_not_carry_is_never_blanked():
+    """La contrepartie, et c'est elle qui rend l'écrasement sûr.
+
+    Un appareil auquel il manque un champ n'envoie rien pour lui — les valeurs
+    nulles sont écartées avant la fusion. Il ne peut donc pas effacer ce qu'il
+    ignore.
+    """
+    claim = _Claim(_wizard(q_canton="GE"))
+    stocke = {"canton": "VD", "incomeNetMonthly": 6500.0}
+
+    fusionne = _merge_claim_fields(
+        stocke,
+        _profile_fields_from_claim(claim),
+        _fields_cleared_by_claim(claim),
+    )
+
+    assert fusionne["incomeNetMonthly"] == 6500.0, (
+        "un champ absent de l'envoi ne doit pas disparaitre du profil"
+    )
+
+
+def test_the_income_also_updates_not_only_the_canton():
+    """Le defaut touchait TOUS les champs, pas le seul canton."""
+    claim = _Claim(_wizard(q_net_income_period_chf=7200, q_pay_frequency="monthly"))
+    stocke = {"incomeNetMonthly": 6500.0}
+
+    fusionne = _merge_claim_fields(
+        stocke,
+        _profile_fields_from_claim(claim),
+        _fields_cleared_by_claim(claim),
+    )
+
+    assert fusionne["incomeNetMonthly"] == 7200.0
+
+
 def test_saying_YES_to_a_swiss_domicile_erases_nothing_either():
     claim = _Claim(_wizard(q_canton="GE", q_domicile_fiscal_suisse=True))
 

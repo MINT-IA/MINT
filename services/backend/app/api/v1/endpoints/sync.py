@@ -370,10 +370,29 @@ def _merge_claim_fields(
     existing_data: dict, claim_fields: dict, cleared: set = frozenset()
 ) -> dict:
     data = dict(existing_data)
-    bootstrap_profile = _is_bootstrap_profile(data)
     for key, value in claim_fields.items():
-        if key not in data or data[key] is None or bootstrap_profile:
-            data[key] = value
+        # LAST WRITE WINS — ce que la docstring de cet endpoint annonce depuis
+        # toujours, et que le code ne faisait pas.
+        #
+        # Il n'écrivait que si le champ était ABSENT ou NUL côté serveur. Une
+        # valeur modifiée n'écrasait donc jamais l'ancienne : quelqu'un qui
+        # déménage de Vaud à Genève voyait son envoi accepté par la porte
+        # temporelle… et son canton rester VD. Indéfiniment, et sans que rien
+        # ne le signale.
+        #
+        # Écraser est sûr ici pour deux raisons vérifiables :
+        #   * la porte temporelle (FIX-W11-1) a déjà refusé tout envoi dont
+        #     l'horodatage n'est pas strictement plus récent ;
+        #   * `_profile_fields_from_claim` écarte les valeurs nulles, donc un
+        #     appareil auquel il manque un champ ne peut pas l'effacer.
+        #
+        # LIMITE CONNUE, nommée plutôt que masquée : le mobile envoie
+        # `DateTime.now()` — l'heure d'ENVOI, pas celle de la donnée. Un
+        # appareil resté hors ligne avec des valeurs anciennes, qui synchronise
+        # après un autre, gagnerait donc à tort. La correction n'est pas ici :
+        # elle est d'envoyer la date de modification réelle, que le jumeau
+        # porte déjà (`recordedAt` sur chaque version).
+        data[key] = value
     # Un champ RÉCUSÉ part, même s'il était déjà là. La règle « ne pas
     # écraser le cloud » protège une valeur qu'on ignore ; elle n'a pas à
     # protéger une valeur que la personne vient de dire sans objet.

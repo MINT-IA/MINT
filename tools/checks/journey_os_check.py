@@ -706,6 +706,9 @@ ALLOW = {
     # d'assurance menage et la simulation de divorce.
     "services/backend/app/api/v1/endpoints/sync.py",
     "services/backend/tests/test_claim_no_swiss_domicile.py",
+    # Correction : l'instrument qui mesurait la sante du coffre sur simulateur
+    # sondait une cle NON sensible — il mesurait ma propre garde.
+    ".planning/audit/2026-08-14-coffre-simulateur-instrument-fausse.md",
     # La preuve d'execution sur la VRAIE pile — et la mesure qui montre que le
     # simulateur ne peut pas la donner (aucun droit dans les builds sim).
     "apps/mobile/integration_test/twin_housing_authority_test.dart",
