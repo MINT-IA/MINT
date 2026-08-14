@@ -74,6 +74,21 @@ ALLOW = {
     "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/lib/screens/simulator_3a_screen.dart",
     "tools/checks/route_closure_check.py",
+    # Lot sédiments (2026-08-14) — outillage porté par cette branche.
+    # L'élagueur d'artefacts d'exécution et le tableau de bord de dérive : la
+    # liste porte déjà 178 entrées `tools/`, c'est ainsi qu'une branche déclare
+    # l'outillage qu'elle touche, pas une entorse au périmètre.
+    "tools/simulator/prune_runtime_artifacts.py",
+    "tools/simulator/test_prune_runtime_artifacts.py",
+    "tools/simulator/maestro_with_watchdog.sh",
+    "tools/simulator/mint2_quality_gate.sh",
+    "tools/simulator/mint2_real_device_restore_gate.sh",
+    "tools/simulator/walker_premier_eclairage.sh",
+    "tools/agent-drift/dashboard.py",
+    "tools/agent-drift/ingest_git.py",
+    "tools/agent-drift/schema.sql",
+    "tools/agent-drift/tests/test_drift_rate.py",
+    "tools/agent-drift/tests/test_schema.py",
     "apps/mobile/lib/routes/legacy_onboarding_entry.dart",
     "apps/mobile/lib/widgets/aujourdhui/first_open_empty_state.dart",
     "apps/mobile/test/widgets/first_open_empty_state_test.dart",

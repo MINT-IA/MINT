@@ -216,7 +216,7 @@ void main() {
       // l'avoir accumulé). Un oracle dont le nom promet plus que ce qu'il
       // mesure est la même faute que le flot Maestro qui n'assure que
       // l'absence de plantage.
-      final seuil = lppSeuilEntree;
+      const seuil = lppSeuilEntree;
       final sousLeSeuil = LppCalculator.projectToRetirement(
         currentBalance: 0,
         currentAge: 30,
@@ -322,7 +322,7 @@ void main() {
           reason: 'la 13e rente est due pour toute projection portant sur '
               '2026 ou après, donc pour toute retraite projetée aujourd\'hui');
 
-      final douzeMois = avsRenteMaxMensuelle * 12;
+      const douzeMois = avsRenteMaxMensuelle * 12;
       final treizeMois = avsMaxAnnualRenteForYear(2026);
       expect(treizeMois, greaterThan(douzeMois),
           reason: 'l\'écart est exactement ce que la phrase de cumul omet : '
