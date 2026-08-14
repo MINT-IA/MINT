@@ -1,0 +1,104 @@
+{
+  "_pourquoi": [
+    "Le 14.08.2026, un loop autonome a tourné une journée sur un texte figé la",
+    "semaine d'avant. Il a fidèlement répété un ordre du jour mort : le Lego",
+    "réellement en cours n'a pas été touché, le BRIEF n'a jamais été ouvert, et",
+    "une PR de 159 fichiers hors cadence a notifié Julien d'échecs CI.",
+    "",
+    "Cause immédiate : le texte du loop était périmé. Cause profonde, trouvée",
+    "par un axe adverse : une prose ancienne gardait le pouvoir de CHOISIR LE",
+    "TRAVAIL, sans contrôle d'autorité, de périmètre ni de terminaison.",
+    "",
+    "Ce fichier retire ce pouvoir. Le loop n'est plus qu'un EXÉCUTEUR de bail :",
+    "il ne planifie pas, ne réordonne pas la feuille de route, n'ouvre aucun",
+    "chantier. Un beat terminé ne donne jamais permission d'inventer le suivant",
+    "— seul un bail actualisé le fait.",
+    "",
+    "Un meilleur texte de loop ne suffirait pas : il resterait contournable.",
+    "C'est tools/checks/lego_lease_guard.py qui rend la dérive mécanique."
+  ],
+  "active": true,
+  "lego": "bascule4",
+  "titre": "Première ouverture pure",
+  "cadrage": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule4-premiere-ouverture-cadrage-codex.md",
+  "storyboard": "product/mint_next/storyboard/first_open.storyboard.json",
+  "beats": [
+    {
+      "id": "b4_owner_legacy",
+      "etat": "vert",
+      "preuve": "apps/mobile/test/routes/legacy_onboarding_owner_test.dart"
+    },
+    {
+      "id": "b4_policy_fail_closed",
+      "etat": "vert",
+      "preuve": "apps/mobile/test/routes/legacy_onboarding_owner_test.dart"
+    },
+    {
+      "id": "b4_entry_local",
+      "etat": "vert",
+      "preuve": "apps/mobile/test/routes/legacy_onboarding_entry_test.dart"
+    },
+    {
+      "id": "b4_registry_closure",
+      "etat": "vert",
+      "preuve": "tools/checks/route_closure_check.py"
+    },
+    {
+      "id": "b4_reset_to_landing",
+      "etat": "vert",
+      "preuve": "apps/mobile/test/routes/first_open_reset_to_landing_test.dart"
+    },
+    {
+      "id": "b4_lifecycle",
+      "etat": "ouvert",
+      "preuve": null
+    },
+    {
+      "id": "b4_legacy_data_isolation",
+      "etat": "ouvert",
+      "preuve": null
+    },
+    {
+      "id": "b4_cold_start_receipt",
+      "etat": "ouvert",
+      "preuve": null
+    }
+  ],
+  "allowed_paths": [
+    "apps/mobile/lib/app.dart",
+    "apps/mobile/lib/services/install_lifecycle_service.dart",
+    "apps/mobile/lib/services/report_persistence_service.dart",
+    "apps/mobile/lib/services/navigation_trace_sink.dart",
+    "apps/mobile/lib/providers/coach_profile_provider.dart",
+    "apps/mobile/lib/screens/profile/privacy_center_screen.dart",
+    "apps/mobile/test/routes/",
+    "apps/mobile/test/services/install_lifecycle_",
+    "tools/runtime/mint_next_first_open_lifecycle.sh",
+    "tools/simulator/flows/maestro-perfect-set/flow_mint_next_first_open_lifecycle.yaml",
+    "tools/checks/journey_os_check.py",
+    "tools/checks/lego_lease_guard.py",
+    "product/mint_next/lego_lease.json"
+  ],
+  "acceptation": [
+    "cd apps/mobile && flutter analyze",
+    "cd apps/mobile && flutter test test/routes/",
+    "python3 tools/checks/route_closure_check.py",
+    "python3 tools/checks/lego_lease_guard.py"
+  ],
+  "sortie": {
+    "succes": "les 8 beats ont une preuve RÉELLE (aucun tests_planned sans test), leurs gates passent, et le reçu cold-start sans fixture est lié au SHA promu",
+    "arret_securite": [
+      "bail absent, inactif, ou divergent de product/mint_next/BRIEF.md §5",
+      "un diff touche un chemin hors allowed_paths",
+      "le beat courant exige un chantier que le cadrage ne nomme pas",
+      "état git étranger (branche inattendue, arbre sale d'un autre écrivain)",
+      "la preuve exigée par le beat est impossible à produire en l'état",
+      "budget du beat épuisé"
+    ],
+    "regle_absolue": "un beat terminé ne donne JAMAIS permission d'inventer le suivant ; STOP et rendre la main"
+  },
+  "budget_par_beat_tokens": 80000,
+  "base_sha": "18c7dce862fe92c2f6e471b89a075a7c14b2b64a",
+  "branche": "codex/journey-os-bascule4-first-open-20260813",
+  "maj": "2026-08-14"
+}
