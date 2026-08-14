@@ -701,6 +701,11 @@ ALLOW = {
     # Elle ne migre QUE les faits dotes d'une frontiere de commande — migrer
     # un fait qu'on ne sait pas ecrire le gelerait.
     "apps/mobile/lib/services/twin/twin_bootstrap.dart",
+    # Un domicile fiscal RECUSE doit effacer le canton cote serveur, pas
+    # seulement l'omettre : ce canton nourrit l'impot cantonal, l'obligation
+    # d'assurance menage et la simulation de divorce.
+    "services/backend/app/api/v1/endpoints/sync.py",
+    "services/backend/tests/test_claim_no_swiss_domicile.py",
     # La preuve d'execution sur la VRAIE pile — et la mesure qui montre que le
     # simulateur ne peut pas la donner (aucun droit dans les builds sim).
     "apps/mobile/integration_test/twin_housing_authority_test.dart",

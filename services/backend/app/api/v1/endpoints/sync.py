@@ -331,19 +331,54 @@ def _profile_fields_from_claim(payload: ClaimLocalDataRequest) -> dict:
         fields.pop("spouseBirthYear", None)
         fields.pop("spouseIncomeNetMonthly", None)
         fields.pop("spouseAvsContributionYears", None)
+
+    # Pas de domicile fiscal suisse : le canton et la commune ne doivent pas
+    # seulement etre absents, ils doivent etre EFFACES.
+    #
+    # Une absence de valeur et une absence DECLAREE ne sont pas la meme chose.
+    # Le filtre ci-dessous ecarte les valeurs nulles — donc, sans ce bloc, un
+    # frontalier qui declare n'avoir aucun domicile fiscal suisse laisserait
+    # son ancien canton intact sur le serveur. Or ce canton nourrit
+    # l'estimation d'impot cantonal, l'obligation d'assurance menage et la
+    # simulation de divorce : MINT lui dirait « l'assurance menage est
+    # obligatoire dans le canton X » pour un canton qu'il vient de recuser.
+    if _as_bool(wizard.get("q_domicile_fiscal_suisse")) is False:
+        fields["canton"] = None
+        fields["commune"] = None
+
     return {key: value for key, value in fields.items() if value is not None}
+
+
+def _fields_cleared_by_claim(payload: ClaimLocalDataRequest) -> set:
+    """Les champs que la declaration RECUSE explicitement.
+
+    Le canal des valeurs ne sait dire que « voici ce que je sais ». Celui-ci
+    dit « ceci n'a pas d'objet » — et c'est la seule facon de defaire une
+    valeur posee plus tot.
+    """
+    wizard = payload.wizard_answers or {}
+    if _as_bool(wizard.get("q_domicile_fiscal_suisse")) is False:
+        return {"canton", "commune"}
+    return set()
 
 
 def _is_bootstrap_profile(data: dict) -> bool:
     return "localDataClaim" not in data and set(data).issubset(_BOOTSTRAP_PROFILE_KEYS)
 
 
-def _merge_claim_fields(existing_data: dict, claim_fields: dict) -> dict:
+def _merge_claim_fields(
+    existing_data: dict, claim_fields: dict, cleared: set = frozenset()
+) -> dict:
     data = dict(existing_data)
     bootstrap_profile = _is_bootstrap_profile(data)
     for key, value in claim_fields.items():
         if key not in data or data[key] is None or bootstrap_profile:
             data[key] = value
+    # Un champ RÉCUSÉ part, même s'il était déjà là. La règle « ne pas
+    # écraser le cloud » protège une valeur qu'on ignore ; elle n'a pas à
+    # protéger une valeur que la personne vient de dire sans objet.
+    for key in cleared:
+        data.pop(key, None)
     return data
 
 
@@ -448,9 +483,12 @@ def claim_local_data(
         "checkins": body.checkins,
     }
     claim_fields = _profile_fields_from_claim(body)
+    cleared_fields = _fields_cleared_by_claim(body)
 
     if existing_profile:
-        data = _merge_claim_fields(existing_profile.data, claim_fields)
+        data = _merge_claim_fields(
+            existing_profile.data, claim_fields, cleared_fields
+        )
         data["localDataClaim"] = claim_blob
         data.setdefault("createdAt", now.isoformat())
 

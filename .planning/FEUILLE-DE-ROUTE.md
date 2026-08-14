@@ -87,7 +87,7 @@ Vérifié, pas déclaré. Chaque ligne porte son commit.
 |---|---|
 | Date d'effet du domicile | Le lot refuse désormais les années antérieures à la déclaration plutôt que de mentir. Dégradation explicite, donc différable. |
 | Table des mutations OFS | Provoque une demande de reconfirmation, pas un calcul faux. |
-| Propagation du fait à deux états vers le backend | **Non différable** — le serveur peut conserver un canton explicitement invalidé. Prochain lot. |
+| Propagation du fait à deux états vers le backend | ✅ **fait pour la reprise de compte** — un domicile récusé EFFACE désormais canton et commune côté serveur, au lieu d'être simplement omis. **Reste ouvert** : le mobile n'a AUCUN chemin de mise à jour du profil serveur après l'inscription (`POST /profiles` existe et n'est appelé par personne), donc un changement postérieur ne se propage pas. C'est une capacité manquante, pas un correctif. |
 | Lego C1 (éclairage marge 3a) | Branche verte à 108 tests, jamais fusionnée. À reprendre après les fondations. |
 | Mini-plans | Couche 3. Dépend de F1-F2. |
 | Connexions bancaires | Dépend du consentement (F2) et de la résidence des données. |
