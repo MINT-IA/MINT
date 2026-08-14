@@ -442,6 +442,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
                             commune.officialName,
                             cantonFullNames[commune.canton] ?? commune.canton),
                         child: TextButton(
+                          // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
                           onPressed: _busy ? null : () => _select(commune),
                           style: TextButton.styleFrom(
                             minimumSize: const Size.fromHeight(48),
@@ -502,6 +503,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
             Semantics(
               identifier: 'action:domicile.no_swiss_domicile',
               child: TextButton(
+                // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
                 onPressed: _busy
                     ? null
                     : () => setState(() => _step = _Step.noSwissDomicile),
@@ -574,6 +576,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
             Semantics(
               identifier: 'action:domicile.back_to_collect',
               child: TextButton(
+                // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
                 onPressed:
                     _busy ? null : () => setState(() => _step = _Step.collect),
                 style:
@@ -648,6 +651,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
             identifier: 'action:domicile.confirm',
             button: true,
             child: FilledButton(
+              // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
               onPressed: _busy ? null : _confirmSave,
               child: Text(l10n.mintNextDomicileConfirm),
             ),
@@ -657,6 +661,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
             identifier: 'action:domicile.back_to_collect',
             button: true,
             child: TextButton(
+              // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
               onPressed:
                   _busy ? null : () => setState(() => _step = _Step.collect),
               child: Text(l10n.mintNextDomicileBack),
@@ -732,6 +737,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
           Semantics(
             identifier: 'action:domicile.back_to_today',
             child: FilledButton(
+              // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
               onPressed: _busy ? null : () => context.go('/home'),
               style: FilledButton.styleFrom(
                   minimumSize: const Size.fromHeight(48)),
@@ -762,6 +768,7 @@ class _MintNextDomicileScreenState extends State<MintNextDomicileScreen> {
             identifier: 'action:domicile.delete',
             button: true,
             child: TextButton(
+              // lint-ignore: prefer_mint_cta — MintCTA n'existe pas encore (Phase 4 MVP-CTA-UNIFICATION-V1). Marque à retirer quand il atterrit.
               onPressed: _busy ? null : _delete,
               child: Text(l10n.mintNextDomicileDelete),
             ),

@@ -154,3 +154,16 @@ coach câblé dans cette tranche.
 Surface de lecture du calcul de marge attesté derrière kill-flag
 `enableMintNextVertical3a` (OFF par défaut, fail-closed). Aucun intent
 coach câblé dans cette tranche.
+
+## `/onboarding/premier-eclairage` — redirection héritée (2026-08-14)
+
+Exemptée de la parité registre : ce n'est pas un écran. `app.dart:1873-1881`
+la déclare comme `ScopedGoRoute` dont le `redirect` journalise un breadcrumb
+`legacyRedirectHit` puis renvoie systématiquement sur `/onb`. Elle ne construit
+aucun widget.
+
+Lui fabriquer une `ScreenEntry` la rendrait routable par le coach — vers une
+destination qui n'affiche rien. L'exemption dit la vérité ; l'entrée aurait
+menti.
+
+Elle disparaît le jour où le shim est retiré.

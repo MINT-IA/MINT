@@ -53,6 +53,11 @@ REGISTRY_DART = (
 # undesirable (admin). Adding here requires a one-line entry in the
 # KNOWN-MISSES.md doc explaining WHY it's not chat-routable.
 _NOT_CHAT_ROUTABLE: Set[str] = {
+    # Redirection héritée pure — ne rend AUCUN écran : elle journalise
+    # un breadcrumb legacy et renvoie sur /onb (app.dart:1873-1881).
+    # Lui fabriquer une ScreenEntry mentirait sur sa nature ; le coach
+    # ne peut pas router vers une destination qui n'existe pas.
+    "/onboarding/premier-eclairage",
     # Shell + landing + tab routes
     "/",
     "/start",

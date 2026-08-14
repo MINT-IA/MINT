@@ -527,16 +527,6 @@
       "preferFromChat": true
     },
     {
-      "intent": "onboarding_quick",
-      "route": "/onb",
-      "preferFromChat": false
-    },
-    {
-      "intent": "onboarding_premier_eclairage",
-      "route": "/onboarding/premier-eclairage",
-      "preferFromChat": false
-    },
-    {
       "intent": "open_banking",
       "route": "/open-banking",
       "preferFromChat": true
