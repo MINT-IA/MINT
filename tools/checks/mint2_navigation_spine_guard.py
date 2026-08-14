@@ -95,10 +95,58 @@ def _read(root: Path, rel: Path) -> str:
     return (root / rel).read_text(encoding="utf-8", errors="ignore")
 
 
+_DART_CONSTANTS_CACHE: dict[str, str] = {}
+
+
+def _resolve_dart_const(qualified: str) -> str | None:
+    """Résout `Classe.constante` en sa VALEUR, lue dans le Dart.
+
+    POURQUOI CE GARDE A DÛ APPRENDRE À LIRE UNE CONSTANTE (2026-08-14)
+
+    La bascule 4 installe une autorité centrale pour l'onboarding legacy :
+    `LegacyOnboardingEntry.legacyPath` au lieu du littéral '/onb' recopié.
+    C'est précisément ce que le cadrage exige — « autorité centrale et
+    fermeture », pour qu'un alias ajouté demain hérite du contrôle.
+
+    Ce garde, lui, cherchait le littéral. Il a donc déclaré une dérive de
+    colonne vertébrale alors que le code venait de se RENFORCER : zéro entrée
+    trouvée pour /onb, parce que la seule entrée disait le nom au lieu du
+    chemin.
+
+    Recopier '/onb' ici aurait créé une deuxième source de vérité — le défaut
+    même que la constante supprime. Le garde suit donc la même autorité que le
+    code : il lit la valeur là où elle est déclarée.
+    """
+    if qualified in _DART_CONSTANTS_CACHE:
+        return _DART_CONSTANTS_CACHE[qualified]
+    classe, _, nom = qualified.partition(".")
+    if not classe or not nom:
+        return None
+    motif = re.compile(
+        rf"class\s+{re.escape(classe)}[^A-Za-z0-9_].*?"
+        rf"static\s+const\s+(?:String\s+)?{re.escape(nom)}\s*=\s*'([^']*)'",
+        re.DOTALL,
+    )
+    racine = Path(__file__).resolve().parents[2] / "apps" / "mobile" / "lib"
+    for source in racine.rglob("*.dart"):
+        m = motif.search(source.read_text(encoding="utf-8", errors="ignore"))
+        if m:
+            _DART_CONSTANTS_CACHE[qualified] = m.group(1)
+            return m.group(1)
+    return None
+
+
 def _route_field(body: str, name: str) -> str:
     quoted = re.search(rf"\b{name}:\s*'([^']*)'", body)
     if quoted:
         return quoted.group(1)
+    # Une constante nommée vaut sa valeur — sinon nommer un chemin ferait
+    # échouer le garde qui vérifie ce chemin.
+    reference = re.search(rf"\b{name}:\s*([A-Z][A-Za-z0-9_]*\.[A-Za-z0-9_]+)", body)
+    if reference:
+        resolue = _resolve_dart_const(reference.group(1))
+        if resolue is not None:
+            return resolue
     quoted = re.search(rf'\b{name}:\s*"([^"]*)"', body)
     if quoted:
         return quoted.group(1)
