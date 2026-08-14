@@ -74,6 +74,12 @@ ALLOW = {
     # Bascule 4 — beat b4_reset_to_landing.
     "apps/mobile/test/routes/first_open_reset_to_landing_test.dart",
     "apps/mobile/test/routes/first_open_lifecycle_test.dart",
+    # Maintenance de la PR de ce Lego : goldens pixel exclus de la CI
+    # (marqueur local-only déjà porté par leurs voisins), contraste AAA
+    # séparé pour qu'il continue de tourner.
+    "apps/mobile/test/goldens/landing_golden_test.dart",
+    "apps/mobile/test/goldens/landing_contrast_test.dart",
+    ".github/workflows/ci.yml",
     # Le bail du Lego et son garde — ce qui empêche le loop de choisir
     # son travail (dérive du 14.08).
     "product/mint_next/lego_lease.json",
