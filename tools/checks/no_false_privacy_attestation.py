@@ -63,6 +63,24 @@ FALSE_PROMISE_PATTERNS = [
     # matchent pas. Les autres géo-attestations fausses de PRIVACY.md
     # (analytics « restent en Suisse ») relèvent d'un bead PRIVACY.md dédié.
     r"serveur\b.{0,15}\bsuisse",
+    # Audit 2026-08-14 (.planning/audit/2026-08-14-affirmations-de-localite-fausses.md)
+    # — trouve en OUVRANT l'app, pas en relisant. Les motifs ci-dessus visaient
+    # des tournures etroites ; ils rataient la formulation SIMPLE, qui est
+    # justement celle employee partout. Un garde qui rassure en manquant
+    # l'occurrence la plus visible est pire qu'un garde absent.
+    #
+    # Le profil part au cloud des la creation d'un compte
+    # (auth_provider.dart:1434 -> sync.py:350 « cloud profile »), l'OCR local
+    # a ete supprime le 2026-04-17 (document_scan_screen.dart:680) et le
+    # modele embarque est un stub (slm_engine.dart:1-15).
+    r"(tes|vos|les) donn[ée]es restent( chiffr[ée]es)? sur (ton|votre|l['’])"
+    r"\s*(appareil|t[ée]l[ée]phone|device)",
+    r"analys[ée]{1,2}s? localement",
+    r"l['’]extraction se fait sur ton appareil",
+    r"n['’]est jamais (stock[ée]e ni )?envoy[ée]e",
+    r"fonctionne 100 ?% sur ton appareil",
+    r"tourne sur ton appareil",
+    r"aucune donn[ée]e ne quitte ton t[ée]l[ée]phone",
     # Étiquettes App Store / Play Store : le profil financier est persisté côté
     # serveur (Railway) ET transmis au coach Anthropic (US) avec les montants
     # exacts, et les documents uploadés partent chez Claude Vision (US). Ces
@@ -95,6 +113,16 @@ _SELF_TEST_POSITIVES = [
     "toutes les données personnelles restent sur l'appareil",
     "Financial Info — données financières stockées localement uniquement",
     "No data shared with third parties",
+    # Audit 2026-08-14 — les phrases REELLES trouvees dans app_fr.arb, pas des
+    # paraphrases : un exemple invente ne prouve pas qu'on attrape le vrai.
+    '"authGatePrivacyNote": "Tes donnees restent sur ton appareil et sont chiffrees.",',
+    '"vaultPrivacy": "Tes documents sont analyses localement et ne sont jamais partages.",',
+    '"docScanPrivacyNote": "L\'image est analysee localement (OCR sur l\'appareil).",',
+    '"avsGuidePrivacyNote": "L\'extraction se fait sur ton appareil.",',
+    '"avsGuidePrivacyNote2": "L\'image de ton extrait n\'est jamais stockee ni envoyee.",',
+    '"slmPrivacyMessage": "Le modele fonctionne 100 % sur ton appareil.",',
+    '"settingsSlmSubtitle": "Tourne sur ton appareil, meme hors ligne",',
+    '"slmPrivacyMessage2": "Aucune donnee ne quitte ton telephone.",',
 ]
 _SELF_TEST_NEGATIVES = [
     "Location: Data Not Collected",                       # legit per-category
@@ -135,6 +163,25 @@ def _self_test() -> int:
     return 0
 
 
+BASELINE = REPO_ROOT / "tools/checks/_baseline_false_locality_claims.txt"
+
+
+def _load_baseline() -> set[str]:
+    """Les violations HERITEES, nommees une par une.
+
+    Avant l'audit du 2026-08-14 elles passaient en silence : le garde rendait
+    OK. Les nommer ne les excuse pas — ça transforme une dette invisible en
+    dette enumeree, que ce garde empeche desormais de grossir.
+    """
+    if not BASELINE.exists():
+        return set()
+    return {
+        line.strip()
+        for line in BASELINE.read_text(encoding="utf-8").splitlines()
+        if line.strip() and not line.startswith("#")
+    }
+
+
 def _read(rel: str) -> list[str] | None:
     path = REPO_ROOT / rel
     if not path.exists():
@@ -158,6 +205,32 @@ def main() -> int:
                 if rx.search(line):
                     hits.append(f"{rel}:{i}: {line.strip()}")
                     break
+
+    # CLIQUET. Une violation nommee dans la base est toleree et VISIBLE ; une
+    # nouvelle est refusee. La cle ARB sert d'identite : la ligne bouge quand
+    # le fichier grossit, la cle non.
+    baseline = _load_baseline()
+    def _key_of(hit: str) -> str:
+        marker = hit.split(': ', 1)[-1].lstrip()
+        return marker.split('"')[1] if marker.startswith('"') else marker[:60]
+
+    if "--update-baseline" in sys.argv:
+        _write_baseline({_key_of(h) for h in hits})
+        print(f"base regeneree — {len(hits)} affirmation(s) heritee(s).")
+        return 0
+
+    fresh = [h for h in hits if _key_of(h) not in baseline]
+    healed = baseline - {_key_of(h) for h in hits}
+    if healed and not fresh:
+        print(
+            f"ECHEC — {len(healed)} affirmation(s) de la base ont disparu :\n  "
+            + "\n  ".join(sorted(healed))
+            + "\n\n  Bonne nouvelle, mais la base doit le refleter, sinon elle"
+            "\n  decrit un monde qui n'existe plus. Retirer ces lignes de "
+            f"\n  {BASELINE.relative_to(REPO_ROOT)}."
+        )
+        return 1
+    hits = fresh
 
     if hits and us_transfer_disclosed:
         print(
@@ -188,8 +261,41 @@ def main() -> int:
         )
         return 0
 
+    if baseline:
+        # Ne PAS rendre un « OK » nu : il y a bien des affirmations fausses,
+        # elles sont seulement nommees. Taire le compte reproduirait exactement
+        # le defaut que l'audit du 2026-08-14 a trouve — un garde qui rassure.
+        print(
+            f"OK no_false_privacy_attestation — aucune NOUVELLE affirmation, "
+            f"mais {len(baseline)} heritee(s) restent a corriger "
+            f"({BASELINE.relative_to(REPO_ROOT)})."
+        )
+        return 0
     print("OK: no false on-device privacy attestation.")
     return 0
+
+
+def _write_baseline(keys: set[str]) -> None:
+    header = (
+        "# Affirmations de localite FAUSSES, heritees d'avant l'audit du\n"
+        "# 2026-08-14. Avant lui elles passaient EN SILENCE : le garde rendait\n"
+        "# OK parce que ses motifs ne visaient que des tournures etroites.\n"
+        "#\n"
+        "# Les nommer ne les excuse pas. Ca transforme une dette invisible en\n"
+        "# dette enumeree — et ce garde empeche desormais qu'elle grossisse.\n"
+        "#\n"
+        "# CLIQUET : cette liste ne peut que DECROITRE. Une nouvelle\n"
+        "# affirmation est refusee ; une affirmation corrigee doit quitter la\n"
+        "# liste dans le meme lot.\n"
+        "#\n"
+        "# Detail, preuves et contre-arguments :\n"
+        "#   .planning/audit/2026-08-14-affirmations-de-localite-fausses.md\n"
+        "#\n"
+        "# Regenerer apres une correction :\n"
+        "#   python3 tools/checks/no_false_privacy_attestation.py --update-baseline\n"
+        "\n"
+    )
+    BASELINE.write_text(header + "\n".join(sorted(keys)) + "\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
@@ -197,6 +303,11 @@ if __name__ == "__main__":
     parser.add_argument(
         "--self-test", action="store_true",
         help="Verify the false-promise patterns catch known lies and not legitimate lines.",
+    )
+    parser.add_argument(
+        "--update-baseline", action="store_true",
+        help="Renomme les affirmations heritees. A n'utiliser QUE pour retirer "
+             "de la liste ce qui vient d'etre corrige — le cliquet ne remonte pas.",
     )
     args = parser.parse_args()
     sys.exit(_self_test() if args.self_test else main())

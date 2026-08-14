@@ -1,0 +1,33 @@
+# Affirmations de localite FAUSSES, heritees d'avant l'audit du
+# 2026-08-14. Avant lui elles passaient EN SILENCE : le garde rendait
+# OK parce que ses motifs ne visaient que des tournures etroites.
+#
+# Les nommer ne les excuse pas. Ca transforme une dette invisible en
+# dette enumeree — et ce garde empeche desormais qu'elle grossisse.
+#
+# CLIQUET : cette liste ne peut que DECROITRE. Une nouvelle
+# affirmation est refusee ; une affirmation corrigee doit quitter la
+# liste dans le meme lot.
+#
+# Detail, preuves et contre-arguments :
+#   .planning/audit/2026-08-14-affirmations-de-localite-fausses.md
+#
+# Regenerer apres une correction :
+#   python3 tools/checks/no_false_privacy_attestation.py --update-baseline
+
+askMintPrivacyBadge
+authGatePrivacyNote
+authPrivacyReassurance
+avsGuidePrivacyNote
+betaDisclosureBulletNoBank
+consentSecurityMessage
+docScanPrivacyNote
+dossierSlmSubtitle
+landingFeature2Desc
+landingLegalFooter
+librePassagePrivacyNote
+onboardingConsentBody
+promiseFooter
+settingsSlmSubtitle
+slmPrivacyMessage
+vaultPrivacy

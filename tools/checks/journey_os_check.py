@@ -676,6 +676,12 @@ ALLOW = {
     # F0d — les versements 3a se DECOMPOSENT : un fait par versement, avec son
     # identifiant stable. L'annee fiscale epinglee et la date de credit
     # passent dans l'enveloppe ; la revision annuelle se derive des versions.
+    # Audit 2026-08-14 — les affirmations de localite fausses, trouvees en
+    # OUVRANT l'app. Le garde existant rendait OK en ratant la formulation
+    # simple ; il est durci et porte desormais un cliquet nomme.
+    ".planning/audit/2026-08-14-affirmations-de-localite-fausses.md",
+    "tools/checks/no_false_privacy_attestation.py",
+    "tools/checks/_baseline_false_locality_claims.txt",
     "apps/mobile/lib/services/twin/versements_3a_decomposition.dart",
     "apps/mobile/test/services/twin/versements_3a_decomposition_test.dart",
     "apps/mobile/test/services/twin/twin_is_the_authority_test.dart",
