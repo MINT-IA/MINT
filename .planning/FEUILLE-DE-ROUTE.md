@@ -73,8 +73,21 @@ qu'une fois la précédente fermée et nettoyée.
 déjà sur disque, et une branche verte de 108 tests attend d'être fusionnée.
 Coût marginal le plus bas pour la première valeur visible.
 
-**Fermeture** : 3a dans les faits possédés, branche fusionnée, preuve depuis le
-geste jusqu'au chiffre affiché.
+**État au 2026-08-14** — l'écran et le calculateur **existent déjà** sur la
+branche courante, routés sous `/mint-next/vertical-3a`, derrière le drapeau
+`enableMintNextVertical3a` qui vaut `false`. La branche non fusionnée n'est
+donc pas le sujet : T1 se réduit à faire passer les versements 3a par le
+jumeau, vérifier que le chiffre en vient, et allumer.
+
+**Ce qui bloque, mesuré** : avec `versements_3a` dans les faits possédés, la
+sauvegarde ne lève pas mais `provider.versements3aFact` ressort **nul** — ce
+que le provider expose n'est plus reconstituable. Les 11 122 tests unitaires
+passent ; le défaut n'apparaît que sur la vraie pile, comme tous les autres de
+cette session. Bascule **retirée** plutôt qu'expédiée, diagnostic à terminer.
+
+**Fermeture** : versements 3a possédés par le jumeau, preuve depuis le geste
+jusqu'au chiffre affiché, puis drapeau allumé — cette dernière ligne est une
+décision produit, pas technique.
 
 ### T2 — Un chiffre affiché dit d'où il vient
 

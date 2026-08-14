@@ -154,6 +154,21 @@ void main() {
     expect(answers[MintNextRevenuFact.legacyFrequencyKey], 'monthly');
   });
 
+  testWidgets('3a payments — MARGIN slice, waiting on the twin', (tester) async {
+    // T1 ATTEND, et cet oracle dit pourquoi plutot que de disparaitre.
+    //
+    // Mesure le 2026-08-14 : avec `versements_3a` dans les faits possedes, la
+    // sauvegarde ne LEVE PAS mais `provider.versements3aFact` ressort NUL — ce
+    // que le provider expose n'est plus reconstituable. Les 11 122 tests
+    // unitaires passent : le defaut n'apparait que sur la vraie pile, comme
+    // tous les autres de cette session.
+    //
+    // Diagnostic non termine, donc bascule RETIREE plutot qu'expediee.
+    markTestSkipped(
+        'versements_3a pas encore possedes par le jumeau — voir T1 dans '
+        '.planning/FEUILLE-DE-ROUTE.md');
+  });
+
   testWidgets('deleting from the screen leaves a tombstone, not a hole',
       (tester) async {
     if (!await coffreDisponible()) {
