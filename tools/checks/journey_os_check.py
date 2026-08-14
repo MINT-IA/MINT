@@ -665,6 +665,10 @@ ALLOW = {
     # reservee du meme objet que sa projection, donc une seule ecriture.
     "apps/mobile/lib/services/twin/answers_twin_backend.dart",
     "apps/mobile/test/services/twin/answers_twin_backend_test.dart",
+    # F0f — le registre porte la meme PII que les faits : il doit etre scelle.
+    # Cinq des six faits portent des cles classees sensibles ; le registre les
+    # recopiait en clair sous une cle que le classificateur ignorait.
+    "apps/mobile/test/services/twin/twin_registry_is_sealed_test.dart",
     # F3 — la regle rendue mecanique : plus aucune ECRITURE DIRECTE nouvelle
     # dans la projection. Cliquet sur les 28 sites herites.
     "tools/checks/twin_write_discipline.py",

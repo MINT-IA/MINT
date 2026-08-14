@@ -136,6 +136,56 @@ l'impose à l'écriture **et** au chargement.
   statut, année fiscale, péremption, identité de version voyagent avec chaque
   valeur, dans une table compagne. Les écrans lisent la valeur exactement comme
   avant ; on peut en plus demander d'où elle vient.
+- **F0f — le registre du jumeau descendait la PII dans les préférences en
+  clair.** ✅ Trouvé en préparant F0e, par une sonde et non par relecture :
+  cinq des six faits portent des clés classées **sensibles** — état civil,
+  montants de revenu, chiffres hypothécaires, avoir LPP, versements 3a. Ces
+  valeurs sont chiffrées dans le Keychain et remplacées par un jeton dans les
+  préférences. Le registre les recopiait **en clair** dans son JSON, sous une
+  clé que le classificateur ne connaissait pas : la même donnée scellée d'un
+  côté, lisible de l'autre — l'inverse exact de SEC-10.
+  **Rien n'avait fuité** : le jumeau n'est branché à aucun écran, la porte
+  était ouverte mais personne n'y était encore passé. C'est bien pour ça
+  qu'elle devait être fermée **avant** F0e.
+  Au passage, une seconde chose : quand le coffre ne rend rien, la
+  restauration laisse la clé présente avec une valeur nulle. Repartir de zéro
+  aurait recouvert définitivement une histoire que le coffre aurait pu rendre.
+  Le jumeau distingue désormais « rien à lire » de « quelque chose qu'on ne
+  sait plus lire », et refuse d'écrire par-dessus le second.
+
+  **Axe adverse Codex sur ce correctif — huit constats, triés.**
+  Trois retenus, et ce sont les trois fois le même dommage : perdre une
+  histoire.
+  - *L'échange comparé ne comparait rien.* Entre lire la révision et écrire, il
+    y a des `await` : deux écritures lancées ensemble lisaient la même
+    révision, passaient toutes les deux, et la seconde recouvrait la première.
+    Corrigé par une file d'attente. **Vérifié par mutation** — en neutralisant
+    la file, l'oracle échoue avec le symptôme exact : deux écritures acceptées
+    au lieu d'une.
+  - *L'écriture ne refusait pas ce que la lecture refusait.* Même règle
+    désormais aux deux portes.
+  - *Le magasin de réponses échoue en silence* — JSON illisible, carte vide.
+    Le registre, scellé, y survivait ; on concluait « pas de jumeau » et
+    l'écriture suivante recouvrait une histoire intacte. Le registre se lit
+    maintenant depuis le coffre : la perte devient une récupération.
+
+  Deux rejetés, avec preuve : « fuite persistante sur les installations
+  existantes » et « résidus dans les sauvegardes système » supposent qu'un
+  registre en clair existe déjà quelque part. Il n'en existe aucun — aucun
+  écran n'appelle le jumeau, donc aucune installation n'a jamais écrit cette
+  clé.
+
+  Un différé, argumenté : la table compagne et la révision restent en clair.
+  Elle ne porte aucune VALEUR (un oracle le vérifie), et les noms de clés
+  qu'elle expose figurent déjà dans les préférences sous forme de jetons. Ce
+  qu'elle ajoute — années fiscales, cadence des confirmations — est un
+  incrément réel mais mince. À rouvrir si le jumeau se met à porter des faits
+  plus révélateurs.
+
+  Un noté, non corrigé : le coffre est écrit avant les préférences. Si la
+  seconde écriture échoue, le registre scellé est en avance d'une version sur
+  la révision. Conséquence bornée — la version suivante réécrit par-dessus,
+  rien ne se perd.
 - **F0e — DEUX AUTORITÉS coexistent, et ce n'est pas tenable.** Découvert en
   câblant F0b : `saveAnswers` **retire toutes les clés des six faits
   canoniques** de ce qu'on lui donne, puis les réécrit depuis le coffre
@@ -143,6 +193,11 @@ l'impose à l'écriture **et** au chargement.
   Le jumeau ne peut pas encore posséder les faits qu'il est censé posséder.
   C'est le prochain vrai chantier — sans lui, le branchement reste
   partiellement décoratif pour les six faits.
+  **Ce que F0f a changé à ce diagnostic** : cette seconde autorité n'est pas un
+  doublon arbitraire, c'est le coffre **chiffré**. Le retrait-puis-réécriture
+  existe pour une bonne raison. La résolution n'est donc pas « le jumeau
+  gagne » mais « le jumeau devient l'autorité **sans perdre le chiffrement** ».
+  Formulé autrement, F0f était le prérequis, pas une digression.
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit

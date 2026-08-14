@@ -400,6 +400,17 @@ class SecureWizardStore {
   /// in plain SharedPreferences.
   static const _sensitiveKeys = {
     ..._classifiedSensitiveKeys,
+    // Le registre du jumeau. Il porte les MÊMES valeurs que les faits
+    // canoniques — état civil, montants de revenu, chiffres hypothécaires,
+    // avoir LPP, versements 3a — et il les porte en clair dans son JSON. Sans
+    // cette ligne il descendrait dans les préférences simples pendant que les
+    // valeurs qu'il recopie y figurent en `__secure__` : la même donnée
+    // scellée d'un côté, lisible de l'autre.
+    //
+    // La valeur littérale est répétée ici plutôt qu'importée — le coffre ne
+    // dépend d'aucun service. L'oracle `twin_registry_is_sealed_test.dart`
+    // relie les deux et échoue si elles divergent.
+    'mint_twin_registry_v1',
     'q_firstname',
     'q_date_of_birth',
     'q_birth_year',
