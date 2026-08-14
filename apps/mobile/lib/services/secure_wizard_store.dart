@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart' show PlatformException;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mint_mobile/models/mint_next_civil_status_fact.dart';
+import 'package:mint_mobile/services/twin/twin_fact_lookup.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
@@ -849,10 +850,38 @@ class SecureWizardStore {
     }
   }
 
+  /// Le registre du jumeau, lu là où il est scellé.
+  ///
+  /// La canonicalisation tourne AVANT la restauration des valeurs sensibles :
+  /// à ce moment-là, la carte ne porte encore que le jeton. Il faut donc
+  /// interroger le coffre directement.
+  static Future<TwinFactLookup> _twinLookup() async {
+    // Même littéral que `AnswersTwinBackend.registryKey`. Le coffre ne dépend
+    // d'aucun service ; l'oracle `twin_registry_is_sealed_test.dart` relie les
+    // deux et échoue s'ils divergent.
+    final serialised = await read('mint_twin_registry_v1');
+    return TwinFactLookup.decode(serialised);
+  }
+
   static Future<Map<String, dynamic>> canonicalizeHousingAnswers(
       Map<String, dynamic> answers) async {
     final result = Map<String, dynamic>.from(answers)
       ..removeWhere((key, _) => MintNextHousingFact.wizardKeys.contains(key));
+
+    // Le jumeau d'abord : c'est lui l'autorité. Le magasin canonique n'est
+    // plus qu'un repli pour les faits qu'il n'a JAMAIS connus.
+    final twin = (await _twinLookup()).forFact('logement#residence_principale');
+    if (twin.isAlive) {
+      result.addAll(twin.wizardAnswers!);
+      return result;
+    }
+    if (twin.isDeleted) {
+      // Aucun repli : le laisser retomber sur le magasin canonique
+      // ressusciterait un fait que la personne a supprimé.
+      await deleteKeys(MintNextHousingFact.wizardKeys);
+      return result;
+    }
+
     final canonical = await readCanonicalHousing();
     if (canonical.status == CanonicalHousingStatus.present) {
       // The wizard cache still projects secure placeholders, so its per-key

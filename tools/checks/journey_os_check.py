@@ -669,6 +669,11 @@ ALLOW = {
     # Cinq des six faits portent des cles classees sensibles ; le registre les
     # recopiait en clair sous une cle que le classificateur ignorait.
     "apps/mobile/test/services/twin/twin_registry_is_sealed_test.dart",
+    # F0e — le jumeau devient l'autorite : la canonicalisation le consulte
+    # AVANT le magasin canonique, qui n'est plus qu'un repli pour les faits
+    # qu'il n'a jamais connus. Tri-etat : absent / vivant / supprime.
+    "apps/mobile/lib/services/twin/twin_fact_lookup.dart",
+    "apps/mobile/test/services/twin/twin_is_the_authority_test.dart",
     # F3 — la regle rendue mecanique : plus aucune ECRITURE DIRECTE nouvelle
     # dans la projection. Cliquet sur les 28 sites herites.
     "tools/checks/twin_write_discipline.py",

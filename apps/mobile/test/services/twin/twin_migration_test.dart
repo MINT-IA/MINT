@@ -161,4 +161,38 @@ void main() {
     expect(registry.length, 2);
     expect(registry.history('domicile').length, 2);
   });
+
+  test('every declared fact can actually be migrated, not just the single ones',
+      () {
+    // CE QUE CET ORACLE A ATTRAPÉ, APRÈS COUP
+    //
+    // Les oracles de migration n'exerçaient que `domicile` — un fait UNIQUE.
+    // Quand le contrat est arrivé et a déclaré quatre faits MULTIPLES, la
+    // migration a continué de leur donner leur type nu comme identifiant, ce
+    // que le contrat refuse : elle levait pour le logement, le revenu, la LPP
+    // et les versements 3a. Autrement dit elle plantait sur tout dossier un
+    // peu rempli, et rien ne le disait.
+    //
+    // Le trou n'était pas dans le code : il était dans le CHOIX du cas testé.
+    // D'où cet oracle qui parcourt le catalogue au lieu d'en élire un.
+    for (final fact in kMigratableFacts) {
+      final neuf = FactRegistry(
+          newId: () => 'v${++counter}', now: () => migratedAt);
+      final answers = <String, dynamic>{
+        for (final key in fact.payloadKeys) key: 'valeur',
+      };
+
+      final report = TwinMigration.migrate(
+        answers: answers,
+        registry: neuf,
+        migratedAt: migratedAt,
+      );
+
+      expect(report.migrated, contains(fact.registryId),
+          reason: '${fact.factId} doit pouvoir être migré');
+      expect(neuf.current(fact.registryId), isNotNull,
+          reason: '${fact.factId} doit être retrouvable sous son identifiant '
+              'complet, clé de membre comprise');
+    }
+  });
 }

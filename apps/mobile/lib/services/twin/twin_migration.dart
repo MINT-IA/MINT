@@ -30,6 +30,7 @@ import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/models/mint_next_lpp_affiliation_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
+import 'package:mint_mobile/services/twin/fact_contract.dart';
 import 'package:mint_mobile/services/twin/fact_registry.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
 
@@ -38,6 +39,7 @@ import 'package:mint_mobile/services/twin/fact_version.dart';
 class MigratableFact {
   const MigratableFact({
     required this.factId,
+    this.projectionMember,
     required this.keys,
     required this.assertedAtKey,
     required this.sourceKey,
@@ -46,7 +48,21 @@ class MigratableFact {
   });
 
   final String factId;
+
+  /// Le membre que le magasin plat décrit, pour un fait qui peut en avoir
+  /// plusieurs.
+  ///
+  /// Le magasin plat n'a qu'un jeu de clés `q_housing_*` : il ne peut décrire
+  /// QU'UN logement — la résidence principale, comme le dit son propre modèle
+  /// (`PrimaryHomeTenure`). Le contrat, lui, déclare `logement` multiple, parce
+  /// que la vie l'est. Les deux sont vrais : le registre porte plusieurs biens,
+  /// la projection plate n'en montre qu'un, et cette clé dit lequel.
+  ///
+  /// Null pour un fait unique, qui n'accepte pas de clé de membre.
+  final String? projectionMember;
+
   final Set<String> keys;
+
   final String assertedAtKey;
   final String sourceKey;
   final String schemaVersionKey;
@@ -60,6 +76,10 @@ class MigratableFact {
         schemaVersionKey,
         needsConfirmationKey,
       });
+
+  /// L'identifiant complet dans le registre, membre compris.
+  String get registryId =>
+      FactContracts.of(factId)!.factIdFor(memberKey: projectionMember);
 }
 
 /// Les six faits d'aujourd'hui, déclarés une seule fois.
@@ -85,6 +105,7 @@ const List<MigratableFact> kMigratableFacts = [
   ),
   MigratableFact(
     factId: 'revenu',
+    projectionMember: 'principal',
     keys: MintNextRevenuFact.wizardKeys,
     assertedAtKey: MintNextRevenuFact.assertedAtKey,
     sourceKey: MintNextRevenuFact.sourceKey,
@@ -93,6 +114,7 @@ const List<MigratableFact> kMigratableFacts = [
   ),
   MigratableFact(
     factId: 'logement',
+    projectionMember: 'residence_principale',
     keys: MintNextHousingFact.wizardKeys,
     assertedAtKey: MintNextHousingFact.assertedAtKey,
     sourceKey: MintNextHousingFact.sourceKey,
@@ -101,6 +123,7 @@ const List<MigratableFact> kMigratableFacts = [
   ),
   MigratableFact(
     factId: 'lpp_affiliation',
+    projectionMember: 'caisse_principale',
     keys: MintNextLppAffiliationFact.wizardKeys,
     assertedAtKey: MintNextLppAffiliationFact.assertedAtKey,
     sourceKey: MintNextLppAffiliationFact.sourceKey,
@@ -109,6 +132,7 @@ const List<MigratableFact> kMigratableFacts = [
   ),
   MigratableFact(
     factId: 'versements_3a',
+    projectionMember: 'portefeuille',
     keys: MintNextVersements3aFact.wizardKeys,
     assertedAtKey: MintNextVersements3aFact.assertedAtKey,
     sourceKey: MintNextVersements3aFact.sourceKey,
@@ -177,7 +201,7 @@ class TwinMigration {
           : declared.toUtc();
 
       registry.append(
-        factId: fact.factId,
+        factId: fact.registryId,
         factType: fact.factId,
         payload: payload,
         assertedAt: assertedAt,
@@ -191,7 +215,7 @@ class TwinMigration {
         // effectiveFrom et fiscalYear restent NULS. Les déduire de la date de
         // déclaration serait une date fabriquée.
       );
-      migrated.add(fact.factId);
+      migrated.add(fact.registryId);
     }
 
     final orphans = answers.keys
