@@ -23,7 +23,7 @@ import 'package:mint_mobile/services/feature_flags.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/twin/answers_twin_backend.dart';
-import 'package:mint_mobile/services/twin/housing_twin_command.dart';
+import 'package:mint_mobile/services/twin/twin_fact_commands.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -32,10 +32,10 @@ void main() {
   setUp(() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
-    HousingTwinCommand.install();
+    TwinFactCommands.install();
   });
 
-  tearDown(() => FeatureFlags.twinOwnsHousing = false);
+  tearDown(() => FeatureFlags.twinOwnedFactTypes = <String>{});
 
   MintNextHousingFact logement(int interetCents) => MintNextHousingFact(
         tenure: PrimaryHomeTenure.ownerOccupier,
@@ -99,16 +99,16 @@ void main() {
       markTestSkipped('coffre indisponible sur cet appareil — non concluant');
       return;
     }
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
 
     await SecureWizardStore.writeCanonicalHousing(logement(300000));
     await SecureWizardStore.writeCanonicalHousing(logement(425000));
 
     // On fait DIVERGER les deux magasins : sans ça, le repli rendrait la même
     // réponse et ce test ne prouverait rien.
-    FeatureFlags.twinOwnsHousing = false;
+    FeatureFlags.twinOwnedFactTypes = <String>{};
     await SecureWizardStore.writeCanonicalHousing(logement(111111));
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
 
     final answers = await ReportPersistenceService.loadAnswers();
 

@@ -504,6 +504,31 @@ l'impose à l'écriture **et** au chargement.
   leurs writers restent surveillés, et la liste ne rétrécira qu'à mesure qu'ils
   en auront une.
 
+- **F0i — UNE commande générique pour tous les faits.** ✅ Cliquet **26 → 19**.
+
+  Répliquer le patron du logement quatre fois aurait multiplié par quatre les
+  occasions de diverger : quatre conversions à tenir, quatre gardes de drapeau,
+  quatre `try`/`catch`, et quatre endroits où oublier la suppression —
+  **l'oubli exact que le lot précédent a dû réparer**. Or le jumeau sait déjà
+  convertir dans les deux sens ; la commande n'a besoin que du type et des
+  réponses.
+
+  Quatre faits passent donc la frontière d'un coup : logement, état civil,
+  revenu, affiliation LPP — écriture ET suppression. Un oracle prouve que la
+  même commande sert un second fait sans une ligne de plus, un autre qu'un fait
+  **non possédé** ne bouge pas : la bascule reste fait par fait.
+
+  L'interrupteur devient un **ensemble** de types possédés plutôt qu'un drapeau
+  par fait — un seul endroit à tenir cohérent.
+
+  **Une régression attrapée au passage** : la commande générique avait perdu
+  l'année fiscale de l'enveloppe, que la version logement portait. Le catalogue
+  déclare désormais quelle clé la porte, et la retire de la charge utile — la
+  même information à deux endroits finit toujours par diverger.
+
+  Les versements 3a restent dehors : leur valeur est une **liste** qui se
+  décompose, pas un fait qui s'enveloppe. Ils gardent leur chemin propre.
+
 - **F0c — les deux temps sont séparés.** ✅ Dernier trou nommé du registre.
 
   `effectiveTo` — temps **métier** — recevait la date d'**enregistrement** de la

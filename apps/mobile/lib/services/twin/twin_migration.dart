@@ -41,6 +41,7 @@ class MigratableFact {
   const MigratableFact({
     required this.factId,
     this.projectionMember,
+    this.fiscalYearKey,
     required this.keys,
     required this.assertedAtKey,
     required this.sourceKey,
@@ -61,6 +62,14 @@ class MigratableFact {
   ///
   /// Null pour un fait unique, qui n'accepte pas de clé de membre.
   final String? projectionMember;
+
+  /// La clé qui porte l'ANNÉE FISCALE, quand le fait s'y rapporte.
+  ///
+  /// Elle appartient à l'enveloppe, pas à la charge utile : une charge
+  /// appartient à un exercice, et une commande générique ne peut pas deviner
+  /// laquelle des clés le dit. Le catalogue le déclare, comme il déclare déjà
+  /// les clés de métadonnées.
+  final String? fiscalYearKey;
 
   final Set<String> keys;
 
@@ -116,6 +125,7 @@ const List<MigratableFact> kMigratableFacts = [
   MigratableFact(
     factId: 'logement',
     projectionMember: 'residence_principale',
+    fiscalYearKey: MintNextHousingFact.statementYearKey,
     keys: MintNextHousingFact.wizardKeys,
     assertedAtKey: MintNextHousingFact.assertedAtKey,
     sourceKey: MintNextHousingFact.sourceKey,

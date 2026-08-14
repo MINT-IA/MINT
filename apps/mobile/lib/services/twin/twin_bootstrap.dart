@@ -34,7 +34,7 @@ class TwinBootstrap {
   /// Les faits que l'on sait AUSSI écrire — donc les seuls qu'on ait le droit
   /// de migrer. La liste grandit avec les frontières de commande, jamais avant.
   static Set<String> get commandableFacts =>
-      FeatureFlags.twinOwnsHousing ? const {'logement'} : const {};
+      FeatureFlags.twinOwnedFactTypes;
 
   /// Fait entrer l'existant dans le registre, une seule fois.
   ///

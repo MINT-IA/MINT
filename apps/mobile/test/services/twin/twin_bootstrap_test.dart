@@ -32,7 +32,7 @@ void main() {
         newId: () => 'v${++compteur}', now: () => migratedAt);
   });
 
-  tearDown(() => FeatureFlags.twinOwnsHousing = false);
+  tearDown(() => FeatureFlags.twinOwnedFactTypes = <String>{});
 
   Map<String, dynamic> dossier() => {
         MintNextHousingFact.tenureKey: 'owner_occupier',
@@ -67,7 +67,7 @@ void main() {
     // Le cœur de l'amorce. Le domicile est présent dans le dossier et migrable
     // en théorie — mais aucun écran ne sait l'écrire dans le jumeau. Le migrer
     // le figerait : modifié à l'écran, inchangé à l'affichage.
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
     await ReportPersistenceService.saveAnswers(dossier());
 
     final report = (await amorcer())!;
@@ -83,7 +83,7 @@ void main() {
     // La migration n'est PAS idempotente : sans garde, le second passage
     // ajouterait une version en pretendant que la personne a redéclaré ce
     // qu'elle avait déjà dit.
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
     await ReportPersistenceService.saveAnswers(dossier());
 
     await amorcer();
@@ -103,7 +103,7 @@ void main() {
   test('an empty profile leaves the twin unmarked', () async {
     // Écrire un registre vide le marquerait « déjà migré » — et la déclaration
     // faite demain ne serait jamais reprise.
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
 
     final report = await amorcer();
 
@@ -117,7 +117,7 @@ void main() {
   test('a sealed but unreadable registry is never overwritten', () async {
     // Le pire des deux mondes : repartir de zéro écraserait une histoire que
     // le coffre finirait peut-être par rendre.
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
     SharedPreferences.setMockInitialValues({
       AnswersTwinBackend.registryWrittenKey: true,
     });
@@ -127,7 +127,7 @@ void main() {
 
   test('the migrated value actually reaches the screens', () async {
     // La question qui compte : après amorce, le chiffre remonte-t-il ?
-    FeatureFlags.twinOwnsHousing = true;
+    FeatureFlags.twinOwnedFactTypes = {'logement'};
     await ReportPersistenceService.saveAnswers(dossier());
 
     await amorcer();

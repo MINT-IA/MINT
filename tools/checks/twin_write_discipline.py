@@ -50,7 +50,7 @@ WRITE_PATTERNS = (
     # Les autres faits n'ont pas encore de frontière : leurs writers restent
     # des contournements et restent surveillés. La liste rétrécira quand ils
     # en auront une, jamais avant.
-    re.compile(r"SecureWizardStore\.writeCanonical(?!Housing\b|HousingDeleted\b)\w+"),
+    re.compile(r"SecureWizardStore\.writeCanonical(?!Housing|CivilStatus|Revenu|LppAffiliation)\w+"),
 )
 
 # Le jumeau lui-même écrit forcément dans la projection : c'est son travail.
@@ -178,8 +178,11 @@ def self_test() -> int:
         ("await SecureWizardStore.writeCanonicalHousing(fact);", False),
         ("await SecureWizardStore.writeCanonicalHousingDeleted();", False),
         # Les autres n'en ont pas encore : ils restent des contournements.
-        ("await SecureWizardStore.writeCanonicalCivilStatusDeleted();", True),
-        ("await SecureWizardStore.writeCanonicalRevenu(fact);", True),
+        ("await SecureWizardStore.writeCanonicalCivilStatusDeleted();", False),
+        ("await SecureWizardStore.writeCanonicalRevenu(fact);", False),
+        # Les versements 3a n'ont PAS de frontiere : leur valeur est une liste
+        # qui se decompose, pas un fait qui s'enveloppe.
+        ("await SecureWizardStore.writeCanonicalVersements3a(fact);", True),
         ("final answers = await ReportPersistenceService.loadAnswers();", False),
         ("// ReportPersistenceService.saveAnswers dans un commentaire", True),
     ):

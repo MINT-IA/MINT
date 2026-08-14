@@ -696,7 +696,7 @@ ALLOW = {
     # F0g etape 2 — la FRONTIERE DE COMMANDE : les ecrans continuent d'appeler
     # writeCanonicalHousing, et c'est elle qui fait entrer le fait au registre.
     # Derriere un interrupteur eteint par defaut.
-    "apps/mobile/lib/services/twin/housing_twin_command.dart",
+    "apps/mobile/lib/services/twin/twin_fact_commands.dart",
     # L'amorce : le moment ou le jumeau devient reel, une fois et une seule.
     # Elle ne migre QUE les faits dotes d'une frontiere de commande — migrer
     # un fait qu'on ne sait pas ecrire le gelerait.
@@ -713,7 +713,11 @@ ALLOW = {
     # simulateur ne peut pas la donner (aucun droit dans les builds sim).
     "apps/mobile/integration_test/twin_housing_authority_test.dart",
     "apps/mobile/test/services/twin/twin_bootstrap_test.dart",
+    "apps/mobile/test/services/twin/twin_fact_commands_test.dart",
+    # Ancien nom, garde le temps que la suppression soit poussee : une
+    # commande specifique au logement est devenue generique.
     "apps/mobile/test/services/twin/housing_twin_command_test.dart",
+    "apps/mobile/lib/services/twin/housing_twin_command.dart",
     "apps/mobile/lib/services/feature_flags.dart",
     "apps/mobile/lib/main.dart",
     "tools/verify_full.sh",

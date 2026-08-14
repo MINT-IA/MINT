@@ -838,23 +838,51 @@ class SecureWizardStore {
   /// rien à faire dans l'histoire du jumeau.
   static Future<bool> writeCanonicalHousing(MintNextHousingFact fact) async {
     if (!await _writeCanonicalHousingRaw(fact)) return false;
-    if (!FeatureFlags.twinOwnsHousing) return true;
-    try {
-      await twinCommand(fact);
-    } on Exception {
-      // Le coffre canonique a bien reçu le fait ; le jumeau, non. Le repli
-      // reste donc la réponse — c'est exactement l'état « le jumeau ne connaît
-      // pas ce fait », qui est prévu et sûr. Échouer ici ferait perdre une
-      // déclaration que la personne vient de faire.
-    }
+    await _commandTwinSave('logement', fact.toWizardAnswers());
     return true;
   }
 
-  /// Injectable pour les oracles : le jumeau n'est pas visible d'ici.
-  static Future<void> Function(MintNextHousingFact fact) twinCommand =
-      _noTwinCommand;
+  /// La commande du jumeau, GÉNÉRIQUE — un seul crochet pour tous les faits.
+  ///
+  /// Écrire une commande par fait aurait multiplié par cinq les occasions de
+  /// diverger : cinq conversions à tenir, cinq gardes de drapeau, cinq
+  /// try/catch. Le jumeau sait déjà convertir dans les deux sens
+  /// (`kMigratableFacts` pour l'aller, `TwinFactLookup` pour le retour) — il
+  /// n'a besoin que du type et des réponses.
+  static Future<void> Function(String factType, Map<String, dynamic> answers)
+      twinSave = _noTwinSave;
 
-  static Future<void> _noTwinCommand(MintNextHousingFact fact) async {}
+  /// Idem pour la pierre tombale.
+  static Future<void> Function(String factType) twinRemove = _noTwinRemove;
+
+  static Future<void> _noTwinSave(String _, Map<String, dynamic> __) async {}
+
+  static Future<void> _noTwinRemove(String _) async {}
+
+  /// Fait entrer une déclaration dans le jumeau, quand il possède ce fait.
+  ///
+  /// Une panne du jumeau ne fait PAS échouer la déclaration : le coffre l'a
+  /// déjà acceptée, et le repli reste la réponse — c'est exactement l'état
+  /// « le jumeau ne connaît pas ce fait », qui est prévu et sûr.
+  static Future<void> _commandTwinSave(
+      String factType, Map<String, dynamic> answers) async {
+    if (!FeatureFlags.twinOwnedFactTypes.contains(factType)) return;
+    try {
+      await twinSave(factType, answers);
+    } on Exception {
+      // Voir ci-dessus : perdre une déclaration serait pire.
+    }
+  }
+
+  static Future<void> _commandTwinRemove(String factType) async {
+    if (!FeatureFlags.twinOwnedFactTypes.contains(factType)) return;
+    try {
+      await twinRemove(factType);
+    } on Exception {
+      // Le fait resterait visible jusqu'à la prochaine suppression réussie —
+      // mauvais, mais moins que de refuser une suppression demandée.
+    }
+  }
 
   static Future<bool> _writeCanonicalHousingRaw(
       MintNextHousingFact fact) async {
@@ -893,21 +921,9 @@ class SecureWizardStore {
   /// dégâts.
   static Future<bool> writeCanonicalHousingDeleted() async {
     if (!await _writeCanonicalHousingDeletedRaw()) return false;
-    if (!FeatureFlags.twinOwnsHousing) return true;
-    try {
-      await twinRemoveCommand();
-    } on Exception {
-      // Le coffre porte la pierre tombale ; le jumeau, non. Le fait resterait
-      // visible jusqu'à la prochaine suppression réussie — mauvais, mais moins
-      // que de refuser une suppression que la personne a demandée.
-    }
+    await _commandTwinRemove('logement');
     return true;
   }
-
-  /// Injectable pour les oracles, comme [twinCommand].
-  static Future<void> Function() twinRemoveCommand = _noTwinRemoveCommand;
-
-  static Future<void> _noTwinRemoveCommand() async {}
 
   static Future<bool> _writeCanonicalHousingDeletedRaw() async {
     try {
@@ -1075,15 +1091,25 @@ class SecureWizardStore {
     if (override != null) {
       return override();
     }
-    return _writeCanonicalSealedRecord(
+    if (!await _writeCanonicalSealedRecord(
         _canonicalCivilStatusKey,
         _canonicalCivilStatusInitializedKey,
-        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}))) {
+      return false;
+    }
+    await _commandTwinSave('etat_civil', fact.toWizardAnswers());
+    return true;
   }
 
-  static Future<bool> writeCanonicalCivilStatusDeleted() =>
-      _writeCanonicalSealedRecord(_canonicalCivilStatusKey,
-          _canonicalCivilStatusInitializedKey, json.encode({'state': 'deleted'}));
+  static Future<bool> writeCanonicalCivilStatusDeleted() async {
+    if (!await _writeCanonicalSealedRecord(_canonicalCivilStatusKey,
+        _canonicalCivilStatusInitializedKey,
+        json.encode({'state': 'deleted'}))) {
+      return false;
+    }
+    await _commandTwinRemove('etat_civil');
+    return true;
+  }
 
   static Future<bool> _writeCanonicalSealedRecord(
       String key, String markerKey, String record) async {
@@ -1263,17 +1289,26 @@ class SecureWizardStore {
     if (override != null) {
       return override();
     }
-    return _writeCanonicalSealedRecord(
+    if (!await _writeCanonicalSealedRecord(
         _canonicalLppAffiliationKey,
         _canonicalLppAffiliationInitializedKey,
-        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}))) {
+      return false;
+    }
+    await _commandTwinSave('lpp_affiliation', fact.toWizardAnswers());
+    return true;
   }
 
-  static Future<bool> writeCanonicalLppAffiliationDeleted() =>
-      _writeCanonicalSealedRecord(
-          _canonicalLppAffiliationKey,
-          _canonicalLppAffiliationInitializedKey,
-          json.encode({'state': 'deleted'}));
+  static Future<bool> writeCanonicalLppAffiliationDeleted() async {
+    if (!await _writeCanonicalSealedRecord(
+        _canonicalLppAffiliationKey,
+        _canonicalLppAffiliationInitializedKey,
+        json.encode({'state': 'deleted'}))) {
+      return false;
+    }
+    await _commandTwinRemove('lpp_affiliation');
+    return true;
+  }
 
   static Future<CanonicalLppAffiliationRead>
       readCanonicalLppAffiliation() async {
@@ -1381,15 +1416,25 @@ class SecureWizardStore {
     if (override != null) {
       return override();
     }
-    return _writeCanonicalSealedRecord(
+    if (!await _writeCanonicalSealedRecord(
         _canonicalRevenuKey,
         _canonicalRevenuInitializedKey,
-        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}))) {
+      return false;
+    }
+    await _commandTwinSave('revenu', fact.toWizardAnswers());
+    return true;
   }
 
-  static Future<bool> writeCanonicalRevenuDeleted() =>
-      _writeCanonicalSealedRecord(_canonicalRevenuKey,
-          _canonicalRevenuInitializedKey, json.encode({'state': 'deleted'}));
+  static Future<bool> writeCanonicalRevenuDeleted() async {
+    if (!await _writeCanonicalSealedRecord(_canonicalRevenuKey,
+        _canonicalRevenuInitializedKey,
+        json.encode({'state': 'deleted'}))) {
+      return false;
+    }
+    await _commandTwinRemove('revenu');
+    return true;
+  }
 
   static Future<CanonicalRevenuRead> readCanonicalRevenu() async {
     String? raw;

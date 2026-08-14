@@ -22,7 +22,7 @@ import 'package:mint_mobile/services/tax_scales_loader.dart';
 import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
-import 'package:mint_mobile/services/twin/housing_twin_command.dart';
+import 'package:mint_mobile/services/twin/twin_fact_commands.dart';
 import 'package:mint_mobile/services/twin/twin_store.dart';
 import 'package:mint_mobile/services/twin/twin_bootstrap.dart';
 import 'package:mint_mobile/services/twin/answers_twin_backend.dart';
@@ -40,7 +40,7 @@ Future<void> main() async {
   // RIEN tant que `FeatureFlags.twinOwnsHousing` est eteint — mais elle doit
   // etre posee avant la premiere ecriture, sinon une declaration faite tot
   // n'entrerait jamais au registre.
-  HousingTwinCommand.install();
+  TwinFactCommands.install();
 
   // Fait entrer l'existant dans le registre, une seule fois. Ne fait RIEN tant
   // que l'interrupteur est eteint. Une panne ici ne doit pas empecher l'app de
