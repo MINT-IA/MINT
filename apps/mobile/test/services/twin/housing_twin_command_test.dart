@@ -139,6 +139,53 @@ void main() {
         reason: "les métadonnées n'encombrent pas la charge utile");
   });
 
+  test('deleting REALLY removes the fact — the boundary covers it too',
+      () async {
+    // LE TROU QUE CET ORACLE FERME
+    //
+    // La frontiere ne couvrait que l'ECRITURE. Le coffre etait donc marque
+    // supprime pendant que le jumeau gardait sa version vivante — et comme
+    // c'est le jumeau qui repond, la canonicalisation continuait de projeter
+    // un fait que la personne venait d'effacer.
+    //
+    // Supprimer n'aurait eu AUCUN effet. Une commande qui ne couvre que
+    // l'ecriture n'est pas une frontiere : c'est une demi-frontiere, et la
+    // moitie manquante est celle qui fait le plus de degats.
+    FeatureFlags.twinOwnsHousing = true;
+    await SecureWizardStore.writeCanonicalHousing(logement(425000));
+
+    await SecureWizardStore.writeCanonicalHousingDeleted();
+
+    final projete = await SecureWizardStore.canonicalizeHousingAnswers({});
+    expect(projete.containsKey(MintNextHousingFact.annualInterestCentsKey),
+        isFalse,
+        reason: 'un fait supprime ne doit plus atteindre les ecrans');
+
+    final store = TwinStore(const AnswersTwinBackend(), newId: () => 'relu');
+    final version =
+        (await store.read()).registry.current(HousingTwinCommand.registryId)!;
+    expect(version.isTombstone, isTrue,
+        reason: 'et le jumeau doit porter la pierre tombale, pas une absence');
+    expect(
+        (await store.read())
+            .registry
+            .history(HousingTwinCommand.registryId)
+            .length,
+        2,
+        reason: "l'histoire garde la declaration d'origine");
+  });
+
+  test('deleting a fact the twin never had invents nothing', () async {
+    FeatureFlags.twinOwnsHousing = true;
+
+    await SecureWizardStore.writeCanonicalHousingDeleted();
+
+    final snapshot = await const AnswersTwinBackend().read();
+    expect(snapshot.registry, isNull,
+        reason: 'poser une tombe sur un fait inexistant inventerait une '
+            'declaration');
+  });
+
   test('a twin write that fails does not lose the declaration', () async {
     // Le coffre a reçu le fait ; le jumeau, non. Perdre la déclaration parce
     // que le second magasin a échoué serait punir la personne pour une panne.

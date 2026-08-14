@@ -27,9 +27,7 @@ providers/coach_profile_provider.dart:304
 providers/coach_profile_provider.dart:309
 providers/coach_profile_provider.dart:332
 providers/coach_profile_provider.dart:340
-providers/coach_profile_provider.dart:395
 providers/coach_profile_provider.dart:402
-providers/coach_profile_provider.dart:425
 providers/coach_profile_provider.dart:434
 providers/coach_profile_provider.dart:1466
 screens/onboarding/mvp_wedge/onboarding_provider.dart:532

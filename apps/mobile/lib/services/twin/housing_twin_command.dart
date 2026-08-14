@@ -35,6 +35,7 @@ class HousingTwinCommand {
     final twin = store ??
         TwinStore(const AnswersTwinBackend(), newId: const Uuid().v4);
     SecureWizardStore.twinCommand = (fact) => append(twin, fact);
+    SecureWizardStore.twinRemoveCommand = () => remove(twin);
   }
 
   /// Ajoute une version du logement au registre.
@@ -59,6 +60,32 @@ class HousingTwinCommand {
           fiscalYear: fact.statementYear,
           needsConfirmation: fact.needsConfirmation,
           schemaVersion: fact.schemaVersion,
+        );
+        return;
+      } on TwinConcurrencyException {
+        if (essai == 1) rethrow;
+      }
+    }
+  }
+
+  /// Pose une pierre tombale sur le logement.
+  ///
+  /// Rien n'est effacé : la personne a bien déclaré quelque chose un jour, et
+  /// l'historique le garde. Mais le fait cesse d'alimenter les écrans et les
+  /// calculs.
+  static Future<void> remove(TwinStore twin) async {
+    for (var essai = 0; essai < 2; essai++) {
+      final snapshot = await twin.read();
+      // Rien à supprimer : poser une tombe sur un fait qui n'existe pas
+      // inventerait une déclaration.
+      if (snapshot.registry.current(registryId) == null) return;
+      try {
+        await twin.remove(
+          snapshot,
+          factId: registryId,
+          factType: 'logement',
+          assertedAt: DateTime.now().toUtc(),
+          source: FactSource.userDeclaration,
         );
         return;
       } on TwinConcurrencyException {

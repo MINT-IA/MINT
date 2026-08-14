@@ -881,7 +881,35 @@ class SecureWizardStore {
     }
   }
 
+  /// La frontière de commande pour la SUPPRESSION du logement.
+  ///
+  /// Sans elle, la bascule aurait un trou béant : le coffre serait marqué
+  /// supprimé pendant que le jumeau garderait sa version vivante — et comme
+  /// c'est le jumeau qui répond, la canonicalisation continuerait de projeter
+  /// un fait que la personne vient d'effacer. Supprimer n'aurait aucun effet.
+  ///
+  /// Une commande qui ne couvre que l'écriture n'est pas une frontière : c'est
+  /// une demi-frontière, et la moitié manquante est celle qui fait le plus de
+  /// dégâts.
   static Future<bool> writeCanonicalHousingDeleted() async {
+    if (!await _writeCanonicalHousingDeletedRaw()) return false;
+    if (!FeatureFlags.twinOwnsHousing) return true;
+    try {
+      await twinRemoveCommand();
+    } on Exception {
+      // Le coffre porte la pierre tombale ; le jumeau, non. Le fait resterait
+      // visible jusqu'à la prochaine suppression réussie — mauvais, mais moins
+      // que de refuser une suppression que la personne a demandée.
+    }
+    return true;
+  }
+
+  /// Injectable pour les oracles, comme [twinCommand].
+  static Future<void> Function() twinRemoveCommand = _noTwinRemoveCommand;
+
+  static Future<void> _noTwinRemoveCommand() async {}
+
+  static Future<bool> _writeCanonicalHousingDeletedRaw() async {
     try {
       await _storage.write(
         key: _canonicalHousingKey,

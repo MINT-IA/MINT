@@ -42,7 +42,15 @@ BASELINE = REPO / "tools/checks/_baseline_twin_direct_writes.txt"
 # Les écritures qui court-circuitent le registre.
 WRITE_PATTERNS = (
     re.compile(r"ReportPersistenceService\.saveAnswers\b"),
-    re.compile(r"SecureWizardStore\.writeCanonical\w+"),
+    # `writeCanonicalHousing` et `writeCanonicalHousingDeleted` sont EXCLUS :
+    # ils ne contournent plus le registre, ils SONT la frontière de commande du
+    # logement. Un écran qui les appelle fait entrer le fait au jumeau — c'est
+    # exactement ce que cette discipline réclame.
+    #
+    # Les autres faits n'ont pas encore de frontière : leurs writers restent
+    # des contournements et restent surveillés. La liste rétrécira quand ils
+    # en auront une, jamais avant.
+    re.compile(r"SecureWizardStore\.writeCanonical(?!Housing\b|HousingDeleted\b)\w+"),
 )
 
 # Le jumeau lui-même écrit forcément dans la projection : c'est son travail.
@@ -164,8 +172,14 @@ def self_test() -> int:
 
     for source, should_match in (
         ("await ReportPersistenceService.saveAnswers(next);", True),
-        ("await SecureWizardStore.writeCanonicalHousing(fact);", True),
+        # Le logement a une FRONTIÈRE DE COMMANDE : ces appels font entrer le
+        # fait au jumeau, ils ne le contournent pas. Cet auto-test affirmait
+        # l'inverse — il gardait une vérité périmée.
+        ("await SecureWizardStore.writeCanonicalHousing(fact);", False),
+        ("await SecureWizardStore.writeCanonicalHousingDeleted();", False),
+        # Les autres n'en ont pas encore : ils restent des contournements.
         ("await SecureWizardStore.writeCanonicalCivilStatusDeleted();", True),
+        ("await SecureWizardStore.writeCanonicalRevenu(fact);", True),
         ("final answers = await ReportPersistenceService.loadAnswers();", False),
         ("// ReportPersistenceService.saveAnswers dans un commentaire", True),
     ):

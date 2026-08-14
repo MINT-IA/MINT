@@ -484,6 +484,26 @@ l'impose à l'écriture **et** au chargement.
   configuration a été **restaurée** et le build simulateur revérifié
   fonctionnel.
 
+- **F0h — la frontière de commande couvre enfin la SUPPRESSION.** ✅ Et elle
+  ferme un trou que j'avais laissé dans mon propre lot.
+
+  La frontière ne couvrait que l'écriture. Le coffre était donc marqué supprimé
+  pendant que le jumeau gardait sa version **vivante** — et comme c'est le
+  jumeau qui répond, la canonicalisation aurait continué de projeter un fait
+  que la personne venait d'effacer. **Supprimer n'aurait eu aucun effet.**
+
+  Ce n'était pas actif — l'interrupteur est éteint — mais ça aurait cassé à la
+  seconde où on l'allume. Une commande qui ne couvre que l'écriture n'est pas
+  une frontière : c'est une demi-frontière, et la moitié manquante est celle
+  qui fait le plus de dégâts.
+
+  **Cliquet : 28 → 26.** Pour le logement, `writeCanonicalHousing` et
+  `writeCanonicalHousingDeleted` ne contournent plus le registre — ils SONT la
+  frontière. L'auto-test du garde affirmait l'inverse ; il gardait une vérité
+  périmée, il a été retourné. Les autres faits n'ont pas encore de frontière :
+  leurs writers restent surveillés, et la liste ne rétrécira qu'à mesure qu'ils
+  en auront une.
+
 - **F0c — les deux temps sont séparés.** ✅ Dernier trou nommé du registre.
 
   `effectiveTo` — temps **métier** — recevait la date d'**enregistrement** de la
