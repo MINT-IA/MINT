@@ -225,7 +225,7 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SCENE · TA RETRAITE PROJETEE',
+          l10n.onboardingSceneEyebrowRetraite,
           style: MintTextStyles.labelSmall(
             color: MintColors.corailDiscret,
           ).copyWith(
@@ -331,9 +331,18 @@ class _MintSceneRenteTroueeState extends State<MintSceneRenteTrouee> {
           ),
         ),
         const SizedBox(height: 20),
+        // CONTRADICTION RÉSIDUELLE, fermée le 2026-08-14 sur signalement d'un
+        // axe adverse — et je l'avais laissée dans le lot précédent.
+        //
+        // La phrase déclare une hypothèse de RENDEMENT DE CAISSE et cite les
+        // articles LPP. Quand aucune LPP n'est comptée, elle annonce donc une
+        // hypothèse sur un pilier absent, et cite une loi qui ne s'applique pas
+        // au chiffre affiché. C'est exactement le défaut que ce lot corrigeait :
+        // une déclaration qui ne correspond pas au calcul.
         Text(
-          'Hypothèse\u00a0: rendement moyen 1,5 à 3,5\u202f%. '
-          'Source\u00a0: AVS art. 33ter LAVS, LPP art. 14-16.',
+          p.lppMonthlyLow == null
+              ? l10n.onboardingSceneSourceAvsOnly
+              : l10n.onboardingSceneSourceAvsAndLpp,
           style: MintTextStyles.labelSmall(
             color: MintColors.textSecondary,
           ).copyWith(fontStyle: FontStyle.italic),

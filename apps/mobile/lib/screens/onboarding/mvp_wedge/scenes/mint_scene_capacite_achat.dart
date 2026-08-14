@@ -71,7 +71,7 @@ class _MintSceneCapaciteAchatState extends State<MintSceneCapaciteAchat> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SCENE · CE QUE TU PEUX VISER',
+          l10n.onboardingSceneEyebrowAchat,
           style: MintTextStyles.labelSmall(
             color: MintColors.corailDiscret,
           ).copyWith(

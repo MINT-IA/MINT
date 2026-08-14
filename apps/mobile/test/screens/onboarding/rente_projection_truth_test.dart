@@ -377,6 +377,31 @@ void main() {
               'un zéro invisible');
     });
 
+    testWidgets(
+        'FERMÉ — sans LPP comptée, aucune hypothèse de rendement n\'est annoncée',
+        (tester) async {
+      // CONTRADICTION RÉSIDUELLE que j'avais LAISSÉE dans le lot précédent, et
+      // qu'un axe adverse a trouvée en concevant les assertions Maestro.
+      //
+      // La phrase « Hypothèse : rendement moyen 1,5 à 3,5 %. Source : AVS art.
+      // 33ter LAVS, LPP art. 14-16. » s'affichait même quand aucune LPP n'était
+      // comptée. Elle annonçait donc une hypothèse sur un pilier absent, et
+      // citait une loi qui ne s'appliquait pas au chiffre affiché — exactement
+      // le défaut que ce lot corrigeait, à un endroit que je n'avais pas
+      // regardé.
+      await _pump(tester, currentAge: 34, netMonthly: 7250, isSalaried: false);
+
+      expect(find.textContaining('rendement moyen'), findsNothing,
+          reason: 'annoncer une hypothèse de rendement de caisse quand aucune '
+              'caisse n\'entre dans le calcul, c\'est déclarer autre chose que '
+              'ce qu\'on a calculé');
+      expect(find.textContaining('LPP art. 14-16'), findsNothing,
+          reason: 'citer un article qui ne porte pas le chiffre affiché donne '
+              'un vernis d\'autorité, pas une preuve');
+      expect(find.textContaining('AVS art. 33ter'), findsOneWidget,
+          reason: 'la source du pilier RÉELLEMENT compté doit rester lisible');
+    });
+
     testWidgets('FERMÉ — un salarié garde sa composante LPP, et son silence',
         (tester) async {
       // Le garde-fou du précédent : sans lui, une scène qui n'afficherait

@@ -1719,6 +1719,22 @@ class SEn extends S {
       '2nd pillar not counted: we don\'t know it yet';
 
   @override
+  String get onboardingSceneEyebrowRetraite => 'SCENE · YOUR PROJECTED PENSION';
+
+  @override
+  String get onboardingSceneEyebrowAchat => 'SCENE · WHAT YOU CAN AIM FOR';
+
+  @override
+  String get onboardingSceneEyebrow3a => 'SCENE · YOUR DIRECT LEVER';
+
+  @override
+  String get onboardingSceneSourceAvsOnly => 'Source: AVS art. 33ter LAVS.';
+
+  @override
+  String get onboardingSceneSourceAvsAndLpp =>
+      'Assumption: average return 1.5 to 3.5%. Source: AVS art. 33ter LAVS, LPP art. 14-16.';
+
+  @override
   String get liquidityEstimatedNote =>
       'Estimated reserve — enter your real savings';
 

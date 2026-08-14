@@ -132,6 +132,47 @@ raison : ses deux points d'entrée vivent dans l'application principale
 
 ---
 
+## Ce qui a été fermé le 2026-08-14, après la marche
+
+La marche a déclenché un chantier qui n'était dans aucune tranche, et qui
+passe devant : **un écran affichait un chiffre qu'il ne savait pas défendre.**
+
+**Le motif, qui compte plus que les défauts.** Statut d'emploi demandé puis
+ignoré. État civil demandé puis ignoré. 13ᵉ rente AVS que `AvsCalculator`
+savait annualiser sans que personne l'appelle. Aveu du proxy de carrière que le
+pied de page de l'accueil formule déjà. **Quatre fois la même maladie : la
+capacité existe, l'appel manque.** Le défaut n'était jamais dans le calcul — il
+était dans une liste d'arguments. C'est la règle du jumeau prise à l'envers :
+l'information rejoint bien le jumeau, et l'écran ne la consulte pas au retour.
+
+| Fermé | Preuve |
+|---|---|
+| L'étiquette d'hypothèse de carrière s'affiche jusqu'à l'âge de référence, plus seulement avant 30 ans | `ad9843314` — et un test qui **gardait le mensonge** a été retourné |
+| Le statut d'emploi atteint la scène : un indépendant ne se voit plus attribuer un 2ᵉ pilier | `b43a38226` |
+| Le facteur brut/net suit le statut au lieu d'être toujours salarié | `b43a38226` |
+| Le cumulé compte 13 rentes AVS et 12 LPP, au lieu de 12 pour tout le monde | `b43a38226` |
+| Inventaire de vérité : 14 oracles, dont 5 invariants métamorphiques | `253f7c6fd` + `49a9601cc` |
+| Lot sédiments : 3 chemins destructifs fermés dans l'élagueur, vérifiés par mutation | `600033188` |
+| Doctrine multi-agent : un orchestrateur, un écrivain, auditeurs en quarantaine | `6bcd52de4` |
+
+**Ce que Codex a changé, et que j'aurais raté seul** : j'allais mettre la
+composante LPP à **zéro** pour un indépendant. Aussi faux que de la projeter —
+`false` veut dire « non présumée », pas « prouvée absente » (adhésion
+volontaire LPP art. 4, avoir de libre passage). L'écran dit désormais « 2e
+pilier pas compté : on ne le connaît pas encore ». **Zéro aurait été une
+affirmation ; l'absence est un aveu.**
+
+**Ce qui reste ouvert sur cet écran, et qui n'est pas un mensonge mais un choix
+de modèle** : l'avoir LPP accumulé reste présumé nul et n'est jamais demandé ;
+le RAMD est approché par le salaire actuel alors que l'AVS moyenne un
+historique revalorisé (LAVS art. 29quater, 30) ; le plafond de couple à 150 %
+(art. 35) n'est pas appliqué — et le correctif honnête n'est PAS de câbler
+`computeCouple`, qui exige un revenu du conjoint que MINT ne demande jamais,
+mais de **dire** que la projection est individuelle ; la marge ±8 % compte deux
+fois l'incertitude déjà portée par la fourchette 1,5–3,5 %.
+
+---
+
 ## Quoi ensuite — tranches verticales, dans cet ordre
 
 Chaque ligne finit par quelque chose de **visible**. On ne passe à la suivante

@@ -1736,6 +1736,23 @@ class SDe extends S {
       '2. Säule nicht mitgezählt: wir kennen sie noch nicht';
 
   @override
+  String get onboardingSceneEyebrowRetraite =>
+      'SZENE · DEINE PROGNOSTIZIERTE RENTE';
+
+  @override
+  String get onboardingSceneEyebrowAchat => 'SZENE · WAS DU ANPEILEN KANNST';
+
+  @override
+  String get onboardingSceneEyebrow3a => 'SZENE · DEIN DIREKTER HEBEL';
+
+  @override
+  String get onboardingSceneSourceAvsOnly => 'Quelle: AHV Art. 33ter AHVG.';
+
+  @override
+  String get onboardingSceneSourceAvsAndLpp =>
+      'Annahme: mittlere Rendite 1,5 bis 3,5 %. Quelle: AHV Art. 33ter AHVG, BVG Art. 14-16.';
+
+  @override
   String get liquidityEstimatedNote =>
       'Geschätzte Reserve — gib dein echtes Erspartes ein';
 

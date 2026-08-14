@@ -109,7 +109,7 @@ class _MintScene3aLevierState extends State<MintScene3aLevier> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'SCENE · TON LEVIER DIRECT',
+          l10n.onboardingSceneEyebrow3a,
           style: MintTextStyles.labelSmall(color: MintColors.corailDiscret)
               .copyWith(fontWeight: FontWeight.w600, letterSpacing: 1.4),
         ),

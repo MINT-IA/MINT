@@ -1728,6 +1728,22 @@ class SFr extends S {
       '2e pilier pas compté : on ne le connaît pas encore';
 
   @override
+  String get onboardingSceneEyebrowRetraite => 'SCÈNE · TA RETRAITE PROJETÉE';
+
+  @override
+  String get onboardingSceneEyebrowAchat => 'SCÈNE · CE QUE TU PEUX VISER';
+
+  @override
+  String get onboardingSceneEyebrow3a => 'SCÈNE · TON LEVIER DIRECT';
+
+  @override
+  String get onboardingSceneSourceAvsOnly => 'Source : AVS art. 33ter LAVS.';
+
+  @override
+  String get onboardingSceneSourceAvsAndLpp =>
+      'Hypothèse : rendement moyen 1,5 à 3,5 %. Source : AVS art. 33ter LAVS, LPP art. 14-16.';
+
+  @override
   String get liquidityEstimatedNote =>
       'Réserve estimée — saisis ton épargne réelle';
 

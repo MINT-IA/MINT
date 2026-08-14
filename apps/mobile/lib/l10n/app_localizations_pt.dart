@@ -1722,6 +1722,22 @@ class SPt extends S {
       '2.º pilar não contabilizado: ainda não o conhecemos';
 
   @override
+  String get onboardingSceneEyebrowRetraite => 'CENA · A TUA PENSÃO PROJETADA';
+
+  @override
+  String get onboardingSceneEyebrowAchat => 'CENA · AO QUE PODES ASPIRAR';
+
+  @override
+  String get onboardingSceneEyebrow3a => 'CENA · A TUA ALAVANCA DIRETA';
+
+  @override
+  String get onboardingSceneSourceAvsOnly => 'Fonte: AVS art. 33ter LAVS.';
+
+  @override
+  String get onboardingSceneSourceAvsAndLpp =>
+      'Hipótese: rendimento médio de 1,5 a 3,5 %. Fonte: AVS art. 33ter LAVS, LPP art. 14-16.';
+
+  @override
   String get liquidityEstimatedNote =>
       'Reserva estimada — insere a tua poupança real';
 

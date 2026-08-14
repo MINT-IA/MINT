@@ -1727,6 +1727,23 @@ class SIt extends S {
       '2° pilastro non conteggiato: non lo conosciamo ancora';
 
   @override
+  String get onboardingSceneEyebrowRetraite =>
+      'SCENA · LA TUA RENDITA PROIETTATA';
+
+  @override
+  String get onboardingSceneEyebrowAchat => 'SCENA · A COSA PUOI PUNTARE';
+
+  @override
+  String get onboardingSceneEyebrow3a => 'SCENA · LA TUA LEVA DIRETTA';
+
+  @override
+  String get onboardingSceneSourceAvsOnly => 'Fonte: AVS art. 33ter LAVS.';
+
+  @override
+  String get onboardingSceneSourceAvsAndLpp =>
+      'Ipotesi: rendimento medio dall\'1,5 al 3,5 %. Fonte: AVS art. 33ter LAVS, LPP art. 14-16.';
+
+  @override
   String get liquidityEstimatedNote =>
       'Riserva stimata — inserisci i tuoi risparmi reali';
 

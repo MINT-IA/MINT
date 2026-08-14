@@ -3219,6 +3219,36 @@ abstract class S {
   /// **'2e pilier pas compté : on ne le connaît pas encore'**
   String get onboardingSceneSecondPillarUnknown;
 
+  /// No description provided for @onboardingSceneEyebrowRetraite.
+  ///
+  /// In fr, this message translates to:
+  /// **'SCÈNE · TA RETRAITE PROJETÉE'**
+  String get onboardingSceneEyebrowRetraite;
+
+  /// No description provided for @onboardingSceneEyebrowAchat.
+  ///
+  /// In fr, this message translates to:
+  /// **'SCÈNE · CE QUE TU PEUX VISER'**
+  String get onboardingSceneEyebrowAchat;
+
+  /// No description provided for @onboardingSceneEyebrow3a.
+  ///
+  /// In fr, this message translates to:
+  /// **'SCÈNE · TON LEVIER DIRECT'**
+  String get onboardingSceneEyebrow3a;
+
+  /// No description provided for @onboardingSceneSourceAvsOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source : AVS art. 33ter LAVS.'**
+  String get onboardingSceneSourceAvsOnly;
+
+  /// No description provided for @onboardingSceneSourceAvsAndLpp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hypothèse : rendement moyen 1,5 à 3,5 %. Source : AVS art. 33ter LAVS, LPP art. 14-16.'**
+  String get onboardingSceneSourceAvsAndLpp;
+
   /// Note on liquidity months when derived from an estimated savings value (jeune_diplome-5)
   ///
   /// In fr, this message translates to:

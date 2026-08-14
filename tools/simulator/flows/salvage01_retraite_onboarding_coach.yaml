@@ -181,6 +181,50 @@ appId: ch.mint.app
     visible:
       text: "Continuer"
     timeout: 8000
+
+# ─── T7 PREUVE DE LECTURE (ajoutée 2026-08-14) ─────────────────────────
+#
+# POURQUOI CES ASSERTIONS EXISTENT
+#
+# Ce flot marchait déjà ce parcours, et choisissait déjà cette date de
+# naissance. Il n'a rien vu quand l'écran a annoncé une rente projetée à
+# quarante ans en taisant l'hypothèse qui la porte. Ses huit assertions
+# étaient six `assertNotVisible` sur des chaînes d'erreur et deux
+# identifiants : elles prouvaient qu'il ne s'était rien passé de
+# catastrophique. Aucune ne regardait ce qui est LU.
+#
+# Le couplage au texte français EST VOULU. Un identifiant prouve qu'un
+# widget existe, jamais que ce qu'il dit est vrai. Ici on veut qu'un
+# changement de SENS casse le gate. Les cinq autres langues exigeront leurs
+# propres exécutions — un identifiant n'est pas une preuve de traduction.
+- assertVisible:
+    text: "SCÈNE · TA RETRAITE PROJETÉE"
+- assertVisible:
+    text: "CHF [0-9’']+ – [0-9’']+"
+- assertVisible:
+    text: "/ mois, dès 65 ans"
+
+# L'ASSERTION QUI AURAIT ATTRAPÉ LE DÉFAUT DU 2026-08-14.
+# Le profil est né le 15.07.1992 : il n'a pas atteint l'âge de référence,
+# donc les 44 années de cotisation que le chiffre suppose n'existent pas
+# encore. L'étiquette DOIT être là. Elle était conditionnée aux moins de
+# 30 ans — elle disparaissait exactement là où le chiffre devient crédible.
+- assertVisible:
+    text: "hypothèse : carrière complète"
+
+# Parcours SALARIÉ : la fourchette de rendement porte sur la LPP, qui est
+# bien comptée ici. Sa présence prouve que l'hypothèse déclarée correspond
+# au calcul fait.
+- assertVisible:
+    text: "Hypothèse : rendement moyen 1,5 à 3,5 %.*"
+
+# ASSERTION NÉGATIVE — régression du câblage du statut professionnel.
+# Cette ligne n'appartient qu'au parcours non salarié. Si elle apparaît
+# ici, c'est que `isSalaried` a cessé d'être transmis depuis le
+# fournisseur, et un salarié se verrait dire que son 2e pilier est inconnu.
+- assertNotVisible:
+    text: "2e pilier pas compté : on ne le connaît pas encore"
+
 - tapOn:
     point: "160, 430"
 

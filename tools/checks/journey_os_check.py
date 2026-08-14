@@ -78,6 +78,15 @@ ALLOW = {
     # L'élagueur d'artefacts d'exécution et le tableau de bord de dérive : la
     # liste porte déjà 178 entrées `tools/`, c'est ainsi qu'une branche déclare
     # l'outillage qu'elle touche, pas une entorse au périmètre.
+    # Le flot qui prouve désormais ce qui est LU au tour 7, et plus seulement
+    # l'absence de plantage (assertions ajoutées le 2026-08-14).
+    "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
+    # Scènes sœurs touchées par le même lot : leur bandeau « SCÈNE · … »
+    # était en dur ET sans accents, donc invisible au lint i18n qui
+    # détecte le français PAR les accents. Corriger les accents les a
+    # rendues visibles ; elles passent désormais par AppLocalizations.
+    "apps/mobile/lib/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart",
+    "apps/mobile/lib/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart",
     "tools/simulator/prune_runtime_artifacts.py",
     "tools/simulator/test_prune_runtime_artifacts.py",
     "tools/simulator/maestro_with_watchdog.sh",
@@ -1359,6 +1368,12 @@ ALLOW = {
     "tools/simulator/flows/regression/bug__P004__overlay_populated_on_open.yaml",
     "tools/simulator/flows/regression/bug__S005__landing_anonymous_cta_to_home.yaml",
     "tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml",
+    # Scènes sœurs touchées par le même lot : leur bandeau « SCÈNE · … »
+    # était en dur ET sans accents, donc invisible au lint i18n qui
+    # détecte le français PAR les accents. Corriger les accents les a
+    # rendues visibles ; elles passent désormais par AppLocalizations.
+    "apps/mobile/lib/screens/onboarding/mvp_wedge/scenes/mint_scene_capacite_achat.dart",
+    "apps/mobile/lib/screens/onboarding/mvp_wedge/scenes/mint_scene_3a_levier.dart",
     # Tranche firstJob : flow d'acceptation CORE (promu _red->CORE, ADR AX iOS
     # 26.2 Etape 2, 2026-07-30) — seed jeune_diplome_zurich, tier sweep dedie.
     # Debloque par la migration SliverAppBar->AppBar (arbre AX stable au scroll),

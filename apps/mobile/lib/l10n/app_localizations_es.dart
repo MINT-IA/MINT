@@ -1724,6 +1724,22 @@ class SEs extends S {
       '2.º pilar no contabilizado: aún no lo conocemos';
 
   @override
+  String get onboardingSceneEyebrowRetraite => 'ESCENA · TU PENSIÓN PROYECTADA';
+
+  @override
+  String get onboardingSceneEyebrowAchat => 'ESCENA · A QUÉ PUEDES ASPIRAR';
+
+  @override
+  String get onboardingSceneEyebrow3a => 'ESCENA · TU PALANCA DIRECTA';
+
+  @override
+  String get onboardingSceneSourceAvsOnly => 'Fuente: AVS art. 33ter LAVS.';
+
+  @override
+  String get onboardingSceneSourceAvsAndLpp =>
+      'Hipótesis: rendimiento medio del 1,5 al 3,5 %. Fuente: AVS art. 33ter LAVS, LPP art. 14-16.';
+
+  @override
   String get liquidityEstimatedNote =>
       'Reserva estimada — introduce tu ahorro real';
 

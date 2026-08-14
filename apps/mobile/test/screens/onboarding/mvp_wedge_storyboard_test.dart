@@ -533,7 +533,7 @@ void main() {
     expect(find.text('Repères captés'), findsOneWidget);
     expect(find.text('Argovie · environ 7’250 CHF/mois net'), findsOneWidget);
     expect(find.text('À préciser ensuite'), findsOneWidget);
-    expect(find.text('SCENE · TA RETRAITE PROJETEE'), findsNothing);
+    expect(find.text('SCÈNE · TA RETRAITE PROJETÉE'), findsNothing);
   });
 
   testWidgets('Intent retraite: dossier gains one line per tour',
@@ -576,7 +576,7 @@ void main() {
     // T6 insight → T7 scene
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
-    expect(find.text('SCENE · TON LEVIER DIRECT'), findsOneWidget);
+    expect(find.text('SCÈNE · TON LEVIER DIRECT'), findsOneWidget);
 
     // T7 scene → T8 bifurcation via Continuer
     expect(find.byKey(const ValueKey('onboarding-scene-continue')),
@@ -735,7 +735,7 @@ void main() {
 
     await tester.tap(find.text('Voir'));
     await tester.pumpAndSettle();
-    expect(find.text('SCENE · CE QUE TU PEUX VISER'), findsOneWidget);
+    expect(find.text('SCÈNE · CE QUE TU PEUX VISER'), findsOneWidget);
     // Chiffre héros sous forme d'intervalle « CHF X – Y » (tiret
     // demi-cadratin), présent dans le texte rendu.
     final heroFinder = find.textContaining('\u2013');
