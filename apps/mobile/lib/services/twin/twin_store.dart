@@ -137,6 +137,18 @@ class TwinStore {
         status: FactStatus.deleted,
       );
 
+  /// Publie un registre ENTIER en une écriture — le geste de la migration.
+  ///
+  /// `append` ajoute une version à un état lu ; ici l'état lu EST le registre
+  /// qu'on veut écrire, peuplé d'un coup. Passer par `append` fait par fait
+  /// aurait produit autant d'écritures que de faits, et autant d'occasions
+  /// d'échouer à mi-chemin.
+  Future<bool> publish(TwinSnapshot snapshot) => _backend.compareAndSwap(
+        expectedRevision: snapshot.revision,
+        registry: snapshot.registry.encode(),
+        metadata: metadataOf(snapshot.registry),
+      );
+
   Future<FactVersion> append(
     TwinSnapshot snapshot, {
     required String factId,

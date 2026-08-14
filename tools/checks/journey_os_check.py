@@ -697,6 +697,11 @@ ALLOW = {
     # writeCanonicalHousing, et c'est elle qui fait entrer le fait au registre.
     # Derriere un interrupteur eteint par defaut.
     "apps/mobile/lib/services/twin/housing_twin_command.dart",
+    # L'amorce : le moment ou le jumeau devient reel, une fois et une seule.
+    # Elle ne migre QUE les faits dotes d'une frontiere de commande — migrer
+    # un fait qu'on ne sait pas ecrire le gelerait.
+    "apps/mobile/lib/services/twin/twin_bootstrap.dart",
+    "apps/mobile/test/services/twin/twin_bootstrap_test.dart",
     "apps/mobile/test/services/twin/housing_twin_command_test.dart",
     "apps/mobile/lib/services/feature_flags.dart",
     "apps/mobile/lib/main.dart",

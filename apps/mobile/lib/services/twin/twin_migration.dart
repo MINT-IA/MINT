@@ -174,10 +174,23 @@ class TwinMigration {
   ///
   /// N'écrit rien : rend le registre peuplé et le compte rendu. C'est
   /// l'appelant qui décide de persister, en une transaction.
+  /// [only] restreint la migration à certains types de faits.
+  ///
+  /// POURQUOI CE PARAMÈTRE EXISTE, ET POURQUOI IL N'EST PAS OPTIONNEL EN
+  /// PRATIQUE
+  ///
+  /// Les canonicalisations lisent le jumeau INCONDITIONNELLEMENT : dès que le
+  /// registre porte un fait, c'est lui qui répond. Or l'écriture n'y passe que
+  /// pour les faits dotés d'une frontière de commande. Migrer un fait qui n'en
+  /// a pas le gèlerait : la personne le modifierait à l'écran, l'écriture
+  /// irait au coffre, et le jumeau continuerait de projeter la valeur d'avant.
+  ///
+  /// La règle est donc : on ne migre QUE ce que l'on sait aussi écrire.
   static TwinMigrationReport migrate({
     required Map<String, dynamic> answers,
     required FactRegistry registry,
     required DateTime migratedAt,
+    Set<String>? only,
   }) {
     final migrated = <String>[];
     final skipped = <String>[];
@@ -185,6 +198,7 @@ class TwinMigration {
 
     for (final fact in kMigratableFacts) {
       claimed.addAll(fact.keys);
+      if (only != null && !only.contains(fact.factId)) continue;
 
       final payload = <String, Object?>{};
       for (final key in fact.payloadKeys) {
@@ -228,7 +242,9 @@ class TwinMigration {
     // par versement. C'est le même geste que pour les autres — faire entrer
     // l'existant dans le registre — mais il produit N versions au lieu d'une.
     claimed.addAll(MintNextVersements3aFact.wizardKeys);
-    final versements = MintNextVersements3aFact.fromWizardAnswers(answers);
+    final versements = only != null && !only.contains('versements_3a')
+        ? null
+        : MintNextVersements3aFact.fromWizardAnswers(answers);
     if (versements != null && versements.entries.isNotEmpty) {
       Versements3aDecomposition.decompose(
         versements,

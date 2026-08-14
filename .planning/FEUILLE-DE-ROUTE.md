@@ -404,6 +404,23 @@ l'impose à l'écriture **et** au chargement.
   vide pour les installations existantes), et une preuve d'exécution
   interrupteur allumé.
 
+- **F0g (troisième étape) — l'AMORCE, une fois et une seule.** ✅ La migration
+  entre dans le démarrage, gardée par l'existence même du registre : s'il porte
+  déjà quelque chose, il n'y a rien à faire ; s'il est illisible, la lecture
+  lève et rien ne s'écrit.
+
+  **Et elle ne migre QUE ce qu'on sait aussi écrire.** Les canonicalisations
+  lisent le jumeau inconditionnellement : dès qu'un fait entre au registre,
+  c'est lui qui répond. Un fait migré mais que les écrans ne savent pas écrire
+  serait donc **gelé** — modifié à l'écran, inchangé à l'affichage. Le pire des
+  symptômes, parce qu'il frappe au moment exact où quelqu'un corrige une
+  erreur. Aujourd'hui, un seul fait a une frontière de commande : le logement.
+
+  Deux refus valent d'être notés. Un profil vide **n'écrit pas** de registre :
+  le marquer « déjà migré » ferait que la déclaration faite demain ne serait
+  jamais reprise. Et une panne d'amorce n'empêche pas l'app de démarrer — le
+  jumeau reste vide, le repli répond, le comportement est celui d'hier.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit

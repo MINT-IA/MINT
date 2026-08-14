@@ -23,6 +23,10 @@ import 'package:mint_mobile/data/commune_data.dart';
 import 'package:mint_mobile/services/regulatory_sync_service.dart';
 import 'package:mint_mobile/services/snapshot_service.dart';
 import 'package:mint_mobile/services/twin/housing_twin_command.dart';
+import 'package:mint_mobile/services/twin/twin_store.dart';
+import 'package:mint_mobile/services/twin/twin_bootstrap.dart';
+import 'package:mint_mobile/services/twin/answers_twin_backend.dart';
+import 'package:uuid/uuid.dart';
 
 /// Point d'entrée de l'application MINT
 ///
@@ -37,6 +41,19 @@ Future<void> main() async {
   // etre posee avant la premiere ecriture, sinon une declaration faite tot
   // n'entrerait jamais au registre.
   HousingTwinCommand.install();
+
+  // Fait entrer l'existant dans le registre, une seule fois. Ne fait RIEN tant
+  // que l'interrupteur est eteint. Une panne ici ne doit pas empecher l'app de
+  // demarrer : le jumeau resterait vide, les canonicalisations retomberaient
+  // sur le repli, et le comportement serait celui d'hier.
+  try {
+    await TwinBootstrap.ensureMigrated(
+      store: TwinStore(const AnswersTwinBackend(), newId: const Uuid().v4),
+      migratedAt: DateTime.now().toUtc(),
+    );
+  } on Exception catch (error) {
+    debugPrint('[Twin] amorce impossible : $error');
+  }
 
   // iOS Keychain can survive uninstall. Run the fresh-install purge before any
   // startup service writes SharedPreferences, otherwise cache writes can mask a
