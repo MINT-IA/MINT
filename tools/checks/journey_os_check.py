@@ -701,6 +701,9 @@ ALLOW = {
     # Elle ne migre QUE les faits dotes d'une frontiere de commande — migrer
     # un fait qu'on ne sait pas ecrire le gelerait.
     "apps/mobile/lib/services/twin/twin_bootstrap.dart",
+    # La preuve d'execution sur la VRAIE pile — et la mesure qui montre que le
+    # simulateur ne peut pas la donner (aucun droit dans les builds sim).
+    "apps/mobile/integration_test/twin_housing_authority_test.dart",
     "apps/mobile/test/services/twin/twin_bootstrap_test.dart",
     "apps/mobile/test/services/twin/housing_twin_command_test.dart",
     "apps/mobile/lib/services/feature_flags.dart",

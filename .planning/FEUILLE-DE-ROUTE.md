@@ -421,6 +421,32 @@ l'impose à l'écriture **et** au chargement.
   jamais reprise. Et une panne d'amorce n'empêche pas l'app de démarrer — le
   jumeau reste vide, le repli répond, le comportement est celui d'hier.
 
+- **⛔ LE SIMULATEUR NE PEUT PAS PROUVER LE JUMEAU — ni aucun fait sensible.**
+  Mesuré le 2026-08-14, pas supposé. Un test d'intégration lancé sur la VRAIE
+  pile (iPhone 17 Pro, iOS 26.2) montre que `SecureWizardStore.write` rend
+  **false** : le coffre refuse. `codesign -d --entitlements` sur le `.app`
+  produit ne rend rien — les builds simulateur iOS n'embarquent **aucun droit**,
+  donc le `keychain-access-groups` déclaré par l'app est absent et l'accès
+  échoue (`-34018`).
+
+  J'avais d'abord soupçonné mon propre `--no-codesign`. Vérifié : un build à la
+  manière de `walker.sh`, sans ce drapeau, ne porte pas plus de droits. Ce
+  n'est donc pas mon erreur d'invocation.
+
+  **La portée dépasse largement le jumeau.** Sur ce simulateur, ni le registre
+  ni le **coffre canonique** ne persistent : aucun des six faits financiers n'y
+  survit. Toute marche de vérification impliquant un fait enregistré teste une
+  application vide — et rend un vert qui ne prouve rien.
+
+  Le test d'intégration le dit désormais lui-même : il sonde le coffre en
+  premier, et déclare les oracles dépendants **ignorés** plutôt que réussis.
+  Un vert qui ne prouve rien est exactement ce que ce fichier existe pour
+  éviter.
+
+  **Conséquence pour la suite** : la preuve d'exécution interrupteur allumé ne
+  peut pas venir du simulateur. Il faut soit un appareil réel, soit corriger
+  l'outillage de build simulateur pour qu'il applique les droits. À trancher.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit
