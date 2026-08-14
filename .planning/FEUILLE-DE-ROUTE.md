@@ -198,6 +198,38 @@ l'impose à l'écriture **et** au chargement.
   existe pour une bonne raison. La résolution n'est donc pas « le jumeau
   gagne » mais « le jumeau devient l'autorité **sans perdre le chiffrement** ».
   Formulé autrement, F0f était le prérequis, pas une digression.
+- **F0e — le jumeau est devenu l'autorité, pour le LOGEMENT.** ✅ La
+  canonicalisation le consulte avant le coffre canonique, qui n'est plus qu'un
+  repli pour les faits qu'il n'a **jamais** connus. Tri-état — absent, vivant,
+  supprimé : avec deux états, une suppression serait retombée dans « le jumeau
+  n'a rien » et le repli l'aurait ressuscitée. L'idée du tri-état vient de
+  l'axe Codex sur la conception ; elle manquait à mon énoncé du problème.
+  Cinq vérifications : registre vivant contre coffre divergent, registre absent
+  (résultat historique **inchangé**), pierre tombale sans résurrection, deux
+  chargements identiques, et la seule qui compte — le chiffre atteint le
+  **calcul**.
+
+  **Un plantage trouvé en écrivant l'oracle.** La migration donnait aux faits
+  leur type nu comme identifiant. Le contrat, arrivé après, déclare quatre
+  faits MULTIPLES et refuse un identifiant sans clé de membre : elle levait
+  donc pour le logement, le revenu, la LPP et les versements 3a — elle plantait
+  sur tout dossier un peu rempli. Le trou n'était pas dans le code mais dans le
+  CHOIX du cas testé : les oracles n'exerçaient que `domicile`, un fait unique.
+  Le nouvel oracle parcourt le catalogue au lieu d'en élire un, et la mutation
+  confirme qu'il attrape le défaut. Latent, pas advenu — rien n'est branché.
+
+- **F0e (suite) — les QUATRE autres canonicalisations restent à brancher**, et
+  je m'arrête ici délibérément plutôt que de recopier. Chaque branche
+  « supprimé » a sa propre sémantique de purge : `revenu` efface deux clés
+  héritées **et** écrit un journal, `etat_civil` purge un alias sans lequel le
+  profil ressusciterait l'ancien statut. Dupliquer ces blocs pour le chemin du
+  jumeau fabriquerait exactement la dérive que ce chantier combat.
+  **La sortie est plus simple** : que la suppression par le jumeau marque AUSSI
+  le coffre supprimé. Alors « jumeau supprimé » implique toujours « coffre
+  supprimé », les branches existantes fonctionnent telles quelles, et il ne
+  reste à écrire que le chemin *vivant* — huit lignes par fait. C'est le
+  prochain lot.
+
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit
