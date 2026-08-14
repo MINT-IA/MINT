@@ -60,7 +60,20 @@ défaut au lieu de le poser ; rendus explicites. Et surtout la preuve
 d'exécution sur la **vraie pile** : la correction gagne sur le coffre après
 rechargement.
 
-Les cinq autres faits gardent leur repli. La bascule reste fait par fait.
+**Le REVENU aussi**, depuis le même jour — c'était le plus risqué des quatre
+restants, parce qu'il projette deux clés héritées en plus des siennes. Si elles
+ne suivaient pas la correction, un consommateur historique afficherait un
+revenu périmé pendant que la clé propre serait à jour, et personne ne le
+verrait. Vérifié depuis le geste d'écran.
+
+Les quatre autres faits gardent leur repli. La bascule reste fait par fait.
+
+**Et l'aller-retour est devenu MÉCANIQUE.** `twin_round_trip_test.dart` vérifie,
+pour CHAQUE fait du catalogue, que ce qu'un écran sauvegarde ressort identique —
+charge utile et enveloppe. C'est l'invariant que la perte de l'année fiscale
+avait violé, et qu'aucun test ne pouvait voir parce que chacun s'arrêtait avant
+la jointure. Un septième fait en hérite sans que personne y pense : un oracle
+échoue si son exemple manque.
 
 ## 🎯 LA RÈGLE EST VÉRIFIÉE DE BOUT EN BOUT
 

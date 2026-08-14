@@ -22,6 +22,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
+import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
@@ -106,6 +107,51 @@ void main() {
     expect(contexte!.annualInterestCents, 512000,
         reason: 'la déduction la plus courante en Suisse doit être atteignable');
     expect(contexte.coversTaxYear(2025), isTrue);
+  });
+
+  testWidgets('income too — and its LEGACY projection follows the correction',
+      (tester) async {
+    // Le revenu est le fait le plus risque des quatre restants : il projette
+    // DEUX cles heritees en plus des siennes. Si elles ne suivaient pas la
+    // correction, un consommateur historique afficherait l'ancien revenu — et
+    // personne ne le verrait, parce que la cle propre, elle, serait a jour.
+    if (!await coffreDisponible()) {
+      markTestSkipped('coffre indisponible sur cet appareil — non concluant');
+      return;
+    }
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+
+    await provider.saveRevenuFact(MintNextRevenuFact(
+      amountCents: 700000,
+      period: MintNextRevenuPeriod.monthly,
+      assertedAt: DateTime.utc(2026, 8, 14),
+      source: MintNextRevenuFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    ));
+    await provider.saveRevenuFact(MintNextRevenuFact(
+      amountCents: 950000,
+      period: MintNextRevenuPeriod.monthly,
+      assertedAt: DateTime.utc(2026, 8, 14),
+      source: MintNextRevenuFact.userDeclarationSource,
+      schemaVersion: 1,
+      needsConfirmation: false,
+    ));
+
+    final registry =
+        (await TwinStore(const AnswersTwinBackend(), newId: () => 'relu').read())
+            .registry;
+    expect(registry.history('revenu#principal').length, 2,
+        reason: 'deux declarations, deux versions');
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers[MintNextRevenuFact.amountCentsKey], 950000);
+    expect(answers[MintNextRevenuFact.legacyAmountKey], 9500.0,
+        reason: 'la projection heritee doit suivre la correction, sinon un '
+            'consommateur historique affiche un revenu perime');
+    expect(answers[MintNextRevenuFact.legacyFrequencyKey], 'monthly');
   });
 
   testWidgets('deleting from the screen leaves a tombstone, not a hole',

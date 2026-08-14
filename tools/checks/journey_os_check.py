@@ -721,6 +721,8 @@ ALLOW = {
     # La preuve qui part d'un GESTE D'ECRAN et va jusqu'au calcul — la seule
     # qui repond a « est-ce que ca marche pour quelqu'un ».
     "apps/mobile/integration_test/twin_screen_to_registry_test.dart",
+    # L'ALLER-RETOUR rendu mecanique, pour chaque fait du catalogue.
+    "apps/mobile/test/services/twin/twin_round_trip_test.dart",
     "apps/mobile/test/services/twin/twin_bootstrap_test.dart",
     "apps/mobile/test/services/twin/twin_fact_commands_test.dart",
     # Ancien nom, garde le temps que la suppression soit poussee : une
