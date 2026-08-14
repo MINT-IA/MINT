@@ -250,12 +250,25 @@ une décision qui tient. Prématuré avant T1.
 - **Nouvelle lacune, plus gênante** : le parcours a été marché en français
   seulement, sur un simulateur, par moi. Personne ne l'a marché en allemand —
   et pour cause, il n'existe pas en allemand.
-- **Lacune d'outillage, à ma charge** : la marche a été faite à l'`idb` brut,
-  alors que la règle maison dit que les preuves de simulateur passent par
-  Maestro (`tools/simulator/flows/`). Un parcours marché à la main ne se rejoue
-  pas, ne tourne pas en CI, et disparaît avec la session. Ce parcours doit
-  devenir un flot Maestro — sinon les quatre défauts trouvés aujourd'hui
-  peuvent revenir sans que rien ne le signale.
+- **Ce que la marche a révélé sur notre automatisation — le constat le plus
+  gênant du lot.** J'ai marché à l'`idb` brut alors que la règle maison passe
+  par Maestro. En vérifiant l'ampleur de ma faute, j'ai trouvé pire :
+  `tools/simulator/flows/salvage01_retraite_onboarding_coach.yaml` **marche
+  exactement ce parcours**, et choisit **la même date de naissance que moi**
+  (15.07.1992). J'ai rejoué à la main un parcours déjà automatisé — et le flot
+  n'avait vu aucun des défauts.
+
+  Pourquoi : ses assertions sont `assertNotVisible: "Page introuvable"`,
+  `"NoSuchMethodError"`, `"Ton âge: 2026"`, `"Dis-moi."`, plus deux identifiants
+  de route et d'âge. **Toutes vérifient qu'il ne s'est rien passé de
+  catastrophique. Aucune ne regarde ce que la personne lit.**
+
+  C'est la classe d'automatisation qui prouve l'absence de plantage et l'appelle
+  qualité. Elle explique comment 11 122 tests et un flot de bout en bout ont
+  coexisté avec un écran qui annonce un chiffre à quarante ans en taisant
+  l'hypothèse qui le porte. Le lot à ouvrir n'est donc pas « écrire un flot
+  Maestro » — il existe — mais **lui faire assurer ce qui est lu**, pas
+  seulement ce qui n'a pas planté.
 - *« Le monolinguisme est de l'i18n, pas un défaut produit. »* C'est la lecture
   confortable. La lecture réaliste : un utilisateur zurichois qui ouvre MINT
   aujourd'hui ne peut pas s'en servir. Le classer en hygiène, c'est décider que
