@@ -24747,7 +24747,7 @@ class SFr extends S {
 
   @override
   String get betaDisclosureSemanticsLabel =>
-      'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.';
+      'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données chiffrées et synchronisées sur nos serveurs dès la création d\'un compte.';
 
   @override
   String get coachOnboardingFirstAssistantGreeting =>

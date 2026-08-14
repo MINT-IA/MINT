@@ -95,6 +95,20 @@ Le cliquet mesure la baisse : **16 → 6**. Les six restantes sont des clés
 ORPHELINES — vérifié, aucun fichier Dart ne les référence. Elles restent
 nommées pour qu'un futur écran ne les ressuscite pas.
 
+## Le runtime a rattrapé le garde une SECONDE fois
+
+Après correction, l'app rebâtie affichait bien la phrase vraie. Mais
+`idb ui describe-all` a montré que l'**étiquette d'accessibilité** de ce même
+écran disait toujours « données **restant** sur l'appareil par défaut » : le
+motif du garde exigeait « restent », pas le participe présent.
+
+Autrement dit : une personne voyante lisait le vrai, une personne aveugle
+entendait le faux. Corrigé, motif ajouté, et re-vérifié à l'exécution.
+
+C'est la deuxième fois dans la même journée que l'ouverture de l'app trouve ce
+qu'aucune relecture n'avait vu — et la première fois que la couche
+accessibilité s'avère porter une version différente du même message.
+
 ## Contre-arguments
 
 - *« Pour un utilisateur anonyme qui ne crée jamais de compte, les données

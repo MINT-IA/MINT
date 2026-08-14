@@ -24618,7 +24618,7 @@ class SEn extends S {
 
   @override
   String get betaDisclosureSemanticsLabel =>
-      'Information about the MINT beta version — educational tool only, no financial advice, data stays on your device by default.';
+      'Information about the MINT beta version — educational tool, not financial advice, data encrypted and synced to our servers once an account is created.';
 
   @override
   String get coachOnboardingFirstAssistantGreeting =>

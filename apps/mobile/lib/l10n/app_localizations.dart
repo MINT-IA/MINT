@@ -43201,7 +43201,7 @@ abstract class S {
   /// Beta disclosure sheet — accessibility container label.
   ///
   /// In fr, this message translates to:
-  /// **'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l\'appareil par défaut.'**
+  /// **'Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données chiffrées et synchronisées sur nos serveurs dès la création d\'un compte.'**
   String get betaDisclosureSemanticsLabel;
 
   /// Coach-initiated opening message shown when a logged-in user lands on /coach/chat with onboarding intent. Replaces the deprecated coachOnboardingFirstUserMessage which was rendered as user-authored (ventriloquy bug B1, fixed 2026-05-08). Generic, no archetype/life-event assumption per CLAUDE.md NEVER #4 + NEVER #7.

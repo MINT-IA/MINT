@@ -75,6 +75,12 @@ FALSE_PROMISE_PATTERNS = [
     # modele embarque est un stub (slm_engine.dart:1-15).
     r"(tes|vos|les) donn[ée]es restent( chiffr[ée]es)? sur (ton|votre|l['’])"
     r"\s*(appareil|t[ée]l[ée]phone|device)",
+    # Trouve une SECONDE fois par le runtime, dans la couche accessibilite :
+    # l'etiquette VoiceOver disait « donnees RESTANT sur l'appareil » quand le
+    # texte visible disait deja la verite. Le motif ci-dessus exigeait
+    # « restent ». Une personne voyante lisait le vrai, une personne aveugle
+    # entendait le faux.
+    r"donn[ée]es restant sur (l['’]|ton |votre )\s*(appareil|t[ée]l[ée]phone)",
     r"analys[ée]{1,2}s? localement",
     r"l['’]extraction se fait sur ton appareil",
     r"n['’]est jamais (stock[ée]e ni )?envoy[ée]e",
@@ -118,6 +124,7 @@ _SELF_TEST_POSITIVES = [
     '"authGatePrivacyNote": "Tes donnees restent sur ton appareil et sont chiffrees.",',
     '"vaultPrivacy": "Tes documents sont analyses localement et ne sont jamais partages.",',
     '"docScanPrivacyNote": "L\'image est analysee localement (OCR sur l\'appareil).",',
+    '"betaDisclosureSemanticsLabel": "outil educatif, donnees restant sur l\'appareil par defaut.",',
     '"avsGuidePrivacyNote": "L\'extraction se fait sur ton appareil.",',
     '"avsGuidePrivacyNote2": "L\'image de ton extrait n\'est jamais stockee ni envoyee.",',
     '"slmPrivacyMessage": "Le modele fonctionne 100 % sur ton appareil.",',

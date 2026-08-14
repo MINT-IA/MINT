@@ -24750,7 +24750,7 @@ class SEs extends S {
 
   @override
   String get betaDisclosureSemanticsLabel =>
-      'Información sobre la versión beta de MINT — herramienta educativa únicamente, no es asesoramiento financiero, los datos permanecen en tu dispositivo por defecto.';
+      'Información sobre la versión beta de MINT — herramienta educativa, no asesoramiento financiero, datos cifrados y sincronizados con nuestros servidores al crear una cuenta.';
 
   @override
   String get coachOnboardingFirstAssistantGreeting =>

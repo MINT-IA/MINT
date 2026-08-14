@@ -11645,7 +11645,7 @@
       "level": "N1"
     }
   },
-  "betaDisclosureSemanticsLabel": "Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.",
+  "betaDisclosureSemanticsLabel": "Information zur MINT-Beta — Lernwerkzeug, keine Finanzberatung, Daten verschlüsselt und ab Kontoerstellung auf unsere Server synchronisiert.",
   "coachOnboardingFirstAssistantGreeting": "Willkommen bei MINT. Bevor wir starten — was bringt dich heute hierher?",
   "verbExplique": "Erkläre",
   "verbSimule": "Simuliere",

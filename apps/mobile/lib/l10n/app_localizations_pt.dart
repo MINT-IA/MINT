@@ -24762,7 +24762,7 @@ class SPt extends S {
 
   @override
   String get betaDisclosureSemanticsLabel =>
-      'Informação sobre a versão beta da MINT — apenas ferramenta educativa, nenhum aconselhamento financeiro, os dados permanecem no teu dispositivo por defeito.';
+      'Informação sobre a versão beta do MINT — ferramenta educativa, não aconselhamento financeiro, dados cifrados e sincronizados nos nossos servidores assim que crias uma conta.';
 
   @override
   String get coachOnboardingFirstAssistantGreeting =>

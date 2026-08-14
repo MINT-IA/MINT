@@ -24799,7 +24799,7 @@ class SDe extends S {
 
   @override
   String get betaDisclosureSemanticsLabel =>
-      'Information zur MINT-Beta-Version — nur Bildungswerkzeug, keine Finanzberatung, Daten bleiben standardmässig auf deinem Gerät.';
+      'Information zur MINT-Beta — Lernwerkzeug, keine Finanzberatung, Daten verschlüsselt und ab Kontoerstellung auf unsere Server synchronisiert.';
 
   @override
   String get coachOnboardingFirstAssistantGreeting =>

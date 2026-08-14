@@ -24817,7 +24817,7 @@ class SIt extends S {
 
   @override
   String get betaDisclosureSemanticsLabel =>
-      'Informazioni sulla versione beta di MINT — solo strumento educativo, nessuna consulenza finanziaria, i dati restano sul tuo dispositivo per impostazione predefinita.';
+      'Informazioni sulla versione beta di MINT — strumento educativo, non consulenza finanziaria, dati cifrati e sincronizzati sui nostri server dalla creazione di un account.';
 
   @override
   String get coachOnboardingFirstAssistantGreeting =>

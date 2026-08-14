@@ -13151,7 +13151,7 @@
   "@betaDisclosureCta": {
     "description": "Beta disclosure sheet — primary acknowledgement CTA."
   },
-  "betaDisclosureSemanticsLabel": "Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données restant sur l'appareil par défaut.",
+  "betaDisclosureSemanticsLabel": "Information sur la version de bêta MINT — outil éducatif, pas de conseil financier, données chiffrées et synchronisées sur nos serveurs dès la création d'un compte.",
   "@betaDisclosureSemanticsLabel": {
     "description": "Beta disclosure sheet — accessibility container label."
   },
