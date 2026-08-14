@@ -598,7 +598,8 @@ jobs:
               find test/ -maxdepth 1 -name '*_test.dart' -print0
             fi
           } | sort -z \
-            | xargs -0 flutter test --concurrency=4 --reporter compact
+            | xargs -0 flutter test --concurrency=4 --reporter compact \
+                --exclude-tags local-only
 
       # ─── Golden test gate (Plan 04-03) ────────────────────────────
       # Runs ONLY on the services shard to avoid triple-execution.

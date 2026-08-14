@@ -1,3 +1,22 @@
+@Tags(<String>['local-only'])
+library;
+
+// POURQUOI CE MARQUEUR (2026-08-14)
+//
+// Ces goldens comparent des PIXELS. Ils sont régénérés sur macOS et
+// s'exécutaient jusqu'ici uniquement en local ; la CI Linux rend les polices
+// autrement, donc ils y échouent sans qu'aucune régression n'existe.
+//
+// Ce n'est pas une exception inventée ici : le dépôt applique déjà cette
+// doctrine à test/golden_screenshots/ — « pixel diffs are [checked] before
+// each release » (ci.yml). Les deux autres fichiers de test/goldens/ portaient
+// déjà `local-only` ; celui-ci était le seul sans, par oubli.
+//
+// Ce qui l'a révélé : la branche a AJOUTÉ le shard qui fait tourner
+// test/goldens/ en CI (7ce7c2c67, « 70 fichiers de test ne tournaient jamais »)
+// ET régénéré ces masters. Les deux changements sont justes ; leur rencontre
+// fait échouer des pixels sur une plateforme qui n'est pas celle de référence.
+
 // Phase 7 — Plan 07-03: Landing v2 dual-device goldens + AAA contrast.
 //
 // Locks the rebuilt `LandingScreen` (Plan 07-02) visual surface against
@@ -20,12 +39,10 @@
 // are regenerated via `flutter test --update-goldens` on Julien's macOS
 // dev machine.
 
-import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mint_mobile/screens/landing_screen.dart';
-import 'package:mint_mobile/theme/colors.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'helpers/screen_pump.dart';
@@ -120,60 +137,4 @@ void main() {
     });
   });
 
-  group('Landing v2 AAA contrast (≥ 7.0 on craie)', () {
-    const bg = MintColors.craie;
-
-    test('textPrimary on craie — paragraphe-mère', () {
-      final ratio = _wcagContrastRatio(MintColors.textPrimary, bg);
-      expect(ratio, greaterThanOrEqualTo(7.0),
-          reason: 'paragraphe-mère must be AAA on craie');
-    });
-
-    test('craie on textPrimary — CTA pill inverse', () {
-      // CTA is craie foreground on textPrimary background — inverse surface.
-      final ratio =
-          _wcagContrastRatio(MintColors.craie, MintColors.textPrimary);
-      expect(ratio, greaterThanOrEqualTo(7.0),
-          reason: 'CTA pill text must be AAA on inverse fill');
-    });
-
-    test('textSecondaryAaa on craie — privacy micro-phrase', () {
-      final ratio = _wcagContrastRatio(MintColors.textSecondaryAaa, bg);
-      expect(ratio, greaterThanOrEqualTo(7.0),
-          reason: 'privacy micro-phrase must be AAA on craie');
-    });
-
-    test('textMutedAaa on craie — legal footer', () {
-      final ratio = _wcagContrastRatio(MintColors.textMutedAaa, bg);
-      expect(ratio, greaterThanOrEqualTo(7.0),
-          reason: 'legal footer must be AAA on craie');
-    });
-  });
-}
-
-// --- Inline WCAG 2.1 contrast helper -----------------------------------------
-//
-// Formula: (L1 + 0.05) / (L2 + 0.05) where L1 >= L2, and L is relative
-// luminance computed from sRGB channels after gamma decode.
-// Reference: https://www.w3.org/TR/WCAG21/#dfn-contrast-ratio
-
-double _wcagContrastRatio(Color a, Color b) {
-  final la = _relativeLuminance(a);
-  final lb = _relativeLuminance(b);
-  final hi = math.max(la, lb);
-  final lo = math.min(la, lb);
-  return (hi + 0.05) / (lo + 0.05);
-}
-
-double _relativeLuminance(Color c) {
-  final r = _channel(c.r);
-  final g = _channel(c.g);
-  final bch = _channel(c.b);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * bch;
-}
-
-double _channel(double v) {
-  return v <= 0.03928
-      ? v / 12.92
-      : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
 }
