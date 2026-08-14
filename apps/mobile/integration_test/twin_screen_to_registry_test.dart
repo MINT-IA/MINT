@@ -23,6 +23,7 @@ import 'package:integration_test/integration_test.dart';
 import 'package:mint_mobile/models/mint_next_3a_tax_boundary.dart';
 import 'package:mint_mobile/models/mint_next_housing_fact.dart';
 import 'package:mint_mobile/models/mint_next_revenu_fact.dart';
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/providers/coach_profile_provider.dart';
 import 'package:mint_mobile/services/report_persistence_service.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
@@ -154,19 +155,57 @@ void main() {
     expect(answers[MintNextRevenuFact.legacyFrequencyKey], 'monthly');
   });
 
-  testWidgets('3a payments — MARGIN slice, waiting on the twin', (tester) async {
-    // T1 ATTEND, et cet oracle dit pourquoi plutot que de disparaitre.
+  testWidgets('3a payments — a declaration becomes the MARGIN the person reads',
+      (tester) async {
+    // LA TRANCHE T1. On part du geste d'ecran et on va jusqu'au total qui
+    // nourrit la marge affichee.
     //
-    // Mesure le 2026-08-14 : avec `versements_3a` dans les faits possedes, la
-    // sauvegarde ne LEVE PAS mais `provider.versements3aFact` ressort NUL — ce
-    // que le provider expose n'est plus reconstituable. Les 11 122 tests
-    // unitaires passent : le defaut n'apparait que sur la vraie pile, comme
-    // tous les autres de cette session.
+    // NOTE SUR UNE ERREUR QUE J'AI FAITE ICI : la premiere version construisait
+    // le fait A LA MAIN avec une table de revisions VIDE, alors que ses
+    // versements referencaient 2026. L'enregistrement canonique ressortait
+    // `corrupt`, et j'ai d'abord cru a un defaut du produit. C'etait le test.
     //
-    // Diagnostic non termine, donc bascule RETIREE plutot qu'expediee.
-    markTestSkipped(
-        'versements_3a pas encore possedes par le jumeau — voir T1 dans '
-        '.planning/FEUILLE-DE-ROUTE.md');
+    // Un ecran ne fabrique jamais ce fait de zero : il part de `empty` et
+    // applique les mutations, qui maintiennent la revision de chaque annee
+    // touchee. Le test fait desormais pareil — sinon il teste un objet que
+    // personne ne produit.
+    if (!await coffreDisponible()) {
+      markTestSkipped('coffre indisponible sur cet appareil — non concluant');
+      return;
+    }
+
+    final provider = CoachProfileProvider();
+    await provider.loadFromWizard();
+    final t = DateTime.utc(2026, 8, 14);
+
+    MintNextVersement3aEntry versement(String id, int centimes) =>
+        MintNextVersement3aEntry(
+          id: id,
+          amountCents: centimes,
+          creditedAt: DateTime.utc(2026, 3, 15),
+          taxYear: 2026,
+        );
+
+    final depart = MintNextVersements3aFact.empty(at: t)
+        .withEntryAdded(versement('p1', 300000), t)
+        .withEntryAdded(versement('p2', 200000), t);
+    await provider.saveVersements3aFact(depart);
+
+    expect(provider.versements3aFact, isNotNull,
+        reason: 'ce que la personne vient de declarer doit etre lisible tout '
+            'de suite, pas apres un redemarrage');
+    expect(provider.versements3aFact!.totalForYearCents(2026), 500000,
+        reason: "c'est ce total qui devient la marge affichee");
+
+    // Elle corrige UN versement.
+    await provider.saveVersements3aFact(
+        provider.versements3aFact!
+            .withEntryUpdated('p1', versement('p1', 350000), t));
+
+    final recharge = CoachProfileProvider();
+    await recharge.loadFromWizard();
+    expect(recharge.versements3aFact!.totalForYearCents(2026), 550000,
+        reason: 'la correction survit au rechargement');
   });
 
   testWidgets('deleting from the screen leaves a tombstone, not a hole',

@@ -80,7 +80,7 @@ class FeatureFlags {
   ///
   /// Un ENSEMBLE plutot qu'un drapeau par fait : la bascule se fait fait par
   /// fait, sans multiplier les interrupteurs a tenir coherents.
-  static Set<String> twinOwnedFactTypes = <String>{'logement', 'revenu'};
+  static Set<String> twinOwnedFactTypes = <String>{'logement', 'revenu', 'versements_3a'};
 
   // ── P7: SafeMode degraded fallback ────────────────────────
 

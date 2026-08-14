@@ -79,15 +79,22 @@ branche courante, routés sous `/mint-next/vertical-3a`, derrière le drapeau
 donc pas le sujet : T1 se réduit à faire passer les versements 3a par le
 jumeau, vérifier que le chiffre en vient, et allumer.
 
-**Ce qui bloque, mesuré** : avec `versements_3a` dans les faits possédés, la
-sauvegarde ne lève pas mais `provider.versements3aFact` ressort **nul** — ce
-que le provider expose n'est plus reconstituable. Les 11 122 tests unitaires
-passent ; le défaut n'apparaît que sur la vraie pile, comme tous les autres de
-cette session. Bascule **retirée** plutôt qu'expédiée, diagnostic à terminer.
+**✅ Les versements 3a sont possédés par le jumeau**, et la preuve part du geste
+d'écran : déclarer deux versements donne un total lisible **tout de suite**,
+corriger l'un n'écrit rien sur l'autre, et la correction survit au
+rechargement.
 
-**Fermeture** : versements 3a possédés par le jumeau, preuve depuis le geste
-jusqu'au chiffre affiché, puis drapeau allumé — cette dernière ligne est une
-décision produit, pas technique.
+**Une fausse alerte, corrigée** : j'avais annoncé un « défaut préexistant » —
+le fait ressortait nul après sauvegarde. C'était **mon test** qui fabriquait le
+fait à la main avec une table de révisions vide alors que ses versements
+référençaient 2026 ; l'enregistrement canonique ressortait `corrupt`. Un écran
+ne fabrique jamais ce fait de zéro : il part de `empty` et applique les
+mutations, qui maintiennent la révision de chaque année touchée. Le test fait
+désormais pareil — sinon il teste un objet que personne ne produit.
+
+**Reste pour fermer T1** : allumer `enableMintNextVertical3a`. Une ligne, et
+c'est une décision produit — rendre un écran visible — pas une décision
+technique.
 
 ### T2 — Un chiffre affiché dit d'où il vient
 
