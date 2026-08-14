@@ -71,6 +71,8 @@ ALLOW = {
     "apps/mobile/lib/routes/route_metadata.dart",
     "apps/mobile/lib/services/preview_shell_policy.dart",
     "apps/mobile/test/routes/legacy_onboarding_owner_test.dart",
+    # Bascule 4 — beat b4_reset_to_landing.
+    "apps/mobile/test/routes/first_open_reset_to_landing_test.dart",
     "apps/mobile/test/routes/route_metadata_test.dart",
     "apps/mobile/lib/screens/simulator_3a_screen.dart",
     "tools/checks/route_closure_check.py",

@@ -20,6 +20,15 @@ import 'package:mint_mobile/widgets/future_builder_safe.dart';
 class PrivacyCenterScreen extends StatefulWidget {
   const PrivacyCenterScreen({super.key});
 
+  /// Où « repartir à zéro » dépose la personne — bascule 4, beat
+  /// `b4_reset_to_landing`.
+  ///
+  /// Nommée plutôt qu'écrite en dur au point d'appel pour UNE raison : le
+  /// contrat dit « la LANDING, jamais /start ni /onb », et un contrat qu'aucun
+  /// test ne peut atteindre n'est pas un contrat. Le reçu de la bascule 2
+  /// affirmait justement le contraire ; rien ne l'empêchait de redevenir vrai.
+  static const resetDestination = '/';
+
   @override
   State<PrivacyCenterScreen> createState() => _PrivacyCenterScreenState();
 }
@@ -104,7 +113,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
     if (!mounted) return;
 
     if (deleted) {
-      context.go('/');
+      context.go(PrivacyCenterScreen.resetDestination);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(l.profileDeleteAccountError)),
