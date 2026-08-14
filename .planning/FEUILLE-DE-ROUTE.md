@@ -219,6 +219,54 @@ suffit pas.
 atteindre est une façade sans câblage — la doctrine #1 de MINT. Il se rallume
 dans le lot qui prouve qu'on y arrive.
 
+### T1, diagnostiqué pour de bon (2026-08-14, après lecture)
+
+**L'écran de marge 3a est excellent, et c'est la découverte.** Il porte la
+doctrine que l'écran de rente n'avait pas :
+
+- entièrement traduit, contrairement au wedge ;
+- une ligne de **fraîcheur** (date de la donnée la plus récente) et une ligne de
+  **provenance** portant l'empreinte des constantes — donc **T2 a déjà un
+  précédent fonctionnel ici**, il n'est pas à inventer ;
+- il montre **versé** et **plafond** séparément, pas un total opaque ;
+- trois états d'échec explicitement distingués, « jamais confondus » ;
+- et surtout : `if (!lppAffiliationKnown) return
+  'undetermined_lpp_affiliation_unknown'` avec le commentaire
+  « **l'affiliation INCONNUE domine — jamais déduite du statut d'emploi** ».
+
+Là où la scène de rente **déduisait en silence**, celle-ci **refuse de
+déduire**. Le même projet a produit les deux doctrines opposées — et c'est la
+prudente qui est restée derrière un drapeau éteint pendant que la négligente
+tournait en production. C'est le constat le plus utile de la journée sur
+l'ordre des tranches.
+
+Mieux : quand l'affiliation manque, l'écran propose lui-même la route
+`/mint-next/lpp-affiliation` pour aller la déclarer. La chaîne est complète et
+se répare elle-même.
+
+**Le vrai blocage n'est donc pas un drapeau, c'est QUATRE.**
+`_mintNextLppAffiliation`, `_mintNextVersements3a` et `_mintNextMarge3a` valent
+`PreviewShellPolicy.previewDefine`, c'est-à-dire
+`bool.fromEnvironment('MINT_NEXT_PREVIEW')` — faux dans une compilation
+normale. `_mintNextVertical3a` vaut `false` en dur.
+
+Allumer le seul drapeau de destination éclairerait donc le point d'arrivée en
+laissant ses trois alimentations éteintes : la personne atteindrait la marge,
+lirait « affiliation inconnue », toucherait le bouton pour aller la déclarer —
+et tomberait sur une route tuée par son propre drapeau. **Un cul-de-sac.**
+
+**T1 se reformule** : allumer la chaîne entière dans l'ordre — affiliation,
+versements, marge, vertical — et la marcher de bout en bout. Ce n'est plus une
+ligne, mais ce n'est pas non plus un chantier : les quatre écrans existent, ils
+consomment des faits du jumeau, et ils refusent de deviner.
+
+**Ce qui reste à vérifier avant d'allumer** : un axe adverse lancé sur cet
+écran a été tué par son délai avant de rendre son verdict — deuxième fois
+aujourd'hui, malgré la clause « rends un verdict partiel ». Le taux de
+lancements sans valeur passe donc à 3 sur 8, ce que l'ADR
+`2026-08-14-un-orchestrateur-un-ecrivain-auditeurs-en-quarantaine.md` demande
+précisément d'enregistrer.
+
 ### T2 — Un chiffre affiché dit d'où il vient
 
 **Ce que la personne voit** : elle touche un montant, une feuille monte —
