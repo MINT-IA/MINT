@@ -50,8 +50,8 @@
     },
     {
       "id": "b4_lifecycle",
-      "etat": "ouvert",
-      "preuve": null
+      "etat": "vert",
+      "preuve": "apps/mobile/test/routes/first_open_lifecycle_test.dart"
     },
     {
       "id": "b4_legacy_data_isolation",
