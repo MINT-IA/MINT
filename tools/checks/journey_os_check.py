@@ -723,6 +723,9 @@ ALLOW = {
     "apps/mobile/integration_test/twin_screen_to_registry_test.dart",
     # L'ALLER-RETOUR rendu mecanique, pour chaque fait du catalogue.
     "apps/mobile/test/services/twin/twin_round_trip_test.dart",
+    # La feuille de route redevient courte et tournee vers l'avant ; le recit
+    # forensique de 661 lignes part en archive.
+    ".planning/audit/2026-08-14-journal-de-construction-du-jumeau.md",
     "apps/mobile/test/services/twin/twin_bootstrap_test.dart",
     "apps/mobile/test/services/twin/twin_fact_commands_test.dart",
     # Ancien nom, garde le temps que la suppression soit poussee : une
