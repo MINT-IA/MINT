@@ -20,6 +20,7 @@ class _FakeBackend implements TwinBackend {
   int writes = 0;
   int refusals = 0;
   Set<String> lastOwnedKeys = const {};
+  Map<String, Object?> lastMetadata = const {};
   bool failNextWrite = false;
 
   /// Appelé juste avant l'échange — permet de simuler un autre processus qui
@@ -35,9 +36,11 @@ class _FakeBackend implements TwinBackend {
     required int expectedRevision,
     required String registry,
     required Map<String, Object?> projection,
+    required Map<String, Object?> metadata,
     required Set<String> ownedKeys,
   }) async {
     lastOwnedKeys = ownedKeys;
+    lastMetadata = metadata;
     beforeSwap?.call();
     // La comparaison appartient au support : c'est ce qui la rend atomique.
     if (revision != expectedRevision) {
@@ -362,5 +365,63 @@ void main() {
           source: FactSource.userDeclaration,
         ),
         throwsStateError);
+  });
+
+  group("l'enveloppe survit au trajet", () {
+    test('a projected value says where it comes from and for which year',
+        () async {
+      // CHF 4 250 d'intérêts, tirés d'un document, pour l'exercice 2025 et
+      // encore à confirmer : la projection nue n'en gardait que le nombre.
+      final snapshot = await store.read();
+      await store.append(
+        snapshot,
+        factId: 'logement#residence_principale',
+        factType: 'logement',
+        payload: {'q_housing_mortgage_annual_interest_cents': 425000},
+        assertedAt: clock,
+        source: FactSource.document,
+        status: FactStatus.estimated,
+        fiscalYear: 2025,
+        needsConfirmation: true,
+        validUntil: DateTime.utc(2027, 1, 1),
+      );
+
+      final meta = backend.lastMetadata[
+          'q_housing_mortgage_annual_interest_cents'] as Map<String, Object?>;
+      expect(meta['fiscalYear'], 2025, reason: "l'exercice survit");
+      expect(meta['source'], 'document', reason: 'la provenance survit');
+      expect(meta['status'], 'estimated', reason: 'la confiance survit');
+      expect(meta['needsConfirmation'], isTrue);
+      expect(meta['validUntil'], '2027-01-01T00:00:00.000Z',
+          reason: 'la péremption survit');
+      expect(meta['factId'], 'logement#residence_principale');
+      expect(meta['versionId'], isNotNull,
+          reason: 'on peut remonter à la version exacte');
+    });
+
+    test('a removed fact leaves no metadata behind either', () async {
+      var snapshot = await store.read();
+      await append(snapshot, 'Aarau');
+      snapshot = await store.read();
+      await store.remove(snapshot,
+          factId: 'domicile',
+          factType: 'domicile',
+          assertedAt: clock,
+          source: FactSource.userDeclaration);
+
+      expect(backend.lastMetadata.containsKey('q_domicile_commune_name'),
+          isFalse,
+          reason: 'sinon la provenance survivrait à la valeur qu\'elle décrit');
+    });
+
+    test('metadata and projection describe exactly the same keys', () async {
+      final snapshot = await store.read();
+      await append(snapshot, 'Aarau');
+
+      expect(backend.lastMetadata.keys.toSet(),
+          backend.projection.keys.toSet(),
+          reason: 'une valeur sans enveloppe, ou une enveloppe sans valeur, '
+              'serait un désaccord silencieux');
+    });
   });
 }

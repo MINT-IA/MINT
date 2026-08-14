@@ -31,8 +31,16 @@ class AnswersTwinBackend implements TwinBackend {
   /// écriture perdue.
   static const revisionKey = 'mint_twin_revision_v1';
 
+  /// Ce que la projection nue ne dit pas : d'où vient chaque valeur, pour
+  /// quelle année, si elle est confirmée, jusqu'à quand elle vaut.
+  ///
+  /// Sans cette table, un lecteur du magasin voyait CHF 4 250 sans savoir
+  /// qu'il s'agissait de l'exercice 2025, extrait d'un document, et encore en
+  /// attente de confirmation.
+  static const metadataKey = 'mint_twin_meta_v1';
+
   /// Les clés du jumeau lui-même, qui ne sont ni des faits ni des réponses.
-  static const reservedKeys = <String>{registryKey, revisionKey};
+  static const reservedKeys = <String>{registryKey, revisionKey, metadataKey};
 
   @override
   Future<({String? registry, int revision})> read() async {
@@ -50,6 +58,7 @@ class AnswersTwinBackend implements TwinBackend {
     required int expectedRevision,
     required String registry,
     required Map<String, Object?> projection,
+    required Map<String, Object?> metadata,
     required Set<String> ownedKeys,
   }) async {
     final current = await ReportPersistenceService.loadAnswers();
@@ -68,6 +77,7 @@ class AnswersTwinBackend implements TwinBackend {
       ..removeWhere((key, _) => ownedKeys.contains(key))
       ..addAll(projection)
       ..[registryKey] = registry
+      ..[metadataKey] = metadata
       ..[revisionKey] = expectedRevision + 1;
 
     return ReportPersistenceService.saveAnswers(next);

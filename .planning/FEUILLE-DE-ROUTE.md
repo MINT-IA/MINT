@@ -132,9 +132,17 @@ l'impose à l'écriture **et** au chargement.
 
 **Reste de ce chantier**, et il n'est pas mince :
 
-- **F0b — la projection détruit encore l'enveloppe.** Provenance, statut,
-  année fiscale, péremption, identité de version disparaissent dès qu'une
-  valeur atteint le magasin plat. Seize champs écrits, un seul projeté.
+- **F0b — l'enveloppe accompagne désormais la projection.** ✅ Provenance,
+  statut, année fiscale, péremption, identité de version voyagent avec chaque
+  valeur, dans une table compagne. Les écrans lisent la valeur exactement comme
+  avant ; on peut en plus demander d'où elle vient.
+- **F0e — DEUX AUTORITÉS coexistent, et ce n'est pas tenable.** Découvert en
+  câblant F0b : `saveAnswers` **retire toutes les clés des six faits
+  canoniques** de ce qu'on lui donne, puis les réécrit depuis le coffre
+  sécurisé. Une valeur que le jumeau projette pour ces clés est donc écrasée.
+  Le jumeau ne peut pas encore posséder les faits qu'il est censé posséder.
+  C'est le prochain vrai chantier — sans lui, le branchement reste
+  partiellement décoratif pour les six faits.
 - **F0c — deux temps restent mélangés.** Début de validité métier, fin
   d'enregistrement. `asOf()` répond à « que savait MINT », jamais à « qu'est-ce
   qui était vrai ». Une correction rétroactive après taxation ne se reconstruit

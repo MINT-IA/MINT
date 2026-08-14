@@ -143,4 +143,38 @@ void main() {
     expect(snapshot.registry.length, 0);
     expect(snapshot.revision, 0);
   });
+
+  test('the envelope reaches the real store alongside the value', () async {
+    // NOTE — la clé employée ici n'est PAS celle du fait logement, et c'est
+    // délibéré : `saveAnswers` retire toutes les clés des six faits canoniques
+    // et les réécrit depuis le coffre sécurisé. Une valeur que le jumeau y
+    // projette est donc écrasée. Constat porté à la feuille de route (F0e) —
+    // deux autorités coexistent, et ce test le contourne au lieu de le
+    // masquer.
+    final snapshot = await store.read();
+    await store.append(
+      snapshot,
+      factId: 'domicile',
+      factType: 'domicile',
+      payload: {'q_domicile_commune_name': 'Aarau'},
+      assertedAt: clock,
+      source: FactSource.document,
+      status: FactStatus.estimated,
+      needsConfirmation: true,
+    );
+
+    final answers = await ReportPersistenceService.loadAnswers();
+    expect(answers['q_domicile_commune_name'], 'Aarau',
+        reason: 'les écrans lisent la valeur exactement comme avant');
+
+    final meta = (answers[AnswersTwinBackend.metadataKey]
+        as Map)['q_domicile_commune_name'] as Map;
+    expect(meta['source'], 'document', reason: 'la provenance survit');
+    expect(meta['status'], 'estimated', reason: 'la confiance survit');
+    expect(meta['needsConfirmation'], isTrue,
+        reason: "un chiffre en attente de confirmation ne doit pas être "
+            "présenté comme su");
+    expect(meta['versionId'], isNotNull,
+        reason: 'et l\'on peut remonter à la version exacte');
+  });
 }

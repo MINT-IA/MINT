@@ -74,6 +74,10 @@ abstract interface class TwinBackend {
     required String registry,
     required Map<String, Object?> projection,
 
+    /// Ce que la projection nue ne dit pas : provenance, statut, année
+    /// fiscale, péremption, identité de version — clé par clé.
+    required Map<String, Object?> metadata,
+
     /// Les clés dont le jumeau a la charge — y compris celles d'un fait
     /// supprimé, qui doivent DISPARAÎTRE de la projection. Sans elles, une
     /// pierre tombale laisserait sa valeur visible aux écrans.
@@ -173,6 +177,7 @@ class TwinStore {
       expectedRevision: snapshot.revision,
       registry: draft.encode(),
       projection: projectionOf(draft),
+      metadata: metadataOf(draft),
       ownedKeys: draft.ownedKeys(),
     );
     if (!written) {
@@ -181,6 +186,37 @@ class TwinStore {
       throw TwinConcurrencyException(snapshot.revision, -1);
     }
     return version;
+  }
+
+  /// Ce que la projection SEULE ne dit pas.
+  ///
+  /// Une valeur atteignant le magasin plat y arrivait nue : CHF 4 250
+  /// d'intérêts, tirés d'un document et encore à confirmer, pour l'exercice
+  /// 2025, devenaient une clé et un nombre. Ni l'année, ni la provenance, ni
+  /// la confiance ne survivaient — seize champs écrits, un seul projeté.
+  ///
+  /// Cette table accompagne la projection, clé par clé. Elle n'ajoute rien à
+  /// ce que lisent les écrans existants ; elle rend simplement possible de
+  /// demander « d'où vient ce chiffre ? » sans remonter au registre.
+  static Map<String, Object?> metadataOf(FactRegistry registry) {
+    final meta = <String, Object?>{};
+    for (final version in registry.currentVersions()) {
+      if (version.isTombstone) continue;
+      for (final key in version.payload.keys) {
+        meta[key] = {
+          'factId': version.factId,
+          'versionId': version.versionId,
+          'source': version.source.name,
+          'status': version.status.name,
+          'needsConfirmation': version.needsConfirmation,
+          'fiscalYear': version.fiscalYear,
+          'effectiveFrom': version.effectiveFrom?.toUtc().toIso8601String(),
+          'validUntil': version.validUntil?.toUtc().toIso8601String(),
+          'assertedAt': version.assertedAt.toUtc().toIso8601String(),
+        };
+      }
+    }
+    return Map<String, Object?>.unmodifiable(meta);
   }
 
   /// La projection, DÉRIVÉE du registre et jamais fournie de l'extérieur.
