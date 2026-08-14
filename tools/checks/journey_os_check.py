@@ -718,6 +718,9 @@ ALLOW = {
     # La preuve d'execution sur la VRAIE pile — et la mesure qui montre que le
     # simulateur ne peut pas la donner (aucun droit dans les builds sim).
     "apps/mobile/integration_test/twin_housing_authority_test.dart",
+    # La preuve qui part d'un GESTE D'ECRAN et va jusqu'au calcul — la seule
+    # qui repond a « est-ce que ca marche pour quelqu'un ».
+    "apps/mobile/integration_test/twin_screen_to_registry_test.dart",
     "apps/mobile/test/services/twin/twin_bootstrap_test.dart",
     "apps/mobile/test/services/twin/twin_fact_commands_test.dart",
     # Ancien nom, garde le temps que la suppression soit poussee : une

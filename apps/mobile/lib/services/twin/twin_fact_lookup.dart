@@ -155,6 +155,16 @@ class TwinFactLookup {
   ) =>
       <String, dynamic>{
         ...version.payload,
+        // L'année fiscale voyage dans l'ENVELOPPE et a été retirée de la
+        // charge utile — il faut donc la REMETTRE au retour. Sans ça elle se
+        // perdait en silence : une attestation sans son année ne peut nourrir
+        // aucun calcul, donc la déduction hypothécaire disparaissait.
+        //
+        // Trouvé par la preuve qui part d'un geste d'écran et va jusqu'au
+        // calcul. Aucun test unitaire ne pouvait le voir : chacun s'arrête
+        // avant le tronçon suivant.
+        if (fact.fiscalYearKey != null && version.fiscalYear != null)
+          fact.fiscalYearKey!: version.fiscalYear,
         fact.assertedAtKey: version.assertedAt.toUtc().toIso8601String(),
         fact.sourceKey: _wizardSource(version.source),
         fact.schemaVersionKey: version.schemaVersion,

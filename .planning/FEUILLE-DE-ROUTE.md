@@ -62,6 +62,29 @@ rechargement.
 
 Les cinq autres faits gardent leur repli. La bascule reste fait par fait.
 
+## 🎯 LA RÈGLE EST VÉRIFIÉE DE BOUT EN BOUT
+
+> « Aucun écran n'est terminé si les informations qu'il collecte ne rejoignent
+> pas le jumeau financier, et si ses résultats ne peuvent pas être retrouvés et
+> réutilisés ailleurs. »
+
+`integration_test/twin_screen_to_registry_test.dart` part exactement de ce que
+l'écran APPELLE — `CoachProfileProvider.saveHousingFact`, invoqué par
+`mint_next_housing_screen.dart:745` — et va jusqu'à la version dans le registre
+scellé, puis jusqu'au chiffre que relit un écran après redémarrage, puis
+jusqu'au **calcul**.
+
+Tout le reste de la vérification s'arrêtait un cran avant : les tests unitaires
+appellent le coffre sur un faux support, les oracles d'intégration appellent le
+coffre directement. Aucun ne partait du geste.
+
+**Et il a trouvé un défaut au premier essai.** L'année fiscale voyage dans
+l'enveloppe et avait été retirée de la charge utile — mais le chemin retour ne
+la remettait pas. Elle se perdait en silence, donc l'attestation ne disait plus
+de quel exercice elle parlait, donc **la déduction hypothécaire n'atteignait
+plus aucun calcul**. Aucun test unitaire ne pouvait le voir : chacun s'arrête
+avant le tronçon suivant.
+
 ## Fondations — le jumeau financier
 
 Sans elles, tout écran construit au-dessus fabrique de la dette.
