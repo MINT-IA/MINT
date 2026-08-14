@@ -58,6 +58,44 @@ appareil réel.
 
 ---
 
+## Ce que la première marche a trouvé (2026-08-14)
+
+MINT a été parcouru **à la main, depuis l'accueil**, pour la première fois de la
+session : intention → FATCA → nationalité → statut → famille → expatriation →
+naissance → canton → revenu → projection → rente/capital.
+
+**Ce qui marche, et qu'aucun test ne disait** : le parcours va au bout, et
+« TON DOSSIER » se remplit **en direct** sous les questions — date de naissance,
+canton, revenu net apparaissent au fur et à mesure. Le jumeau est déjà
+perceptible, sans qu'on ait rien construit pour ça. Et l'écran rente/capital
+porte **déjà un reçu de calcul** (`mobile_l1_arbitrage_engine`, version
+`rvc-arbitra…`) : T2 a un précédent dans le produit.
+
+**Trois défauts que seule la marche pouvait montrer** :
+
+1. **Le seul parcours praticable n'existe qu'en français.** ~53 chaînes en dur
+   sur 7 fichiers de `lib/screens/onboarding/mvp_wedge/`. MINT déclare six
+   langues ; la Suisse est majoritairement germanophone. Ce n'est pas de
+   l'hygiène i18n — **le produit n'existe pas pour la majorité de son marché**.
+2. **Le garde-fou des accents est une liste de 14 mots.**
+   `SCENE · TA RETRAITE PROJETEE` s'affiche, et `accent_lint_fr.py --file` rend
+   `EXIT=0`. Une liste de mots ne rattrape que ce que quelqu'un a déjà imaginé ;
+   ce qu'une personne lit n'est pas borné.
+3. **La revendication de localité n'est pas orpheline.**
+   « Anonyme · conservé sur cet appareil »
+   (`diagnosticOnboardingTerminalAnonymousLocal`) s'affiche dans le parcours
+   principal. La feuille de route la classait « hors tranches, 6 clés
+   orphelines » — elle est vivante.
+
+**Et ce que la marche a corrigé dans ma propre analyse** : la coque de
+préversion **ne bloque pas** `/mint-next/vertical-3a` — son propriétaire est
+`system`, et la coque ne ferme que `coach`, `explore` et l'onboarding legacy.
+J'avais annoncé le contraire. L'écran est hors du parcours pour une autre
+raison : ses deux points d'entrée vivent dans l'application principale
+(`aujourdhui_screen.dart:563`, `mon_argent_screen.dart:907`), après le wedge.
+
+---
+
 ## Quoi ensuite — tranches verticales, dans cet ordre
 
 Chaque ligne finit par quelque chose de **visible**. On ne passe à la suivante
@@ -92,9 +130,17 @@ ne fabrique jamais ce fait de zéro : il part de `empty` et applique les
 mutations, qui maintiennent la révision de chaque année touchée. Le test fait
 désormais pareil — sinon il teste un objet que personne ne produit.
 
-**Reste pour fermer T1** : allumer `enableMintNextVertical3a`. Une ligne, et
-c'est une décision produit — rendre un écran visible — pas une décision
-technique.
+**Reste pour fermer T1** — et la marche a montré que ce n'est PAS une ligne.
+J'ai allumé `enableMintNextVertical3a`, marché le parcours, et **je n'ai pas vu
+l'écran** : le wedge ne passe pas par là. Ses deux points d'entrée sont dans
+l'application principale (`aujourdhui_screen.dart:563`,
+`mon_argent_screen.dart:907`), derrière la création de compte que je n'ai pas
+faite. Je ne sais donc pas s'il s'affiche — je sais seulement que le drapeau ne
+suffit pas.
+
+**Le drapeau est reparti à `false`.** Un écran allumé que personne n'a vu
+atteindre est une façade sans câblage — la doctrine #1 de MINT. Il se rallume
+dans le lot qui prouve qu'on y arrive.
 
 ### T2 — Un chiffre affiché dit d'où il vient
 
@@ -145,7 +191,7 @@ une décision qui tient. Prématuré avant T1.
 
 | Sujet | Pourquoi il attend |
 |---|---|
-| Revendications de localité restantes (6 clés orphelines) + garde qui les rate | Lot séparé, avant toute distribution — pas dans une tranche produit |
+| ~~Revendications de localité (6 clés orphelines)~~ | **Promu en tranche** : la marche en a trouvé une VIVANTE dans le parcours principal |
 | Certificat Apple Development pour l'équipe du projet | Confort d'outillage ; le Keychain simulateur fonctionne sans lui |
 | Propagation d'un changement de profil au backend, hors reprise de compte | Mesuré, corrigé pour la fusion ; l'horodatage d'ENVOI reste une approximation |
 | Connexions bancaires | Dépend du consentement et de la résidence des données |
@@ -161,5 +207,14 @@ une décision qui tient. Prématuré avant T1.
 - *« Une tranche visible d'abord aurait produit une fondation bancale. »*
   Possible. Mais la fondation actuelle a été validée par des **oracles**, jamais
   par un **usage** — et c'est l'usage qui a trouvé chaque défaut.
-- **Lacune** : personne n'a encore parcouru MINT de bout en bout, à la main,
-  depuis l'accueil. Toutes les preuves partent d'un appel de code.
+- ~~**Lacune** : personne n'a encore parcouru MINT de bout en bout.~~ **Fermée
+  le 2026-08-14** — et elle a produit plus de constats en vingt minutes que la
+  moitié de la session en fondation. C'est l'argument le plus fort pour l'ordre
+  des tranches ci-dessus.
+- **Nouvelle lacune, plus gênante** : le parcours a été marché en français
+  seulement, sur un simulateur, par moi. Personne ne l'a marché en allemand —
+  et pour cause, il n'existe pas en allemand.
+- *« Le monolinguisme est de l'i18n, pas un défaut produit. »* C'est la lecture
+  confortable. La lecture réaliste : un utilisateur zurichois qui ouvre MINT
+  aujourd'hui ne peut pas s'en servir. Le classer en hygiène, c'est décider que
+  ce n'est pas grave.
