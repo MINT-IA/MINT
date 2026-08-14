@@ -1151,17 +1151,26 @@ class SecureWizardStore {
     if (override != null) {
       return override();
     }
-    return _writeCanonicalSealedRecord(
+    if (!await _writeCanonicalSealedRecord(
         _canonicalVersements3aKey,
         _canonicalVersements3aInitializedKey,
-        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}));
+        json.encode({'state': 'present', 'fact': fact.toWizardAnswers()}))) {
+      return false;
+    }
+    await _commandTwinSave('versements_3a', fact.toWizardAnswers());
+    return true;
   }
 
-  static Future<bool> writeCanonicalVersements3aDeleted() =>
-      _writeCanonicalSealedRecord(
-          _canonicalVersements3aKey,
-          _canonicalVersements3aInitializedKey,
-          json.encode({'state': 'deleted'}));
+  static Future<bool> writeCanonicalVersements3aDeleted() async {
+    if (!await _writeCanonicalSealedRecord(
+        _canonicalVersements3aKey,
+        _canonicalVersements3aInitializedKey,
+        json.encode({'state': 'deleted'}))) {
+      return false;
+    }
+    await _commandTwinRemove('versements_3a');
+    return true;
+  }
 
   static Future<CanonicalVersements3aRead> readCanonicalVersements3a() async {
     String? raw;

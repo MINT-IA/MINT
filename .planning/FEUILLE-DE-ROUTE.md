@@ -529,6 +529,24 @@ l'impose à l'écriture **et** au chargement.
   Les versements 3a restent dehors : leur valeur est une **liste** qui se
   décompose, pas un fait qui s'enveloppe. Ils gardent leur chemin propre.
 
+- **F0j — les versements 3a passent la frontière, par RÉCONCILIATION.** ✅
+  Cliquet **19 → 17**. Les cinq faits ont désormais une frontière de commande.
+
+  **Le piège que ce lot a fermé** : `decompose` écrit TOUTES les entrées.
+  L'appeler à chaque sauvegarde aurait créé une nouvelle version pour chaque
+  versement, y compris ceux que personne n'a touchés — l'histoire de chacun se
+  serait remplie de « corrections » qui n'en sont pas. C'est exactement ce que
+  la décomposition existe pour éviter.
+
+  Et mon oracle précédent ne pouvait pas l'attraper : il appelait `decompose`
+  avec **une seule** entrée. Un test qui n'exerce pas la pluralité ne peut rien
+  dire d'un défaut qui n'apparaît qu'à plusieurs.
+
+  La réconciliation n'écrit donc qu'un versement dont la valeur, l'année ou la
+  date de crédit a changé — et pose une **pierre tombale** sur celui qui a
+  disparu de la déclaration. Sans elle, un versement retiré continuerait
+  d'alimenter le total, donc la déduction fiscale. Vérifié par mutation.
+
 - **F0c — les deux temps sont séparés.** ✅ Dernier trou nommé du registre.
 
   `effectiveTo` — temps **métier** — recevait la date d'**enregistrement** de la

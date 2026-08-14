@@ -20,11 +20,13 @@
 //
 // ADR : .planning/decisions/2026-08-13-jumeau-financier-faits-versionnes.md
 
+import 'package:mint_mobile/models/mint_next_versements_3a_fact.dart';
 import 'package:mint_mobile/services/secure_wizard_store.dart';
 import 'package:mint_mobile/services/twin/answers_twin_backend.dart';
 import 'package:mint_mobile/services/twin/fact_version.dart';
 import 'package:mint_mobile/services/twin/twin_migration.dart';
 import 'package:mint_mobile/services/twin/twin_store.dart';
+import 'package:mint_mobile/services/twin/versements_3a_decomposition.dart';
 import 'package:uuid/uuid.dart';
 
 class TwinFactCommands {
@@ -54,6 +56,15 @@ class TwinFactCommands {
   /// conflit.
   static Future<void> save(
       TwinStore twin, String factType, Map<String, dynamic> answers) async {
+    // Les versements 3a ne s'enveloppent pas : ils se DÉCOMPOSENT, un fait par
+    // versement. Et ils se RÉCONCILIENT — réécrire toutes les entrées à chaque
+    // sauvegarde remplirait l'histoire de chaque versement de « corrections »
+    // que personne n'a faites.
+    if (factType == Versements3aDecomposition.factType) {
+      await _saveVersements3a(twin, answers);
+      return;
+    }
+
     final fact = _factOf(factType);
     if (fact == null) return;
 
@@ -99,11 +110,50 @@ class TwinFactCommands {
     }
   }
 
+  static Future<void> _saveVersements3a(
+      TwinStore twin, Map<String, dynamic> answers) async {
+    final declare = MintNextVersements3aFact.fromWizardAnswers(answers);
+    if (declare == null) return;
+
+    for (var essai = 0; essai < 2; essai++) {
+      final snapshot = await twin.read();
+      final draft = snapshot.registry.clone();
+      await Versements3aDecomposition.reconcile(
+        declare,
+        registry: draft,
+        source: FactSource.userDeclaration,
+      );
+      // Rien n'a bougé : ne pas écrire pour ne rien dire.
+      if (draft.length == snapshot.registry.length) return;
+      if (await twin.publish(
+          TwinSnapshot(registry: draft, revision: snapshot.revision))) {
+        return;
+      }
+      if (essai == 1) throw TwinConcurrencyException(snapshot.revision, -1);
+    }
+  }
+
   /// Pose une pierre tombale sur le fait.
   ///
   /// Rien n'est effacé : la personne a bien déclaré quelque chose un jour, et
   /// l'historique le garde. Mais le fait cesse d'alimenter écrans et calculs.
   static Future<void> remove(TwinStore twin, String factType) async {
+    // Supprimer les versements 3a, c'est poser une tombe sur CHACUN d'eux :
+    // il n'y a pas un identifiant unique à enterrer.
+    if (factType == Versements3aDecomposition.factType) {
+      await _saveVersements3a(twin, <String, dynamic>{
+        MintNextVersements3aFact.entriesKey: const <dynamic>[],
+        MintNextVersements3aFact.bucketRevisionsKey: const <String, dynamic>{},
+        MintNextVersements3aFact.assertedAtKey:
+            DateTime.now().toUtc().toIso8601String(),
+        MintNextVersements3aFact.sourceKey:
+            MintNextVersements3aFact.userDeclarationSource,
+        MintNextVersements3aFact.schemaVersionKey: 1,
+        MintNextVersements3aFact.needsConfirmationKey: false,
+      });
+      return;
+    }
+
     final registryId = registryIdOf(factType);
     if (registryId == null) return;
 

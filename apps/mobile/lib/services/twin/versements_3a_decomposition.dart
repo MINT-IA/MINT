@@ -66,10 +66,7 @@ class Versements3aDecomposition {
       registry.append(
         factId: FactContracts.of(factType)!.factIdFor(memberKey: entry.id),
         factType: factType,
-        payload: <String, Object?>{
-          amountKey: entry.amountCents,
-          if (entry.accountRef != null) accountKey: entry.accountRef,
-        },
+        payload: _payloadOf(entry),
         assertedAt: declare,
         source: source,
         // L'année fiscale est ÉPINGLÉE, jamais déduite de la date de crédit :
@@ -80,6 +77,89 @@ class Versements3aDecomposition {
         schemaVersion: fact.schemaVersion,
       );
     }
+  }
+
+  /// Fait converger le registre vers l'état déclaré — sans rien réécrire
+  /// d'inchangé.
+  ///
+  /// POURQUOI PAS SIMPLEMENT [decompose]
+  ///
+  /// `decompose` écrit TOUTES les entrées. L'appeler à chaque sauvegarde
+  /// créerait une nouvelle version pour chaque versement, y compris ceux que
+  /// personne n'a touchés — et l'histoire de chacun se remplirait de
+  /// « corrections » qui n'en sont pas. C'est exactement ce que la
+  /// décomposition existe pour éviter : corriger l'un ne doit rien écrire sur
+  /// les autres.
+  ///
+  /// Ici, chaque versement n'entre au registre que si sa valeur DIFFÈRE de sa
+  /// version courante ; et un versement disparu de la déclaration reçoit une
+  /// pierre tombale, pas un silence.
+  static Future<void> reconcile(
+    MintNextVersements3aFact fact, {
+    required FactRegistry registry,
+    required FactSource source,
+    DateTime? assertedAt,
+  }) async {
+    final declare = assertedAt ?? fact.assertedAt;
+    final vus = <String>{};
+
+    for (final entry in fact.entries) {
+      vus.add(entry.id);
+      final factId =
+          FactContracts.of(factType)!.factIdFor(memberKey: entry.id);
+      final courante = registry.current(factId);
+      final payload = _payloadOf(entry);
+      // Rien n'a bougé : une version identique serait une correction inventée.
+      if (courante != null &&
+          !courante.isTombstone &&
+          _memePayload(courante.payload, payload) &&
+          courante.fiscalYear == entry.taxYear &&
+          courante.effectiveFrom == entry.creditedAt.toUtc()) {
+        continue;
+      }
+      registry.append(
+        factId: factId,
+        factType: factType,
+        payload: payload,
+        assertedAt: declare,
+        source: source,
+        fiscalYear: entry.taxYear,
+        effectiveFrom: entry.creditedAt,
+        needsConfirmation: fact.needsConfirmation,
+        schemaVersion: fact.schemaVersion,
+      );
+    }
+
+    // Ce qui a disparu de la déclaration est SUPPRIMÉ, pas oublié. Sans cette
+    // pierre tombale, un versement retiré continuerait d'alimenter le total,
+    // donc la déduction fiscale.
+    for (final version in registry.currentVersions()) {
+      if (version.factType != factType || version.isTombstone) continue;
+      final id = FactContracts.memberOf(version.factId);
+      if (id == null || vus.contains(id)) continue;
+      registry.append(
+        factId: version.factId,
+        factType: factType,
+        payload: const {},
+        assertedAt: declare,
+        source: source,
+        status: FactStatus.deleted,
+      );
+    }
+  }
+
+  static Map<String, Object?> _payloadOf(MintNextVersement3aEntry entry) =>
+      <String, Object?>{
+        amountKey: entry.amountCents,
+        if (entry.accountRef != null) accountKey: entry.accountRef,
+      };
+
+  static bool _memePayload(Map<String, Object?> a, Map<String, Object?> b) {
+    if (a.length != b.length) return false;
+    for (final entry in a.entries) {
+      if (b[entry.key] != entry.value) return false;
+    }
+    return true;
   }
 
   /// Reconstitue le fait agrégé à partir des versements du registre.

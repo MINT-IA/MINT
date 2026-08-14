@@ -228,6 +228,86 @@ void main() {
     });
   });
 
+  group('la réconciliation — ne réécrire QUE ce qui a bougé', () {
+    // LE PIÈGE QUE CE GROUPE FERME
+    //
+    // `decompose` écrit TOUTES les entrées. L'appeler à chaque sauvegarde
+    // créerait une nouvelle version pour chaque versement, y compris ceux que
+    // personne n'a touchés — et l'histoire de chacun se remplirait de
+    // « corrections » qui n'en sont pas.
+    //
+    // C'est exactement ce que la décomposition existe pour éviter. Mon oracle
+    // précédent ne l'attrapait pas : il appelait `decompose` avec UNE entrée,
+    // donc il ne pouvait pas voir le problème.
+
+    Future<void> reconcilier(MintNextVersements3aFact fait) =>
+        Versements3aDecomposition.reconcile(
+          fait,
+          registry: registry,
+          source: FactSource.userDeclaration,
+        );
+
+    test('correcting one payment writes NOTHING on the others', () async {
+      await reconcilier(faitAvec([
+        versement('p1', 300000, 2025),
+        versement('p2', 200000, 2025),
+        versement('p3', 150000, 2025),
+      ]));
+      final avant = {
+        for (final id in ['p1', 'p2', 'p3'])
+          id: registry.current('versements_3a#$id')!.versionId,
+      };
+
+      await reconcilier(faitAvec([
+        versement('p1', 350000, 2025),
+        versement('p2', 200000, 2025),
+        versement('p3', 150000, 2025),
+      ]));
+
+      expect(registry.history('versements_3a#p1').length, 2,
+          reason: 'le versement corrigé garde SON histoire');
+      expect(registry.current('versements_3a#p2')!.versionId, avant['p2'],
+          reason: "corriger l'un ne doit RIEN écrire sur l'autre");
+      expect(registry.current('versements_3a#p3')!.versionId, avant['p3']);
+      expect(registry.history('versements_3a#p2').length, 1);
+    });
+
+    test('re-saving an unchanged declaration writes nothing at all', () async {
+      await reconcilier(faitAvec([versement('p1', 300000, 2025)]));
+      final longueur = registry.length;
+
+      await reconcilier(faitAvec([versement('p1', 300000, 2025)]));
+
+      expect(registry.length, longueur,
+          reason: 'une version identique serait une correction inventée');
+    });
+
+    test('a payment removed from the declaration gets a tombstone', () async {
+      // Sans elle, un versement retiré continuerait d'alimenter le total —
+      // donc la déduction fiscale.
+      await reconcilier(faitAvec([
+        versement('p1', 300000, 2025),
+        versement('p2', 200000, 2025),
+      ]));
+
+      await reconcilier(faitAvec([versement('p1', 300000, 2025)]));
+
+      expect(registry.current('versements_3a#p2')!.isTombstone, isTrue);
+      expect(recomposer()!.totalForYearCents(2025), 300000,
+          reason: 'le versement retiré ne compte plus dans la déduction');
+    });
+
+    test('moving a payment to another tax year is a real change', () async {
+      // Même montant, autre exercice : c'est une correction, pas un doublon.
+      await reconcilier(faitAvec([versement('p1', 300000, 2025)]));
+
+      await reconcilier(faitAvec([versement('p1', 300000, 2026)]));
+
+      expect(registry.history('versements_3a#p1').length, 2);
+      expect(registry.current('versements_3a#p1')!.fiscalYear, 2026);
+    });
+  });
+
   group('la révision annuelle se dérive au lieu de se tenir à la main', () {
     test('touching 2025 does not invalidate 2026', () {
       // L'invariant que le compteur de mutations tentait de garantir par
