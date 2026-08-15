@@ -26,32 +26,39 @@
     {
       "id": "b4_owner_legacy",
       "etat": "vert",
-      "preuve": "apps/mobile/test/routes/legacy_onboarding_owner_test.dart"
+      "preuve": "apps/mobile/test/routes/legacy_onboarding_owner_test.dart",
+      "verdict_codex": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule4-synthese-4-axes-codex.md"
     },
     {
       "id": "b4_policy_fail_closed",
       "etat": "vert",
-      "preuve": "apps/mobile/test/routes/legacy_onboarding_owner_test.dart"
+      "preuve": "apps/mobile/test/routes/legacy_onboarding_owner_test.dart",
+      "verdict_codex": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule4-synthese-4-axes-codex.md"
     },
     {
       "id": "b4_entry_local",
       "etat": "vert",
-      "preuve": "apps/mobile/test/routes/legacy_onboarding_entry_test.dart"
+      "preuve": "apps/mobile/test/routes/legacy_onboarding_entry_test.dart",
+      "verdict_codex": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule4-synthese-4-axes-codex.md"
     },
     {
       "id": "b4_registry_closure",
       "etat": "vert",
-      "preuve": "tools/checks/route_closure_check.py"
+      "preuve": "tools/checks/route_closure_check.py",
+      "verdict_codex": ".planning/phases/mint-next-user-twin-foundation-20260808/cadrages/2026-08-13-bascule4-synthese-4-axes-codex.md"
     },
     {
       "id": "b4_reset_to_landing",
-      "etat": "vert",
-      "preuve": "apps/mobile/test/routes/first_open_reset_to_landing_test.dart"
+      "etat": "ouvert",
+      "preuve": "apps/mobile/test/routes/first_open_reset_to_landing_test.dart",
+      "verdict_codex": null,
+      "note": "Rouvert le 2026-08-15 : fermé sans verdict Codex dédié. Le code et le test tiennent (mutation concluante), mais la règle « rien ne se ferme sans verdict » vaut aussi rétroactivement — sinon elle ne vaut rien. Un axe cloture le refermera."
     },
     {
       "id": "b4_lifecycle",
       "etat": "vert",
-      "preuve": "apps/mobile/test/routes/first_open_lifecycle_test.dart"
+      "preuve": "apps/mobile/test/routes/first_open_lifecycle_test.dart",
+      "verdict_codex": ".planning/phases/mint-next-user-twin-foundation-20260808/verdicts/2026-08-14-b4_lifecycle.md"
     },
     {
       "id": "b4_legacy_data_isolation",
@@ -155,5 +162,6 @@
     ],
     "_interdiction": "Ne pas ouvrir la PR avant le reçu b4_cold_start_receipt. Verdict de l'axe : « la pile peut être verte tout en étant inachevée »."
   },
-  "_serrure": "2026-08-15 : le bail s'autorisait lui-même et son garde. Un axe adverse l'a nommé « serrure décorative ». Ils restent dans allowed_paths — sinon on ne pourrait jamais fermer un beat — mais le garde REFUSE désormais qu'ils bougent en même temps que du code. Une mise à jour de bail est son propre commit."
+  "_serrure": "2026-08-15 : le bail s'autorisait lui-même et son garde. Un axe adverse l'a nommé « serrure décorative ». Ils restent dans allowed_paths — sinon on ne pourrait jamais fermer un beat — mais le garde REFUSE désormais qu'ils bougent en même temps que du code. Une mise à jour de bail est son propre commit.",
+  "_regle_verdict": "2026-08-15, idée de Julien : Codex EST le superviseur extérieur que je réclamais. Ce qui lui manquait, c'est que son avis n'arrêtait rien. Un beat vert doit désormais citer un verdict qui EXISTE sur disque."
 }

@@ -100,6 +100,27 @@ def main() -> int:
                     f"absente : {preuve}"
                 )
 
+    # RIEN NE SE FERME SANS VERDICT CODEX. Idée de Julien, 2026-08-15.
+    #
+    # J'avais écrit avoir besoin de lui pour un « superviseur extérieur non
+    # modifiable par l'agent ». Il a répondu : Codex est exactement cela. Il
+    # avait raison — Codex est hors de moi, je ne peux pas le modifier, et il
+    # juge seul. Ce qui lui manquait, c'est que son avis n'arrêtait rien : je
+    # choisissais quand l'appeler, et je pouvais l'ignorer.
+    #
+    # Ici il cesse d'être un conseiller. Un beat déclaré vert doit citer un
+    # verdict qui EXISTE sur disque. Je ne peux plus fermer sans l'avoir
+    # consulté, et l'absence se voit.
+    for b in beats:
+        if b.get("etat") == "vert":
+            verdict = b.get("verdict_codex")
+            if not verdict or not (ROOT / verdict).exists():
+                return _fail(
+                    f"beat « {b.get('id')} » déclaré vert sans verdict Codex "
+                    f"({verdict or 'aucun'}). Lancer `tools/codex_axes.sh` et "
+                    "déposer sa sortie avant de fermer."
+                )
+
     ouverts = [b for b in beats if b.get("etat") != "vert"]
     if not ouverts:
         print(f"STOP lego_lease_guard : les {len(beats)} beats de « {lego} » sont verts.")
@@ -119,9 +140,14 @@ def main() -> int:
     # Mais SEUL : si le bail ou le garde bougent en même temps que du code, on
     # refuse. Une mise à jour de bail est son propre commit, jamais un
     # élargissement glissé dans un lot.
-    meta = {"product/mint_next/lego_lease.json", "tools/checks/lego_lease_guard.py"}
+    meta_exact = {"product/mint_next/lego_lease.json", "tools/checks/lego_lease_guard.py"}
+    # Les verdicts Codex appartiennent à la comptabilité du bail, pas au
+    # produit : les déposer n'est pas « du code qui bouge ».
+    meta_prefixes = (".planning/phases/mint-next-user-twin-foundation-20260808/verdicts/",)
     modifies = set(_changed_paths())
-    if modifies & meta and modifies - meta:
+    meta = {c for c in modifies
+            if c in meta_exact or c.startswith(meta_prefixes)}
+    if meta & meta_exact and modifies - meta:
         print("STOP lego_lease_guard : le bail (ou son garde) bouge EN MÊME TEMPS que du code.")
         for c in sorted(modifies & meta):
             print(f"  bail   · {c}")
