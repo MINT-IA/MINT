@@ -1993,8 +1993,13 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_verdicts = path.startswith(
             ".planning/phases/mint-next-user-twin-foundation-20260808/verdicts/"
         ) and path.endswith(".md")
+        # Quarantaine : ce qui est gelé et pourquoi. Une famille, pas des
+        # fichiers nommés un par un.
+        allowed_quarantaine = (
+            path.startswith(".planning/quarantaine/") and path.endswith(".md")
+        )
         allowed_archive = path.startswith(".planning/phases-archive/")
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_verdicts):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_verdicts or allowed_quarantaine):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
