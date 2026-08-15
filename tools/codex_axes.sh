@@ -41,6 +41,7 @@ while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY=1 ;;
     --base) shift; BASE="${1:-origin/dev}" ;;
+    --axe) shift; FORCE_AXE="${1:-}" ;;
   esac
   shift
 done
@@ -58,6 +59,15 @@ has() { echo "$FILES" | grep -qE "$1"; }
 
 declare -a AXES=()
 
+# AXES DE MOMENT — plan (avant le code) et cloture (quand on prétend avoir
+# fini). Ils ne se déduisent d'aucun diff : ils se demandent. Ajoutés le
+# 2026-08-15, parce que la relecture ne couvrait que le milieu du travail.
+if [ -n "${FORCE_AXE:-}" ]; then
+  AXES=("$FORCE_AXE")
+  printf 'Axe forcé : %s\n' "$FORCE_AXE"
+fi
+if [ "${#AXES[@]}" -eq 0 ]; then
+
 # CODE — tout changement de source ou de contrôle mécanique. C'est l'axe qui a
 # trouvé les failles les plus coûteuses ; il ne se saute pas.
 has '\.(dart|py|sh|ya?ml)$' && AXES+=("code")
@@ -72,6 +82,8 @@ has '^apps/mobile/lib/(l10n|screens|widgets)/|\.arb$' && AXES+=("copie")
 # DONNÉES — calculs, modèles, migrations, référentiels, chargeurs. Le seul axe
 # capable de voir qu'une clé d'identité manque ou qu'un référentiel vieillit.
 has '^apps/mobile/lib/(data|models|services/financial_core)/|^services/backend/app/(services|models)/|^apps/mobile/assets/|migrations?/' && AXES+=("donnees")
+
+fi
 
 if [ "${#AXES[@]}" -eq 0 ]; then
   echo "Aucun axe déclenché par ce diff — rien à payer."
@@ -121,6 +133,10 @@ for axis in "${AXES[@]}"; do
     continue
   fi
   {
+    # Contexte permanent AVANT le mandat : Codex doit avoir le même niveau de
+    # vue que Claude. Un axe borné trop étroitement ne rate pas un constat, il
+    # en produit un FAUX (mesuré le 2026-08-14).
+    [ -f "$PROMPTS/_contexte.md" ] && { cat "$PROMPTS/_contexte.md"; printf '\n\n---\n\n'; }
     cat "$prompt"
     printf '\n\n---\n## Ce qui a changé (base %s)\n\n' "$BASE"
     printf 'Le bac à sable est en LECTURE : ouvre toi-même les fichiers dont tu\n'
