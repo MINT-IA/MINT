@@ -1,2 +1,0 @@
-║ COACH_DUAL_LLM_ENABLED       │ true                                          ║
-║ COACH_NARRATOR_MODEL         │ sonnet                                        ║

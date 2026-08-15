@@ -1726,8 +1726,19 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_integration = (
             path == "apps/mobile/test/integration/profile_hydration_test.dart"
         )
+        # PURGE DU 2026-08-15 — deux arbres d'archive sortis du répertoire
+        # de travail. Ils restent dans l'historique git pour toujours ;
+        # sur disque ils ne servaient qu'à alourdir chaque recherche.
+        # Règle volontairement NOMMÉE et non générique : elle décrit un
+        # fait daté, pas une permission permanente de supprimer.
+        allowed_purge = (
+            path.startswith(".planning/_archive/")
+            or path.startswith(".planning/archive-2026-04-10/")
+            or path == ".planning/phases/mint-calc-engine-v1/"
+                       "mint-calc-engine-v1-VERIFICATION.md"
+        )
         allowed_archive = path.startswith(".planning/phases-archive/")
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_goldens or allowed_integration):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_goldens or allowed_integration or allowed_purge):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
