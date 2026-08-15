@@ -86,7 +86,10 @@
     "tools/checks/journey_os_check.py",
     "tools/checks/lego_lease_guard.py",
     "product/mint_next/lego_lease.json",
-    "tools/checks/mint2_navigation_spine_guard.py"
+    "tools/checks/mint2_navigation_spine_guard.py",
+    ".planning/phases/mint-next-user-twin-foundation-20260808/verdicts/",
+    "tools/codex_axes.sh",
+    "tools/codex_prompts/"
   ],
   "acceptation": [
     "cd apps/mobile && flutter analyze",
