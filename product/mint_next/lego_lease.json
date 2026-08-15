@@ -132,9 +132,10 @@
   },
   "worktree": {
     "chemin": "/Users/julienbattaglia/Desktop/MINT-lego.nosync",
-    "branche": "claude/bascule4-atterrissage-20260815",
     "base": "origin/dev",
-    "_pourquoi": "Créé le 2026-08-15. Julien a refusé que je lui renvoie la décision : l'isolation d'un agent qui écrit est l'état de l'art, pas un arbitrage. Et la mesure lui a donné raison deux fois — le dépôt comptait DÉJÀ 18 worktrees (15 morts, purgés). Ce n'était pas une pratique à inventer, c'était une pratique que j'avais cessé de suivre. Bénéfice : attribution structurelle. Tout ce qui bouge ici est de moi, donc le bail peut mordre sans jamais bloquer Julien."
+    "_pourquoi": "Créé le 2026-08-15. Julien a refusé que je lui renvoie la décision : l'isolation d'un agent qui écrit est l'état de l'art, pas un arbitrage. Et la mesure lui a donné raison deux fois — le dépôt comptait DÉJÀ 18 worktrees (15 morts, purgés). Ce n'était pas une pratique à inventer, c'était une pratique que j'avais cessé de suivre. Bénéfice : attribution structurelle. Tout ce qui bouge ici est de moi, donc le bail peut mordre sans jamais bloquer Julien.",
+    "_statut": "PRÊT MAIS PAS ARMÉ : le worktree est propre sur origin/dev et ne contient NI le bail NI son garde — ils vivent sur la branche de travail. Tant qu'ils n'y sont pas, ce worktree n'a aucune serrure. Constat d'un axe adverse le 2026-08-15, vérifié.",
+    "branche_cible": "claude/bascule4-atterrissage-20260815"
   },
   "reconstruction_b4": {
     "_methode": "Verdict de l'axe adverse : ni cherry-pick des commits, ni squash unique. Reconstruire depuis dev le RÉSULTAT SÉMANTIQUE en 4 commits relisibles — contrat/storyboard · T1 · T2 · clôture — avec les REJET Codex conservés dans un tableau de PR, et `git range-diff` contre la pile d'origine pour prouver qu'aucune correction n'a disparu.",
@@ -153,5 +154,6 @@
       "5. Preuve : diff sémantique contre la branche d'origine, restreint aux 50 fichiers."
     ],
     "_interdiction": "Ne pas ouvrir la PR avant le reçu b4_cold_start_receipt. Verdict de l'axe : « la pile peut être verte tout en étant inachevée »."
-  }
+  },
+  "_serrure": "2026-08-15 : le bail s'autorisait lui-même et son garde. Un axe adverse l'a nommé « serrure décorative ». Ils restent dans allowed_paths — sinon on ne pourrait jamais fermer un beat — mais le garde REFUSE désormais qu'ils bougent en même temps que du code. Une mise à jour de bail est son propre commit."
 }

@@ -108,6 +108,57 @@ def main() -> int:
         print("    d'inventer le suivant.")
         return 1
 
+    # LE BAIL NE PEUT PAS S'ÉLARGIR PENDANT QU'IL TRAVAILLE.
+    #
+    # Défaut trouvé par un axe adverse le 2026-08-15 : le bail s'autorisait
+    # LUI-MÊME et autorisait le GARDE dans ses `allowed_paths`. Un loop pouvait
+    # donc étendre sa propre laisse au milieu d'une tâche — ce que j'ai fait
+    # trois fois le 14, de bonne foi, sans m'en apercevoir.
+    #
+    # Le bail reste modifiable, sinon on ne pourrait jamais fermer un beat.
+    # Mais SEUL : si le bail ou le garde bougent en même temps que du code, on
+    # refuse. Une mise à jour de bail est son propre commit, jamais un
+    # élargissement glissé dans un lot.
+    meta = {"product/mint_next/lego_lease.json", "tools/checks/lego_lease_guard.py"}
+    modifies = set(_changed_paths())
+    if modifies & meta and modifies - meta:
+        print("STOP lego_lease_guard : le bail (ou son garde) bouge EN MÊME TEMPS que du code.")
+        for c in sorted(modifies & meta):
+            print(f"  bail   · {c}")
+        for c in sorted(modifies - meta):
+            print(f"  code   · {c}")
+        print("  → une mise à jour de bail est son PROPRE commit. Autrement, on")
+        print("    élargit sa laisse au milieu d'une tâche sans que personne le voie.")
+        return 1
+
+    # LA BRANCHE ET LA BASE SONT CELLES QUE LE BAIL DÉCLARE.
+    #
+    # Le garde ne les vérifiait pas : il aurait laissé travailler sur n'importe
+    # quelle branche, y compris celle d'un autre écrivain.
+    branche_attendue = bail.get("worktree", {}).get("branche") or bail.get("branche")
+    if branche_attendue:
+        actuelle = subprocess.run(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=ROOT, text=True, capture_output=True,
+        )
+        if actuelle.returncode or actuelle.stdout.strip() != branche_attendue:
+            return _fail(
+                f"branche « {actuelle.stdout.strip() or '?'} » alors que le bail "
+                f"déclare « {branche_attendue} »"
+            )
+
+    base = bail.get("base_sha")
+    if base:
+        anc = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", base, "HEAD"],
+            cwd=ROOT, capture_output=True,
+        )
+        if anc.returncode != 0:
+            return _fail(
+                f"la base déclarée ({base[:9]}) n'est pas un ancêtre de HEAD — "
+                "l'historique a bougé sous le bail"
+            )
+
     # Périmètre : ce qui est modifié doit être annoncé par le bail.
     autorises = bail.get("allowed_paths") or []
     hors = [
