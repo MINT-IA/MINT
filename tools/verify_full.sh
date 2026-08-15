@@ -139,6 +139,7 @@ run_gate "analyse statique mobile"      flutter_analyze
 [ "$QUICK" -eq 0 ] && run_gate "suite mobile COMPLÈTE" flutter_tests
 run_gate "suite backend"                backend_tests
 run_gate "garde Journey OS"             python3 tools/checks/journey_os_check.py
+run_gate "gardes tous branchés"          python3 tools/checks/gardes_cables_check.py
 run_gate "lint du wiki"                 python3 tools/checks/wiki_lint.py
 run_gate "intégrité du registre des communes" \
          python3 tools/data/build_commune_registry.py --check

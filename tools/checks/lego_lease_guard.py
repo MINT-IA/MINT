@@ -251,6 +251,35 @@ def main() -> int:
                     f"({verdict or 'aucun'}). Lancer `tools/codex_axes.sh` et "
                     "déposer sa sortie avant de fermer."
                 )
+            # UN VERDICT N'EST PAS UN FICHIER, C'EST UNE CONCLUSION.
+            #
+            # Le garde ne vérifiait que l'EXISTENCE du chemin. Un fichier vide,
+            # une sortie tronquée, ou un REFUS fermaient donc un beat aussi
+            # bien qu'une acceptation. Trouvé par un axe adverse le 2026-08-15
+            # — le jour où l'enveloppe Codex avait elle-même présenté un
+            # « NON FERMÉ » comme un ACCEPT.
+            texte = (ROOT / verdict).read_text(encoding="utf-8", errors="replace")
+            if len(texte) < 200:
+                return _fail(
+                    f"verdict de « {b.get('id')} » trop court ({len(texte)} "
+                    "caractères) — sortie tronquée ou fichier vide"
+                )
+            if not any(m in texte for m in ("ACCEPT", "FERMÉ", "GO")):
+                return _fail(
+                    f"verdict de « {b.get('id')} » ne conclut pas : ni ACCEPT, "
+                    "ni FERMÉ, ni GO. Un verdict déposé n'est pas un verdict "
+                    "favorable."
+                )
+            if any(m in texte for m in ("NON FERMÉ", "REJET", "NO-GO")):
+                return _fail(
+                    f"verdict de « {b.get('id')} » porte un REFUS. Le déposer "
+                    "ne le transforme pas en accord."
+                )
+            if b.get("id") not in texte:
+                return _fail(
+                    f"le verdict cité par « {b.get('id')} » ne nomme pas ce "
+                    "beat — un verdict d'un autre lot ne ferme pas celui-ci"
+                )
 
     ouverts = [b for b in beats if b.get("etat") != "vert"]
     if not ouverts and not portee:
@@ -288,7 +317,38 @@ def main() -> int:
         print("    élargit sa laisse au milieu d'une tâche sans que personne le voie.")
         return 1
 
+    # L'HISTORIQUE AUSSI, PAS SEULEMENT L'INDEX (2026-08-15).
+    #
+    # Trou trouvé par un axe adverse : `--portee` ne lisait que l'index. Un
+    # commit hors bail créé sans crochet — hooks absents, `LEFTHOOK_BYPASS`,
+    # une forge — restait invisible pour toujours : au commit SUIVANT l'index
+    # est propre, donc le garde passe. La dérive était déjà dans l'histoire.
+    #
+    # On contrôle donc `base_sha..HEAD` en entier, à chaque appel. C'est
+    # cumulatif : une seule échappée suffit à bloquer tous les commits d'après,
+    # jusqu'à ce que le bail l'assume ou que l'histoire soit corrigée.
     base = bail.get("base_sha")
+    if base:
+        hist = subprocess.run(
+            ["git", "diff", "--name-only", f"{base}..HEAD"],
+            cwd=ROOT, text=True, capture_output=True,
+        )
+        if hist.returncode == 0:
+            hors_hist = [
+                c for c in hist.stdout.splitlines()
+                if c and not any(c.startswith(a) for a in (bail.get("allowed_paths") or []))
+            ]
+            if hors_hist:
+                print(f"STOP lego_lease_guard : {len(hors_hist)} chemin(s) hors bail "
+                      f"DÉJÀ DANS L'HISTOIRE depuis {base[:9]}.")
+                for c in hors_hist[:10]:
+                    print(f"  · {c}")
+                if len(hors_hist) > 10:
+                    print(f"  … et {len(hors_hist) - 10} autre(s)")
+                print("  → un commit a échappé au garde. Soit le bail les revendique,")
+                print("    soit l'histoire doit être corrigée avant de continuer.")
+                return 1
+
     if base:
         anc = subprocess.run(
             ["git", "merge-base", "--is-ancestor", base, "HEAD"],

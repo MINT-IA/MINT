@@ -93,6 +93,7 @@ ALLOW = {
     "tools/verify_full.sh",
     "tools/checks/verify_receipt_gate.py",
     "tools/checks/verify_absents.txt",
+    "tools/checks/gardes_cables_check.py",
     "tools/checks/lego_lease_guard.py",
     "tools/jauge.py",
     "tools/codex_axes.sh",

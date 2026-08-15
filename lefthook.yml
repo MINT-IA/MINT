@@ -497,6 +497,20 @@ pre-push:
   # .git/index.lock if multiple Python subprocesses fight over staged state).
   parallel: false
   commands:
+    verify-receipt:
+      # LE RECU, ENFIN APPELE (2026-08-15).
+      #
+      # `verify_receipt_gate.py` a ete ecrit pour refuser un envoi dont le
+      # contenu n'a pas ete verifie en entier. Il a ete fusionne dans dev
+      # (#1255) et CABLE NULLE PART. Un axe adverse l'a vu ; c'etait la
+      # troisieme fois dans la meme journee que je livrais un garde que
+      # personne n'appelle.
+      #
+      # Il lit l'entree standard du crochet : chaque reference reellement
+      # envoyee doit porter l'arbre atteste par le recu. Sans recu, l'envoi
+      # est refuse — et le message dit quoi lancer.
+      run: python3 tools/checks/verify_receipt_gate.py
+      tags: [verification, recu]
     doctrine-atomicity:
       # D-04 « same PR » atomicity gate — fails push unless the 6 doctrine
       # files (CLAUDE.md + docs/AGENTS/{backend,flutter}.md + 2 SKILL.md + the
