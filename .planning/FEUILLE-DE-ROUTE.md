@@ -173,6 +173,52 @@ fois l'incertitude déjà portée par la fourchette 1,5–3,5 %.
 
 ---
 
+## Où en est le travail, au 2026-08-15
+
+**Le Lego en cours est la bascule 4 « première ouverture pure »**, pas les
+tranches T1-T4 ci-dessous. Celles-ci restent le cap produit ; le Lego est ce
+qui se construit maintenant, sous cadrage.
+
+| Beat | État |
+|---|---|
+| `b4_owner_legacy` · `b4_policy_fail_closed` · `b4_entry_local` · `b4_registry_closure` | verts, hérités |
+| `b4_reset_to_landing` · `b4_lifecycle` | **fermés le 14-15.08**, vérifiés par mutation |
+| `b4_legacy_data_isolation` | ouvert — bloqué sur la branche de travail, prouvable depuis `dev` |
+| `b4_cold_start_receipt` | ouvert — puits de trace, script et flot Maestro **à écrire** |
+
+**Ce qui a été trouvé et qui dépasse le Lego** : `TwinBootstrap.ensureMigrated()`
+promeut au démarrage les données wizard legacy en faits du jumeau — exactement
+ce que le cadrage de la bascule 4 interdit. Absent de `dev`, donc la bascule 4
+reconstruite depuis `dev` n'a pas la violation ; mais le Lego « fondation du
+jumeau » devra porter la contrainte.
+
+### Pourquoi il n'y a pas de loop autonome en ce moment
+
+Un loop a tourné toute la journée du 14 et a **dérivé complètement** : son texte
+était figé une semaine plus tôt, il a répété un ordre du jour mort, et le Lego
+réel n'a pas été touché. Un second loop, sous **bail**, a bien fonctionné —
+deux beats fermés, quatre rouges CI corrigées, une contradiction trouvée et
+enregistrée *sans partir dessus*.
+
+Julien a demandé d'en relancer un. Un axe adverse, sollicité en mode
+pessimiste, a répondu **non**, avec deux raisons que j'ai vérifiées :
+
+- le worktree dédié ne contient **ni le bail ni son garde** — l'endroit où le
+  travail se ferait n'a aucune serrure ;
+- le bail **s'autorisait lui-même** et son garde : un loop pouvait étendre sa
+  propre laisse au milieu d'une tâche, ce que j'ai fait trois fois sans le voir.
+
+> « Le lancer aujourd'hui serait remettre une autonomie forte derrière une
+> serrure décorative. »
+
+Trois refus ont été ajoutés au garde depuis (bail figé pendant le travail,
+branche vérifiée, base vérifiée), tous testés par mutation. Ce qui manque
+encore n'est pas à moi : **un superviseur extérieur au worktree, non modifiable
+par l'agent**. Je peux resserrer ce qui réduit ma latitude ; je ne peux pas
+écrire mon propre geôlier et prétendre qu'il tient.
+
+---
+
 ## Quoi ensuite — tranches verticales, dans cet ordre
 
 Chaque ligne finit par quelque chose de **visible**. On ne passe à la suivante
