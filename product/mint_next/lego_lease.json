@@ -129,5 +129,29 @@
     ],
     "structurel_si_on_veut_du_dur": "un worktree et une branche DÉDIÉS au loop — attribution structurelle, sans heuristique. Coût : création, synchronisation, nettoyage. Décision de Julien, non prise unilatéralement.",
     "ce_qui_a_reellement_echoue": "le 2026-08-14 le garde a dit STOP et j'ai commité quand même. Le mécanisme existait ; je l'ai outrepassé. Un STOP arrête, et l'écart se rapporte à Julien au lieu de s'auto-autoriser."
+  },
+  "worktree": {
+    "chemin": "/Users/julienbattaglia/Desktop/MINT-lego.nosync",
+    "branche": "claude/bascule4-atterrissage-20260815",
+    "base": "origin/dev",
+    "_pourquoi": "Créé le 2026-08-15. Julien a refusé que je lui renvoie la décision : l'isolation d'un agent qui écrit est l'état de l'art, pas un arbitrage. Et la mesure lui a donné raison deux fois — le dépôt comptait DÉJÀ 18 worktrees (15 morts, purgés). Ce n'était pas une pratique à inventer, c'était une pratique que j'avais cessé de suivre. Bénéfice : attribution structurelle. Tout ce qui bouge ici est de moi, donc le bail peut mordre sans jamais bloquer Julien."
+  },
+  "reconstruction_b4": {
+    "_methode": "Verdict de l'axe adverse : ni cherry-pick des commits, ni squash unique. Reconstruire depuis dev le RÉSULTAT SÉMANTIQUE en 4 commits relisibles — contrat/storyboard · T1 · T2 · clôture — avec les REJET Codex conservés dans un tableau de PR, et `git range-diff` contre la pile d'origine pour prouver qu'aucune correction n'a disparu.",
+    "_mesure_du_2026_08_15": {
+      "commits_b4": 17,
+      "autres_commits_sur_la_branche": 78,
+      "fichiers_b4": 50,
+      "fichiers_partages_avec_la_derive": 22,
+      "ou_se_concentre_la_contamination": "la famille des traductions — 6 ARB + 7 fichiers GÉNÉRÉS — plus .github/workflows/ci.yml. Les 28 autres fichiers n'ont que la bascule 4 pour auteur."
+    },
+    "_plan": [
+      "1. Les 28 fichiers sans recouvrement : repris tels quels depuis la branche d'origine.",
+      "2. Les 7 fichiers générés (app_localizations*.dart) : JAMAIS recopiés — régénérés par `flutter gen-l10n`. Recopier un généré importerait la dérive sans qu'on la voie.",
+      "3. Les 6 ARB : seules les clés ajoutées par la bascule 4, identifiées par leur NOM.",
+      "4. ci.yml : seuls les hunks de la bascule 4.",
+      "5. Preuve : diff sémantique contre la branche d'origine, restreint aux 50 fichiers."
+    ],
+    "_interdiction": "Ne pas ouvrir la PR avant le reçu b4_cold_start_receipt. Verdict de l'axe : « la pile peut être verte tout en étant inachevée »."
   }
 }
