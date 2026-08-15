@@ -910,10 +910,6 @@ ALLOW = {
     "services/backend/pyproject.toml",
     # -ku6 : addenda de résolution datés sur les archives de phase 92.5
     # (répertoire déplacé vers phases-archive/ le 2026-07-29)
-    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-01-differential-harness-PLAN.md",
-    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-PLAN.md",
-    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-03-estv-oracle-SUMMARY.md",
-    ".planning/phases-archive/92.5-mvp-calc-rigor-foundations/92.5-04-g6-gate-wiring-PLAN.md",
     "apps/mobile/lib/screens/mortgage/affordability_screen.dart",
     "apps/mobile/lib/screens/expat_screen.dart",
     "apps/mobile/lib/screens/household/household_screen.dart",
@@ -1688,26 +1684,32 @@ def _changed(root: Path, base: str) -> tuple[list[str], list[str]]:
         }
     ), []
 
-def _archive_counterpart(path: str) -> str | None:
-    """Réconciliation plans 2026-07-29 : chemin archivé équivalent d'un
-    receipt de phase (ou de PERIMETERS.md) déplacé vers phases-archive/."""
-    if path.startswith(".planning/phases/"):
-        return ".planning/phases-archive/" + path[len(".planning/phases/"):]
-    if path == ".planning/PERIMETERS.md":
-        return ".planning/phases-archive/PERIMETERS.md"
-    return None
+def _deletion_refusal(path: str) -> str:
+    """Le message qu'une personne lit quand sa suppression est refusée.
+
+    L'ancien message disait « changed file outside Journey OS whitelist ». Pour
+    une SUPPRESSION c'est trompeur : le fichier n'est pas hors liste, il n'est
+    plus là. La personne cherchait alors une autorisation à ajouter, alors
+    qu'il fallait déclarer un retrait.
+
+    Remplace `_archive_counterpart()`, posé le 2026-07-29 pour laisser passer
+    les `git mv` vers `.planning/phases-archive/`. Ce répertoire est supprimé :
+    le miroir n'a plus rien à tolérer. Et il ne comparait ni contenu, ni
+    taille, ni empreinte — un fichier vide au bon chemin l'aurait satisfait,
+    donc il n'a jamais prouvé qu'une archive existait vraiment.
+    """
+    return (
+        f"deleted file not declared: {path}\n"
+        "      Une suppression se DÉCLARE : ajouter le chemin à DELETION_ALLOW,\n"
+        "      ou l'inclure dans une règle de purge datée (voir allowed_purge).\n"
+        "      Elle reste dans l'historique git ; seul l'arbre de travail change."
+    )
 
 
 def _scope_errors(root: Path, changed: list[str]) -> list[str]:
     errors: list[str] = []
     for path in changed:
         if path in DELETION_ALLOW and not (root / path).exists():
-            continue
-        # Réconciliation plans 2026-07-29 : un déplacement git mv vers
-        # .planning/phases-archive/ n'est pas une suppression — l'ancien
-        # chemin est autorisé si (et seulement si) la copie archivée existe.
-        counterpart = _archive_counterpart(path)
-        if counterpart is not None and not (root / path).exists() and (root / counterpart).exists():
             continue
         allowed_record = path.startswith(str(RECORDS) + "/") and path.endswith(".json") and "/" not in path[len(str(RECORDS)) + 1 :]
         allowed_issue = path.startswith(str(ISSUES) + "/") and path.endswith(".json") and "/" not in path[len(str(ISSUES)) + 1 :]
@@ -1730,9 +1732,6 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
                 and evidence_path.suffix in {".md", ".txt", ".xml", ".json"}
             )
         )
-        # Réconciliation plans 2026-07-29 : les receipts archivés sous
-        # .planning/phases-archive/ sont des feuilles mortes hors routing —
-        # leur maintenance (bannières datées, index) reste autorisée.
         # Références visuelles de la landing : une FAMILLE. Les artefacts
         # d'ÉCHEC (failures/) restent dehors — sorties de test, jamais du
         # contenu.
@@ -1751,6 +1750,7 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         allowed_purge = (
             path.startswith(".planning/_archive/")
             or path.startswith(".planning/archive-2026-04-10/")
+            or path.startswith(".planning/phases-archive/")
             or path == ".planning/phases/mint-calc-engine-v1/"
                        "mint-calc-engine-v1-VERIFICATION.md"
         )
@@ -1763,9 +1763,11 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
             and path.startswith(".planning/phases/")
             and path.endswith(".md")
         )
-        allowed_archive = path.startswith(".planning/phases-archive/")
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_goldens or allowed_integration or allowed_purge or allowed_verdicts):
-            errors.append(f"changed file outside Journey OS whitelist: {path}")
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_goldens or allowed_integration or allowed_purge or allowed_verdicts):
+            if not (root / path).exists():
+                errors.append(_deletion_refusal(path))
+            else:
+                errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
             errors.append(f"unsupported Journey OS generated view: {path}")

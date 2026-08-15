@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<testsuites>
-  <testsuite name="Test Suite" device="iPhone 17 Pro - iOS 26.2 - B03E429D-0422-4357-B754-536637D979F9" tests="1" failures="1" time="17.0">
-    <testcase id="wave_1b_citation_chip_smoke" name="wave_1b_citation_chip_smoke" classname="wave_1b_citation_chip_smoke" time="17.0" status="ERROR">
-      <failure>Assertion is false: "Mon argent|Aujourd'hui|Mon coach" is visible</failure>
-    </testcase>
-  </testsuite>
-</testsuites>

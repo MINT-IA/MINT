@@ -166,3 +166,8 @@ apps/mobile/build
 
 # Transient Codex review outputs (remediation phase) — keep local, do not commit
 .planning/phases/remediation-audit-2026-07/codex-reviews/
+
+# Recu du harnais de verification : produit local, jamais commite.
+# Sans cette ligne le harnais salit l' arbre — et il refuse de verifier
+# un arbre sale, donc il ne tournerait qu' une seule fois.
+.planning/.verify/
