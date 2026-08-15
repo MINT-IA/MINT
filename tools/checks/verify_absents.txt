@@ -1,0 +1,26 @@
+# Contrôles ABSENTS de cette base, déclarés — et donc relus.
+#
+# POURQUOI CE FICHIER EXISTE
+#
+# Le harnais de vérification a été porté sur une base reconstruite depuis dev,
+# où quatre de ses contrôles n'existent pas : ils appartiennent à des Legos qui
+# ne sont pas encore atterris. Les compter comme des échecs rendrait le reçu
+# impossible à obtenir ; les supprimer rendrait le reçu MENTEUR — il
+# affirmerait une couverture qu'il n'a pas.
+#
+# On les déclare donc absents ICI, une fois, en clair. Deux conséquences
+# mécaniques :
+#
+#   · un contrôle qui disparaît sans être déclaré ici fait ÉCHOUER le harnais.
+#     Sans cette règle, supprimer un checker suffirait à le faire taire, et
+#     l'absence serait indistinguable du succès.
+#   · déclarer une absence est une ligne de diff que quelqu'un relit. Une
+#     absence silencieuse n'est relue par personne.
+#
+# Retirer une ligne d'ici quand son Lego atterrit : le contrôle redevient
+# obligatoire du même coup.
+
+tools/data/build_commune_registry.py
+tools/checks/twin_write_discipline.py
+tools/checks/twin_every_fact_is_derived.py
+tools/checks/ci_test_coverage_gate.py

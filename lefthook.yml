@@ -66,6 +66,19 @@ pre-commit:
       run: python3 tools/checks/verify_sentry_init.py
       glob: "apps/mobile/{lib/main.dart,pubspec.yaml}"
       tags: [sentry, privacy]
+    lego-lease-scope:
+      # Le bail du Lego, en mode PORTÉE : ce commit reste-t-il dans ce que le
+      # Lego actif revendique ? Écrit le 2026-08-15, câblé nulle part le jour
+      # même — il a laissé passer un commit hors périmètre pendant qu'il
+      # existait. Un garde non appelé est pire que pas de garde : il donne la
+      # confiance sans le contrôle.
+      #
+      # `--portee` se tait quand aucun bail n'est actif, ou quand on n'est pas
+      # sur la branche que le bail gouverne. Le bail est un fichier commité :
+      # sans cette règle, fondu dans dev, il jugerait les commits de tout le
+      # monde contre une branche disparue.
+      run: python3 tools/checks/lego_lease_guard.py --portee
+      tags: [lego, mint-next]
     journey-os-guard:
       # Journey OS — records, issues, generated board, durable evidence, and
       # branch authorization stay mechanically coherent before commits.
