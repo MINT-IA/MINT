@@ -181,7 +181,7 @@ Le code-level goal est **entièrement atteint** sur les 4 gates mécaniques (G3 
 
 ## Couverture des exigences
 
-Les exigences de cette phase sont définies par les 20 décisions D-CE-XX, 6 Concerns et 5 Findings documentés dans CONTEXT.md et W0-AUDIT-MATRIX.md. REQUIREMENTS.md n'existe pas à `.planning/` (seulement dans `.planning/archive-2026-04-10/`) — les ID de requirements dans les frontmatters des PLANs sont des références internes à cette phase.
+Les exigences de cette phase sont définies par les 20 décisions D-CE-XX, 6 Concerns et 5 Findings documentés dans CONTEXT.md et W0-AUDIT-MATRIX.md. REQUIREMENTS.md n'existe pas à `.planning/` (supprimé de l'arbre le 2026-08-15 ; toujours dans l'historique git) — les ID de requirements dans les frontmatters des PLANs sont des références internes à cette phase.
 
 | Exigence (frontmatter plans) | Plan | Statut | Evidence |
 |------------------------------|------|--------|----------|
