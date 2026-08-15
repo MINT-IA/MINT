@@ -247,7 +247,20 @@ versements 3a.
 | 2026-08-11 | n°4 — ordre tranché : affiliation LPP d'abord (Lego 4 court, tri-état jamais absence=false, fiscal v5 symbolique sans CHF), versements 3a en Lego 5 ; cap 55k checkpoint 35k | LOOP: GO AFFILIATION LPP |
 | 2026-08-11 | n°5 — versements 3a : LISTE d'entrées atomiques (id stable, montant, date de crédit, année fiscale PINNÉE — rachats 2026+), agrégat dérivé, fiscal v6 (total + révision par bucket annuel, la marge reste au moteur attesté), invalidation par année, dépassement jamais bloqué | LOOP: GO |
 
-## 6ter. Journal des Legos
+## 6ter. Journal des Legos — LE journal
+
+> Réconcilié le 2026-08-15. Ce fichier portait DEUX journaux des Legos :
+> celui-ci, rempli, et un talon vide en fin de fichier affirmant
+> « aucun livré sous ce protocole ». Le talon datait de la conception du
+> protocole et n'a jamais été rempli ; ce tableau a été créé après et a
+> reçu les entrées réelles. Le désordre de numérotation — 6bis et 6ter
+> AVANT 6 — le trahissait.
+>
+> Trouvé par un axe plan Codex, alors que je proposais de construire un
+> tableau de bord en parsant... l'un des deux. Une source qui se
+> contredit produit une vue qui ment, et personne ne l'aurait vu.
+>
+> **Un seul journal des Legos. Celui-ci.**
 
 | Date | Lego | Reviews Codex | État |
 |---|---|---|---|
@@ -302,8 +315,3 @@ devenir un guard, pas une déclaration de session. 7 runs harnais
 déterministe, fichier parasite vs checkout propre, audit locators
 anti-regex-dynamiques → ids porteurs de valeur).
 
-## 6. Journal des Legos
-
-| Date | Lego | Storyboard | Verdict Codex | Verdict Claude | Herméneutique |
-|---|---|---|---|---|---|
-| — | (aucun livré sous ce protocole) | — | — | — | — |
