@@ -164,12 +164,21 @@ void main() {
               'finishHydrating must call notifyListeners for GoRouter refresh');
     });
 
-    test('clear resets isHydrating to false', () async {
+    test('clear resets isHydrating to false even when the secure purge '
+        'defers to a startup retry', () async {
       final provider = CoachProfileProvider();
       provider.startHydrating();
       expect(provider.isHydrating, isTrue);
 
-      await provider.clear();
+      // Depuis la bascule 2, une purge sécurisée qui n'aboutit pas SIGNALE
+      // son report au lieu de prétendre avoir réussi — c'est le cas en test,
+      // où le coffre est simulé. L'invariant à protéger reste que l'état
+      // d'hydratation retombe, réussite ou report.
+      try {
+        await provider.clear();
+      } on StateError catch (error) {
+        expect(error.message, contains('startup retry'));
+      }
       expect(provider.isHydrating, isFalse);
       expect(provider.hasProfile, isFalse);
     });

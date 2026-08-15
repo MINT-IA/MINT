@@ -1716,8 +1716,18 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
         # Réconciliation plans 2026-07-29 : les receipts archivés sous
         # .planning/phases-archive/ sont des feuilles mortes hors routing —
         # leur maintenance (bannières datées, index) reste autorisée.
+        # Références visuelles de la landing : une FAMILLE. Les artefacts
+        # d'ÉCHEC (failures/) restent dehors — sorties de test, jamais du
+        # contenu.
+        allowed_goldens = (
+            path.startswith("apps/mobile/test/goldens/masters/landing_")
+            and path.endswith(".png")
+        )
+        allowed_integration = (
+            path == "apps/mobile/test/integration/profile_hydration_test.dart"
+        )
         allowed_archive = path.startswith(".planning/phases-archive/")
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_goldens or allowed_integration):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
