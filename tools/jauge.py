@@ -139,8 +139,19 @@ def main() -> int:
 
     portes, total, manquants = faits_du_jumeau()
     print(f"\n{GRAS}  Le jumeau financier{FIN}")
-    print(ligne("faits canoniques portés", portes, total,
-                "manque : " + ", ".join(manquants) if manquants else ""))
+    # LE CRITÈRE EST NOMMÉ, pas sous-entendu (2026-08-15).
+    #
+    # Cette ligne annonçait « faits canoniques portés — manque : domicile ».
+    # Un axe adverse a relevé que le BRIEF déclare le domicile promu : le
+    # chiffre se lisait comme « le jumeau est bâti à 83 % » alors qu'il ne
+    # mesure qu'une chose précise — l'existence d'une LECTURE canonique
+    # scellée dans le magasin. Le domicile est dérivé des réponses, pas scellé.
+    # Deux propriétés différentes ; l'une ne vaut pas l'autre.
+    print(ligne("lecture canonique scellée", portes, total,
+                "sans lecture scellée : " + ", ".join(manquants)
+                if manquants else ""))
+    print(f"  {GRIS}  (mesure l'existence d'une readCanonical* dans le magasin"
+          f" scellé — PAS l'état de construction du fait){FIN}")
 
     print(f"\n{GRAS}  Construction{FIN}")
     print(f"  {'Legos livrés':<26} {VERT}{legos_livres()}{FIN}"
