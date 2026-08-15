@@ -86,6 +86,30 @@ def main() -> int:
         if not chemin or not (ROOT / chemin).exists():
             return _fail(f"le {cle} cité par le bail est introuvable : {chemin}")
 
+    # UN SEUL JOURNAL DES LEGOS.
+    #
+    # Le 2026-08-15, `product/mint_next/BRIEF.md` en portait DEUX : l'un avec
+    # onze Legos livrés, l'autre affirmant « aucun livré sous ce protocole ».
+    # Le second était un talon jamais rempli, resté depuis la conception du
+    # protocole.
+    #
+    # Personne ne l'avait vu, et j'allais construire un tableau de bord en
+    # parsant l'un des deux — au hasard. Une source qui se contredit ne produit
+    # pas une vue incomplète : elle produit une vue qui MENT, avec l'autorité
+    # d'un fichier généré.
+    brief = ROOT / "product" / "mint_next" / "BRIEF.md"
+    if brief.exists():
+        journaux = [
+            l for l in brief.read_text(encoding="utf-8").splitlines()
+            if l.startswith("#") and "Journal des Legos" in l
+        ]
+        if len(journaux) != 1:
+            return _fail(
+                f"le BRIEF porte {len(journaux)} journaux des Legos, il en faut "
+                "UN. Deux journaux, c'est deux vérités — et celle qu'on lit "
+                "dépend de l'ordre de lecture.\n  " + "\n  ".join(journaux)
+            )
+
     beats = bail.get("beats") or []
     if not beats:
         return _fail("le bail ne déclare aucun beat")
