@@ -87,6 +87,23 @@ ALLOW = {
     "apps/mobile/lib/widgets/mint_shell.dart",
     "apps/mobile/test/widgets/preview_shell_masking_test.dart",
     "tools/runtime/mint_next_preview_shell_lifecycle.sh",
+    # OUTILLAGE DE VÉRIFICATION — le harnais, son reçu, le bail et les
+    # axes Codex. Ils ne racontent aucun parcours : ils décident ce qui a
+    # le droit d'être annoncé vert.
+    "tools/verify_full.sh",
+    "tools/checks/verify_receipt_gate.py",
+    "tools/checks/verify_absents.txt",
+    "tools/checks/lego_lease_guard.py",
+    "tools/jauge.py",
+    "tools/codex_axes.sh",
+    "tools/codex_prompts/_contexte.md",
+    "tools/codex_prompts/plan.md",
+    "tools/codex_prompts/code.md",
+    "tools/codex_prompts/ux.md",
+    "tools/codex_prompts/copie.md",
+    "tools/codex_prompts/donnees.md",
+    "tools/codex_prompts/cloture.md",
+    "lefthook.yml",
     "tools/runtime/mint_next_local_reset_lifecycle.sh",
     "tools/runtime/mint_next_account_b3a_lifecycle.sh",
     "tools/simulator/flows/maestro-perfect-set/flow_mint_next_account_b3a_lifecycle.yaml",
@@ -1737,8 +1754,17 @@ def _scope_errors(root: Path, changed: list[str]) -> list[str]:
             or path == ".planning/phases/mint-calc-engine-v1/"
                        "mint-calc-engine-v1-VERIFICATION.md"
         )
+        # Verdicts Codex : une FAMILLE, pas des fichiers nommés. Le bail
+        # exige qu'un beat vert cite un verdict qui EXISTE sur disque ;
+        # les déposer un par un serait une friction qui pousse à ne pas
+        # les déposer.
+        allowed_verdicts = (
+            "/verdicts/" in path
+            and path.startswith(".planning/phases/")
+            and path.endswith(".md")
+        )
         allowed_archive = path.startswith(".planning/phases-archive/")
-        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_goldens or allowed_integration or allowed_purge):
+        if not (path in ALLOW or allowed_record or allowed_issue or allowed_diagram or allowed_evidence or allowed_route_contract or allowed_architecture or allowed_archive or allowed_goldens or allowed_integration or allowed_purge or allowed_verdicts):
             errors.append(f"changed file outside Journey OS whitelist: {path}")
         suffix = Path(path).suffix
         if path.startswith(str(JOURNEYS) + "/") and not allowed_evidence and (suffix in {".svg", ".html"} or (suffix == ".md" and path not in ALLOW)):
