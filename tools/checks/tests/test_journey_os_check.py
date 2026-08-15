@@ -184,10 +184,54 @@ def test_changed_file_outside_whitelist_fails(tmp_path: Path) -> None:
     _record(root)
     _issue(root)
     journey_os_generate.write(root)
+    # Le fichier est CRÉÉ sur disque : sans lui, le chemin décrit une
+    # suppression, et le garde le dit désormais avec son propre message
+    # (2026-08-15). Ce test vise la MODIFICATION d'un fichier hors périmètre ;
+    # il lui faut donc un fichier qui existe.
+    surface = root / "apps/mobile/lib/unscoped_surface.dart"
+    surface.parent.mkdir(parents=True, exist_ok=True)
+    surface.write_text("// hors périmètre\n", encoding="utf-8")
     assert any(
         "outside Journey OS whitelist" in error
         for error in _errors(root, ["apps/mobile/lib/unscoped_surface.dart"])
     )
+
+def test_deletion_refusal_names_the_deletion_not_the_whitelist(
+    tmp_path: Path,
+) -> None:
+    """Une SUPPRESSION refusée dit qu'elle est une suppression.
+
+    L'ancien message — « changed file outside Journey OS whitelist » — envoyait
+    la personne chercher une autorisation à ajouter, alors qu'il fallait
+    déclarer un retrait. Le fichier n'était pas hors liste : il n'était plus là.
+    """
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    erreurs = _errors(root, [".planning/phases/une-phase/UN-RECU.md"])
+    assert any("deleted file not declared" in e for e in erreurs), erreurs
+    assert any("DELETION_ALLOW" in e for e in erreurs), (
+        "le message doit NOMMER le geste attendu, pas seulement refuser"
+    )
+
+
+def test_dated_purge_of_phases_archive_is_allowed(tmp_path: Path) -> None:
+    """La purge datée du 2026-08-15 passe — et elle seule.
+
+    `allowed_purge` nomme trois arbres d'archive retirés ce jour-là. La règle
+    est volontairement NOMMÉE : elle décrit un fait daté, pas une permission
+    permanente de supprimer sous `.planning/`.
+    """
+    root = _root(tmp_path)
+    _record(root)
+    _issue(root)
+    journey_os_generate.write(root)
+    assert not _errors(root, [".planning/phases-archive/vieille-phase/PLAN.md"])
+    assert not _errors(root, [".planning/_archive/vieux.md"])
+    # Hors des trois arbres nommés, une suppression reste refusée.
+    assert _errors(root, [".planning/phases/vivante/PLAN.md"])
+
 
 def test_active_context_branch_authorization_is_in_scope(tmp_path: Path) -> None:
     root = _root(tmp_path)

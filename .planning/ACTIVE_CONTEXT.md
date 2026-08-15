@@ -88,7 +88,7 @@ Instead:
   and redirect/index updates.
 
 Applied 2026-07-29 (réconciliation plans, PR dédiée) : 57 répertoires de
-phases morts + `PERIMETERS.md` déplacés vers `.planning/phases-archive/`,
+phases morts + `PERIMETERS.md` archivés le 2026-07-29, puis SORTIS de l'arbre de travail le 2026-08-15 (toujours dans l'historique git),
 structure préservée. `mint-prod-ready-core-journey-truth-20260601` reste en
 place : des records Journey OS citent ses artefacts d'évidence par chemin.
 
