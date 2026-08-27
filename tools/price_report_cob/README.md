@@ -36,12 +36,11 @@ pas fait, ce dossier Desktop est possiblement la seule copie du code.
 ## 2. Le problème constaté le 27.08 au matin
 
 La chaîne a bien tourné : source Robotron arrivée à 05h08, rapport
-« Price Report COB — 26.08.2026 » parti à 05h40. Mais il a atterri **dans la
-corbeille Gmail**, comme les deux exemplaires finaux du 26.08 au soir
-(21h07 et 21h10). Tous les envois postérieurs à ~21h05 le 26.08 sont
-auto-corbeillés — vraisemblablement un filtre Gmail créé en fin de session
-(à vérifier dans Gmail → Paramètres → Filtres, chercher « Price Report COB »),
-ou un nettoyage fait par la chaîne elle-même.
+« Price Report COB — 26.08.2026 » parti à 05h40, retrouvé dans la corbeille
+Gmail. Résolu le 27.08 : c'est Julien lui-même qui avait mis à la corbeille
+les différentes versions — pas de filtre, pas de nettoyage automatique.
+Aucune action Gmail nécessaire ; les rapports suivants arrivent normalement
+en boîte de réception.
 
 ## 3. La colonne « DE base » (prix base Allemagne)
 
@@ -134,9 +133,10 @@ spread CH−DE affiché, à l'arrondi près.
 Note du 27.08 : le connecteur Gmail utilisé ici est lecture + envoi
 uniquement (pas de droit de modification) — la restauration du rapport de
 05h40 depuis la corbeille reste un geste manuel. Un exemplaire corrigé
-(DE base + tendance FX) envoyé le 27.08 avec l'objet « Rapport prix COB — … »
-est arrivé en boîte de réception sans être corbeillé, ce qui renforce
-l'hypothèse d'un filtre sur l'objet exact « Price Report COB ».
+(DE base + tendance FX) a été envoyé le 27.08 et est arrivé en boîte de
+réception. L'hypothèse d'un filtre Gmail auto-corbeillant « Price Report
+COB » s'est révélée fausse : Julien avait mis les versions à la corbeille
+lui-même.
 
 ## 7. Retour d'Axel Kullmann (27.08, 08h48) — peaks et autres zones
 
