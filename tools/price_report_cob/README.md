@@ -159,3 +159,23 @@ Maquette : `reference/2026-08-26_proposition_peaks_zones.html` (données
 réelles du 26.08). Extraction : `reference/eex_zones_peak_2026-08-25_26.json`
 (base + peak, 5 zones, 25 et 26.08). À valider avec Manfred avant de
 l'implémenter dans le générateur.
+
+## 8. Étage ENTSO-E pour FMV (proposition v3, 27.08)
+
+Sur la v2 « digeste », trois ajouts testés en direct contre l'API avec le
+jeton du coffre (`reference/2026-08-26_proposition_v3_fmv_entsoe.html`) :
+
+- **Spot multizone** : deux lignes FR et IT-Nord dans le bloc spot existant
+  (A44, zones `10YFR-RTE------C` et `10Y1001A1001A73I`) — base + creux →
+  pointe. Le 27.08 : FR 156,60 · IT-Nord 202,08 €/MWh.
+- **Flux frontaliers CH** : une ligne sous le bloc spot (A11, flux
+  physiques par frontière, veille) — le 26.08 : → IT 41,7 GWh · → DE 16,3
+  · → AT 3,2 · ← FR 7,9, net exportateur 53,3 GWh.
+- **Prévu aujourd'hui** : la ligne du §5 (éolien+solaire DE, charge DE/CH)
+  sous les Fondamentaux.
+
+Écartés pour rester léger : réservoirs ENTSO-E (A72, redondant avec OFEN,
+moins frais), NTC prévisionnelles (A61), génération par filière (A75).
+Phase 2 possible, en ligne conditionnelle n'apparaissant qu'en cas
+d'événement : indisponibilités réseau aux frontières CH (A78, documents
+zippés — parsing plus lourd).
