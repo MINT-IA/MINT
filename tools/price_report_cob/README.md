@@ -102,6 +102,17 @@ nuit — tout est disponible au moment du run de 05h40. À éviter pour rester
 léger : prévisions week-ahead, capacités transfrontalières, courbes
 horaires complètes.
 
+**Implémenté le 27.08** : `entsoe_forecast.py` — éolien+solaire DE (A69) et
+charge DE + CH (A65), moyennes journalières en GW, testé contre l'API réelle
+(27.08 : éolien+solaire DE 41,1 GW · charge DE 51,1 GW · charge CH 6,8 GW).
+Jeton lu dans la variable d'environnement `ENTSOE_TOKEN` — jamais dans git.
+Piège d'implémentation : les documents sont en curveType A03, un point dont
+la valeur répète la précédente est omis (le solaire compresse ses zéros
+nocturnes) ; moyenner les points bruts surestime (48,9 au lieu de 41,1) —
+le module reconstruit la grille complète du Period avant de moyenner.
+Reste à faire : dispo nucléaire FR (agrégation des indisponibilités
+A80/A77, documents zippés par unité).
+
 ## 6. Contenu de `reference/`
 
 | Fichier | Quoi |
