@@ -126,3 +126,25 @@ uniquement (pas de droit de modification) — la restauration du rapport de
 (DE base + tendance FX) envoyé le 27.08 avec l'objet « Rapport prix COB — … »
 est arrivé en boîte de réception sans être corbeillé, ce qui renforce
 l'hypothèse d'un filtre sur l'objet exact « Price Report COB ».
+
+## 7. Retour d'Axel Kullmann (27.08, 08h48) — peaks et autres zones
+
+Retour reçu sur le rapport : « il ne manque peut-être plus que les peaks »
+(à discuter avec Manfred) et « les prix FR / IT et AT pourraient peut-être
+aussi présenter un intérêt ». Tout est déjà dans le xlsx Robotron :
+
+- **Peaks** : colonnes `*_PEAK` des feuilles `CH` et `DE`. CH complet sur
+  les 14 produits ; DE complet sauf `Q04_2027_PEAK` (absent au 26.08).
+  Convention vérifiée : la colonne PK−BL actuelle = peak CH − base CH
+  (Q4 26 : 184,80 − 165,80 = +19,0). Proposition : colonne « peak » dans le
+  groupe SUISSE, après « base » (secondaire, 12px non gras) ; les Δ restent
+  calculés sur la base (mention en pied de page).
+- **Autres zones** : feuilles `FR`, `IT`, `AT`, mêmes 112 colonnes, les
+  14 produits complets au 26.08. Proposition légère : un bloc
+  « Autres zones — base » de 3 lignes × 6 produits (Q4 26, Q1 27, Cal 27,
+  Cal 28, Cal 29, Cal 30), sans Δ ni barres.
+
+Maquette : `reference/2026-08-26_proposition_peaks_zones.html` (données
+réelles du 26.08). Extraction : `reference/eex_zones_peak_2026-08-25_26.json`
+(base + peak, 5 zones, 25 et 26.08). À valider avec Manfred avant de
+l'implémenter dans le générateur.
