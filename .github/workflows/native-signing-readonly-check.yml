@@ -1,0 +1,94 @@
+name: MINT native signing readonly check
+on:
+  push:
+    branches: [codex/native-signing-check-20261028]
+permissions:
+  contents: read
+jobs:
+  signing-check:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - uses: ruby/setup-ruby@e65c17d16e57e481586a6a5a0282698790062f92
+        with:
+          ruby-version: '3.2'
+      - name: Install pinned Fastlane
+        run: gem install fastlane --version 2.232.1 --no-document
+      - name: Check existing match signing without product upload
+        env:
+          MINT_MATCH_AUTH: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+          MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          FASTLANE_SKIP_UPDATE_CHECK: 'true'
+          FASTLANE_HIDE_CHANGELOG: 'true'
+          GIT_TERMINAL_PROMPT: '0'
+        shell: ruby {0}
+        run: |
+          require 'base64'
+          require 'json'
+          require 'fileutils'
+          %w[MINT_MATCH_AUTH MATCH_GIT_URL MATCH_PASSWORD ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_CONTENT].each { |name| abort('Missing configured field: '+name) if ENV.fetch(name,'').strip.empty? }
+          temp = ENV.fetch('RUNNER_TEMP')
+          askpass = File.join(temp,'mint-match-askpass')
+          api = File.join(temp,'mint-native-api.json')
+          File.write(askpass, <<~'ASKPASS')
+            #!/usr/bin/env ruby
+            require 'base64'
+            user, token = Base64.strict_decode64(ENV.fetch('MINT_MATCH_AUTH')).split(':',2)
+            abort('Invalid existing match authentication') if user.to_s.empty? || token.to_s.empty?
+            STDOUT.write(ARGV.fetch(0).downcase.include?('username') ? user : token)
+          ASKPASS
+          File.chmod(0700,askpass)
+          raw = ENV.fetch('ASC_KEY_CONTENT').strip.gsub('\\n',"\n")
+          raw = Base64.strict_decode64(raw) unless raw.include?('-----BEGIN PRIVATE KEY-----')
+          File.write(api,JSON.generate({key_id:ENV.fetch('ASC_KEY_ID').strip,issuer_id:ENV.fetch('ASC_ISSUER_ID').strip,key:raw,in_house:false}))
+          File.chmod(0600,api)
+          ENV['GIT_ASKPASS'] = askpass
+          ENV['GIT_CONFIG_COUNT'] = '1'
+          ENV['GIT_CONFIG_KEY_0'] = 'credential.helper'
+          ENV['GIT_CONFIG_VALUE_0'] = ''
+          ENV['MINT_SIGN_CHECK_API_PATH'] = api
+          FileUtils.mkdir_p('fastlane')
+          File.write('fastlane/Fastfile', <<~'LANE')
+            require 'json'
+            require 'open3'
+            require 'digest'
+            require 'cfpropertylist'
+            require 'time'
+            lane :verify_native_signing do
+              setup_ci(keychain_name:'mint_native_signing_check',timeout:900)
+              match(type:'appstore',app_identifier:'ch.mint.app',team_id:'7F5UDGYS5H',git_url:ENV.fetch('MATCH_GIT_URL'),api_key_path:ENV.fetch('MINT_SIGN_CHECK_API_PATH'),readonly:true)
+              expected='DD766DEDB95441E70FB01ADB16E6AE338D3C211E'
+              identities,err,status=Open3.capture3('security','find-identity','-v','-p','codesigning')
+              UI.user_error!('Expected distribution identity not installed') unless status.success? && identities.include?(expected)
+              paths=Dir[File.expand_path('~/Library/Developer/Xcode/UserData/Provisioning Profiles/*.mobileprovision')]+Dir[File.expand_path('~/Library/MobileDevice/Provisioning Profiles/*.mobileprovision')]
+              selected=nil
+              paths.each do |path|
+                xml,_,ok=Open3.capture3('security','cms','-D','-i',path)
+                next unless ok.success?
+                profile=CFPropertyList.native_types(CFPropertyList::List.new(data:xml).value)
+                next unless profile['UUID']=='946e0a55-e56f-4b6e-9a3f-38596098305d'
+                UI.user_error!('Wrong team or distribution entitlement') unless profile['TeamIdentifier']==['7F5UDGYS5H'] && profile['Entitlements']['application-identifier']=='7F5UDGYS5H.ch.mint.app' && profile['Entitlements']['get-task-allow']==false
+                UI.user_error!('Distribution profile expired') unless Time.parse(profile['ExpirationDate'].to_s)>Time.now
+                selected={profileUUID:profile['UUID'],profileSHA256:Digest::SHA256.file(path).hexdigest,expiration:profile['ExpirationDate'].to_s}
+              end
+              UI.user_error!('Expected native distribution profile missing') unless selected
+              probe=File.join(ENV.fetch('RUNNER_TEMP'),'mint-native-signing-probe')
+              FileUtils.cp('/usr/bin/true',probe);File.chmod(0700,probe)
+              _,_,signed=Open3.capture3('codesign','--force','--sign',expected,'--timestamp=none',probe)
+              _,_,verified=Open3.capture3('codesign','--verify','--strict',probe)
+              UI.user_error!('Noninteractive signing probe failed') unless signed.success? && verified.success?
+              report={passed:true,readonlyMatch:true,uploaded:false,createdCertificates:false,team:'7F5UDGYS5H',identitySHA1:expected,noninteractiveSignatureVerified:true}.merge(selected)
+              puts JSON.generate(report)
+              File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
+              FileUtils.rm_f(probe)
+            end
+          LANE
+          begin
+            abort('Existing CI signing validation failed') unless system('fastlane','verify_native_signing')
+          ensure
+            FileUtils.rm_f([askpass,api])
+          end
