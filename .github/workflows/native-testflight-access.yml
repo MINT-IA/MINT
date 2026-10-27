@@ -1,4 +1,4 @@
-name: MINT native TestFlight delivery state
+name: MINT native TestFlight notes and verified delivery
 on:
   push:
     branches: [codex/native-testflight-access-20261027]
@@ -73,5 +73,33 @@ jobs:
             report[:permissionLimits] << list if list[:requestFailed]
             report[:internalGroupBuilds] << {groupId:g[:id],builds:(list['data']||[]).map { |x| {id:x['id'],attributes:x['attributes']} }}
           end
+          target = report[:builds].find { |b| b[:id]=='5ad320c2-b7af-480a-abf1-94db5057bbd1' }
+          abort('Qualified build identity/state changed') unless target && target[:marketingVersion]=='2.15.0' && target[:build]=='2' && target[:processingState]=='VALID' && target[:betaDetail]['internalBuildState']=='IN_BETA_TESTING'
+          abort('Expected existing internal group membership required') unless report[:internalGroupBuilds].any? { |g| g[:groupId]=='babae2ed-6c5a-4e22-9dd2-3ee5288e3fc5' && g[:builds].any? { |b| b[:id]==target[:id] } }
+          notes = Base64.strict_decode64('w4AgdGVzdGVyIGRhbnMgTUlOVCAyLjE1LjAgKDIpCgrigKIgQXVqb3VyZOKAmWh1aSA6IGNpZWwgY29udGludSBzb3VzIGxhIG5hdmlnYXRpb24sIHdpZGdldHMgcsOpb3JnYW5pc2FibGVzIGV0IGNvbnRyYXN0ZSBhZGFwdMOpIGF1IGTDqWZpbGVtZW50LCB5IGNvbXByaXMgZW4gZ3JhbmRzIGNhcmFjdMOocmVzLgrigKIgQ29ow6lyZW5jZSBkZXMgZG9ubsOpZXMgOiBkaXN0aW5jdGlvbiBlbnRyZSBtb250YW50cyBpbmNvbm51cywgesOpcm9zIGTDqWNsYXLDqXMsIGZhaXRzIGRvY3VtZW50YWlyZXMgZXQgc2PDqW5hcmlvcyA7IG9yaWdpbmUgZGVzIGVzdGltYXRpb25zIEFWUy9MUFAgZXhwbGljaXRlLgrigKIgUmV0cmFpdGUgZXQgM2EgOiBjb21wYXJhaXNvbiByZW50ZS9jYXBpdGFsLCBjb250ZXh0ZSBmaXNjYWwgVmF1ZCAyMDI2IGV0IGJhc2VzIGRlIHJldmVudSBxdWFsaWZpw6llcyBwb3VyIGxlcyBzaW11bGF0aW9ucyAzYS4KCkxlcyBjYWxjdWxzIHJlc3RlbnQgaW5kaWNhdGlmcyBldCBsZXVyIGNvdXZlcnR1cmUgZmlzY2FsZSBkw6lwZW5kIGR1IGNvbnRleHRlIGFmZmljaMOpLiBMZSBub3V2ZWwgw6ljcmFuIGRlIGR1csOpZSBkZSBmaW5hbmNlbWVudCBkdSBjYXBpdGFsIHJlc3RlIGVuIHZhbGlkYXRpb24gZXQgbmUgZmFpdCBwYXMgcGFydGllIGRlIGNlIGJ1aWxkLgo=').force_encoding('UTF-8')
+          write = lambda do |method,path,body|
+            uri=URI('https://api.appstoreconnect.apple.com'+path)
+            request=(method=='POST' ? Net::HTTP::Post : Net::HTTP::Patch).new(uri)
+            request['Authorization']='Bearer '+token
+            request['Content-Type']='application/json'
+            request.body=JSON.generate(body)
+            response=Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:30) { |http| http.request(request) }
+            data=JSON.parse(response.body)
+            abort(JSON.generate({operation:'betaNotes',status:response.code,errorCodes:(data['errors']||[]).map { |x| x['code'] }})) unless ['200','201'].include?(response.code)
+            data
+          end
+          path='/v1/builds/'+target[:id]+'/betaBuildLocalizations'
+          current=get.call(path,{})
+          abort('Cannot inspect beta notes') unless current['data']
+          localized=current['data'].find { |x| x['attributes']['locale']=='fr-FR' }
+          if localized
+            write.call('PATCH','/v1/betaBuildLocalizations/'+localized['id'],{data:{type:'betaBuildLocalizations',id:localized['id'],attributes:{whatsNew:notes}}}) unless localized['attributes']['whatsNew']==notes
+          else
+            write.call('POST','/v1/betaBuildLocalizations',{data:{type:'betaBuildLocalizations',attributes:{locale:'fr-FR',whatsNew:notes},relationships:{build:{data:{type:'builds',id:target[:id]}}}}})
+          end
+          verified=get.call(path,{})['data']&.find { |x| x['attributes']['locale']=='fr-FR' }
+          abort('Beta notes readback mismatch') unless verified && verified['attributes']['whatsNew']==notes
+          require 'digest'
+          report[:betaNotes]={locale:'fr-FR',id:verified['id'],readbackVerified:true,sha256:Digest::SHA256.hexdigest(notes)}
           puts JSON.generate(report)
           File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
