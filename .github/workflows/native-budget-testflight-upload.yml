@@ -1,0 +1,73 @@
+name: MINT concise budget TestFlight upload
+on:
+  push:
+    branches: [codex/native-budget-testflight-upload-20261027]
+permissions:
+  contents: write
+concurrency:
+  group: native-testflight-2150-build5-budget
+  cancel-in-progress: false
+jobs:
+  upload-qualified-ipa:
+    runs-on: macos-latest
+    timeout-minutes: 25
+    steps:
+      - name: Download protected draft asset and verify qualified binary
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python3 {0}
+        run: |
+          import subprocess,json,hashlib,pathlib,urllib.request,zipfile,plistlib,os
+          repo='MINT-IA/MINT'; release_id=425972255; asset_id=682844211
+          def api(path): return json.loads(subprocess.check_output(['gh','api',path]))
+          release=api(f'repos/{repo}/releases/{release_id}')
+          assert release['draft'] is True, 'Transfer release must remain unpublished'
+          assert release['tag_name']=='native-transfer-2150-build5-budget-20261027'
+          asset=api(f'repos/{repo}/releases/assets/{asset_id}')
+          assert any(x['id']==asset_id for x in release['assets'])
+          assert asset['name']=='Mint-2.15.0-build5.ipa'
+          # An unauthenticated client must not obtain even asset metadata.
+          try:
+            urllib.request.urlopen(asset['browser_download_url'],timeout=30)
+            raise AssertionError('Draft asset unexpectedly public')
+          except urllib.error.HTTPError as e:
+            assert e.code==404, 'Anonymous protection check inconclusive'
+          folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'mint-native-upload';folder.mkdir(mode=0o700)
+          ipa=folder/'Mint.ipa'
+          with ipa.open('wb') as f:subprocess.run(['gh','api',f'repos/{repo}/releases/assets/{asset_id}','-H','Accept: application/octet-stream'],stdout=f,check=True)
+          assert hashlib.sha256(ipa.read_bytes()).hexdigest()=='3672ae36800a6cb08d023d82fc4133715c6f31ea9e007808d92966571c422d52'
+          with zipfile.ZipFile(ipa) as z:
+            entries=[n for n in z.namelist() if n.startswith('Payload/') and n.endswith('.app/Info.plist') and n.count('/')==2]
+            assert len(entries)==1
+            info=plistlib.loads(z.read(entries[0]))
+            assert (info['CFBundleIdentifier'],info['CFBundleShortVersionString'],info['CFBundleVersion'])==('ch.mint.app','2.15.0','5')
+          print(json.dumps({'qualifiedSHA256':'3672ae36800a6cb08d023d82fc4133715c6f31ea9e007808d92966571c422d52','bundle':'ch.mint.app','version':'2.15.0','build':'5','draftAssetProtected':True}))
+      - name: Send verified archive using existing Apple credentials
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        shell: python3 {0}
+        run: |
+          import os,pathlib,base64,subprocess,json,shutil
+          folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'mint-native-upload'
+          keys=folder/'private_keys';keys.mkdir(mode=0o700)
+          keyid=os.environ['ASC_KEY_ID'].strip();issuer=os.environ['ASC_ISSUER_ID'].strip()
+          raw=os.environ['ASC_KEY_CONTENT'].strip().replace('\\n','\n')
+          if '-----BEGIN PRIVATE KEY-----' not in raw:raw=base64.b64decode(raw,validate=True).decode()
+          assert keyid and issuer and '-----BEGIN PRIVATE KEY-----' in raw
+          key=keys/f'AuthKey_{keyid}.p8';key.write_text(raw);key.chmod(0o600)
+          try:
+            env=dict(os.environ,API_PRIVATE_KEYS_DIR=str(keys))
+            for k in ['ASC_KEY_CONTENT','ASC_KEY_ID','ASC_ISSUER_ID']:env.pop(k,None)
+            subprocess.run(['xcodebuild','-version'],check=True,env=env)
+            subprocess.run(['xcrun','altool','--upload-app','-f',str(folder/'Mint.ipa'),'--apiKey',keyid,'--apiIssuer',issuer,'--output-format','json'],check=True,env=env,timeout=1200)
+            print(json.dumps({'uploadCommandSucceeded':True,'version':'2.15.0','build':'5','testerAvailabilityVerified':False}))
+          finally:
+            shutil.rmtree(keys,ignore_errors=True)
+      - name: Remove runner transfer files
+        if: always()
+        shell: python3 {0}
+        run: |
+          import os,pathlib,shutil
+          shutil.rmtree(pathlib.Path(os.environ['RUNNER_TEMP'])/'mint-native-upload',ignore_errors=True)
