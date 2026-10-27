@@ -28,7 +28,7 @@ jobs:
           assert asset['name']=='Mint-2.15.0-build2.ipa'
           # An unauthenticated client must not obtain even asset metadata.
           try:
-            urllib.request.urlopen(f'https://api.github.com/repos/{repo}/releases/assets/{asset_id}',timeout=30)
+            urllib.request.urlopen(asset['browser_download_url'],timeout=30)
             raise AssertionError('Draft asset unexpectedly public')
           except urllib.error.HTTPError as e:
             assert e.code==404, 'Anonymous protection check inconclusive'
