@@ -1,4 +1,4 @@
-name: MINT native TestFlight access check
+name: MINT native TestFlight delivery state
 on:
   push:
     branches: [codex/native-testflight-access-20261027]
@@ -55,5 +55,10 @@ jobs:
           report = {authenticated:true,bundleId:'ch.mint.app',appId:app_id,builds:builds['data'].map { |x|
             {id:x['id'],build:x.dig('attributes','version'),marketingVersion:versions[x.dig('relationships','preReleaseVersion','data','id')],processingState:x.dig('attributes','processingState')}
           }}
+          report[:appGroups] = get.call('/v1/apps/'+app_id+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})['data'].map { |g| {id:g['id'],attributes:g['attributes']} }
+          report[:builds].first(3).each do |b|
+            b[:betaDetail] = get.call('/v1/builds/'+b[:id]+'/buildBetaDetail',{})['data']['attributes']
+            b[:betaGroups] = get.call('/v1/builds/'+b[:id]+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})['data'].map { |g| {id:g['id'],attributes:g['attributes']} }
+          end
           puts JSON.generate(report)
           File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
