@@ -66,9 +66,12 @@ jobs:
             detail = get.call('/v1/builds/'+b[:id]+'/buildBetaDetail',{})
             report[:permissionLimits] << detail if detail[:requestFailed]
             b[:betaDetail] = detail.dig('data','attributes')
-            bg = get.call('/v1/builds/'+b[:id]+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})
-            report[:permissionLimits] << bg if bg[:requestFailed]
-            b[:betaGroups] = (bg['data']||[]).map { |g| {id:g['id'],attributes:g['attributes']} }
+          end
+          report[:internalGroupBuilds] = []
+          report[:appGroups].select { |g| g[:attributes]['isInternalGroup'] }.each do |g|
+            list = get.call('/v1/betaGroups/'+g[:id]+'/builds',{'limit'=>'200','fields[builds]'=>'version,processingState'})
+            report[:permissionLimits] << list if list[:requestFailed]
+            report[:internalGroupBuilds] << {groupId:g[:id],builds:(list['data']||[]).map { |x| {id:x['id'],attributes:x['attributes']} }}
           end
           puts JSON.generate(report)
           File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
