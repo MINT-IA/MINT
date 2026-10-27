@@ -42,23 +42,33 @@ jobs:
             response = Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:30) { |http| http.request(request) }
             data = JSON.parse(response.body)
             unless response.code == '200'
-              puts JSON.generate({authenticated:false,httpStatus:response.code,errorCodes:(data['errors']||[]).map { |x| x['code'] }})
-              abort('Apple API request failed; no credential value is printed')
+              return_data = {requestFailed:true,httpStatus:response.code,path:path,errorCodes:(data['errors']||[]).map { |x| x['code'] }}
+              next return_data
             end
             data
           end
-          apps = get.call('/v1/apps',{'filter[bundleId]'=>'ch.mint.app'})['data']
+          app_response = get.call('/v1/apps',{'filter[bundleId]'=>'ch.mint.app'})
+          abort(JSON.generate(app_response)) unless app_response['data']
+          apps = app_response['data']
           abort('Expected exactly the MINT bundle') unless apps.size == 1 && apps[0]['attributes']['bundleId']=='ch.mint.app'
           app_id = apps[0]['id']
           builds = get.call('/v1/builds',{'filter[app]'=>app_id,'sort'=>'-uploadedDate','limit'=>'10','include'=>'preReleaseVersion'})
+          abort(JSON.generate(builds)) unless builds['data']
           versions = (builds['included']||[]).to_h { |x| [x['id'],x.dig('attributes','version')] }
           report = {authenticated:true,bundleId:'ch.mint.app',appId:app_id,builds:builds['data'].map { |x|
             {id:x['id'],build:x.dig('attributes','version'),marketingVersion:versions[x.dig('relationships','preReleaseVersion','data','id')],processingState:x.dig('attributes','processingState')}
           }}
-          report[:appGroups] = get.call('/v1/apps/'+app_id+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})['data'].map { |g| {id:g['id'],attributes:g['attributes']} }
+          report[:permissionLimits] = []
+          groups = get.call('/v1/apps/'+app_id+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})
+          report[:permissionLimits] << groups if groups[:requestFailed]
+          report[:appGroups] = (groups['data']||[]).map { |g| {id:g['id'],attributes:g['attributes']} }
           report[:builds].first(3).each do |b|
-            b[:betaDetail] = get.call('/v1/builds/'+b[:id]+'/buildBetaDetail',{})['data']['attributes']
-            b[:betaGroups] = get.call('/v1/builds/'+b[:id]+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})['data'].map { |g| {id:g['id'],attributes:g['attributes']} }
+            detail = get.call('/v1/builds/'+b[:id]+'/buildBetaDetail',{})
+            report[:permissionLimits] << detail if detail[:requestFailed]
+            b[:betaDetail] = detail.dig('data','attributes')
+            bg = get.call('/v1/builds/'+b[:id]+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})
+            report[:permissionLimits] << bg if bg[:requestFailed]
+            b[:betaGroups] = (bg['data']||[]).map { |g| {id:g['id'],attributes:g['attributes']} }
           end
           puts JSON.generate(report)
           File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
