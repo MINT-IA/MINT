@@ -1,0 +1,289 @@
+name: MINT native LPP buyback TestFlight build9
+on:
+  push:
+    branches: [codex/native-lpp-testflight9-v1-20261028]
+permissions:
+  contents: write
+concurrency:
+  group: native-testflight-2150-build9
+  cancel-in-progress: false
+jobs:
+  signing-check:
+    runs-on: macos-15
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+    timeout-minutes: 75
+    steps:
+      - name: Verify exact qualified Xcode before building
+        shell: python3 {0}
+        run: |
+          import os,pathlib,subprocess,json
+          assert pathlib.Path(os.environ['DEVELOPER_DIR']).is_dir()
+          version=subprocess.check_output(['xcodebuild','-version'],text=True)
+          sdk=subprocess.check_output(['xcrun','--sdk','iphoneos','--show-sdk-version'],text=True).strip()
+          assert version.splitlines()==['Xcode 26.2','Build version 17C52'] and sdk=='26.2'
+          print(json.dumps(dict(xcode=version.splitlines(),iphoneosSDK=sdk,qualifiedToolchain=True)))
+      - uses: ruby/setup-ruby@e65c17d16e57e481586a6a5a0282698790062f92
+        with:
+          ruby-version: '3.2'
+      - name: Install pinned Fastlane
+        run: gem install fastlane --version 2.232.1 --no-document
+      - name: Verify qualified native source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python3 {0}
+        run: |
+          import hashlib, json, os, pathlib, subprocess, tarfile, urllib.error, urllib.request
+          
+          repo='MINT-IA/MINT';release_id=426923762;asset_id=685634965
+          expected_archive='752692e725c9a205d143d30aac2f76c04958b7bbfc544b4037d93935507a988b';expected_manifest='b72045ea5437318b8f23bc09c07da6b9e14fd7c66057ba8e91d25dc3a20bb098'
+          def api(path):return json.loads(subprocess.check_output(['gh','api',path]))
+          release=api(f'repos/{repo}/releases/{release_id}')
+          assert release['draft'] is True and release['tag_name']=='native-lpp-transfer-c889d4f8-db6d-499f-867f-3cba700a30f5'
+          asset=api(f'repos/{repo}/releases/assets/{asset_id}')
+          assert asset['name']=='qualified-native-source.tar.gz' and any(x['id']==asset_id for x in release['assets'])
+          try:
+              urllib.request.urlopen(asset['browser_download_url'],timeout=20)
+              raise AssertionError('Source draft asset unexpectedly public')
+          except urllib.error.HTTPError as e:assert e.code==404
+          folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'mint-native-release';folder.mkdir(mode=0o700)
+          archive=folder/'qualified-native-source.tar.gz'
+          with archive.open('xb') as f:subprocess.run(['gh','api',f'repos/{repo}/releases/assets/{asset_id}','-H','Accept: application/octet-stream'],stdout=f,check=True)
+          assert hashlib.sha256(archive.read_bytes()).hexdigest()==expected_archive
+          with tarfile.open(archive,'r:gz') as t:
+              members=t.getmembers();names=[x.name for x in members]
+              assert len(names)==len(set(names))
+              assert all(not pathlib.PurePosixPath(x.name).is_absolute() and '..' not in pathlib.PurePosixPath(x.name).parts and x.isfile() for x in members)
+              raw=t.extractfile('mint-release-manifest.json').read();assert hashlib.sha256(raw).hexdigest()==expected_manifest
+              manifest=json.loads(raw);assert manifest['sourceCommit']=='7f2d0c1029f981f62cf650f4cd4303a5542a1396'
+              assert set(names)==set(manifest['files'])|{'mint-release-manifest.json'}
+              for member in members:
+                  if member.name!='mint-release-manifest.json':assert hashlib.sha256(t.extractfile(member).read()).hexdigest()==manifest['files'][member.name]['sha256']
+              t.extractall(folder)
+          print(json.dumps(dict(sourceCommit=manifest['sourceCommit'],sourceFilesVerified=len(manifest['files']),sourceSHA256=expected_archive,sourceManifestSHA256=expected_manifest,draftProtected=True)))
+      - name: Check existing match signing without product upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+          FASTLANE_SKIP_UPDATE_CHECK: 'true'
+          FASTLANE_HIDE_CHANGELOG: 'true'
+          GIT_TERMINAL_PROMPT: '0'
+        shell: ruby {0}
+        run: |
+          require 'base64'
+          require 'json'
+          require 'fileutils'
+          %w[MATCH_PASSWORD ASC_KEY_ID ASC_ISSUER_ID ASC_KEY_CONTENT].each { |name| abort('Missing configured field: '+name) if ENV.fetch(name,'').strip.empty? }
+          temp = ENV.fetch('RUNNER_TEMP')
+          api = File.join(temp,'mint-native-api.json')
+          require 'open3'
+          require 'digest'
+          require 'zlib'
+          require 'rubygems/package'
+          require 'stringio'
+          metadata, error, status = Open3.capture3('gh','api','repos/MINT-IA/MINT/releases/426923762')
+          abort('Draft metadata unavailable') unless status.success?
+          release = JSON.parse(metadata)
+          abort('Expected unpublished draft missing') unless release['draft'] == true && release['tag_name'] == 'native-lpp-transfer-c889d4f8-db6d-499f-867f-3cba700a30f5'
+          encrypted, error, status = Open3.capture3('gh','api','-H','Accept: application/octet-stream','repos/MINT-IA/MINT/releases/assets/685634967')
+          abort('Encrypted snapshot download failed') unless status.success? && Digest::SHA256.hexdigest(encrypted) == 'ee30b6e20af1f42ae5aba193cb122985ad8d64644f08f262f62835bc0dd952d9'
+          expected = {"certs/distribution/U3CJX93TKW.cer"=>"97efa0fba411adedeebd570bbc8b804fe9fe8836175ff830e7a615d3f21ebe1f","certs/distribution/U3CJX93TKW.p12"=>"e5caffd8cab3927675820d917b3bc1457463cd43c7c91155d7925ed3b4d57e64","match_version.txt"=>"0185a636f9fd94cce4009b8636094cd5e35c6c60997cb80f1fe3efcc9d32485c","profiles/appstore/AppStore_ch.mint.app.mobileprovision"=>"046df130c3f2ba556cb134f72443b0a2e383109fa635ce45b991a44fbeab2737"}
+          repo = File.join(temp,'mint-encrypted-match-snapshot')
+          FileUtils.mkdir_p(repo,mode:0700)
+          observed = []
+          Gem::Package::TarReader.new(Zlib::GzipReader.new(StringIO.new(encrypted))) do |archive|
+            archive.each do |entry|
+              name = entry.full_name
+              abort('Unexpected snapshot entry') unless entry.file? && expected.key?(name) && !observed.include?(name)
+              body = entry.read
+              abort('Snapshot entry changed') unless Digest::SHA256.hexdigest(body) == expected.fetch(name)
+              path = File.join(repo,name); FileUtils.mkdir_p(File.dirname(path),mode:0700)
+              File.binwrite(path,body); File.chmod(0600,path); observed << name
+            end
+          end
+          abort('Snapshot incomplete') unless observed.sort == expected.keys.sort
+          [['init','--quiet','--initial-branch=master'],['add','--all'],['-c','user.name=MINT Signing Check','-c','user.email=signing-check@localhost','commit','--quiet','-m','Pinned encrypted Match snapshot']].each do |args|
+            _,_,ok = Open3.capture3('git','-C',repo,*args)
+            abort('Encrypted local repository setup failed') unless ok.success?
+          end
+          ENV['MINT_MATCH_SNAPSHOT_GIT'] = repo
+          raw = ENV.fetch('ASC_KEY_CONTENT').strip.gsub('\\n',"\n")
+          raw = Base64.strict_decode64(raw) unless raw.include?('-----BEGIN PRIVATE KEY-----')
+          File.write(api,JSON.generate({key_id:ENV.fetch('ASC_KEY_ID').strip,issuer_id:ENV.fetch('ASC_ISSUER_ID').strip,key:raw,in_house:false}))
+          File.chmod(0600,api)
+          ENV['MINT_SIGN_CHECK_API_PATH'] = api
+          FileUtils.mkdir_p('fastlane')
+          File.write('fastlane/Fastfile', <<~'LANE')
+            require 'json'
+            require 'open3'
+            require 'digest'
+            require 'cfpropertylist'
+            require 'time'
+            lane :verify_native_signing do
+              setup_ci(keychain_name:'mint_native_signing_check',timeout:3600)
+              match(type:'appstore',app_identifier:'ch.mint.app',team_id:'7F5UDGYS5H',git_url:ENV.fetch('MINT_MATCH_SNAPSHOT_GIT'),git_branch:'master',api_key_path:ENV.fetch('MINT_SIGN_CHECK_API_PATH'),readonly:true)
+              expected='DD766DEDB95441E70FB01ADB16E6AE338D3C211E'
+              identities,err,status=Open3.capture3('security','find-identity','-v','-p','codesigning')
+              UI.user_error!('Expected distribution identity not installed') unless status.success? && identities.include?(expected)
+              paths=Dir[File.expand_path('~/Library/Developer/Xcode/UserData/Provisioning Profiles/*.mobileprovision')]+Dir[File.expand_path('~/Library/MobileDevice/Provisioning Profiles/*.mobileprovision')]
+              selected=nil
+              paths.each do |path|
+                xml,_,ok=Open3.capture3('security','cms','-D','-i',path)
+                next unless ok.success?
+                profile=CFPropertyList.native_types(CFPropertyList::List.new(data:xml).value)
+                next unless profile['UUID']=='946e0a55-e56f-4b6e-9a3f-38596098305d'
+                UI.user_error!('Wrong team or distribution entitlement') unless profile['TeamIdentifier']==['7F5UDGYS5H'] && profile['Entitlements']['application-identifier']=='7F5UDGYS5H.ch.mint.app' && profile['Entitlements']['get-task-allow']==false
+                UI.user_error!('Distribution profile expired') unless Time.parse(profile['ExpirationDate'].to_s)>Time.now
+                selected={profileUUID:profile['UUID'],profileSHA256:Digest::SHA256.file(path).hexdigest,expiration:profile['ExpirationDate'].to_s}
+              end
+              UI.user_error!('Expected native distribution profile missing') unless selected
+              probe=File.join(ENV.fetch('RUNNER_TEMP'),'mint-native-signing-probe')
+              FileUtils.cp('/usr/bin/true',probe);File.chmod(0700,probe)
+              _,_,signed=Open3.capture3('codesign','--force','--sign',expected,'--timestamp=none',probe)
+              _,_,verified=Open3.capture3('codesign','--verify','--strict',probe)
+              UI.user_error!('Noninteractive signing probe failed') unless signed.success? && verified.success?
+              report={passed:true,readonlyMatch:true,uploaded:false,createdCertificates:false,team:'7F5UDGYS5H',identitySHA1:expected,noninteractiveSignatureVerified:true}.merge(selected)
+              puts JSON.generate(report)
+              File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
+              FileUtils.rm_f(probe)
+            end
+          LANE
+          begin
+            abort('Existing CI signing validation failed') unless system('fastlane','verify_native_signing')
+          ensure
+            FileUtils.rm_f(api)
+            FileUtils.rm_rf(repo)
+          end
+      - name: Verify unused Apple build number
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        shell: ruby {0}
+        run: |
+          require 'openssl'
+          require 'base64'
+          require 'json'
+          require 'net/http'
+          require 'uri'
+          key_id = ENV.fetch('ASC_KEY_ID').strip
+          issuer = ENV.fetch('ASC_ISSUER_ID').strip
+          raw = ENV.fetch('ASC_KEY_CONTENT').strip.gsub('\\n', "\n")
+          abort('Configured Apple secret is empty') if [key_id,issuer,raw].any?(&:empty?)
+          raw = Base64.strict_decode64(raw) unless raw.include?('-----BEGIN PRIVATE KEY-----')
+          key = OpenSSL::PKey.read(raw)
+          encode = ->(data) { Base64.urlsafe_encode64(data, padding: false) }
+          now = Time.now.to_i
+          payload = {iss:issuer, iat:now-30, exp:now+300, aud:'appstoreconnect-v1'}
+          signing = [encode.call(JSON.generate({alg:'ES256',kid:key_id,typ:'JWT'})),encode.call(JSON.generate(payload))].join('.')
+          der = key.sign(OpenSSL::Digest::SHA256.new, signing)
+          signature = OpenSSL::ASN1.decode(der).value.map { |v| v.value.to_s(2).rjust(32,"\0") }.join
+          token = signing + '.' + encode.call(signature)
+          get = lambda do |path,query|
+            uri = URI('https://api.appstoreconnect.apple.com'+path)
+            uri.query = URI.encode_www_form(query)
+            request = Net::HTTP::Get.new(uri)
+            request['Authorization'] = 'Bearer '+token
+            response = Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:30) { |http| http.request(request) }
+            data = JSON.parse(response.body)
+            unless response.code == '200'
+              puts JSON.generate({authenticated:false,httpStatus:response.code,errorCodes:(data['errors']||[]).map { |x| x['code'] }})
+              abort('Apple API request failed; no credential value is printed')
+            end
+            data
+          end
+          apps = get.call('/v1/apps',{'filter[bundleId]'=>'ch.mint.app'})['data']
+          abort('Expected exactly the MINT bundle') unless apps.size == 1 && apps[0]['attributes']['bundleId']=='ch.mint.app'
+          app_id = apps[0]['id']
+          builds = get.call('/v1/builds',{'filter[app]'=>app_id,'sort'=>'-uploadedDate','limit'=>'30','include'=>'preReleaseVersion'})
+          versions = (builds['included']||[]).to_h { |x| [x['id'],x.dig('attributes','version')] }
+          report = {authenticated:true,bundleId:'ch.mint.app',appId:app_id,builds:builds['data'].map { |x|
+            {id:x['id'],build:x.dig('attributes','version'),marketingVersion:versions[x.dig('relationships','preReleaseVersion','data','id')],processingState:x.dig('attributes','processingState')}
+          }}
+          puts JSON.generate(report)
+          File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
+          abort('Build 2.15.0(9) already exists; inspect before any upload') if report[:builds].any? { |b| b[:marketingVersion]=='2.15.0' && b[:build]=='9' }
+          abort('Wrong MINT app identity') unless app_id=='6759292583'
+          File.write(File.join(ENV.fetch('RUNNER_TEMP'),'mint-build-slot.rb'),File.read(__FILE__))
+      - name: Archive verify and upload qualified native build
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        shell: python3 {0}
+        run: |
+          from pathlib import Path
+          import base64,hashlib,json,os,plistlib,shutil,subprocess,time,zipfile
+          
+          folder=Path(os.environ['RUNNER_TEMP'])/'mint-native-release';root=folder/'source'
+          manifest=json.loads((folder/'mint-release-manifest.json').read_text())
+          sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+          info_path=root/'iosApp/iosApp/Info.plist';original=plistlib.loads(info_path.read_bytes());modified=dict(original);modified['CFBundleVersion']='9'
+          assert original['CFBundleShortVersionString']=='2.15.0'
+          def frozen():
+              for name,entry in manifest['files'].items():
+                  p=folder/name
+                  if p==info_path:assert plistlib.loads(p.read_bytes())==modified
+                  else:assert sha(p)==entry['sha256'], 'Qualified source changed: '+name
+          info_path.write_bytes(plistlib.dumps(modified,sort_keys=False));frozen()
+          env={k:v for k,v in os.environ.items() if not k.startswith(('ASC_','MATCH_','MINT_','GH_'))}
+          assert env.get('DEVELOPER_DIR')=='/Applications/Xcode_26.2.app/Contents/Developer','Explicit qualified Xcode required'
+          assert Path(env['DEVELOPER_DIR']).is_dir(),'Qualified Xcode missing'
+          env['JAVA_HOME']=subprocess.check_output(['/usr/libexec/java_home','-v','17'],text=True).strip()
+          assert Path(env['JAVA_HOME']).is_dir()
+          sdk_candidates=[env.get('ANDROID_HOME'),env.get('ANDROID_SDK_ROOT'),str(Path.home()/'Library/Android/sdk')]
+          sdk=next((x for x in sdk_candidates if x and Path(x).is_dir()),None)
+          assert sdk,'Android SDK location required during Gradle configuration'
+          env['ANDROID_HOME']=sdk
+          def run(args,timeout=180):
+              frozen();subprocess.run(args,cwd=root,env=env,check=True,timeout=timeout);frozen()
+          run(['xcodebuild','-version']);run(['xcrun','--sdk','iphoneos','--show-sdk-version'])
+          archive=folder/'Mint-2.15.0-build9.xcarchive'
+          run(['xcodebuild','archive','-project',str(root/'iosApp/iosApp.xcodeproj'),'-scheme','iosApp','-configuration','Release','-destination','generic/platform=iOS','-archivePath',str(archive),'-derivedDataPath',str(folder/'derived-data'),'-jobs','2','MARKETING_VERSION=2.15.0','CURRENT_PROJECT_VERSION=9','CODE_SIGN_STYLE=Manual','DEVELOPMENT_TEAM=7F5UDGYS5H','CODE_SIGN_IDENTITY=DD766DEDB95441E70FB01ADB16E6AE338D3C211E','PROVISIONING_PROFILE_SPECIFIER=946e0a55-e56f-4b6e-9a3f-38596098305d'],3000)
+          app=archive/'Products/Applications/iosApp.app';info=plistlib.loads((app/'Info.plist').read_bytes())
+          assert (info['CFBundleIdentifier'],info['CFBundleShortVersionString'],info['CFBundleVersion'])==('ch.mint.app','2.15.0','9')
+          assert info.get('ITSAppUsesNonExemptEncryption') is False
+          run(['codesign','--verify','--deep','--strict',str(app)])
+          ent=subprocess.check_output(['codesign','-d','--entitlements',':-',str(app)],env=env);ent=plistlib.loads(ent)
+          assert ent.get('get-task-allow') is False and ent.get('application-identifier')=='7F5UDGYS5H.ch.mint.app'
+          assert sha(app/'embedded.mobileprovision')=='17975bfe43a8a62736db2098f2be9282d3001093acfb33fc76448c029420851e'
+          framework=root/'shared/build/bin/iosArm64/releaseFramework/SharedMint.framework/SharedMint'
+          assert framework.is_file(),'Expected compiled static shared framework missing'
+          run(['xcrun','lipo',str(framework),'-verify_arch','arm64'])
+          run(['xcrun','lipo',str(app/info['CFBundleExecutable']),'-verify_arch','arm64'])
+          options=dict(destination='export',manageAppVersionAndBuildNumber=False,method='app-store-connect',provisioningProfiles={'ch.mint.app':'946e0a55-e56f-4b6e-9a3f-38596098305d'},signingCertificate='DD766DEDB95441E70FB01ADB16E6AE338D3C211E',signingStyle='manual',teamID='7F5UDGYS5H',uploadSymbols=True)
+          export_options=folder/'ExportOptions.plist';export_options.write_bytes(plistlib.dumps(options))
+          run(['xcodebuild','-exportArchive','-archivePath',str(archive),'-exportPath',str(folder/'export'),'-exportOptionsPlist',str(export_options)],1200)
+          ipas=list((folder/'export').glob('*.ipa'));assert len(ipas)==1;ipa=ipas[0]
+          with zipfile.ZipFile(ipa) as z:
+              infos=[n for n in z.namelist() if n.startswith('Payload/') and n.endswith('.app/Info.plist') and n.count('/')==2];assert len(infos)==1
+              exported=plistlib.loads(z.read(infos[0]));assert (exported['CFBundleIdentifier'],exported['CFBundleShortVersionString'],exported['CFBundleVersion'])==('ch.mint.app','2.15.0','9')
+          # A fresh authenticated catalogue check prevents uploading an already-used number.
+          subprocess.run(['ruby',str(Path(os.environ['RUNNER_TEMP'])/'mint-build-slot.rb')],check=True,timeout=120)
+          keys=folder/'private_keys';keys.mkdir(mode=0o700)
+          keyid=os.environ['ASC_KEY_ID'].strip();issuer=os.environ['ASC_ISSUER_ID'].strip();raw=os.environ['ASC_KEY_CONTENT'].strip().replace('\\n','\n')
+          if '-----BEGIN PRIVATE KEY-----' not in raw:raw=base64.b64decode(raw,validate=True).decode()
+          assert keyid and issuer and '-----BEGIN PRIVATE KEY-----' in raw
+          key=keys/f'AuthKey_{keyid}.p8';key.write_text(raw);key.chmod(0o600)
+          try:
+              upload_env=dict(env,API_PRIVATE_KEYS_DIR=str(keys))
+              subprocess.run(['xcrun','altool','--upload-app','-f',str(ipa),'--apiKey',keyid,'--apiIssuer',issuer,'--output-format','json'],check=True,env=upload_env,timeout=1200)
+              frozen()
+              report=dict(nativeUploadCommandSucceeded=True,sourceCommit=manifest['sourceCommit'],sourceManifestSHA256=sha(folder/'mint-release-manifest.json'),ipaSHA256=sha(ipa),ipaBytes=ipa.stat().st_size,bundle='ch.mint.app',version='2.15.0',build='9',distributionEntitlementsVerified=True,frameworkArm64Verified=True,sourceMetadataDelta='Info.plist CFBundleVersion ->9 only',testerAvailabilityVerified=False,finishedAt=time.time())
+              print(json.dumps(report))
+              with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as f:f.write(json.dumps(report,indent=2)+'\n')
+          finally:shutil.rmtree(keys,ignore_errors=True)
+      - name: Delete unpublished transfer and runner files
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python3 {0}
+        run: |
+          import pathlib,os,shutil,subprocess
+          folder=pathlib.Path(os.environ['RUNNER_TEMP'])/'mint-native-release'
+          shutil.rmtree(folder,ignore_errors=True)
+          subprocess.run(['gh','api','--method','DELETE','repos/MINT-IA/MINT/releases/426923762'],check=True)
+          print('Unpublished transfer deletion accepted; root must independently verify release and both assets404 after termination')
