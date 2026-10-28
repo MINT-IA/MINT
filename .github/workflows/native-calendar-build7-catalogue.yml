@@ -1,0 +1,73 @@
+name: MINT annual calendar build7 Apple catalogue
+on:
+  push:
+    branches: [codex/native-calendar-catalogue7-20261028]
+permissions:
+  contents: read
+jobs:
+  apple-catalogue:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Read exact MINT build7 processing and internal access
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        shell: ruby {0}
+        run: |
+          require 'time'
+          require 'openssl'
+          require 'base64'
+          require 'json'
+          require 'net/http'
+          require 'uri'
+          key_id = ENV.fetch('ASC_KEY_ID').strip
+          issuer = ENV.fetch('ASC_ISSUER_ID').strip
+          raw = ENV.fetch('ASC_KEY_CONTENT').strip.gsub('\\n', "\n")
+          abort('Configured Apple secret is empty') if [key_id,issuer,raw].any?(&:empty?)
+          raw = Base64.strict_decode64(raw) unless raw.include?('-----BEGIN PRIVATE KEY-----')
+          key = OpenSSL::PKey.read(raw)
+          encode = ->(data) { Base64.urlsafe_encode64(data, padding: false) }
+          now = Time.now.to_i
+          payload = {iss:issuer, iat:now-30, exp:now+300, aud:'appstoreconnect-v1'}
+          signing = [encode.call(JSON.generate({alg:'ES256',kid:key_id,typ:'JWT'})),encode.call(JSON.generate(payload))].join('.')
+          der = key.sign(OpenSSL::Digest::SHA256.new, signing)
+          signature = OpenSSL::ASN1.decode(der).value.map { |v| v.value.to_s(2).rjust(32,"\0") }.join
+          token = signing + '.' + encode.call(signature)
+          get = lambda do |path,query|
+            uri = URI('https://api.appstoreconnect.apple.com'+path)
+            uri.query = URI.encode_www_form(query)
+            request = Net::HTTP::Get.new(uri)
+            request['Authorization'] = 'Bearer '+token
+            response = Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:30) { |http| http.request(request) }
+            data = JSON.parse(response.body)
+            unless response.code == '200'
+              puts JSON.generate({authenticated:false,httpStatus:response.code,errorCodes:(data['errors']||[]).map { |x| x['code'] }})
+              abort('Apple API request failed; no credential value is printed')
+            end
+            data
+          end
+          apps = get.call('/v1/apps',{'filter[bundleId]'=>'ch.mint.app'})['data']
+          abort('Expected exactly the MINT bundle') unless apps.size == 1 && apps[0]['attributes']['bundleId']=='ch.mint.app'
+          app_id = apps[0]['id']
+          builds = get.call('/v1/builds',{'filter[app]'=>app_id,'sort'=>'-uploadedDate','limit'=>'30','include'=>'preReleaseVersion'})
+          versions = (builds['included']||[]).to_h { |x| [x['id'],x.dig('attributes','version')] }
+          report = {authenticated:true,bundleId:'ch.mint.app',appId:app_id,builds:builds['data'].map { |x|
+            {id:x['id'],build:x.dig('attributes','version'),marketingVersion:versions[x.dig('relationships','preReleaseVersion','data','id')],processingState:x.dig('attributes','processingState')}
+          }}
+          puts JSON.generate(report)
+          File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
+          abort('Wrong MINT app identity') unless app_id=='6759292583'
+          target = report[:builds].find { |b| b[:marketingVersion]=='2.15.0' && b[:build]=='7' }
+          if target
+            target[:betaDetail] = get.call('/v1/builds/'+target[:id]+'/buildBetaDetail',{}).dig('data','attributes')
+          end
+          groups = get.call('/v1/apps/'+app_id+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})['data']
+          internal_groups = groups.select { |g| g['attributes']['isInternalGroup'] }.map do |group|
+            list=get.call('/v1/betaGroups/'+group['id']+'/builds',{'limit'=>'200','fields[builds]'=>'version,processingState'})['data']
+            {id:group['id'],hasAccessToAllBuilds:group['attributes']['hasAccessToAllBuilds'],targetMember:target && list.any? { |b| b['id']==target[:id] }}
+          end
+          result={catalogueBuild7:true,authenticated:true,bundleId:'ch.mint.app',appId:app_id,target:target,internalGroups:internal_groups,observedAt:Time.now.utc.iso8601}
+          puts JSON.generate(result)
+          File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(result)) }
