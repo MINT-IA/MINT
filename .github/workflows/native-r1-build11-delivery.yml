@@ -1,0 +1,106 @@
+name: MINT projection continuity build11 verified delivery
+on:
+  push:
+    branches: [codex/native-r1-delivery11-20261029]
+permissions:
+  contents: read
+jobs:
+  verify-apple-access:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Verify existing Apple credentials without exporting them
+        env:
+          ASC_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          ASC_KEY_CONTENT: ${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}
+        shell: ruby {0}
+        run: |
+          require 'openssl'
+          require 'base64'
+          require 'json'
+          require 'net/http'
+          require 'uri'
+          key_id = ENV.fetch('ASC_KEY_ID').strip
+          issuer = ENV.fetch('ASC_ISSUER_ID').strip
+          raw = ENV.fetch('ASC_KEY_CONTENT').strip.gsub('\\n', "\n")
+          abort('Configured Apple secret is empty') if [key_id,issuer,raw].any?(&:empty?)
+          raw = Base64.strict_decode64(raw) unless raw.include?('-----BEGIN PRIVATE KEY-----')
+          key = OpenSSL::PKey.read(raw)
+          encode = ->(data) { Base64.urlsafe_encode64(data, padding: false) }
+          now = Time.now.to_i
+          payload = {iss:issuer, iat:now-30, exp:now+300, aud:'appstoreconnect-v1'}
+          signing = [encode.call(JSON.generate({alg:'ES256',kid:key_id,typ:'JWT'})),encode.call(JSON.generate(payload))].join('.')
+          der = key.sign(OpenSSL::Digest::SHA256.new, signing)
+          signature = OpenSSL::ASN1.decode(der).value.map { |v| v.value.to_s(2).rjust(32,"\0") }.join
+          token = signing + '.' + encode.call(signature)
+          get = lambda do |path,query|
+            uri = URI('https://api.appstoreconnect.apple.com'+path)
+            uri.query = URI.encode_www_form(query)
+            request = Net::HTTP::Get.new(uri)
+            request['Authorization'] = 'Bearer '+token
+            response = Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:30) { |http| http.request(request) }
+            data = JSON.parse(response.body)
+            unless response.code == '200'
+              return_data = {requestFailed:true,httpStatus:response.code,path:path,errorCodes:(data['errors']||[]).map { |x| x['code'] }}
+              next return_data
+            end
+            data
+          end
+          app_response = get.call('/v1/apps',{'filter[bundleId]'=>'ch.mint.app'})
+          abort(JSON.generate(app_response)) unless app_response['data']
+          apps = app_response['data']
+          abort('Expected exactly the MINT bundle') unless apps.size == 1 && apps[0]['attributes']['bundleId']=='ch.mint.app'
+          app_id = apps[0]['id']
+          builds = get.call('/v1/builds',{'filter[app]'=>app_id,'sort'=>'-uploadedDate','limit'=>'10','include'=>'preReleaseVersion'})
+          abort(JSON.generate(builds)) unless builds['data']
+          versions = (builds['included']||[]).to_h { |x| [x['id'],x.dig('attributes','version')] }
+          report = {authenticated:true,bundleId:'ch.mint.app',appId:app_id,builds:builds['data'].map { |x|
+            {id:x['id'],build:x.dig('attributes','version'),marketingVersion:versions[x.dig('relationships','preReleaseVersion','data','id')],processingState:x.dig('attributes','processingState')}
+          }}
+          report[:permissionLimits] = []
+          groups = get.call('/v1/apps/'+app_id+'/betaGroups',{'fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})
+          report[:permissionLimits] << groups if groups[:requestFailed]
+          report[:appGroups] = (groups['data']||[]).map { |g| {id:g['id'],attributes:g['attributes']} }
+          report[:builds].first(3).each do |b|
+            detail = get.call('/v1/builds/'+b[:id]+'/buildBetaDetail',{})
+            report[:permissionLimits] << detail if detail[:requestFailed]
+            b[:betaDetail] = detail.dig('data','attributes')
+          end
+          report[:internalGroupBuilds] = []
+          report[:appGroups].select { |g| g[:attributes]['isInternalGroup'] }.each do |g|
+            list = get.call('/v1/betaGroups/'+g[:id]+'/builds',{'limit'=>'200','fields[builds]'=>'version,processingState'})
+            report[:permissionLimits] << list if list[:requestFailed]
+            report[:internalGroupBuilds] << {groupId:g[:id],builds:(list['data']||[]).map { |x| {id:x['id'],attributes:x['attributes']} }}
+          end
+          target = report[:builds].find { |b| b[:marketingVersion]=='2.15.0' && b[:build]=='11' }
+          target[:betaDetail] = get.call('/v1/builds/'+target[:id]+'/buildBetaDetail',{}).dig('data','attributes') if target
+          abort('Qualified build identity/state changed') unless target && target[:id]=='6620010c-f02f-4ecf-b46e-0db30838a7fd' && target[:marketingVersion]=='2.15.0' && target[:build]=='11' && target[:processingState]=='VALID' && target[:betaDetail]['internalBuildState']=='IN_BETA_TESTING'
+          abort('Expected existing internal group membership required') unless report[:internalGroupBuilds].any? { |g| g[:groupId]=='babae2ed-6c5a-4e22-9dd2-3ee5288e3fc5' && g[:builds].any? { |b| b[:id]==target[:id] } }
+          notes = Base64.strict_decode64('w4AgdGVzdGVyIGRhbnMgTUlOVCAyLjE1LjAgKDExKQoKTW9uIMOpcGFyZ25lIGZ1dHVyZSA6IHJldHJvdXZlciBtZXMgcHJvamVjdGlvbnMKCuKAoiBVbmUgcHJvamVjdGlvbiBjb25maXJtw6llIHNlIHJldHJvdXZlIGFwcsOocyBmZXJtZXR1cmUgZXQgcmVsYW5jZS4K4oCiIMKrIEFqdXN0ZXIgwrsgcGVybWV0IGRlIHJlcHJlbmRyZSB1biBicm91aWxsb24gZGlzdGluY3Qgc2FucyDDqWNyYXNlciBsYSBwcm9qZWN0aW9uIGNvbmZpcm3DqWUuCuKAoiBTaSBsZXMgdmVyc2VtZW50cyBvdSBsZXMgZG9ubsOpZXMgdXRpbGlzw6llcyBvbnQgY2hhbmfDqSwgbGEgcHJvamVjdGlvbiBkZW1hbmRlIHVuZSByw6l2aXNpb24uCuKAoiBMYSBzYXV2ZWdhcmRlIGRvbm5lIHVuIHJldG91ciB2aXNpYmxlIDsgbGVzIG1lc3NhZ2VzIG5lIHJlc3RlbnQgcGx1cyBmaXjDqXMgYXUtZGVzc3VzIGR1IHLDqXN1bHRhdC4KCsOAIHRlc3RlciA6IGNvbmZpcm1lciB1bmUgcHJvamVjdGlvbiwgcmVsYW5jZXIgTUlOVCwgcHVpcyByZXByZW5kcmUgbGVzIGh5cG90aMOoc2VzIGF2ZWMgwqsgQWp1c3RlciDCuy4KCkNlIHBhcmNvdXJzIGNvdXZyZSBsZXMgY2FwaXRhdXggc2ltdWzDqXMgZGVzIGxpcXVpZGl0w6lzLCBwbGFjZW1lbnRzIGxpYnJlcyBldCAzYS4gTGVzIHJlbnRlcyBBVlMvTFBQLCBsZXMgcmFjaGF0cyBMUFAgZXQgbGUgcmV2ZW51IGRpc3BvbmlibGUgY29tcGxldCDDoCBsYSByZXRyYWl0ZSByZXN0ZW50IGRlcyBwYXJjb3VycyBkaXN0aW5jdHMuIExlcyBzY8OpbmFyaW9zIGTDqXBlbmRlbnQgZGVzIGh5cG90aMOoc2VzIHNhaXNpZXMgZXQgbmUgY29uc3RpdHVlbnQgcGFzIGRlcyBnYXJhbnRpZXMuCg==').force_encoding('UTF-8')
+          write = lambda do |method,path,body|
+            uri=URI('https://api.appstoreconnect.apple.com'+path)
+            request=(method=='POST' ? Net::HTTP::Post : Net::HTTP::Patch).new(uri)
+            request['Authorization']='Bearer '+token
+            request['Content-Type']='application/json'
+            request.body=JSON.generate(body)
+            response=Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:30) { |http| http.request(request) }
+            data=JSON.parse(response.body)
+            abort(JSON.generate({operation:'betaNotes',status:response.code,errorCodes:(data['errors']||[]).map { |x| x['code'] }})) unless ['200','201'].include?(response.code)
+            data
+          end
+          path='/v1/builds/'+target[:id]+'/betaBuildLocalizations'
+          current=get.call(path,{})
+          abort('Cannot inspect beta notes') unless current['data']
+          localized=current['data'].find { |x| x['attributes']['locale']=='fr-FR' }
+          if localized
+            write.call('PATCH','/v1/betaBuildLocalizations/'+localized['id'],{data:{type:'betaBuildLocalizations',id:localized['id'],attributes:{whatsNew:notes}}}) unless localized['attributes']['whatsNew']==notes
+          else
+            write.call('POST','/v1/betaBuildLocalizations',{data:{type:'betaBuildLocalizations',attributes:{locale:'fr-FR',whatsNew:notes},relationships:{build:{data:{type:'builds',id:target[:id]}}}}})
+          end
+          verified=get.call(path,{})['data']&.find { |x| x['attributes']['locale']=='fr-FR' }
+          abort('Beta notes readback mismatch') unless verified && verified['attributes']['whatsNew']==notes
+          require 'digest'
+          report[:betaNotes]={locale:'fr-FR',id:verified['id'],readbackVerified:true,sha256:Digest::SHA256.hexdigest(notes)}
+          puts JSON.generate(report)
+          File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
