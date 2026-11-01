@@ -25,7 +25,7 @@ jobs:
           def api(path):return json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/'+path]))
           r=api('actions/runs/'+str(run_id));assert r['head_sha']==expected and r['head_branch']==branch and r['status']=='completed' and r['conclusion']=='success','Exact completed upload run required'
           j=api('actions/jobs/'+str(job_id));assert j['run_id']==run_id and j['status']=='completed' and j['conclusion']=='success','Exact completed upload job required'
-          raw=subprocess.check_output(['gh','api','repos/'+repo+'/actions/jobs/'+str(job_id)+'/logs'])
+          raw=subprocess.check_output(['gh','api','--allow-escape-sequences','repos/'+repo+'/actions/jobs/'+str(job_id)+'/logs'])
           assert hashlib.sha256(raw).hexdigest()=='08a8587db67ffbd4be00c01c608338336ac37b21d7f772f3244488fa837758b4', 'Upload job log changed'
           receipts=[]
           for line in raw.decode(errors='replace').splitlines():
