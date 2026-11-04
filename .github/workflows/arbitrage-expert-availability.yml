@@ -1,0 +1,149 @@
+name: MINT arbitrage expert exact TestFlight availability
+on:
+  push:
+    branches: [codex/arbitrage-expert-availability-20261104-06e821df24]
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: arbitrage-expert-testflight-availability
+  cancel-in-progress: false
+jobs:
+  verify-availability:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - name: Verify exact terminal upload and immutable receipt
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: python3 {0}
+        run: |
+          import subprocess,json,os,re,hashlib
+          repo='MINT-IA/MINT';run_id=41898400166;job_id=126813959949
+          expected='61e7360a851d74ceba7dd0b916a1a6c92f164a0f';branch='codex/arbitrage-expert-testflight-20261104-06e821df24'
+          wanted=json.loads('{"build": "19", "bundle": "ch.mint.app", "distributionEntitlementsVerified": true, "finishedAt": 1793821566.2883399, "frameworkArm64Verified": true, "ipaBytes": 12591273, "ipaSHA256": "a079fdbe8730c308866c2d2de94be18f17eb07eec83cfbfadc40a102861cad44", "nativeUploadCommandSucceeded": true, "sourceCommit": "06e821df240e1d6ee96b591c02f02711757bb783", "sourceManifestSHA256": "a04affc91c48774d054a51eebd1c3d8a2fa51abd12f846c2527339712e0c0599", "sourceMetadataDelta": "Info.plist CFBundleVersion ->19 only", "testerAvailabilityVerified": false, "version": "2.15.0"}')
+          def api(path):return json.loads(subprocess.check_output(['gh','api','repos/'+repo+'/'+path]))
+          r=api('actions/runs/'+str(run_id));assert r['head_sha']==expected and r['head_branch']==branch and r['status']=='completed' and r['conclusion']=='success','Exact completed upload run required'
+          j=api('actions/jobs/'+str(job_id));assert j['run_id']==run_id and j['status']=='completed' and j['conclusion']=='success','Exact completed upload job required'
+          raw=subprocess.check_output(['gh','api','--allow-escape-sequences','repos/'+repo+'/actions/jobs/'+str(job_id)+'/logs'])
+          assert hashlib.sha256(raw).hexdigest()=='ef048029e104a05eae866817422871432e21d2e7e47be199dce601041a49b184', 'Upload job log changed'
+          receipts=[]
+          for line in raw.decode('utf-8',errors='strict').splitlines():
+           start=line.find('{')
+           if start<0:continue
+           try:value=json.loads(line[start:])
+           except (ValueError,TypeError):continue
+           if isinstance(value,dict) and value.get('nativeUploadCommandSucceeded') is True:receipts.append(value)
+          assert len(receipts)==1 and receipts[0]==wanted,'Exactly one agreeing receipt required'
+          assert hashlib.sha256(json.dumps(wanted,sort_keys=True,separators=(',',':'),ensure_ascii=True).encode()).hexdigest()=='513a540686000fd4a0f313e58d028e12dc76285c34d8175519ca0ba6eb685891'
+          with open(os.environ['GITHUB_ENV'],'a') as f:
+           print('MINT_EXPECTED_BUILD='+wanted['build'],file=f)
+           print('MINT_UPLOAD_PROOF_VERIFIED=true',file=f)
+          print(json.dumps(dict(qualifiedUploadProofVerified=True,rawLogByteIdentityVerified=True,rawLogSHA256=hashlib.sha256(raw).hexdigest(),sourceCommit=wanted['sourceCommit'],build=wanted['build'],ipaSHA256=wanted['ipaSHA256'],testerAvailabilityVerified=False)))
+      - uses: ruby/setup-ruby@7f797815d8adceb1c412e7abefdd1ab4abc47a5f
+        with:
+          ruby-version: '3.4'
+      - name: Confirm Apple processing notes and existing internal group
+        env:
+          ASC_KEY_ID: "${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}"
+          ASC_ISSUER_ID: "${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}"
+          ASC_KEY_CONTENT: "${{ secrets.APP_STORE_CONNECT_API_KEY_CONTENT }}"
+          MINT_UPLOAD_SOURCE_COMMIT: "06e821df240e1d6ee96b591c02f02711757bb783"
+          MINT_QUALIFICATION_SHA256: "0e0c33c5e015fcb5f8180079c0f3ce2cb06537f773d8f7516ff1c18fa1b91f9d"
+          MINT_BETA_NOTES_BASE64: "UsOpZ2xleiBzw6lwYXLDqW1lbnQgdm90cmUgZWZmb3J0IGTigJnDqXBhcmduZSBldCBzYSByw6lwYXJ0aXRpb24gZW50cmUgcGxhY2VtZW50cyBsaWJyZXMsIHJhY2hhdHMgTFBQIGV0IHBpbGllciAzYS4gQ29tcGFyZXogbGUgYnVkZ2V0IGFjdHVlbCBldCBsZXMgcmVzc291cmNlcyBmYWNlIGF1eCBkw6lwZW5zZXMgw6AgbGEgcmV0cmFpdGUsIGF2ZWMgbGVzIGRvbm7DqWVzIGTDqWrDoCByZW5zZWlnbsOpZXMuIExlcyByZXRyYWl0cyBkZSBjYXBpdGFsIGNvdXZyZW50IHVuIGhvcml6b24gZmluaSA7IGlscyBuZSBjb25zdGl0dWVudCBwYXMgdW5lIHJlbnRlIHZpYWfDqHJlLiBMZXMgZMOpZHVjdGlvbnMgZml4ZXMgZMOpY2xhcsOpZXMgcmVzdGVudCB1bmUgaHlwb3Row6hzZSBsb2NhbGUsIHNhbnMgbm91dmVhdSBjYWxjdWwgbmkgYXZhbnRhZ2UgZmlzY2FsIHByb21pcy4gVW5lIHJlbnRlIExQUCBhbHRlcm5hdGl2ZSBub24gcXVhbGlmacOpZSByZXN0ZSBpbmNvbm51ZSBhcHLDqHMgbW9kaWZpY2F0aW9uIGRlcyByYWNoYXRzLiBMZXMgcsOpc3VsdGF0cyBkw6lwZW5kZW50IGRlcyBkb25uw6llcyBldCBoeXBvdGjDqHNlcy4gVsOpcmlmaWV6IGxlcyBtb250YW50cywgcHVpcyBhbm51bGV6IHBvdXIgY29uc2VydmVyIGxlIHBsYW4gZW5yZWdpc3Ryw6kuIFNpZ25hbGV6IGNlIHF1aSByZXN0ZSBkaWZmaWNpbGUgw6AgY29tcHJlbmRyZS4K"
+          MINT_BETA_NOTES_SHA256: "50f95b079a87d98031448133f689c85a712cd0582260faae96d46cb5f69e08be"
+        shell: ruby {0}
+        run: |
+          require 'openssl'
+          require 'base64'
+          require 'json'
+          require 'net/http'
+          require 'uri'
+          require 'digest'
+          # Must only run after the qualified upload report has established this build identity.
+          expected_build=ENV.fetch('MINT_EXPECTED_BUILD','')
+          abort('Canonical receipt-selected build required') unless expected_build.match?(/\A[1-9][0-9]*\z/) && expected_build=='19'
+          abort('Qualified upload gate required') unless ENV.fetch('MINT_UPLOAD_PROOF_VERIFIED','')=='true'
+          abort('Upload proof required') unless ENV.fetch('MINT_UPLOAD_SOURCE_COMMIT','')=='06e821df240e1d6ee96b591c02f02711757bb783'
+          abort('Qualification binding required') unless ENV.fetch('MINT_QUALIFICATION_SHA256','')=='0e0c33c5e015fcb5f8180079c0f3ce2cb06537f773d8f7516ff1c18fa1b91f9d'
+          key_id=ENV.fetch('ASC_KEY_ID').strip;issuer=ENV.fetch('ASC_ISSUER_ID').strip
+          raw=ENV.fetch('ASC_KEY_CONTENT').strip.gsub('\\n',"\n");raw=Base64.strict_decode64(raw) unless raw.include?('-----BEGIN PRIVATE KEY-----')
+          key=OpenSSL::PKey.read(raw)
+          abort('Expected configured key') unless key_id=='6TZCV5S346' && !issuer.empty? && key.group.curve_name=='prime256v1'
+          encode=->(s) { Base64.urlsafe_encode64(s,padding:false) }
+          token=lambda do
+            now=Time.now.to_i
+            content=[encode.call(JSON.generate(alg:'ES256',kid:key_id,typ:'JWT')),encode.call(JSON.generate(iss:issuer,iat:now-30,exp:now+300,aud:'appstoreconnect-v1'))].join('.')
+            der=key.sign(OpenSSL::Digest::SHA256.new,content);sig=OpenSSL::ASN1.decode(der).value.map { |x| x.value.to_s(2).rjust(32,"\0") }.join
+            content+'.'+encode.call(sig)
+          end
+          request=lambda do |method,path,query={},body=nil|
+            abort('Only Apple API paths allowed') unless path.start_with?('/v1/') && !path.include?('://')
+            uri=URI('https://api.appstoreconnect.apple.com'+path);uri.query=URI.encode_www_form(query) unless query.empty?
+            klass={'GET'=>Net::HTTP::Get,'POST'=>Net::HTTP::Post,'PATCH'=>Net::HTTP::Patch}.fetch(method)
+            req=klass.new(uri);req['Authorization']='Bearer '+token.call
+            if body;req['Content-Type']='application/json';req.body=JSON.generate(body);end
+            response=Net::HTTP.start(uri.host,uri.port,use_ssl:true,open_timeout:20,read_timeout:40) { |http| http.request(req) }
+            data=response.body.to_s.empty? ? {} : JSON.parse(response.body)
+            abort(JSON.generate(apiRequestFailed:true,status:response.code,path:path,codes:(data['errors']||[]).map { |x| x['code'] })) unless ['200','201','204'].include?(response.code)
+            data
+          end
+          get=->(path,query={}) { request.call('GET',path,query) }
+          # Explicit complete pagination for every collection, including group membership and notes.
+          get_all=lambda do |path,query={}|
+            page=get.call(path,query);rows=[];included=[];seen={};pages=0
+            loop do
+              pages+=1;abort('Unexpected collection size') if pages>100
+              rows.concat(page.fetch('data'));included.concat(page.fetch('included',[]))
+              link=page.dig('links','next');break unless link
+              uri=URI(link)
+              abort('Unexpected collection pagination URL') unless uri.scheme=='https' && uri.host=='api.appstoreconnect.apple.com' && uri.port==443 && uri.path==path && uri.userinfo.nil? && uri.fragment.nil?
+              abort('Repeated collection page') if seen[link];seen[link]=true
+              page=get.call(uri.path,URI.decode_www_form(uri.query.to_s).to_h)
+            end
+            abort('Duplicate collection identities') unless rows.map { |x| x.fetch('id') }.uniq.size==rows.size
+            {'data'=>rows,'included'=>included}
+          end
+          apps=get_all.call('/v1/apps',{'filter[bundleId]'=>'ch.mint.app'})['data'];abort('App identity mismatch') unless apps.size==1 && apps[0]['id']=='6759292583' && apps[0]['attributes']['bundleId']=='ch.mint.app'
+          app_id=apps[0]['id'];target=nil;deadline=Time.now+1200
+          loop do
+            data=get_all.call('/v1/builds',{'filter[app]'=>app_id,'sort'=>'-uploadedDate','limit'=>'200','include'=>'preReleaseVersion'})
+            versions=(data['included']||[]).to_h { |x| [x['id'],x.dig('attributes','version')] }
+            matches=data['data'].select { |b| b.dig('attributes','version')==expected_build && versions[b.dig('relationships','preReleaseVersion','data','id')]=='2.15.0' }
+            abort('Duplicate expected build') if matches.size>1
+            target=matches.first
+            break if target && target.dig('attributes','processingState')=='VALID'
+            abort('Apple processing failed') if target && %w[FAILED INVALID].include?(target.dig('attributes','processingState'))
+            abort('Apple processing still pending after bounded wait; inspect same build, never re-upload') if Time.now>=deadline
+            puts JSON.generate(appleProcessing:target ? target.dig('attributes','processingState') : 'NOT_YET_LISTED',build:expected_build)
+            sleep(20)
+          end
+          build_id=target['id'];group_id='babae2ed-6c5a-4e22-9dd2-3ee5288e3fc5'
+          groups=get_all.call('/v1/apps/'+app_id+'/betaGroups',{'limit'=>'200','fields[betaGroups]'=>'isInternalGroup,hasAccessToAllBuilds'})['data']
+          group=groups.find { |x| x['id']==group_id };abort('Known internal group required') unless group && group.dig('attributes','isInternalGroup')==true
+          membership=lambda do
+            get_all.call('/v1/betaGroups/'+group_id+'/builds',{'limit'=>'200','fields[builds]'=>'version,processingState'})['data'].any? { |b| b['id']==build_id }
+          end
+          unless membership.call
+            request.call('POST','/v1/builds/'+build_id+'/relationships/betaGroups',{}, {data:[{type:'betaGroups',id:group_id}]})
+          end
+          notes=Base64.strict_decode64(ENV.fetch('MINT_BETA_NOTES_BASE64')).force_encoding('UTF-8');abort('Invalid beta notes') unless notes.valid_encoding? && notes.length.between?(1,4000) && Digest::SHA256.hexdigest(notes)==ENV.fetch('MINT_BETA_NOTES_SHA256')
+          path='/v1/builds/'+build_id+'/betaBuildLocalizations'
+          list=get_all.call(path,{})['data'];matches=list.select { |x| x.dig('attributes','locale')=='fr-FR' };abort('Duplicate French localization') if matches.size>1;localized=matches.first
+          if localized
+            request.call('PATCH','/v1/betaBuildLocalizations/'+localized['id'],{}, {data:{type:'betaBuildLocalizations',id:localized['id'],attributes:{whatsNew:notes}}}) unless localized.dig('attributes','whatsNew')==notes
+          else
+            request.call('POST','/v1/betaBuildLocalizations',{}, {data:{type:'betaBuildLocalizations',attributes:{locale:'fr-FR',whatsNew:notes},relationships:{build:{data:{type:'builds',id:build_id}}}}})
+          end
+          readback=get_all.call(path,{})['data'].select { |x| x.dig('attributes','locale')=='fr-FR' };abort('Notes readback mismatch') unless readback.size==1 && readback.first.dig('attributes','whatsNew')==notes
+          deadline=Time.now+600;detail=nil
+          loop do
+            detail=get.call('/v1/builds/'+build_id+'/buildBetaDetail',{}).dig('data','attributes')
+            break if detail && detail['internalBuildState']=='IN_BETA_TESTING' && membership.call
+            abort('Internal beta availability pending; inspect same build') if Time.now>=deadline
+            puts JSON.generate(internalBetaState:detail && detail['internalBuildState'],groupMembership:membership.call)
+            sleep(20)
+          end
+          report={testerAvailabilityVerified:true,uploadCommandSucceeded:true,uploadReceiptSHA256:'513a540686000fd4a0f313e58d028e12dc76285c34d8175519ca0ba6eb685891',uploadJobLogSHA256:'ef048029e104a05eae866817422871432e21d2e7e47be199dce601041a49b184',ipaSHA256:'a079fdbe8730c308866c2d2de94be18f17eb07eec83cfbfadc40a102861cad44',ipaBytes:12591273,qualificationSHA256:'0e0c33c5e015fcb5f8180079c0f3ce2cb06537f773d8f7516ff1c18fa1b91f9d',uploadWorkflowRun:41898400166,uploadWorkflowJob:126813959949,uploadWorkflowCommit:'61e7360a851d74ceba7dd0b916a1a6c92f164a0f',sourceManifestSHA256:'a04affc91c48774d054a51eebd1c3d8a2fa51abd12f846c2527339712e0c0599',sourceCommit:'06e821df240e1d6ee96b591c02f02711757bb783',bundle:'ch.mint.app',version:'2.15.0',build:expected_build,buildId:build_id,processingState:'VALID',internalBuildState:detail['internalBuildState'],internalGroup:group_id,groupMembershipVerified:true,betaNotesLocale:'fr-FR',betaNotesSHA256:Digest::SHA256.hexdigest(notes),betaNotesReadbackVerified:true}
+          puts JSON.generate(report)
+          File.open(ENV.fetch('GITHUB_STEP_SUMMARY'),'a') { |f| f.puts(JSON.pretty_generate(report)) }
